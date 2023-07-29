@@ -1,4 +1,4 @@
-package dev.ridill.mym.ui.theme
+package dev.ridill.mym.core.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

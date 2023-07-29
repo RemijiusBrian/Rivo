@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">MYM</string>
+
+    <!-- Destination Labels -->
+    <string name="destination_dashboard">Dashboard</string>
+    <string name="destination_add_edit_expense">Add/Edit Expense</string>
+    <string name="destination_add_expense">Add Expense</string>
+    <string name="destination_edit_expense">Edit Expense</string>
+
+    <!-- Content Description -->
+    <string name="cd_update_limit">Update Monthly Limit</string>
+    <string name="cd_new_expense">New Expense</string>
+    <string name="cd_navigate_back">Navigate Back</string>
+    <string name="cd_save">Save</string>
+    <string name="cd_expense_date">Expense Date</string>
+
+    <!-- Texts -->
+    <string name="part_of_day_morning">Morning</string>
+    <string name="part_of_day_noon">Noon</string>
+    <string name="part_of_day_afternoon">Afternoon</string>
+    <string name="part_of_day_evening">Evening</string>
+
+    <string name="app_greeting">Good %s,</string>
+    <string name="your_balance">Your Balance</string>
+    <string name="fwd_slash_limit">/ %s</string>
+    <string name="recent_spends">Recent Spends</string>
+    <string name="spent_this_month">Spent this month</string>
+    <string name="amount">Amount</string>
+    <string name="note">Note</string>
+    <string name="expense_added">Expense Added</string>
+    <string name="expense_updated">Expense Updated</string>
+    <string name="expense_deleted">Expense Deleted</string>
+    <string name="how_much_did_you_spend">How much did you spend?</string>
 </resources>
