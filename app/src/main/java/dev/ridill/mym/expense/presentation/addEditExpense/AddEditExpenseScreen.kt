@@ -145,12 +145,14 @@ fun AddEditExpenseScreen(
                 )
             )
 
-            AmountRecommendations(
-                recommendations = recommendations,
-                onRecommendationClick = actions::onRecommendedAmountClick,
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-            )
+            if (!isEditMode) {
+                AmountRecommendations(
+                    recommendations = recommendations,
+                    onRecommendationClick = actions::onRecommendedAmountClick,
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                )
+            }
 
             ExpenseDate(
                 modifier = Modifier

@@ -17,7 +17,7 @@ android {
         minSdk 29
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -33,7 +33,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-        def artifactName = "MYM-${variant.name}-vc${variant.versionCode}-v${variant.versionName}"
+        def artifactName = "MYM-${variant.name}-code${variant.versionCode}-v${variant.versionName}"
 
         // Rename APKs
         variant.outputs.all {
