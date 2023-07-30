@@ -16,6 +16,7 @@ import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.components.showMymSnackbar
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
+import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
 import dev.ridill.mym.dashboard.presentation.DashboardViewModel
@@ -24,6 +25,8 @@ import dev.ridill.mym.expense.presentation.addEditExpense.AddEditExpenseViewMode
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
+import dev.ridill.mym.settings.presentation.settings.SettingsScreen
+import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 
 @Composable
 fun MYMNavHost(
@@ -37,6 +40,7 @@ fun MYMNavHost(
     ) {
         dashboard(navController)
         addEditExpense(navController)
+        settings(navController)
     }
 }
 
@@ -83,6 +87,9 @@ private fun NavGraphBuilder.dashboard(navController: NavHostController) {
             actions = viewModel,
             navigateToAddEditExpense = {
                 navController.navigate(AddEditExpenseDestination.routeWithArg(it))
+            },
+            navigateToBottomNavDestination = {
+                navController.navigate(it.route)
             }
         )
     }
@@ -147,6 +154,21 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
             isEditMode = isEditMode,
             showDeleteConfirmation = showDeleteConfirmation,
             recommendations = amountRecommendations,
+            actions = viewModel,
+            navigateUp = navController::navigateUp
+        )
+    }
+}
+
+private fun NavGraphBuilder.settings(navController: NavHostController) {
+    composable(
+        route = SettingsDestination.route
+    ) { navBackStackEntry ->
+        val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
+        val state by viewModel.state.collectAsStateWithLifecycle()
+
+        SettingsScreen(
+            state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp
         )

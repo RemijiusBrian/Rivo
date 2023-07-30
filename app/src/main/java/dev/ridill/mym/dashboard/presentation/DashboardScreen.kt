@@ -25,6 +25,8 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
@@ -44,8 +46,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -67,6 +71,7 @@ import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.TextInputDialog
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
+import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -81,14 +86,29 @@ fun DashboardScreen(
     state: DashboardState,
     actions: DashboardActions,
     snackbarHostState: SnackbarHostState,
-    navigateToAddEditExpense: (Long?) -> Unit
+    navigateToAddEditExpense: (Long?) -> Unit,
+    navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
     MYMScaffold(
         modifier = Modifier
             .fillMaxSize(),
         bottomBar = {
             BottomAppBar(
-                actions = {},
+                actions = {
+                    BottomNavDestination.bottomNavDestinations.forEach { destination ->
+                        IconButton(
+                            onClick = { navigateToBottomNavDestination(destination) },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(destination.iconRes),
+                                contentDescription = stringResource(destination.labelRes)
+                            )
+                        }
+                    }
+                },
                 floatingActionButton = {
                     if (state.isLimitSet) {
                         FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
@@ -462,7 +482,8 @@ private fun PreviewDashboardScreen() {
                 override fun onSetLimitConfirm(value: String) {}
             },
             navigateToAddEditExpense = {},
-            snackbarHostState = rememberSnackbarHostState()
+            snackbarHostState = rememberSnackbarHostState(),
+            navigateToBottomNavDestination = {}
         )
     }
 }

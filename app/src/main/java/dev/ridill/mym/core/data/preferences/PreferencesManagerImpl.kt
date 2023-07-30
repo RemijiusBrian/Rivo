@@ -5,8 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.mym.core.domain.model.MYMPreferences
 import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,10 +22,16 @@ class PreferencesManagerImpl(
         .map { preferences ->
             val isAppFirstLaunch = preferences[Keys.IS_APP_FIRST_LAUNCH] ?: true
             val monthlyLimit = preferences[Keys.MONTHLY_LIMIT] ?: Long.Zero
+            val appTheme = AppTheme.valueOf(
+                preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM_DEFAULT.name
+            )
+            val dynamicThemeEnabled = preferences[Keys.DYNAMIC_THEME_ENABLED] ?: false
 
             MYMPreferences(
                 isAppFirstLaunch = isAppFirstLaunch,
-                monthlyLimit = monthlyLimit
+                monthlyLimit = monthlyLimit,
+                appTheme = appTheme,
+                dynamicThemeEnabled = dynamicThemeEnabled
             )
         }
 
@@ -43,8 +51,26 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateAppThem(theme: AppTheme) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.APP_THEME] = theme.name
+            }
+        }
+    }
+
+    override suspend fun updateDynamicThemeEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.DYNAMIC_THEME_ENABLED] = enabled
+            }
+        }
+    }
+
     private object Keys {
         val IS_APP_FIRST_LAUNCH = booleanPreferencesKey("IS_APP_FIRST_LAUNCH")
         val MONTHLY_LIMIT = longPreferencesKey("MONTHLY_LIMIT")
+        val APP_THEME = stringPreferencesKey("APP_THEME")
+        val DYNAMIC_THEME_ENABLED = booleanPreferencesKey("DYNAMIC_THEME_ENABLED")
     }
 }

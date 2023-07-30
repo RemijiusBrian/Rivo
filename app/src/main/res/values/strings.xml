@@ -6,6 +6,7 @@
     <string name="destination_add_edit_expense">Add/Edit Expense</string>
     <string name="destination_add_expense">Add Expense</string>
     <string name="destination_edit_expense">Edit Expense</string>
+    <string name="destination_settings">Settings</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_limit">Set Monthly Limit</string>
@@ -38,6 +39,10 @@
 
     <string name="monthly_limit_set">Monthly limit set</string>
 
+    <string name="app_theme_system_default">System Default</string>
+    <string name="app_theme_light">Light</string>
+    <string name="app_theme_dark">Dark</string>
+
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
     <string name="fwd_slash_limit">/ %s</string>
@@ -52,4 +57,8 @@
     <string name="set_a_monthly_limit">Set a Monthly Limit</string>
     <string name="enter_monthly_limit">Enter your limit</string>
     <string name="monthly_limit">Monthly Limit</string>
+    <string name="app_theme">App Theme</string>
+    <string name="choose_theme">Choose Theme</string>
+    <string name="dynamic_colors">Dynamic Colors</string>
+    <string name="general">General</string>
 </resources>
