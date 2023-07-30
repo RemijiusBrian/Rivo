@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "263351094057",
+    "project_id": "mind-your-money-14829",
+    "storage_bucket": "mind-your-money-14829.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:263351094057:android:12228ffe4f3eddd3028538",
+        "android_client_info": {
+          "package_name": "dev.ridill.mym"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "263351094057-dv1ervq18ngek8qt3gtoqqo3f5ie69la.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAR-RlfqNGphwdx6IzWgUbZOCC1BpMMegE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "263351094057-dv1ervq18ngek8qt3gtoqqo3f5ie69la.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

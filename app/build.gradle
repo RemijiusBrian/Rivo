@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("kotlin-parcelize")
+    id("com.google.gms.google-services")
     id("kotlin-kapt")
 }
 
@@ -126,6 +127,10 @@ dependencies {
 
     // Kotlin Combine Tuple
     implementation("com.github.Zhuinden:flow-combinetuple-kt:1.2.0")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
 }
 
 kapt {
