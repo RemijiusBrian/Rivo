@@ -43,9 +43,7 @@ fun MYMNavHost(
 // Dashboard
 private fun NavGraphBuilder.dashboard(navController: NavHostController) {
     composable(
-        route = DashboardDestination.route,
-//        exitTransition = { shrinkOut(shrinkTowards = Alignment.Center) },
-//        popEnterTransition = { expandIn(expandFrom = Alignment.Center) }
+        route = DashboardDestination.route
     ) { navBackStackEntry ->
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -94,9 +92,7 @@ private fun NavGraphBuilder.dashboard(navController: NavHostController) {
 private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
     composable(
         route = AddEditExpenseDestination.route,
-        arguments = AddEditExpenseDestination.arguments,
-//        enterTransition = { slideInVertically { it } },
-//        popExitTransition = { slideOutVertically { it } }
+        arguments = AddEditExpenseDestination.arguments
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
         val amount by viewModel.amount.collectAsStateWithLifecycle(initialValue = "")

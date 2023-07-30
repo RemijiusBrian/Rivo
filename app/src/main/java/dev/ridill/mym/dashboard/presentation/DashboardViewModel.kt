@@ -69,9 +69,13 @@ class DashboardViewModel @Inject constructor(
     private val eventsChannel = Channel<DashboardEvent>()
     val events get() = eventsChannel.receiveAsFlow()
 
-    override fun onSetLimitClick() {
+    init {
+        onInit()
+    }
+
+    private fun onInit() = viewModelScope.launch {
         isLimitInputError.update { false }
-        savedStateHandle[SHOW_LIMIT_INPUT] = true
+        savedStateHandle[SHOW_LIMIT_INPUT] = repo.isAppFirstLaunch()
     }
 
     override fun onSetLimitDismiss() {
@@ -85,6 +89,7 @@ class DashboardViewModel @Inject constructor(
             if (isLimitInputError.value) return@launch
 
             repo.updateMonthlyLimit(longValue)
+            repo.disableAppFirstLaunch()
             savedStateHandle[SHOW_LIMIT_INPUT] = false
             eventsChannel.send(DashboardEvent.MonthlyLimitSet)
         }

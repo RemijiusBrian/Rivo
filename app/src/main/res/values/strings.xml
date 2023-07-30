@@ -51,4 +51,5 @@
     <string name="how_much_did_you_spend">How much did you spend?</string>
     <string name="set_a_monthly_limit">Set a Monthly Limit</string>
     <string name="enter_monthly_limit">Enter your limit</string>
+    <string name="monthly_limit">Monthly Limit</string>
 </resources>

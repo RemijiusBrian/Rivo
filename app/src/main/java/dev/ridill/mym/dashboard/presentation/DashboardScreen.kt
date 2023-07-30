@@ -1,6 +1,5 @@
 package dev.ridill.mym.dashboard.presentation
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
@@ -36,7 +34,6 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -62,6 +59,7 @@ import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
 import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
 import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -70,6 +68,7 @@ import dev.ridill.mym.core.ui.components.TextInputDialog
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.theme.MYMTheme
+import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
@@ -118,11 +117,9 @@ fun DashboardScreen(
             BalanceAndLimit(
                 balance = state.balance,
                 monthlyLimit = state.monthlyLimit,
-                isLimitSet = state.isLimitSet,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium),
-                onSetLimitClick = actions::onSetLimitClick
+                    .padding(horizontal = SpacingMedium)
             )
 
             RecentTransactionsList(
@@ -178,52 +175,38 @@ private fun Greeting(
 private fun BalanceAndLimit(
     balance: Double,
     monthlyLimit: Long,
-    isLimitSet: Boolean,
-    onSetLimitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AnimatedContent(targetState = isLimitSet) { limitSet ->
-        if (limitSet) {
-            Row(
-                modifier = modifier,
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-            ) {
-                Balance(
-                    amount = balance,
-                    modifier = Modifier
-                        .alignBy(LastBaseline)
-                )
-
-                VerticalNumberSpinnerContent(
-                    number = monthlyLimit,
-                    modifier = Modifier
-                        .alignBy(LastBaseline)
-                ) {
-                    Text(
-                        text = stringResource(R.string.fwd_slash_limit, Formatter.currency(it)),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-
-            }
-        } else {
-            TextButton(onClick = onSetLimitClick) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.set_a_monthly_limit),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    HorizontalSpacer(spacing = SpacingSmall)
-                    Icon(imageVector = Icons.Rounded.TrendingUp, contentDescription = null)
-                }
-            }
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Balance(
+            amount = balance,
+            modifier = Modifier
+                .alignBy(LastBaseline)
+        )
+        HorizontalSpacer(spacing = SpacingSmall)
+        VerticalNumberSpinnerContent(
+            number = monthlyLimit,
+            modifier = Modifier
+                .alignBy(LastBaseline)
+        ) {
+            Text(
+                text = stringResource(R.string.fwd_slash_limit, Formatter.currency(it)),
+                style = MaterialTheme.typography.titleLarge,
+            )
         }
+        HorizontalSpacer(spacing = SpacingExtraSmall)
+        Text(
+            text = stringResource(R.string.monthly_limit),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier
+                .alignBy(LastBaseline)
+        )
     }
 }
-
 
 @Composable
 private fun Balance(
@@ -295,9 +278,15 @@ private fun RecentTransactionsList(
             )
 
             Box(
-                modifier = Modifier,
+                modifier = Modifier
+                    .weight(Float.One),
                 contentAlignment = Alignment.Center
             ) {
+                if (recentSpends.isEmpty()) {
+                    EmptyListIndicator(
+                        resId = R.raw.empty_list_ghost
+                    )
+                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -469,7 +458,6 @@ private fun PreviewDashboardScreen() {
                 monthlyLimit = 5_000L
             ),
             actions = object : DashboardActions {
-                override fun onSetLimitClick() {}
                 override fun onSetLimitDismiss() {}
                 override fun onSetLimitConfirm(value: String) {}
             },

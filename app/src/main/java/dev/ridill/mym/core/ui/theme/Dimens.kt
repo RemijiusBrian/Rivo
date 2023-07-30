@@ -2,6 +2,7 @@ package dev.ridill.mym.core.ui.theme
 
 import androidx.compose.ui.unit.dp
 
+val SpacingExtraSmall = 4.dp
 val SpacingSmall = 8.dp
 val SpacingMedium = 16.dp
 val SpacingLarge = 32.dp
