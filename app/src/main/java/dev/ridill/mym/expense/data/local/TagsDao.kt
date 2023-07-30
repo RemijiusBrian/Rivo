@@ -8,10 +8,16 @@ import dev.ridill.mym.expense.data.local.entity.TagEntity
 @Dao
 interface TagsDao : BaseDao<TagEntity> {
 
-    @Query("""
-        SELECT tagId as tag, SUM()
-        FROM TagEntity te
-        JOIN ExpenseEntity 
-    """)
-    fun getTagsWithExpenditure()
+    @Query("SELECT * FROM TagEntity ORDER BY name ASC")
+    fun getTagsList(): List<TagEntity>
+
+    @Query(
+        """
+        SELECT IFNULL(SUM(exp.amount), 0.0) AS expenditure, tag.name AS tag, tag.colorCode AS color
+        FROM ExpenseEntity exp
+        LEFT OUTER JOIN TagEntity tag ON exp.tagId == tag.name
+        GROUP BY exp.tagId
+    """
+    )
+    fun getTagsWithExpenditures()
 }

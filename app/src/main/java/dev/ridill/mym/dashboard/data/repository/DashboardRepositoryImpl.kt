@@ -2,11 +2,11 @@ package dev.ridill.mym.dashboard.data.repository
 
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.dashboard.domain.model.RecentTransaction
+import dev.ridill.mym.dashboard.domain.model.RecentSpend
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
 import dev.ridill.mym.expense.data.local.ExpenseDao
-import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
-import dev.ridill.mym.expense.data.toRecentTransaction
+import dev.ridill.mym.expense.data.local.relations.ExpenseWithTag
+import dev.ridill.mym.expense.data.toRecentSpend
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -27,8 +27,8 @@ class DashboardRepositoryImpl(
         dao.getExpenditureForMonth(DateUtil.currentMonthYear())
             .distinctUntilChanged()
 
-    override fun getRecentTransactions(): Flow<List<RecentTransaction>> =
+    override fun getRecentSpends(): Flow<List<RecentSpend>> =
         dao.getExpensesForMonth(DateUtil.currentMonthYear()).map { entities ->
-            entities.map(ExpenseEntity::toRecentTransaction)
+            entities.map(ExpenseWithTag::toRecentSpend)
         }
 }

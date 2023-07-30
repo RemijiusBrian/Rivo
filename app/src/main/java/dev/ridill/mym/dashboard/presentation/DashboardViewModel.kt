@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,20 +38,21 @@ class DashboardViewModel @Inject constructor(
         limit - exp
     }.distinctUntilChanged()
 
-    private val recentTransactions = repo.getRecentTransactions()
+    private val recentSpends = repo.getRecentSpends()
+        .onEach { println("AppDebug: $it") }
 
     val state = combineTuple(
         monthlyLimit,
         spentAmount,
         balance,
-        recentTransactions,
+        recentSpends,
         showLimitInput,
         isLimitInputError
     ).map { (
                 monthlyLimit,
                 spentAmount,
                 balance,
-                recentTransactions,
+                recentSpends,
                 showLimitInput,
                 isLimitInputError
             ) ->
@@ -58,7 +60,7 @@ class DashboardViewModel @Inject constructor(
             balance = balance,
             spentAmount = spentAmount,
             monthlyLimit = monthlyLimit,
-            recentTransactions = recentTransactions,
+            recentSpends = recentSpends,
             showLimitInput = showLimitInput,
             isLimitInputError = isLimitInputError
         )

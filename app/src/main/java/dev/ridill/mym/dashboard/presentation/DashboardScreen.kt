@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,13 +14,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Divider
@@ -30,14 +32,17 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +62,7 @@ import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
 import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.core.ui.components.FadedVisibility
 import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
@@ -68,7 +74,8 @@ import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
-import dev.ridill.mym.dashboard.domain.model.RecentTransaction
+import dev.ridill.mym.dashboard.domain.model.RecentSpend
+import kotlinx.coroutines.launch
 
 @Composable
 fun DashboardScreen(
@@ -77,7 +84,6 @@ fun DashboardScreen(
     snackbarHostState: SnackbarHostState,
     navigateToAddEditExpense: (Long?) -> Unit
 ) {
-    val listState = rememberLazyListState()
     MYMScaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -117,9 +123,8 @@ fun DashboardScreen(
             )
 
             RecentTransactionsList(
-                listState = listState,
                 spentAmount = state.spentAmount,
-                recentTransactions = state.recentTransactions,
+                recentSpends = state.recentSpends,
                 onTransactionClick = { navigateToAddEditExpense(it.id) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -237,7 +242,9 @@ private fun Balance(
         VerticalNumberSpinnerContent(number = amount) {
             Text(
                 text = Formatter.currency(it),
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.displayLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -245,12 +252,17 @@ private fun Balance(
 
 @Composable
 private fun RecentTransactionsList(
-    listState: LazyListState,
     spentAmount: Double,
-    recentTransactions: List<RecentTransaction>,
-    onTransactionClick: (RecentTransaction) -> Unit,
+    recentSpends: List<RecentSpend>,
+    onTransactionClick: (RecentSpend) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val lazyListState = rememberLazyListState()
+    val showScrollUpButton by remember {
+        derivedStateOf { lazyListState.firstVisibleItemIndex > 3 }
+    }
+    val coroutineScope = rememberCoroutineScope()
+
     Surface(
         shape = MaterialTheme.shapes.medium
             .copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
@@ -259,7 +271,6 @@ private fun RecentTransactionsList(
     ) {
         Column(
             modifier = Modifier
-//                .padding(horizontal = SpacingMedium)
                 .padding(top = SpacingMedium),
             verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
@@ -282,27 +293,56 @@ private fun RecentTransactionsList(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                state = listState,
-                contentPadding = PaddingValues(
-                    top = SpacingSmall,
-                    bottom = SpacingListEnd
-                ),
-                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            Box(
+                modifier = Modifier,
+                contentAlignment = Alignment.Center
             ) {
-                items(items = recentTransactions, key = { it.id }) { transaction ->
-                    RecentTransactionItem(
-                        note = transaction.note,
-                        amount = transaction.amount,
-                        dayOfMonth = transaction.dayOfMonth,
-                        dayOfWeek = transaction.dayOfWeek,
-                        onClick = { onTransactionClick(transaction) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement()
-                    )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(
+                        top = SpacingSmall,
+                        bottom = SpacingListEnd
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+                    state = lazyListState
+                ) {
+                    items(items = recentSpends, key = { it.id }) { transaction ->
+                        RecentTransactionItem(
+                            note = transaction.note,
+                            amount = transaction.amount,
+                            dayOfMonth = transaction.dayOfMonth,
+                            dayOfWeek = transaction.dayOfWeek,
+                            onClick = { onTransactionClick(transaction) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItemPlacement()
+                        )
+                    }
+                }
+
+                FadedVisibility(
+                    visible = showScrollUpButton,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(SpacingMedium)
+                ) {
+                    SmallFloatingActionButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                if (lazyListState.isScrollInProgress)
+                                    lazyListState.scrollToItem(Int.Zero)
+                                else
+                                    lazyListState.animateScrollToItem(Int.Zero)
+                            }
+                        },
+                        shape = CircleShape
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowUpward,
+                            contentDescription = stringResource(R.string.cd_scroll_to_top)
+                        )
+                    }
                 }
             }
         }
@@ -357,7 +397,13 @@ private fun RecentTransactionItem(
     modifier: Modifier = Modifier
 ) {
     ListItem(
-        headlineContent = { Text(note) },
+        headlineContent = {
+            Text(
+                text = note,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
         leadingContent = {
             TransactionDate(
                 dayOfMonth = dayOfMonth,

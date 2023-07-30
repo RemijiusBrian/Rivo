@@ -2,6 +2,7 @@ package dev.ridill.mym.core.ui.components
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.VectorConverter
@@ -70,3 +71,18 @@ fun animateColorBetween(
         (animatable.durationNanos * progress).roundToLong()
     )
 }
+
+@Composable
+fun FadedVisibility(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    label: String = "FadedVisibility",
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) = AnimatedVisibility(
+    visible = visible,
+    modifier = modifier,
+    enter = fadeIn(),
+    exit = fadeOut(),
+    label = label,
+    content = content
+)

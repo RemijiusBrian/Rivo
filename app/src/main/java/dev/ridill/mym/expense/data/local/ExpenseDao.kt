@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import dev.ridill.mym.core.data.db.BaseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
+import dev.ridill.mym.expense.data.local.relations.ExpenseWithTag
 import dev.ridill.mym.expense.domain.model.ExpenseLimits
 import kotlinx.coroutines.flow.Flow
 
@@ -30,6 +31,6 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     @Query("SELECT * FROM ExpenseEntity WHERE id = :id")
     suspend fun getExpenseById(id: Long): ExpenseEntity?
 
-    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY dateTime DESC")
-    fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseEntity>>
+    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY date(dateTime) DESC")
+    fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTag>>
 }

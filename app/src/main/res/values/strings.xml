@@ -14,6 +14,7 @@
     <string name="cd_save">Save</string>
     <string name="cd_delete">Delete</string>
     <string name="cd_expense_date">Expense Date</string>
+    <string name="cd_scroll_to_top">Scroll To Top</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
