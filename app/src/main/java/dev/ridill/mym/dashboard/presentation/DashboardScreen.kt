@@ -1,7 +1,9 @@
 package dev.ridill.mym.dashboard.presentation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,20 +17,23 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +44,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,9 +56,13 @@ import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
+import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.HorizontalSpacer
+import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
+import dev.ridill.mym.core.ui.components.TextInputDialog
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
@@ -61,10 +73,12 @@ import dev.ridill.mym.dashboard.domain.model.RecentTransaction
 @Composable
 fun DashboardScreen(
     state: DashboardState,
+    actions: DashboardActions,
+    snackbarHostState: SnackbarHostState,
     navigateToAddEditExpense: (Long?) -> Unit
 ) {
     val listState = rememberLazyListState()
-    Scaffold(
+    MYMScaffold(
         modifier = Modifier
             .fillMaxSize(),
         bottomBar = {
@@ -79,7 +93,8 @@ fun DashboardScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHostState = snackbarHostState
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -97,17 +112,35 @@ fun DashboardScreen(
                 monthlyLimit = state.monthlyLimit,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = SpacingMedium),
+                onSetLimitClick = actions::onSetLimitClick
             )
 
             RecentTransactionsList(
                 listState = listState,
                 spentAmount = state.spentAmount,
                 recentTransactions = state.recentTransactions,
+                onTransactionClick = { navigateToAddEditExpense(it.id) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
                     .padding(horizontal = SpacingMedium)
+            )
+        }
+
+        if (state.showLimitInput) {
+            TextInputDialog(
+                titleRes = R.string.monthly_limit_input_title,
+                contentRes = R.string.monthly_limit_input_content,
+                onConfirm = actions::onSetLimitConfirm,
+                onDismiss = actions::onSetLimitDismiss,
+                isInputError = state.isLimitInputError,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                errorRes = R.string.error_invalid_amount,
+                placeholder = stringResource(R.string.enter_monthly_limit)
             )
         }
     }
@@ -137,27 +170,50 @@ private fun Greeting(
 private fun BalanceAndLimit(
     balance: Double,
     monthlyLimit: Long,
+    onSetLimitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-    ) {
-        Balance(
-            amount = balance,
-            modifier = Modifier
-                .alignBy(LastBaseline)
-        )
-        VerticalNumberSpinnerContent(
-            number = monthlyLimit,
-            modifier = Modifier
-                .alignBy(LastBaseline)
-        ) {
-            Text(
-                text = stringResource(R.string.fwd_slash_limit, Formatter.currency(it)),
-                style = MaterialTheme.typography.titleLarge,
-            )
+    val isLimitSet = remember(monthlyLimit) {
+        monthlyLimit > Long.Zero
+    }
+    AnimatedContent(targetState = isLimitSet) { limitSet ->
+        if (limitSet) {
+            Row(
+                modifier = modifier,
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
+            ) {
+                Balance(
+                    amount = balance,
+                    modifier = Modifier
+                        .alignBy(LastBaseline)
+                )
+
+                VerticalNumberSpinnerContent(
+                    number = monthlyLimit,
+                    modifier = Modifier
+                        .alignBy(LastBaseline)
+                ) {
+                    Text(
+                        text = stringResource(R.string.fwd_slash_limit, Formatter.currency(it)),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+
+            }
+        } else {
+            TextButton(onClick = onSetLimitClick) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.set_a_monthly_limit),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    HorizontalSpacer(spacing = SpacingSmall)
+                    Icon(imageVector = Icons.Rounded.TrendingUp, contentDescription = null)
+                }
+            }
         }
     }
 }
@@ -173,9 +229,10 @@ private fun Balance(
     ) {
         Text(
             text = stringResource(R.string.your_balance),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontWeight = FontWeight.Normal
         )
         VerticalNumberSpinnerContent(number = amount) {
             Text(
@@ -191,6 +248,7 @@ private fun RecentTransactionsList(
     listState: LazyListState,
     spentAmount: Double,
     recentTransactions: List<RecentTransaction>,
+    onTransactionClick: (RecentTransaction) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -201,20 +259,23 @@ private fun RecentTransactionsList(
     ) {
         Column(
             modifier = Modifier
-                .padding(horizontal = SpacingMedium)
+//                .padding(horizontal = SpacingMedium)
                 .padding(top = SpacingMedium),
             verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
             Text(
                 text = stringResource(R.string.recent_spends),
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
             )
 
             SpentAmount(
                 amount = spentAmount,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = SpacingMedium)
             )
 
             Divider(
@@ -232,11 +293,12 @@ private fun RecentTransactionsList(
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
                 items(items = recentTransactions, key = { it.id }) { transaction ->
-                    RecentTransactionCard(
+                    RecentTransactionItem(
                         note = transaction.note,
                         amount = transaction.amount,
                         dayOfMonth = transaction.dayOfMonth,
                         dayOfWeek = transaction.dayOfWeek,
+                        onClick = { onTransactionClick(transaction) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateItemPlacement()
@@ -252,6 +314,7 @@ private fun SpentAmount(
     amount: Double,
     modifier: Modifier = Modifier
 ) {
+    val contentColor = LocalContentColor.current
     Row(
         modifier = modifier
     ) {
@@ -264,7 +327,8 @@ private fun SpentAmount(
                 text = Formatter.currency(it),
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = contentColor
             )
         }
 
@@ -274,42 +338,48 @@ private fun SpentAmount(
             text = stringResource(R.string.spent_this_month),
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier
-                .alignByBaseline()
+                .alignByBaseline(),
+            color = contentColor.copy(
+                alpha = 0.80f
+            ),
+            fontWeight = FontWeight.Normal
         )
     }
 }
 
 @Composable
-private fun RecentTransactionCard(
+private fun RecentTransactionItem(
     note: String,
     amount: String,
     dayOfMonth: String,
     dayOfWeek: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-    ) {
-        ListItem(
-            headlineContent = { Text(note) },
-            leadingContent = {
-                TransactionDate(
-                    dayOfMonth = dayOfMonth,
-                    dayOfWeek = dayOfWeek
-                )
-            },
-            trailingContent = {
-                Text(
-                    text = amount,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            colors = ListItemDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+    ListItem(
+        headlineContent = { Text(note) },
+        leadingContent = {
+            TransactionDate(
+                dayOfMonth = dayOfMonth,
+                dayOfWeek = dayOfWeek
             )
-        )
-    }
+        },
+        trailingContent = {
+            Text(
+                text = amount,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        modifier = modifier
+            .clickable(
+                role = Role.Button,
+                onClick = onClick
+            )
+    )
 }
 
 @Composable
@@ -350,7 +420,13 @@ private fun PreviewDashboardScreen() {
                 spentAmount = 500.0,
                 monthlyLimit = 5_000L
             ),
-            navigateToAddEditExpense = {}
+            actions = object : DashboardActions {
+                override fun onSetLimitClick() {}
+                override fun onSetLimitDismiss() {}
+                override fun onSetLimitConfirm(value: String) {}
+            },
+            navigateToAddEditExpense = {},
+            snackbarHostState = rememberSnackbarHostState()
         )
     }
 }

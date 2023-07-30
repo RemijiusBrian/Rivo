@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -34,12 +38,17 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
+import dev.ridill.mym.core.ui.components.ConfirmationDialog
+import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -48,9 +57,12 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 
 @Composable
 fun AddEditExpenseScreen(
+    snackbarHostState: SnackbarHostState,
     amountInput: String,
     noteInput: String,
     isEditMode: Boolean,
+    showDeleteConfirmation: Boolean,
+    recommendations: List<Long>,
     actions: AddEditExpenseActions,
     navigateUp: () -> Unit
 ) {
@@ -60,7 +72,7 @@ fun AddEditExpenseScreen(
         amountFocusRequester.requestFocus()
     }
 
-    Scaffold(
+    MYMScaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -73,6 +85,16 @@ fun AddEditExpenseScreen(
                 },
                 navigationIcon = {
                     BackArrowButton(onClick = navigateUp)
+                },
+                actions = {
+                    if (isEditMode) {
+                        IconButton(onClick = actions::onDeleteClick) {
+                            Icon(
+                                imageVector = Icons.Rounded.DeleteForever,
+                                contentDescription = stringResource(R.string.cd_delete)
+                            )
+                        }
+                    }
                 }
             )
         },
@@ -85,7 +107,8 @@ fun AddEditExpenseScreen(
             }
         },
         modifier = Modifier
-            .imePadding()
+            .imePadding(),
+        snackbarHostState = snackbarHostState
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -104,19 +127,43 @@ fun AddEditExpenseScreen(
                 focusRequester = amountFocusRequester
             )
 
-            OutlinedTextField(
+            TextField(
                 value = noteInput,
                 onValueChange = actions::onNoteChange,
                 modifier = Modifier
                     .wrapContentWidth(),
-                placeholder = { Text(stringResource(R.string.note)) },
+                label = { Text(stringResource(R.string.note)) },
                 shape = MaterialTheme.shapes.medium,
-                singleLine = true
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done
+                ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent
+                )
+            )
+
+            AmountRecommendations(
+                recommendations = recommendations,
+                onRecommendationClick = actions::onRecommendedAmountClick,
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
             )
 
             ExpenseDate(
                 modifier = Modifier
                     .align(Alignment.End)
+            )
+        }
+
+        if (showDeleteConfirmation) {
+            ConfirmationDialog(
+                titleRes = R.string.delete_expense_confirmation_title,
+                contentRes = R.string.delete_expense_confirmation_content,
+                onConfirm = actions::onDeleteConfirm,
+                onDismiss = actions::onDeleteDismiss
             )
         }
     }
@@ -131,7 +178,7 @@ private fun AmountInput(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+        verticalArrangement = Arrangement.spacedBy(SpacingMedium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -143,25 +190,50 @@ private fun AmountInput(
             value = amount,
             onValueChange = onAmountChange,
             modifier = Modifier
-                .fillMaxWidth()
+                .widthIn(min = AmountInputMinWidth)
                 .focusRequester(focusRequester),
             leadingIcon = {
                 Text(
                     text = Formatter.currencySymbol(),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodyLarge
                 )
             },
-            textStyle = MaterialTheme.typography.titleSmall,
+            textStyle = MaterialTheme.typography.titleLarge,
             placeholder = { Text(stringResource(R.string.amount)) },
             shape = MaterialTheme.shapes.medium,
             singleLine = true,
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                errorContainerColor = Color.Transparent
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
             )
         )
+    }
+}
+
+private val AmountInputMinWidth = 10.dp
+
+@Composable
+private fun AmountRecommendations(
+    recommendations: List<Long>,
+    onRecommendationClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        recommendations.forEach { amount ->
+            SuggestionChip(
+                onClick = { onRecommendationClick(amount) },
+                label = { Text(Formatter.currency(amount)) }
+            )
+        }
     }
 }
 
@@ -189,5 +261,4 @@ private fun ExpenseDate(
             style = MaterialTheme.typography.bodyLarge
         )
     }
-
 }

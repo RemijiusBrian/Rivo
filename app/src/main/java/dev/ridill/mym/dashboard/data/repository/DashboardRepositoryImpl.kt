@@ -19,6 +19,10 @@ class DashboardRepositoryImpl(
         .map { it.monthlyLimit }
         .distinctUntilChanged()
 
+    override suspend fun updateMonthlyLimit(value: Long) {
+        preferencesManager.updateMonthlyLimit(value)
+    }
+
     override fun getExpenditureForCurrentMonth(): Flow<Double> =
         dao.getExpenditureForMonth(DateUtil.currentMonthYear())
             .distinctUntilChanged()

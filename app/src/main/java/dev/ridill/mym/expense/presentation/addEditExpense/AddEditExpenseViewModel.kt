@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.channels.Channel
@@ -31,6 +33,10 @@ class AddEditExpenseViewModel @Inject constructor(
     val note = expense.map { it.note }
         .distinctUntilChanged()
 
+    val showDeleteConfirmation = savedStateHandle.getStateFlow(SHOW_DELETE_CONFIRMATION, false)
+
+    val amountRecommendations = expenseRepo.getAmountRecommendations()
+
     private val eventsChannel = Channel<AddEditExpenseEvent>()
     val events get() = eventsChannel.receiveAsFlow()
 
@@ -53,13 +59,58 @@ class AddEditExpenseViewModel @Inject constructor(
             .copy(note = value)
     }
 
+    override fun onRecommendedAmountClick(amount: Long) {
+        savedStateHandle[KEY_EXPENSE] = expense.value
+            .copy(amount = amount.toString())
+    }
+
     override fun onSave() {
         viewModelScope.launch {
             val expense = expense.value
-            expenseRepo.cacheExpense(expense)
+            val amount = expense.amount.toLongOrNull() ?: -1L
+            if (amount <= -1L) {
+                eventsChannel.send(
+                    AddEditExpenseEvent.ShowUiMessage(
+                        UiText.StringResource(
+                            R.string.error_invalid_amount,
+                            true
+                        )
+                    )
+                )
+                return@launch
+            }
+            val note = expense.note.trim()
+            if (note.isEmpty()) {
+                eventsChannel.send(
+                    AddEditExpenseEvent.ShowUiMessage(
+                        UiText.StringResource(
+                            R.string.error_invalid_expense_note,
+                            true
+                        )
+                    )
+                )
+                return@launch
+            }
+            expenseRepo.cacheExpense(expense.copy(note = note))
             val event = if (isEditMode) AddEditExpenseEvent.ExpenseUpdated
             else AddEditExpenseEvent.ExpenseAdded
             eventsChannel.send(event)
+        }
+    }
+
+    override fun onDeleteClick() {
+        savedStateHandle[SHOW_DELETE_CONFIRMATION] = true
+    }
+
+    override fun onDeleteDismiss() {
+        savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
+    }
+
+    override fun onDeleteConfirm() {
+        viewModelScope.launch {
+            expenseRepo.deleteExpense(expense.value)
+            savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
+            eventsChannel.send(AddEditExpenseEvent.ExpenseDeleted)
         }
     }
 
@@ -67,10 +118,12 @@ class AddEditExpenseViewModel @Inject constructor(
         object ExpenseAdded : AddEditExpenseEvent()
         object ExpenseUpdated : AddEditExpenseEvent()
         object ExpenseDeleted : AddEditExpenseEvent()
+        data class ShowUiMessage(val uiText: UiText) : AddEditExpenseEvent()
     }
 }
 
 private const val KEY_EXPENSE = "KEY_EXPENSE"
+private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 
 const val RESULT_EXPENSE_ADDED = "RESULT_EXPENSE_ADDED"
 const val RESULT_EXPENSE_UPDATED = "RESULT_EXPENSE_UPDATED"

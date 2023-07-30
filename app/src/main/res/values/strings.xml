@@ -8,17 +8,34 @@
     <string name="destination_edit_expense">Edit Expense</string>
 
     <!-- Content Description -->
-    <string name="cd_update_limit">Update Monthly Limit</string>
+    <string name="cd_set_monthly_limit">Set Monthly Limit</string>
     <string name="cd_new_expense">New Expense</string>
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_save">Save</string>
+    <string name="cd_delete">Delete</string>
     <string name="cd_expense_date">Expense Date</string>
+
+    <!-- Error Messages -->
+    <string name="error_invalid_amount">Please enter a valid amount</string>
+    <string name="error_invalid_expense_note">Please enter a valid Note</string>
 
     <!-- Texts -->
     <string name="part_of_day_morning">Morning</string>
     <string name="part_of_day_noon">Noon</string>
     <string name="part_of_day_afternoon">Afternoon</string>
     <string name="part_of_day_evening">Evening</string>
+
+    <!-- Action Labels -->
+    <string name="action_confirm">Confirm</string>
+    <string name="action_cancel">Cancel</string>
+
+    <string name="delete_expense_confirmation_title">Delete Expense?</string>
+    <string name="delete_expense_confirmation_content">Once this expense is deleted, it cannot be undone.</string>
+
+    <string name="monthly_limit_input_title">Monthly Limit</string>
+    <string name="monthly_limit_input_content">Set a monthly goal for you to keep your expenses under</string>
+
+    <string name="monthly_limit_set">Monthly limit set</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -31,4 +48,6 @@
     <string name="expense_updated">Expense Updated</string>
     <string name="expense_deleted">Expense Deleted</string>
     <string name="how_much_did_you_spend">How much did you spend?</string>
+    <string name="set_a_monthly_limit">Set a Monthly Limit</string>
+    <string name="enter_monthly_limit">Enter your limit</string>
 </resources>

@@ -7,6 +7,8 @@ interface DashboardRepository {
 
     fun getMonthlyLimit(): Flow<Long>
 
+    suspend fun updateMonthlyLimit(value: Long)
+
     fun getExpenditureForCurrentMonth(): Flow<Double>
 
     fun getRecentTransactions(): Flow<List<RecentTransaction>>

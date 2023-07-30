@@ -1,9 +1,5 @@
 package dev.ridill.mym.core.ui.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
+import dev.ridill.mym.core.ui.components.showMymSnackbar
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
@@ -46,33 +44,45 @@ fun MYMNavHost(
 private fun NavGraphBuilder.dashboard(navController: NavHostController) {
     composable(
         route = DashboardDestination.route,
-        exitTransition = { fadeOut() },
-        popEnterTransition = { fadeIn() }
+//        exitTransition = { shrinkOut(shrinkTowards = Alignment.Center) },
+//        popEnterTransition = { expandIn(expandFrom = Alignment.Center) }
     ) { navBackStackEntry ->
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 
+        val snackbarHostState = rememberSnackbarHostState()
         val context = LocalContext.current
         val dashboardResult = navBackStackEntry
             .savedStateHandle
             .get<String>(DASHBOARD_ACTION_RESULT)
 
-        LaunchedEffect(dashboardResult, context) {
-            navBackStackEntry.savedStateHandle
-                .remove<String>(DASHBOARD_ACTION_RESULT)
-
+        LaunchedEffect(dashboardResult, context, snackbarHostState) {
             when (dashboardResult) {
                 RESULT_EXPENSE_ADDED -> R.string.expense_added
                 RESULT_EXPENSE_UPDATED -> R.string.expense_updated
                 RESULT_EXPENSE_DELETED -> R.string.expense_deleted
                 else -> null
             }?.let { messageRes ->
-                // TODO: Show Snackbar
+                snackbarHostState.showMymSnackbar(context.getString(messageRes))
+            }
+            navBackStackEntry.savedStateHandle
+                .remove<String>(DASHBOARD_ACTION_RESULT)
+        }
+
+        LaunchedEffect(viewModel, context) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    DashboardViewModel.DashboardEvent.MonthlyLimitSet -> {
+                        snackbarHostState.showMymSnackbar(context.getString(R.string.monthly_limit_set))
+                    }
+                }
             }
         }
 
         DashboardScreen(
+            snackbarHostState = snackbarHostState,
             state = state,
+            actions = viewModel,
             navigateToAddEditExpense = {
                 navController.navigate(AddEditExpenseDestination.routeWithArg(it))
             }
@@ -85,16 +95,22 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
     composable(
         route = AddEditExpenseDestination.route,
         arguments = AddEditExpenseDestination.arguments,
-        enterTransition = { slideInVertically { it } },
-        popExitTransition = { slideOutVertically { it } }
+//        enterTransition = { slideInVertically { it } },
+//        popExitTransition = { slideOutVertically { it } }
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
         val amount by viewModel.amount.collectAsStateWithLifecycle(initialValue = "")
         val note by viewModel.note.collectAsStateWithLifecycle(initialValue = "")
+        val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsStateWithLifecycle()
+        val amountRecommendations by viewModel.amountRecommendations
+            .collectAsStateWithLifecycle(emptyList())
 
         val isEditMode = AddEditExpenseDestination.isArgEditMode(navBackStackEntry)
 
-        LaunchedEffect(viewModel) {
+        val snackbarHostState = rememberSnackbarHostState()
+        val context = LocalContext.current
+
+        LaunchedEffect(viewModel, snackbarHostState, context) {
             viewModel.events.collect { event ->
                 when (event) {
                     AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseAdded -> {
@@ -117,14 +133,24 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
                             ?.set(DASHBOARD_ACTION_RESULT, RESULT_EXPENSE_UPDATED)
                         navController.popBackStack()
                     }
+
+                    is AddEditExpenseViewModel.AddEditExpenseEvent.ShowUiMessage -> {
+                        snackbarHostState.showMymSnackbar(
+                            message = event.uiText.asString(context),
+                            isError = event.uiText.isErrorText
+                        )
+                    }
                 }
             }
         }
 
         AddEditExpenseScreen(
+            snackbarHostState = snackbarHostState,
             amountInput = amount,
             noteInput = note,
             isEditMode = isEditMode,
+            showDeleteConfirmation = showDeleteConfirmation,
+            recommendations = amountRecommendations,
             actions = viewModel,
             navigateUp = navController::navigateUp
         )
