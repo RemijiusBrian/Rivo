@@ -91,11 +91,13 @@ fun DashboardScreen(
             BottomAppBar(
                 actions = {},
                 floatingActionButton = {
-                    FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.cd_new_expense)
-                        )
+                    if (state.isLimitSet) {
+                        FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.cd_new_expense)
+                            )
+                        }
                     }
                 }
             )
@@ -116,6 +118,7 @@ fun DashboardScreen(
             BalanceAndLimit(
                 balance = state.balance,
                 monthlyLimit = state.monthlyLimit,
+                isLimitSet = state.isLimitSet,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium),
@@ -175,12 +178,10 @@ private fun Greeting(
 private fun BalanceAndLimit(
     balance: Double,
     monthlyLimit: Long,
+    isLimitSet: Boolean,
     onSetLimitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isLimitSet = remember(monthlyLimit) {
-        monthlyLimit > Long.Zero
-    }
     AnimatedContent(targetState = isLimitSet) { limitSet ->
         if (limitSet) {
             Row(
@@ -267,7 +268,8 @@ private fun RecentTransactionsList(
         shape = MaterialTheme.shapes.medium
             .copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
     ) {
         Column(
             modifier = Modifier
@@ -277,7 +279,6 @@ private fun RecentTransactionsList(
             Text(
                 text = stringResource(R.string.recent_spends),
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             )
@@ -290,7 +291,7 @@ private fun RecentTransactionsList(
             )
 
             Divider(
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
 
             Box(
@@ -336,7 +337,8 @@ private fun RecentTransactionsList(
                                     lazyListState.animateScrollToItem(Int.Zero)
                             }
                         },
-                        shape = CircleShape
+                        shape = CircleShape,
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowUpward,
@@ -418,7 +420,7 @@ private fun RecentTransactionItem(
             )
         },
         colors = ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         modifier = modifier
             .clickable(

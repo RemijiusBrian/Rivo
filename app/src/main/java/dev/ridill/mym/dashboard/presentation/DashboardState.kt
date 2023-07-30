@@ -10,4 +10,7 @@ data class DashboardState(
     val recentSpends: List<RecentSpend> = emptyList(),
     val showLimitInput: Boolean = false,
     val isLimitInputError: Boolean = false
-)
+) {
+    val isLimitSet: Boolean
+        get() = monthlyLimit > Long.Zero
+}
