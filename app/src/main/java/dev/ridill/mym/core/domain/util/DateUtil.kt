@@ -21,7 +21,8 @@ object DateUtil {
 
     object Formatters {
         val dbMonthAndYear: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-yyyy")
-        val localizedLong: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+        val localizedShortDateTime: DateTimeFormatter = DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.SHORT)
     }
 }
 

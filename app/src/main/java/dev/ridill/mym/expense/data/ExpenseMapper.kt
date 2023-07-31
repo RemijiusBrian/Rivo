@@ -1,6 +1,5 @@
 package dev.ridill.mym.expense.data
 
-import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.dashboard.domain.model.RecentSpend
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
@@ -10,14 +9,8 @@ import dev.ridill.mym.expense.domain.model.Expense
 fun ExpenseEntity.toExpense(): Expense = Expense(
     id = id,
     amount = amount.toString(),
-    note = note
-)
-
-fun Expense.toEntity(): ExpenseEntity = ExpenseEntity(
-    id = id,
     note = note,
-    amount = evalAmount,
-    dateTime = DateUtil.now()
+    dateTime = dateTime
 )
 
 fun ExpenseWithTag.toRecentSpend(): RecentSpend = RecentSpend(

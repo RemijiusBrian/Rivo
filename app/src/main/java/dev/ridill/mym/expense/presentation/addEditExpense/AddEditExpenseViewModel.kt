@@ -3,14 +3,17 @@ package dev.ridill.mym.expense.presentation.addEditExpense
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.notkamui.keval.Keval
+import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.EventBus
+import dev.ridill.mym.core.domain.util.asStateFlow
+import dev.ridill.mym.core.domain.util.tryOrNull
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,16 +29,34 @@ class AddEditExpenseViewModel @Inject constructor(
         .getExpenseIdFromSavedStateHandle(savedStateHandle)
     private val isEditMode = AddEditExpenseDestination.isEditMode(expenseIdArg)
 
-    private val expense = savedStateHandle.getStateFlow(KEY_EXPENSE, Expense.DEFAULT)
+    val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
+    val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")
+    private val selectedTagId = savedStateHandle.getStateFlow<String?>(SELECTED_TAG_ID, null)
+    private val expenseDate = savedStateHandle.getStateFlow(EXPENSE_DATE, "")
 
-    val amount = expense.map { it.amount }
-        .distinctUntilChanged()
-    val note = expense.map { it.note }
-        .distinctUntilChanged()
+    private val showDeleteConfirmation =
+        savedStateHandle.getStateFlow(SHOW_DELETE_CONFIRMATION, false)
 
-    val showDeleteConfirmation = savedStateHandle.getStateFlow(SHOW_DELETE_CONFIRMATION, false)
+    private val amountRecommendations = expenseRepo.getAmountRecommendations()
 
-    val amountRecommendations = expenseRepo.getAmountRecommendations()
+    val state = combineTuple(
+        selectedTagId,
+        amountRecommendations,
+        showDeleteConfirmation,
+        expenseDate
+    ).map { (
+                selectedTagId,
+                amountRecommendations,
+                showDeleteConfirmation,
+                expenseDate
+            ) ->
+        AddEditExpenseState(
+            amountRecommendations = amountRecommendations,
+            selectedTagId = selectedTagId,
+            expenseDate = expenseDate,
+            showDeleteConfirmation = showDeleteConfirmation
+        )
+    }.asStateFlow(viewModelScope, AddEditExpenseState())
 
     val events = eventBus.eventFlow
 
@@ -44,29 +65,33 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        savedStateHandle[KEY_EXPENSE] = expenseRepo.getExpenseById(expenseIdArg)
+        val expense = expenseRepo.getExpenseById(expenseIdArg)
             ?: Expense.DEFAULT
+        savedStateHandle[AMOUNT_INPUT] = expense.amount
+        savedStateHandle[NOTE_INPUT] = expense.note
+        savedStateHandle[EXPENSE_DATE] = expense.dateTimeFormatted
     }
 
     override fun onAmountChange(value: String) {
-        savedStateHandle[KEY_EXPENSE] = expense.value
-            .copy(amount = value)
+        savedStateHandle[AMOUNT_INPUT] = value
     }
 
     override fun onNoteChange(value: String) {
-        savedStateHandle[KEY_EXPENSE] = expense.value
-            .copy(note = value)
+        savedStateHandle[NOTE_INPUT] = value
     }
 
     override fun onRecommendedAmountClick(amount: Long) {
-        savedStateHandle[KEY_EXPENSE] = expense.value
-            .copy(amount = amount.toString())
+        savedStateHandle[AMOUNT_INPUT] = amount.toString()
+    }
+
+    override fun onTagClick(tagId: String) {
+        savedStateHandle[SELECTED_TAG_ID] = tagId
     }
 
     override fun onSave() {
         viewModelScope.launch {
-            val expense = expense.value
-            if (expense.evalAmount <= -1.0) {
+            val amount = tryOrNull { Keval.eval(amountInput.value) } ?: -1.0
+            if (amount <= -1.0) {
                 eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(
                         UiText.StringResource(
@@ -77,7 +102,7 @@ class AddEditExpenseViewModel @Inject constructor(
                 )
                 return@launch
             }
-            val note = expense.note.trim()
+            val note = noteInput.value.trim()
             if (note.isEmpty()) {
                 eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(
@@ -89,7 +114,12 @@ class AddEditExpenseViewModel @Inject constructor(
                 )
                 return@launch
             }
-            expenseRepo.cacheExpense(expense.copy(note = note))
+            val tagId = selectedTagId.value
+            expenseRepo.cacheExpense(
+                amount = amount,
+                note = note,
+                tagId = tagId
+            )
             val event = if (isEditMode) AddEditExpenseEvent.ExpenseUpdated
             else AddEditExpenseEvent.ExpenseAdded
             eventBus.send(event)
@@ -106,7 +136,7 @@ class AddEditExpenseViewModel @Inject constructor(
 
     override fun onDeleteConfirm() {
         viewModelScope.launch {
-            expenseRepo.deleteExpense(expense.value)
+            expenseRepo.deleteExpense(expenseIdArg)
             savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
             eventBus.send(AddEditExpenseEvent.ExpenseDeleted)
         }
@@ -120,7 +150,10 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 }
 
-private const val KEY_EXPENSE = "KEY_EXPENSE"
+private const val AMOUNT_INPUT = "AMOUNT_INPUT"
+private const val NOTE_INPUT = "NOTE_INPUT"
+private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
+private const val EXPENSE_DATE = "EXPENSE_DATE"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 
 const val RESULT_EXPENSE_ADDED = "RESULT_EXPENSE_ADDED"

@@ -28,10 +28,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -46,12 +43,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
-import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
-import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
@@ -63,8 +58,7 @@ fun AddEditExpenseScreen(
     amountInput: String,
     noteInput: String,
     isEditMode: Boolean,
-    showDeleteConfirmation: Boolean,
-    recommendations: List<Long>,
+    state: AddEditExpenseState,
     actions: AddEditExpenseActions,
     navigateUp: () -> Unit
 ) {
@@ -151,7 +145,7 @@ fun AddEditExpenseScreen(
 
             if (!isEditMode) {
                 AmountRecommendations(
-                    recommendations = recommendations,
+                    recommendations = state.amountRecommendations,
                     onRecommendationClick = {
                         actions.onRecommendedAmountClick(it)
                         focusManager.moveFocus(FocusDirection.Down)
@@ -162,12 +156,13 @@ fun AddEditExpenseScreen(
             }
 
             ExpenseDate(
+                date = state.expenseDate,
                 modifier = Modifier
                     .align(Alignment.End)
             )
         }
 
-        if (showDeleteConfirmation) {
+        if (state.showDeleteConfirmation) {
             ConfirmationDialog(
                 titleRes = R.string.delete_expense_confirmation_title,
                 contentRes = R.string.delete_expense_confirmation_content,
@@ -248,14 +243,9 @@ private fun AmountRecommendations(
 
 @Composable
 private fun ExpenseDate(
+    date: String,
     modifier: Modifier = Modifier
 ) {
-    var date by remember { mutableStateOf("") }
-    OnLifecycleStartEffect {
-        val currentDateTime = DateUtil.now()
-        date = currentDateTime.format(DateUtil.Formatters.localizedLong)
-    }
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,

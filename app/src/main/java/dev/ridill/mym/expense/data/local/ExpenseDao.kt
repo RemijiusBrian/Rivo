@@ -33,4 +33,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
 
     @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY date(dateTime) DESC")
     fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTag>>
+
+    @Query("DELETE FROM ExpenseEntity WHERE id = :id")
+    suspend fun deleteExpenseById(id: Long)
 }

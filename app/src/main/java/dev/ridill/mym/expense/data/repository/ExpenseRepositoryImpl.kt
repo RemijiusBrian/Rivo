@@ -2,7 +2,7 @@ package dev.ridill.mym.expense.data.repository
 
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.expense.data.local.ExpenseDao
-import dev.ridill.mym.expense.data.toEntity
+import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.toExpense
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 import kotlin.math.roundToLong
 
 class ExpenseRepositoryImpl(
@@ -30,11 +31,23 @@ class ExpenseRepositoryImpl(
             else listOf(roundLower, roundLower + (range / 2), roundUpper)
         }
 
-    override suspend fun cacheExpense(expense: Expense) = withContext(Dispatchers.IO) {
-        dao.insert(expense.toEntity())
+    override suspend fun cacheExpense(
+        amount: Double,
+        note: String,
+        dateTime: LocalDateTime,
+        tagId: String?
+    ) = withContext(Dispatchers.IO) {
+        dao.insert(
+            ExpenseEntity(
+                note = note,
+                amount = amount,
+                dateTime = dateTime,
+                tagId = null
+            )
+        )
     }
 
-    override suspend fun deleteExpense(expense: Expense) = withContext(Dispatchers.IO) {
-        dao.delete(expense.toEntity())
+    override suspend fun deleteExpense(id: Long) = withContext(Dispatchers.IO) {
+        dao.deleteExpenseById(id)
     }
 }
