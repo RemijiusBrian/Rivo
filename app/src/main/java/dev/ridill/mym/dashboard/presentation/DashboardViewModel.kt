@@ -5,14 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repo: DashboardRepository
+    private val repo: DashboardRepository,
+    private val eventBus: EventBus<DashboardEvent>
 ) : ViewModel(), DashboardActions {
 
     private val monthlyLimit = repo.getMonthlyLimit()
@@ -66,8 +66,7 @@ class DashboardViewModel @Inject constructor(
         )
     }.asStateFlow(viewModelScope, DashboardState())
 
-    private val eventsChannel = Channel<DashboardEvent>()
-    val events get() = eventsChannel.receiveAsFlow()
+    val events = eventBus.eventFlow
 
     init {
         onInit()
@@ -91,7 +90,7 @@ class DashboardViewModel @Inject constructor(
             repo.updateMonthlyLimit(longValue)
             repo.disableAppFirstLaunch()
             savedStateHandle[SHOW_LIMIT_INPUT] = false
-            eventsChannel.send(DashboardEvent.MonthlyLimitSet)
+            eventBus.send(DashboardEvent.MonthlyLimitSet)
         }
     }
 

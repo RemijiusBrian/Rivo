@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 class EventBus<T> {
 
     private val eventsChannel = Channel<T>()
-    val events get() = eventsChannel.receiveAsFlow()
+    val eventFlow get() = eventsChannel.receiveAsFlow()
 
     suspend fun send(event: T) {
         eventsChannel.send(event)

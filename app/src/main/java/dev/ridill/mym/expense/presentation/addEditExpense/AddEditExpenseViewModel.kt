@@ -5,21 +5,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditExpenseViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val expenseRepo: ExpenseRepository
+    private val expenseRepo: ExpenseRepository,
+    private val eventBus: EventBus<AddEditExpenseEvent>
 ) : ViewModel(), AddEditExpenseActions {
 
     private val expenseIdArg = AddEditExpenseDestination
@@ -37,8 +37,7 @@ class AddEditExpenseViewModel @Inject constructor(
 
     val amountRecommendations = expenseRepo.getAmountRecommendations()
 
-    private val eventsChannel = Channel<AddEditExpenseEvent>()
-    val events get() = eventsChannel.receiveAsFlow()
+    val events = eventBus.eventFlow
 
     init {
         onInit()
@@ -69,7 +68,7 @@ class AddEditExpenseViewModel @Inject constructor(
             val expense = expense.value
             val amount = expense.amount.toLongOrNull() ?: -1L
             if (amount <= -1L) {
-                eventsChannel.send(
+                eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(
                         UiText.StringResource(
                             R.string.error_invalid_amount,
@@ -81,7 +80,7 @@ class AddEditExpenseViewModel @Inject constructor(
             }
             val note = expense.note.trim()
             if (note.isEmpty()) {
-                eventsChannel.send(
+                eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(
                         UiText.StringResource(
                             R.string.error_invalid_expense_note,
@@ -94,7 +93,7 @@ class AddEditExpenseViewModel @Inject constructor(
             expenseRepo.cacheExpense(expense.copy(note = note))
             val event = if (isEditMode) AddEditExpenseEvent.ExpenseUpdated
             else AddEditExpenseEvent.ExpenseAdded
-            eventsChannel.send(event)
+            eventBus.send(event)
         }
     }
 
@@ -110,7 +109,7 @@ class AddEditExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             expenseRepo.deleteExpense(expense.value)
             savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
-            eventsChannel.send(AddEditExpenseEvent.ExpenseDeleted)
+            eventBus.send(AddEditExpenseEvent.ExpenseDeleted)
         }
     }
 

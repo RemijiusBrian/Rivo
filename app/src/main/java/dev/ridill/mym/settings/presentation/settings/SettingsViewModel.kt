@@ -61,7 +61,7 @@ class SettingsViewModel @Inject constructor(
         )
     }.asStateFlow(viewModelScope, SettingsState())
 
-    val events = eventBus.events
+    val events = eventBus.eventFlow
 
     override fun onAppThemePreferenceClick() {
         savedStateHandle[SHOW_APP_THEME_SELECTION] = true
