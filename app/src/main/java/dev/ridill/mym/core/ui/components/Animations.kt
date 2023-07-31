@@ -8,7 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,12 +26,12 @@ fun <T> VerticalNumberSpinnerContent(
         transitionSpec = {
             if (targetState > initialState) {
                 (slideInVertically { height -> height } + fadeIn())
-                    .togetherWith(
+                    .with(
                         slideOutVertically { height -> -height } + fadeOut()
                     )
             } else {
                 (slideInVertically { height -> -height } + fadeIn())
-                    .togetherWith(
+                    .with(
                         slideOutVertically { height -> height } + fadeOut()
                     )
             }.using(SizeTransform(clip = false))

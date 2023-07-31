@@ -71,8 +71,9 @@ fun AddEditExpenseScreen(
     val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(Unit) {
-        amountFocusRequester.requestFocus()
+    LaunchedEffect(isEditMode) {
+        if (!isEditMode)
+            amountFocusRequester.requestFocus()
     }
 
     MYMScaffold(

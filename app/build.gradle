@@ -108,7 +108,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
 
     // Compose Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.0-beta02")
+    implementation("androidx.navigation:navigation-compose:2.6.0")
 
     // Dagger Hilt
     implementation('com.google.dagger:hilt-android:2.47')
