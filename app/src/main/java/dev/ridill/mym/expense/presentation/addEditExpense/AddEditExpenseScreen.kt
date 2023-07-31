@@ -34,9 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -67,6 +69,7 @@ fun AddEditExpenseScreen(
     navigateUp: () -> Unit
 ) {
     val amountFocusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         amountFocusRequester.requestFocus()
@@ -148,7 +151,10 @@ fun AddEditExpenseScreen(
             if (!isEditMode) {
                 AmountRecommendations(
                     recommendations = recommendations,
-                    onRecommendationClick = actions::onRecommendedAmountClick,
+                    onRecommendationClick = {
+                        actions.onRecommendedAmountClick(it)
+                        focusManager.moveFocus(FocusDirection.Down)
+                    },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                 )

@@ -287,6 +287,7 @@ private fun RecentTransactionsList(
 
             Box(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .weight(Float.One),
                 contentAlignment = Alignment.Center
             ) {
@@ -297,7 +298,7 @@ private fun RecentTransactionsList(
                 }
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .matchParentSize(),
                     contentPadding = PaddingValues(
                         top = SpacingSmall,
                         bottom = SpacingListEnd

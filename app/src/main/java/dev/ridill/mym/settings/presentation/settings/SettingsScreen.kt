@@ -37,6 +37,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
@@ -80,13 +81,15 @@ fun SettingsScreen(
                 leadingIcon = Icons.Rounded.BrightnessMedium
             )
 
-            SwitchPreference(
-                titleRes = R.string.dynamic_colors,
-                summary = stringResource(R.string.dynamic_colors_summary),
-                checked = state.dynamicColorsEnabled,
-                onCheckedChange = actions::onDynamicThemeEnabledChange,
-                leadingIcon = Icons.Rounded.Palette
-            )
+            if (BuildUtil.isDynamicColorsSupported()) {
+                SwitchPreference(
+                    titleRes = R.string.dynamic_colors,
+                    summary = stringResource(R.string.dynamic_colors_summary),
+                    checked = state.dynamicColorsEnabled,
+                    onCheckedChange = actions::onDynamicThemeEnabledChange,
+                    leadingIcon = Icons.Rounded.Palette
+                )
+            }
 
             PreferenceDivider()
 
