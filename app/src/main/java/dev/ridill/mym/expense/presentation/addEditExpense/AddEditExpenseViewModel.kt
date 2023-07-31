@@ -66,8 +66,7 @@ class AddEditExpenseViewModel @Inject constructor(
     override fun onSave() {
         viewModelScope.launch {
             val expense = expense.value
-            val amount = expense.amount.toLongOrNull() ?: -1L
-            if (amount <= -1L) {
+            if (expense.evalAmount <= -1.0) {
                 eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(
                         UiText.StringResource(

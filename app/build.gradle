@@ -148,6 +148,9 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
+
+    // KEval
+    implementation("com.notkamui.libs:keval:0.9.0")
 }
 
 kapt {
