@@ -6,5 +6,5 @@ data class MYMPreferences(
     val isAppFirstLaunch: Boolean,
     val monthlyLimit: Long,
     val appTheme: AppTheme,
-    val dynamicThemeEnabled: Boolean
+    val dynamicColorsEnabled: Boolean
 )

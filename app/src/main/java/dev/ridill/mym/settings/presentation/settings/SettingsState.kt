@@ -4,6 +4,8 @@ import dev.ridill.mym.settings.domain.modal.AppTheme
 
 data class SettingsState(
     val appTheme: AppTheme = AppTheme.SYSTEM_DEFAULT,
-    val dynamicThemeEnabled: Boolean = false,
-    val showAppThemeSelection: Boolean = false
+    val dynamicColorsEnabled: Boolean = false,
+    val showAppThemeSelection: Boolean = false,
+    val currentMonthlyLimit: String = "",
+    val showMonthlyLimitInput: Boolean = false
 )

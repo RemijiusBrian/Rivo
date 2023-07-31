@@ -10,14 +10,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 
 @Composable
-fun PreferenceSectionTitle(
+fun PreferenceTitle(
     @StringRes resId: Int,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.labelMedium,
+    style: TextStyle = MaterialTheme.typography.bodyLarge,
+    fontWeight: FontWeight = FontWeight.SemiBold,
     color: Color = MaterialTheme.colorScheme.primary,
     contentPadding: PaddingValues = PaddingValues(
         horizontal = SpacingMedium,
@@ -29,5 +31,6 @@ fun PreferenceSectionTitle(
         .padding(contentPadding)
         .then(modifier),
     style = style,
+    fontWeight = fontWeight,
     color = color
 )

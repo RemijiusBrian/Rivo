@@ -167,7 +167,24 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 
+        val snackbarHostState = rememberSnackbarHostState()
+        val context = LocalContext.current
+
+        LaunchedEffect(viewModel, snackbarHostState, context) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is SettingsViewModel.SettingsEvent.ShowUiMessage -> {
+                        snackbarHostState.showMymSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+                }
+            }
+        }
+
         SettingsScreen(
+            snackbarHostState = snackbarHostState,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp

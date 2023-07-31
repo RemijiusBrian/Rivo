@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
@@ -52,8 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,8 +64,8 @@ import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
 import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
+import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
-import dev.ridill.mym.core.ui.components.TextInputDialog
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
@@ -154,18 +151,9 @@ fun DashboardScreen(
         }
 
         if (state.showLimitInput) {
-            TextInputDialog(
-                titleRes = R.string.monthly_limit_input_title,
-                contentRes = R.string.monthly_limit_input_content,
+            MonthlyLimitInputDialog(
                 onConfirm = actions::onSetLimitConfirm,
-                onDismiss = actions::onSetLimitDismiss,
-                isInputError = state.isLimitInputError,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                errorRes = R.string.error_invalid_amount,
-                placeholder = stringResource(R.string.enter_monthly_limit)
+                onDismiss = actions::onSetLimitDismiss
             )
         }
     }

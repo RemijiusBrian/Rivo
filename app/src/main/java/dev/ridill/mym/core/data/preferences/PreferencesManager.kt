@@ -14,5 +14,5 @@ interface PreferencesManager {
     suspend fun disableAppFirstLaunch()
     suspend fun updateMonthlyLimit(value: Long)
     suspend fun updateAppThem(theme: AppTheme)
-    suspend fun updateDynamicThemeEnabled(enabled: Boolean)
+    suspend fun updateDynamicColorsEnabled(enabled: Boolean)
 }

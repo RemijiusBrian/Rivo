@@ -57,8 +57,13 @@
     <string name="set_a_monthly_limit">Set a Monthly Limit</string>
     <string name="enter_monthly_limit">Enter your limit</string>
     <string name="monthly_limit">Monthly Limit</string>
+    <string name="general">General</string>
     <string name="app_theme">App Theme</string>
     <string name="choose_theme">Choose Theme</string>
     <string name="dynamic_colors">Dynamic Colors</string>
-    <string name="general">General</string>
+    <string name="dynamic_colors_summary">Set app colors based on your wallpaper</string>
+    <string name="expenses">Expenses</string>
+    <string name="monthly_limit_updated">Monthly limit updated</string>
+    <string name="click_to_set_monthly_limit">Click to set Monthly Limit</string>
+    <string name="your_limit_is_set_to_value">Your limit is set to %s</string>
 </resources>

@@ -7,4 +7,7 @@ interface SettingsActions {
     fun onAppThemeSelectionDismiss()
     fun onAppThemeSelectionConfirm(appTheme: AppTheme)
     fun onDynamicThemeEnabledChange(enabled: Boolean)
+    fun onMonthlyLimitPreferenceClick()
+    fun onMonthlyLimitInputDismiss()
+    fun onMonthlyLimitInputConfirm(value: String)
 }

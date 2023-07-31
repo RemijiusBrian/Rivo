@@ -70,8 +70,8 @@ suspend fun SnackbarHostState.showMymSnackbar(
     isError: Boolean = false,
     actionLabel: String? = null,
     withDismissAction: Boolean = false,
-    duration: SnackbarDuration =
-        if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite
+    duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short
+    else SnackbarDuration.Indefinite
 ) = showSnackbar(
     MYMSnackbarVisuals(
         isError = isError,

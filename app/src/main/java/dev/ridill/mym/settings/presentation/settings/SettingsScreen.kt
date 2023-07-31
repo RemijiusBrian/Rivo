@@ -22,6 +22,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,7 +41,8 @@ import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
-import dev.ridill.mym.core.ui.components.PreferenceSectionTitle
+import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
+import dev.ridill.mym.core.ui.components.PreferenceTitle
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -48,6 +50,7 @@ import dev.ridill.mym.settings.domain.modal.AppTheme
 
 @Composable
 fun SettingsScreen(
+    snackbarHostState: SnackbarHostState,
     state: SettingsState,
     actions: SettingsActions,
     navigateUp: () -> Unit
@@ -60,7 +63,8 @@ fun SettingsScreen(
                 title = { Text(stringResource(SettingsDestination.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) }
             )
-        }
+        },
+        snackbarHostState = snackbarHostState
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -68,7 +72,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            PreferenceSectionTitle(resId = R.string.general)
+            PreferenceTitle(resId = R.string.general)
             SimplePreference(
                 titleRes = R.string.app_theme,
                 summary = stringResource(state.appTheme.labelRes),
@@ -78,12 +82,22 @@ fun SettingsScreen(
 
             SwitchPreference(
                 titleRes = R.string.dynamic_colors,
-                checked = state.dynamicThemeEnabled,
+                summary = stringResource(R.string.dynamic_colors_summary),
+                checked = state.dynamicColorsEnabled,
                 onCheckedChange = actions::onDynamicThemeEnabledChange,
                 leadingIcon = Icons.Rounded.Palette
             )
 
             PreferenceDivider()
+
+            PreferenceTitle(resId = R.string.expenses)
+            SimplePreference(
+                titleRes = R.string.monthly_limit,
+                summary = state.currentMonthlyLimit.takeIf { it.isNotEmpty() }
+                    ?.let { stringResource(R.string.your_limit_is_set_to_value, it) }
+                    ?: stringResource(R.string.click_to_set_monthly_limit),
+                onClick = actions::onMonthlyLimitPreferenceClick
+            )
         }
 
         if (state.showAppThemeSelection) {
@@ -91,6 +105,13 @@ fun SettingsScreen(
                 currentTheme = state.appTheme,
                 onDismiss = actions::onAppThemeSelectionDismiss,
                 onConfirm = actions::onAppThemeSelectionConfirm
+            )
+        }
+
+        if (state.showMonthlyLimitInput) {
+            MonthlyLimitInputDialog(
+                onConfirm = actions::onMonthlyLimitInputConfirm,
+                onDismiss = actions::onMonthlyLimitInputDismiss
             )
         }
     }

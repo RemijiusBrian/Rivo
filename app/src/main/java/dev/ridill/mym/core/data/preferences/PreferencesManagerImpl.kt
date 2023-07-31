@@ -25,13 +25,13 @@ class PreferencesManagerImpl(
             val appTheme = AppTheme.valueOf(
                 preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM_DEFAULT.name
             )
-            val dynamicThemeEnabled = preferences[Keys.DYNAMIC_THEME_ENABLED] ?: false
+            val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED] ?: false
 
             MYMPreferences(
                 isAppFirstLaunch = isAppFirstLaunch,
                 monthlyLimit = monthlyLimit,
                 appTheme = appTheme,
-                dynamicThemeEnabled = dynamicThemeEnabled
+                dynamicColorsEnabled = dynamicColorsEnabled
             )
         }
 
@@ -59,10 +59,10 @@ class PreferencesManagerImpl(
         }
     }
 
-    override suspend fun updateDynamicThemeEnabled(enabled: Boolean) {
+    override suspend fun updateDynamicColorsEnabled(enabled: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.DYNAMIC_THEME_ENABLED] = enabled
+                preferences[Keys.DYNAMIC_COLORS_ENABLED] = enabled
             }
         }
     }
@@ -71,6 +71,6 @@ class PreferencesManagerImpl(
         val IS_APP_FIRST_LAUNCH = booleanPreferencesKey("IS_APP_FIRST_LAUNCH")
         val MONTHLY_LIMIT = longPreferencesKey("MONTHLY_LIMIT")
         val APP_THEME = stringPreferencesKey("APP_THEME")
-        val DYNAMIC_THEME_ENABLED = booleanPreferencesKey("DYNAMIC_THEME_ENABLED")
+        val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
     }
 }
