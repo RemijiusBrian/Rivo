@@ -102,8 +102,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
         arguments = AddEditExpenseDestination.arguments
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
-        val amount by viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
-        val note by viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
+        val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
+        val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         val isEditMode = AddEditExpenseDestination.isArgEditMode(navBackStackEntry)
@@ -147,8 +147,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
 
         AddEditExpenseScreen(
             snackbarHostState = snackbarHostState,
-            amountInput = amount,
-            noteInput = note,
+            amountInput = { amount.value },
+            noteInput = { note.value },
             isEditMode = isEditMode,
             state = state,
             actions = viewModel,

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -20,6 +19,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
@@ -55,8 +55,8 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 @Composable
 fun AddEditExpenseScreen(
     snackbarHostState: SnackbarHostState,
-    amountInput: String,
-    noteInput: String,
+    amountInput: () -> String,
+    noteInput: () -> String,
     isEditMode: Boolean,
     state: AddEditExpenseState,
     actions: AddEditExpenseActions,
@@ -125,22 +125,9 @@ fun AddEditExpenseScreen(
                 focusRequester = amountFocusRequester
             )
 
-            TextField(
-                value = noteInput,
-                onValueChange = actions::onNoteChange,
-                modifier = Modifier
-                    .wrapContentWidth(),
-                label = { Text(stringResource(R.string.note)) },
-                shape = MaterialTheme.shapes.medium,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Done
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent
-                )
+            NoteInput(
+                input = noteInput,
+                onValueChange = actions::onNoteChange
             )
 
             if (!isEditMode) {
@@ -175,7 +162,7 @@ fun AddEditExpenseScreen(
 
 @Composable
 private fun AmountInput(
-    amount: String,
+    amount: () -> String,
     onAmountChange: (String) -> Unit,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
@@ -191,7 +178,7 @@ private fun AmountInput(
             textAlign = TextAlign.Center
         )
         TextField(
-            value = amount,
+            value = amount(),
             onValueChange = onAmountChange,
             modifier = Modifier
                 .widthIn(min = AmountInputMinWidth)
@@ -220,6 +207,25 @@ private fun AmountInput(
 }
 
 private val AmountInputMinWidth = 10.dp
+
+@Composable
+fun NoteInput(
+    input: () -> String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = input(),
+        onValueChange = onValueChange,
+        modifier = modifier,
+        label = { Text(stringResource(R.string.note)) },
+        shape = MaterialTheme.shapes.medium,
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Words,
+            imeAction = ImeAction.Done
+        )
+    )
+}
 
 @Composable
 private fun AmountRecommendations(
