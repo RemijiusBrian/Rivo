@@ -34,6 +34,22 @@ android {
         }
     }
 
+    flavorDimensions "scope"
+    productFlavors {
+        internal {
+            dimension = "scope"
+            applicationIdSuffix = ".internal"
+            versionCode 1
+            versionName "0.0.1"
+        }
+
+        production {
+            dimension = "scope"
+            versionCode 1
+            versionName "0.0.1"
+        }
+    }
+
     applicationVariants.all { variant ->
         def artifactName = "MYM-${variant.name}-code${variant.versionCode}-v${variant.versionName}"
 

@@ -14,5 +14,7 @@
 .cxx
 local.properties
 
+/app/internal
+/app/production
 /app/release
 /app/google-services.json
