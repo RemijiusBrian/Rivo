@@ -30,6 +30,8 @@
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_not_now">Not Now</string>
 
     <string name="delete_expense_confirmation_title">Delete Expense?</string>
     <string name="delete_expense_confirmation_content">Once this expense is deleted, it cannot be undone.</string>
@@ -42,6 +44,8 @@
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
     <string name="app_theme_dark">Dark</string>
+
+    <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>

@@ -76,6 +76,7 @@ import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.dashboard.domain.model.RecentSpend
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 import kotlinx.coroutines.launch
 
 @Composable
@@ -313,6 +314,7 @@ private fun RecentTransactionsList(
                             dayOfMonth = transaction.dayOfMonth,
                             dayOfWeek = transaction.dayOfWeek,
                             onClick = { onTransactionClick(transaction) },
+                            tag = transaction.tag,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .animateItemPlacement()
@@ -394,6 +396,7 @@ private fun RecentTransactionItem(
     dayOfMonth: String,
     dayOfWeek: String,
     onClick: () -> Unit,
+    tag: ExpenseTag?,
     modifier: Modifier = Modifier
 ) {
     ListItem(
@@ -416,6 +419,9 @@ private fun RecentTransactionItem(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
+        },
+        supportingContent = {
+
         },
         colors = ListItemDefaults.colors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
