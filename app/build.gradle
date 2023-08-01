@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.tasks.FinalizeBundleTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
@@ -34,27 +35,27 @@ android {
         }
     }
 
-    flavorDimensions "scope"
+    flavorDimensions = ["scope"]
     productFlavors {
         internal {
             dimension = "scope"
             applicationIdSuffix = ".internal"
-            versionCode 1
-            versionName "0.0.1"
+            versionCode = 1
+            versionName = "0.0.1"
         }
 
         production {
             dimension = "scope"
-            versionCode 1
-            versionName "0.0.1"
+            versionCode = 1
+            versionName = "0.0.1"
         }
     }
 
-    applicationVariants.all { variant ->
+    applicationVariants.configureEach { variant ->
         def artifactName = "MYM-${variant.name}-code${variant.versionCode}-v${variant.versionName}"
 
         // Rename APKs
-        variant.outputs.all {
+        variant.outputs.configureEach {
             outputFileName = "${artifactName}.apk"
         }
 
@@ -85,7 +86,7 @@ android {
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+tasks.withType(KotlinCompile).configureEach {
     kotlinOptions.freeCompilerArgs += ["-opt-in=androidx.compose.animation.ExperimentalAnimationApi"]
     kotlinOptions.freeCompilerArgs += ["-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"]
     kotlinOptions.freeCompilerArgs += ["-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"]
@@ -127,8 +128,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.6.0")
 
     // Dagger Hilt
-    implementation('com.google.dagger:hilt-android:2.47')
-    kapt('com.google.dagger:hilt-android-compiler:2.47')
+    def hilt_version = "2.47"
+    implementation("com.google.dagger:hilt-android:$hilt_version")
+    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     def room_version = "2.5.2"
