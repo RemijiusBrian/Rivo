@@ -22,6 +22,7 @@ import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
+import dev.ridill.mym.core.ui.util.launchNotificationSettings
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
 import dev.ridill.mym.dashboard.presentation.DashboardViewModel
@@ -238,7 +239,8 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             snackbarHostState = snackbarHostState,
             state = state,
             actions = viewModel,
-            navigateUp = navController::navigateUp
+            navigateUp = navController::navigateUp,
+            navigateToNotificationSettings = context::launchNotificationSettings
         )
     }
 }

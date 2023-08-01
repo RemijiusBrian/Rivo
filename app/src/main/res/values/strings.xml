@@ -76,4 +76,5 @@
     <string name="monthly_limit_updated">Monthly limit updated</string>
     <string name="click_to_set_monthly_limit">Click to set Monthly Limit</string>
     <string name="your_limit_is_set_to_value">Your limit is set to %s</string>
+    <string name="notifications">Notifications</string>
 </resources>

@@ -14,9 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BrightnessMedium
-import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -32,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +41,6 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
-import dev.ridill.mym.core.ui.components.PreferenceTitle
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -54,7 +51,8 @@ fun SettingsScreen(
     snackbarHostState: SnackbarHostState,
     state: SettingsState,
     actions: SettingsActions,
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    navigateToNotificationSettings: () -> Unit
 ) {
     MYMScaffold(
         modifier = Modifier
@@ -73,12 +71,11 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            PreferenceTitle(resId = R.string.general)
             SimplePreference(
                 titleRes = R.string.app_theme,
                 summary = stringResource(state.appTheme.labelRes),
                 onClick = actions::onAppThemePreferenceClick,
-                leadingIcon = Icons.Rounded.BrightnessMedium
+                leadingIcon = ImageVector.vectorResource(R.drawable.ic_brightness)
             )
 
             if (BuildUtil.isDynamicColorsSupported()) {
@@ -87,13 +84,18 @@ fun SettingsScreen(
                     summary = stringResource(R.string.dynamic_colors_summary),
                     checked = state.dynamicColorsEnabled,
                     onCheckedChange = actions::onDynamicThemeEnabledChange,
-                    leadingIcon = Icons.Rounded.Palette
+                    leadingIcon = ImageVector.vectorResource(R.drawable.ic_palette)
                 )
             }
 
+            SimplePreference(
+                titleRes = R.string.notifications,
+                onClick = navigateToNotificationSettings,
+                leadingIcon = ImageVector.vectorResource(R.drawable.ic_notifications)
+            )
+
             PreferenceDivider()
 
-            PreferenceTitle(resId = R.string.expenses)
             SimplePreference(
                 titleRes = R.string.monthly_limit,
                 summary = state.currentMonthlyLimit.takeIf { it.isNotEmpty() }
@@ -114,7 +116,8 @@ fun SettingsScreen(
         if (state.showMonthlyLimitInput) {
             MonthlyLimitInputDialog(
                 onConfirm = actions::onMonthlyLimitInputConfirm,
-                onDismiss = actions::onMonthlyLimitInputDismiss
+                onDismiss = actions::onMonthlyLimitInputDismiss,
+                placeholderAmount = state.currentMonthlyLimit
             )
         }
     }
@@ -215,7 +218,7 @@ private fun SwitchPreference(
             )
             summary?.let {
                 Text(
-                    text = it,
+                    text = summary,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Normal,
                     color = LocalContentColor.current
@@ -233,7 +236,7 @@ private fun SwitchPreference(
 }
 
 private val PreferenceContentSpacing = 30.dp
-private val PreferenceIconSize = 28.dp
+private val PreferenceIconSize = 24.dp
 private val PreferenceContentPadding = PaddingValues(
     horizontal = SpacingMedium,
     vertical = SpacingSmall
