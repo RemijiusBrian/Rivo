@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -29,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +41,9 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
+import dev.ridill.mym.core.ui.components.icons.Brightness
+import dev.ridill.mym.core.ui.components.icons.NotificationBell
+import dev.ridill.mym.core.ui.components.icons.Palette
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -75,7 +78,7 @@ fun SettingsScreen(
                 titleRes = R.string.app_theme,
                 summary = stringResource(state.appTheme.labelRes),
                 onClick = actions::onAppThemePreferenceClick,
-                leadingIcon = ImageVector.vectorResource(R.drawable.ic_brightness)
+                leadingIcon = Icons.Outlined.Brightness
             )
 
             if (BuildUtil.isDynamicColorsSupported()) {
@@ -84,14 +87,14 @@ fun SettingsScreen(
                     summary = stringResource(R.string.dynamic_colors_summary),
                     checked = state.dynamicColorsEnabled,
                     onCheckedChange = actions::onDynamicThemeEnabledChange,
-                    leadingIcon = ImageVector.vectorResource(R.drawable.ic_palette)
+                    leadingIcon = Icons.Outlined.Palette
                 )
             }
 
             SimplePreference(
                 titleRes = R.string.notifications,
                 onClick = navigateToNotificationSettings,
-                leadingIcon = ImageVector.vectorResource(R.drawable.ic_notifications)
+                leadingIcon = Icons.Outlined.NotificationBell
             )
 
             PreferenceDivider()
