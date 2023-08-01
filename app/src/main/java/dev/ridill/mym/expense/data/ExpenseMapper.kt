@@ -17,6 +17,6 @@ fun ExpenseWithTag.toRecentSpend(): RecentSpend = RecentSpend(
     id = expenseEntity.id,
     note = expenseEntity.note,
     amount = Formatter.currency(expenseEntity.amount),
-    dateTime = expenseEntity.dateTime,
+    date = expenseEntity.dateTime.toLocalDate(),
     tag = tagEntity?.toExpenseTag()
 )

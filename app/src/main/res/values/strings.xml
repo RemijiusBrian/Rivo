@@ -52,8 +52,8 @@
     <string name="fwd_slash_limit">/ %s</string>
     <string name="recent_spends">Recent Spends</string>
     <string name="spent_this_month">Spent this month</string>
-    <string name="amount">Amount</string>
-    <string name="note">Note</string>
+    <string name="amount_zero">0</string>
+    <string name="add_a_note">Add a Note</string>
     <string name="expense_added">Expense Added</string>
     <string name="expense_updated">Expense Updated</string>
     <string name="expense_deleted">Expense Deleted</string>

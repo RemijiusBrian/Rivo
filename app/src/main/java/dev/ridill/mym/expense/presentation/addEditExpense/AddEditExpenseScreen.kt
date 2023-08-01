@@ -7,19 +7,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
@@ -34,20 +32,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.Formatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
+import dev.ridill.mym.core.ui.components.MinWidthTextField
 import dev.ridill.mym.core.ui.components.VerticalSpacer
+import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -114,20 +115,13 @@ fun AddEditExpenseScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(SpacingMedium),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingLarge)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            VerticalSpacer(spacing = 20.dp)
-
             AmountInput(
                 amount = amountInput,
                 onAmountChange = actions::onAmountChange,
-                focusRequester = amountFocusRequester
-            )
-
-            NoteInput(
-                input = noteInput,
-                onValueChange = actions::onNoteChange
+                modifier = Modifier
+                    .focusRequester(amountFocusRequester)
             )
 
             if (!isEditMode) {
@@ -140,12 +134,14 @@ fun AddEditExpenseScreen(
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                 )
+
+                VerticalSpacer(spacing = SpacingLarge)
             }
 
-            ExpenseDate(
-                date = state.expenseDate,
-                modifier = Modifier
-                    .align(Alignment.End)
+            NoteInput(
+                input = noteInput,
+                onValueChange = actions::onNoteChange,
+                onFocused = actions::onNoteInputFocused
             )
         }
 
@@ -164,65 +160,49 @@ fun AddEditExpenseScreen(
 private fun AmountInput(
     amount: () -> String,
     onAmountChange: (String) -> Unit,
-    focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    MinWidthTextField(
+        value = amount,
+        onValueChange = onAmountChange,
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingMedium),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(R.string.how_much_did_you_spend),
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
+        leadingIcon = { Text(Formatter.currencySymbol()) },
+        textStyle = MaterialTheme.typography.headlineMedium,
+        placeholder = { Text(stringResource(R.string.amount_zero)) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = ImeAction.Next
         )
-        TextField(
-            value = amount(),
-            onValueChange = onAmountChange,
-            modifier = Modifier
-                .widthIn(min = AmountInputMinWidth)
-                .focusRequester(focusRequester),
-            leadingIcon = {
-                Text(
-                    text = Formatter.currencySymbol(),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            },
-            textStyle = MaterialTheme.typography.titleLarge,
-            placeholder = { Text(stringResource(R.string.amount)) },
-            shape = MaterialTheme.shapes.medium,
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Next
-            )
-        )
-    }
+    )
 }
-
-private val AmountInputMinWidth = 10.dp
 
 @Composable
 fun NoteInput(
     input: () -> String,
     onValueChange: (String) -> Unit,
+    onFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    OutlinedTextField(
+    TextField(
         value = input(),
         onValueChange = onValueChange,
-        modifier = modifier,
-        label = { Text(stringResource(R.string.note)) },
+        modifier = modifier
+            .onFocusChanged { focusState ->
+                if (focusState.isFocused) onFocused()
+            },
+        placeholder = { Text(stringResource(R.string.add_a_note)) },
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Words,
             imeAction = ImeAction.Done
+        ),
+        singleLine = true,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent
         )
     )
 }
@@ -250,6 +230,7 @@ private fun AmountRecommendations(
 @Composable
 private fun ExpenseDate(
     date: String,
+    time: String,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -258,12 +239,20 @@ private fun ExpenseDate(
         horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
         Icon(
-            imageVector = Icons.Rounded.CalendarToday,
-            contentDescription = stringResource(R.string.expense_deleted)
+            imageVector = ImageVector.vectorResource(R.drawable.ic_calendar_clock),
+            contentDescription = stringResource(R.string.cd_expense_date)
         )
-        Text(
-            text = date,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Column {
+            Text(
+                text = date,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = time,
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalContentColor.current
+                    .copy(alpha = ContentAlpha.SUB_CONTENT)
+            )
+        }
     }
 }

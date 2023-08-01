@@ -78,6 +78,7 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.dashboard.domain.model.RecentSpend
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @Composable
 fun DashboardScreen(
@@ -311,8 +312,7 @@ private fun RecentTransactionsList(
                         RecentTransactionItem(
                             note = transaction.note,
                             amount = transaction.amount,
-                            dayOfMonth = transaction.dayOfMonth,
-                            dayOfWeek = transaction.dayOfWeek,
+                            date = transaction.date,
                             onClick = { onTransactionClick(transaction) },
                             tag = transaction.tag,
                             modifier = Modifier
@@ -393,8 +393,7 @@ private fun SpentAmount(
 private fun RecentTransactionItem(
     note: String,
     amount: String,
-    dayOfMonth: String,
-    dayOfWeek: String,
+    date: LocalDate,
     onClick: () -> Unit,
     tag: ExpenseTag?,
     modifier: Modifier = Modifier
@@ -409,8 +408,7 @@ private fun RecentTransactionItem(
         },
         leadingContent = {
             TransactionDate(
-                dayOfMonth = dayOfMonth,
-                dayOfWeek = dayOfWeek
+                date = date
             )
         },
         trailingContent = {
@@ -436,12 +434,15 @@ private fun RecentTransactionItem(
 
 @Composable
 private fun TransactionDate(
-    dayOfMonth: String,
-    dayOfWeek: String,
+    date: LocalDate,
     modifier: Modifier = Modifier
 ) {
+    val dateFormatted = remember(date) {
+        date.format(DateUtil.Formatters.ddth_MMM)
+            .replace(" ", "\n")
+    }
     ProvideTextStyle(value = MaterialTheme.typography.bodyMedium) {
-        Column(
+        Box(
             modifier = Modifier
                 .widthIn(min = DateContainerMinWidth)
                 .clip(MaterialTheme.shapes.small)
@@ -451,11 +452,9 @@ private fun TransactionDate(
                 )
                 .padding(SpacingSmall)
                 .then(modifier),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            contentAlignment = Alignment.Center
         ) {
-            Text(dayOfMonth)
-            Text(dayOfWeek)
+            Text(dateFormatted)
         }
     }
 }

@@ -10,8 +10,11 @@ data class Expense(
     val note: String,
     val dateTime: LocalDateTime
 ) {
-    val dateTimeFormatted: String
-        get() = dateTime.format(DateUtil.Formatters.localizedShortDateTime)
+    val timeFormatted: String
+        get() = dateTime.format(DateUtil.Formatters.localizedTimeShort)
+
+    val dateFormatted: String
+        get() = dateTime.format(DateUtil.Formatters.ddth_MMM)
 
     companion object {
         val DEFAULT = Expense(

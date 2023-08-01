@@ -12,3 +12,5 @@ val Int.Companion.Zero: Int get() = 0
 val Long.Companion.Zero: Long get() = 0L
 
 val Dp.Companion.Zero: Dp get() = 0.dp
+
+val String.Companion.Empty: String get() = ""
