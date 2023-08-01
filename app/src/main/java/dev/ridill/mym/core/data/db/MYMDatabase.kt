@@ -12,7 +12,8 @@ import dev.ridill.mym.expense.data.local.entity.TagEntity
         ExpenseEntity::class,
         TagEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(DateTimeConverter::class)
 abstract class MYMDatabase : RoomDatabase() {
