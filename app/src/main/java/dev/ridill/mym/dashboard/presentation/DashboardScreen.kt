@@ -30,7 +30,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -438,24 +437,25 @@ private fun TransactionDate(
     modifier: Modifier = Modifier
 ) {
     val dateFormatted = remember(date) {
-        date.format(DateUtil.Formatters.ddth_MMM)
+        date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
             .replace(" ", "\n")
     }
-    ProvideTextStyle(value = MaterialTheme.typography.bodyMedium) {
-        Box(
-            modifier = Modifier
-                .widthIn(min = DateContainerMinWidth)
-                .clip(MaterialTheme.shapes.small)
-                .background(
-                    color = MaterialTheme.colorScheme.primary
-                        .copy(alpha = 0.12f)
-                )
-                .padding(SpacingSmall)
-                .then(modifier),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(dateFormatted)
-        }
+    Box(
+        modifier = Modifier
+            .widthIn(min = DateContainerMinWidth)
+            .clip(MaterialTheme.shapes.small)
+            .background(
+                color = MaterialTheme.colorScheme.primary
+                    .copy(alpha = 0.12f)
+            )
+            .padding(SpacingSmall)
+            .then(modifier),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = dateFormatted,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 

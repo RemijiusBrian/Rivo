@@ -28,7 +28,14 @@ object DateUtil {
         val localizedTimeShort: DateTimeFormatter
             get() = DateTimeFormatter
                 .ofLocalizedTime(FormatStyle.SHORT)
-        val ddth_MMM: DateTimeFormatter
+
+        val ddth_EEE_spaceSep: DateTimeFormatter
+            get() = DateTimeFormatterBuilder()
+                .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)
+                .appendPattern(" EEE")
+                .toFormatter()
+
+        val ddth_MMM_spaceSep: DateTimeFormatter
             get() = DateTimeFormatterBuilder()
                 .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)
                 .appendPattern(" MMM")
