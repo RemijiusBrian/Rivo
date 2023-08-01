@@ -52,6 +52,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
@@ -63,7 +64,6 @@ import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
 import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
-import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
@@ -82,7 +82,6 @@ import java.time.LocalDate
 @Composable
 fun DashboardScreen(
     state: DashboardState,
-    actions: DashboardActions,
     snackbarHostState: SnackbarHostState,
     navigateToAddEditExpense: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
@@ -108,13 +107,11 @@ fun DashboardScreen(
                     }
                 },
                 floatingActionButton = {
-                    if (state.isLimitSet) {
-                        FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(R.string.cd_new_expense)
-                            )
-                        }
+                    FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.cd_new_expense)
+                        )
                     }
                 }
             )
@@ -150,13 +147,6 @@ fun DashboardScreen(
                     .padding(horizontal = SpacingMedium)
             )
         }
-
-        if (state.showLimitInput) {
-            MonthlyLimitInputDialog(
-                onConfirm = actions::onSetLimitConfirm,
-                onDismiss = actions::onSetLimitDismiss
-            )
-        }
     }
 }
 
@@ -170,7 +160,7 @@ private fun Greeting(
         partOfDay = DateUtil.getPartOfDay()
     }
 
-    Crossfade(targetState = partOfDay) { part ->
+    Crossfade(targetState = partOfDay, label = "Greeting") { part ->
         Text(
             text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
             color = MaterialTheme.colorScheme.primary,
@@ -459,7 +449,7 @@ private fun TransactionDate(
     }
 }
 
-private val DateContainerMinWidth = 56.dp
+private val DateContainerMinWidth: Dp = 56.dp
 
 @Preview(showBackground = true)
 @Composable
@@ -471,10 +461,6 @@ private fun PreviewDashboardScreen() {
                 spentAmount = 500.0,
                 monthlyLimit = 5_000L
             ),
-            actions = object : DashboardActions {
-                override fun onSetLimitDismiss() {}
-                override fun onSetLimitConfirm(value: String) {}
-            },
             navigateToAddEditExpense = {},
             snackbarHostState = rememberSnackbarHostState(),
             navigateToBottomNavDestination = {}

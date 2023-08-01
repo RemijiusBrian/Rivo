@@ -7,10 +7,5 @@ data class DashboardState(
     val balance: Double = Double.Zero,
     val spentAmount: Double = Double.Zero,
     val monthlyLimit: Long = Long.Zero,
-    val recentSpends: List<RecentSpend> = emptyList(),
-    val showLimitInput: Boolean = false,
-    val isLimitInputError: Boolean = false
-) {
-    val isLimitSet: Boolean
-        get() = monthlyLimit > Long.Zero
-}
+    val recentSpends: List<RecentSpend> = emptyList()
+)

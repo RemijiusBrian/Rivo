@@ -26,7 +26,7 @@ data class PermissionsState(
     val isPermanentlyDenied: Boolean
         get() = !isGranted && !shouldShowRationale
 
-    fun requestPermission() = launcher.launch(permissionString)
+    fun launchRequest() = launcher.launch(permissionString)
 }
 
 @Composable

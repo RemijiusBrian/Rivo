@@ -20,7 +20,7 @@ class PreferencesManagerImpl(
 
     override val preferences: Flow<MYMPreferences> = dataStore.data
         .map { preferences ->
-            val isAppFirstLaunch = preferences[Keys.IS_APP_FIRST_LAUNCH] ?: true
+            val showAppWelcomeFlow = preferences[Keys.SHOW_WELCOME_FLOW] ?: true
             val monthlyLimit = preferences[Keys.MONTHLY_LIMIT] ?: Long.Zero
             val appTheme = AppTheme.valueOf(
                 preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM_DEFAULT.name
@@ -28,17 +28,17 @@ class PreferencesManagerImpl(
             val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED] ?: false
 
             MYMPreferences(
-                isAppFirstLaunch = isAppFirstLaunch,
+                showAppWelcomeFlow = showAppWelcomeFlow,
                 monthlyLimit = monthlyLimit,
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled
             )
         }
 
-    override suspend fun disableAppFirstLaunch() {
+    override suspend fun concludeWelcomeFlow() {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.IS_APP_FIRST_LAUNCH] = false
+                preferences[Keys.SHOW_WELCOME_FLOW] = false
             }
         }
     }
@@ -68,7 +68,7 @@ class PreferencesManagerImpl(
     }
 
     private object Keys {
-        val IS_APP_FIRST_LAUNCH = booleanPreferencesKey("IS_APP_FIRST_LAUNCH")
+        val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val MONTHLY_LIMIT = longPreferencesKey("MONTHLY_LIMIT")
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")

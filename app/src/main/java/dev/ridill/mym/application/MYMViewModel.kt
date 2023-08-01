@@ -12,6 +12,8 @@ class MYMViewModel @Inject constructor(
     preferencesManager: PreferencesManager
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
+    val showWelcomeFlow = preferences.map { it.showAppWelcomeFlow }
+        .distinctUntilChanged()
     val appTheme = preferences.map { it.appTheme }
         .distinctUntilChanged()
     val dynamicThemeEnabled = preferences.map { it.dynamicColorsEnabled }

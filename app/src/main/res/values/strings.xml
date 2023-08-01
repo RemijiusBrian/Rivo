@@ -2,6 +2,7 @@
     <string name="app_name">MYM</string>
 
     <!-- Destination Labels -->
+    <string name="destination_welcome_flow">Welcome Flow</string>
     <string name="destination_dashboard">Dashboard</string>
     <string name="destination_add_edit_expense">Add/Edit Expense</string>
     <string name="destination_add_expense">Add Expense</string>
@@ -16,22 +17,26 @@
     <string name="cd_delete">Delete</string>
     <string name="cd_expense_date">Expense Date</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
+    <string name="cd_action_continue">Continue</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
-
-    <!-- Texts -->
-    <string name="part_of_day_morning">Morning</string>
-    <string name="part_of_day_noon">Noon</string>
-    <string name="part_of_day_afternoon">Afternoon</string>
-    <string name="part_of_day_evening">Evening</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_continue">Continue</string>
     <string name="action_not_now">Not Now</string>
+
+    <!-- Texts -->
+    <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
+    <string name="welcome_flow_stop_limit_set_message">Set a monthly limit for you to keep your expenses under</string>
+
+    <string name="part_of_day_morning">Morning</string>
+    <string name="part_of_day_noon">Noon</string>
+    <string name="part_of_day_afternoon">Afternoon</string>
+    <string name="part_of_day_evening">Evening</string>
 
     <string name="delete_expense_confirmation_title">Delete Expense?</string>
     <string name="delete_expense_confirmation_content">Once this expense is deleted, it cannot be undone.</string>
@@ -48,6 +53,7 @@
     <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
 
     <string name="app_greeting">Good %s,</string>
+    <string name="you_can_change_limit_later_in_settings">You can always change your limit in the app settings</string>
     <string name="your_balance">Your Balance</string>
     <string name="fwd_slash_limit">/ %s</string>
     <string name="recent_spends">Recent Spends</string>

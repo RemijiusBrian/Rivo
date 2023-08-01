@@ -1,5 +1,7 @@
 package dev.ridill.mym.core.ui.navigation
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,11 +14,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.rememberPermissionLauncher
+import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.components.showMymSnackbar
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
+import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
 import dev.ridill.mym.dashboard.presentation.DashboardViewModel
@@ -27,20 +32,80 @@ import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
+import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
+import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
 
 @Composable
 fun MYMNavHost(
     navController: NavHostController,
+    showWelcomeFlow: Boolean,
     modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = DashboardDestination.route,
+        startDestination = if (showWelcomeFlow) WelcomeFlowDestination.route
+        else DashboardDestination.route,
         modifier = modifier
     ) {
+        welcomeFlow(navController)
         dashboard(navController)
         addEditExpense(navController)
         settings(navController)
+    }
+}
+
+// Welcome Flow
+private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
+    composable(WelcomeFlowDestination.route) { navBackStackEntry ->
+        val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
+        val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
+        val limitInput = viewModel.limitInput.collectAsStateWithLifecycle()
+        val showPermissionRationale by viewModel.showNotificationRationale
+            .collectAsStateWithLifecycle()
+
+        val snackbarHostState = rememberSnackbarHostState()
+        val context = LocalContext.current
+        val permissionsState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            rememberPermissionsState(
+                permissionString = Manifest.permission.POST_NOTIFICATIONS,
+                launcher = rememberPermissionLauncher(
+                    onResult = { viewModel.onPermissionResponse() }
+                )
+            )
+        else null
+
+        LaunchedEffect(viewModel, snackbarHostState, context) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    WelcomeFlowViewModel.WelcomeFlowEvent.RequestPermissionRequest -> {
+                        if (permissionsState != null) {
+                            permissionsState.launchRequest()
+                        } else {
+                            viewModel.onPermissionResponse()
+                        }
+                    }
+
+                    is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
+                        snackbarHostState.showMymSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+
+                    WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
+                        navController.navigate(DashboardDestination.route)
+                    }
+                }
+            }
+        }
+
+        WelcomeFlowScreen(
+            snackbarHostState = snackbarHostState,
+            flowStop = flowStop,
+            limitInput = { limitInput.value },
+            showPermissionRationale = showPermissionRationale,
+            actions = viewModel
+        )
     }
 }
 
@@ -71,20 +136,9 @@ private fun NavGraphBuilder.dashboard(navController: NavHostController) {
                 .remove<String>(DASHBOARD_ACTION_RESULT)
         }
 
-        LaunchedEffect(viewModel, context) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    DashboardViewModel.DashboardEvent.MonthlyLimitSet -> {
-                        snackbarHostState.showMymSnackbar(context.getString(R.string.monthly_limit_set))
-                    }
-                }
-            }
-        }
-
         DashboardScreen(
             snackbarHostState = snackbarHostState,
             state = state,
-            actions = viewModel,
             navigateToAddEditExpense = {
                 navController.navigate(AddEditExpenseDestination.routeWithArg(it))
             },
