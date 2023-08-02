@@ -39,8 +39,8 @@ class AddEditExpenseViewModel @Inject constructor(
 
     private val expenseDateTime = savedStateHandle.getStateFlow(EXPENSE_DATE_TIME, DateUtil.now())
 
-    private val showDeleteConfirmation =
-        savedStateHandle.getStateFlow(SHOW_DELETE_CONFIRMATION, false)
+    private val showDeleteConfirmation = savedStateHandle
+        .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
 
     private val amountRecommendations = repo.getAmountRecommendations()
 

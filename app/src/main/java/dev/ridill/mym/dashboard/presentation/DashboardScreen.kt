@@ -76,6 +76,7 @@ import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.dashboard.domain.model.RecentSpend
 import dev.ridill.mym.expense.domain.model.ExpenseTag
+import dev.ridill.mym.expense.presentation.components.FilledTagChip
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -273,7 +274,9 @@ private fun RecentTransactionsList(
             )
 
             Divider(
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
             )
 
             Box(
@@ -408,7 +411,12 @@ private fun RecentTransactionItem(
             )
         },
         supportingContent = {
-
+            tag?.let {
+                FilledTagChip(
+                    name = it.name,
+                    color = it.color
+                )
+            }
         },
         colors = ListItemDefaults.colors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
