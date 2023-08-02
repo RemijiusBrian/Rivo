@@ -156,11 +156,13 @@ fun AddEditExpenseScreen(
                     .align(Alignment.Start)
             )
 
-            TagsList(
-                tagsList = state.tagsList,
-                selectedTag = state.selectedTagId,
-                onTagClick = actions::onTagClick
-            )
+            if (state.tagsList.isNotEmpty()) {
+                TagsList(
+                    tagsList = state.tagsList,
+                    selectedTag = state.selectedTagId,
+                    onTagClick = actions::onTagClick
+                )
+            }
         }
 
         if (state.showDeleteConfirmation) {
@@ -284,20 +286,35 @@ fun TagsList(
     onTagClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FlowRow(
+    Column(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(SpacingMedium)
     ) {
-        tagsList.forEach { tag ->
-            FilterChip(
-                selected = tag.name == selectedTag,
-                onClick = { onTagClick(tag.name) },
-                label = { Text(tag.name) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = tag.color,
-                    selectedLabelColor = tag.color.contentColor()
+        Text(text = stringResource(R.string.tag_your_expense))
+        FlowRow(
+            modifier = Modifier,
+            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        ) {
+            tagsList.forEach { tag ->
+                FilterChip(
+                    selected = tag.name == selectedTag,
+                    onClick = { onTagClick(tag.name) },
+                    label = { Text(tag.name) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = tag.color,
+                        selectedLabelColor = tag.color.contentColor()
+                    )
                 )
-            )
+            }
+
+
         }
     }
+}
+
+@Composable
+private fun NewTagChip(
+    modifier: Modifier = Modifier
+) {
+
 }

@@ -19,6 +19,7 @@ import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.components.showMymSnackbar
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
+import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
@@ -52,6 +53,7 @@ fun MYMNavHost(
         dashboard(navController)
         addEditExpense(navController)
         settings(navController)
+        allExpenses(navController)
     }
 }
 
@@ -242,5 +244,12 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchNotificationSettings
         )
+    }
+}
+
+// All Expenses
+private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
+    composable(AllExpensesDestination.route) { navBackStackEntry ->
+
     }
 }

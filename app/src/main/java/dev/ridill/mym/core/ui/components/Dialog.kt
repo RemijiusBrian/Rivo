@@ -150,8 +150,8 @@ fun MonthlyLimitInputDialog(
     focusRequester: FocusRequester = remember { FocusRequester() },
     placeholderAmount: String? = null
 ) = TextInputDialog(
-    titleRes = R.string.monthly_limit_input_title,
-    contentRes = R.string.monthly_limit_input_content,
+    titleRes = R.string.monthly_income_input_dialog_title,
+    contentRes = R.string.monthly_income_input_dialog_content,
     onConfirm = onConfirm,
     onDismiss = onDismiss,
     isInputError = isInputError,
@@ -160,7 +160,7 @@ fun MonthlyLimitInputDialog(
         imeAction = ImeAction.Done
     ),
     errorRes = R.string.error_invalid_amount,
-    placeholder = placeholderAmount ?: stringResource(R.string.enter_monthly_limit),
+    placeholder = placeholderAmount ?: stringResource(R.string.enter_income),
     modifier = modifier,
     focusRequester = focusRequester
 )

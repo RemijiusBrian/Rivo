@@ -6,7 +6,8 @@ sealed interface BottomNavDestination : NavDestination {
 
     companion object {
         val bottomNavDestinations: List<BottomNavDestination> = listOf(
-            SettingsDestination
+            SettingsDestination,
+            AllExpensesDestination
         )
     }
 

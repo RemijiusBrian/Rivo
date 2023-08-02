@@ -75,7 +75,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             SimplePreference(
-                titleRes = R.string.app_theme,
+                titleRes = R.string.preference_option_app_theme,
                 summary = stringResource(state.appTheme.labelRes),
                 onClick = actions::onAppThemePreferenceClick,
                 leadingIcon = Icons.Outlined.Brightness
@@ -83,8 +83,8 @@ fun SettingsScreen(
 
             if (BuildUtil.isDynamicColorsSupported()) {
                 SwitchPreference(
-                    titleRes = R.string.dynamic_colors,
-                    summary = stringResource(R.string.dynamic_colors_summary),
+                    titleRes = R.string.preference_option_dynamic_colors,
+                    summary = stringResource(R.string.preference_option_dynamic_colors_summary),
                     checked = state.dynamicColorsEnabled,
                     onCheckedChange = actions::onDynamicThemeEnabledChange,
                     leadingIcon = Icons.Outlined.Palette
@@ -100,10 +100,10 @@ fun SettingsScreen(
             PreferenceDivider()
 
             SimplePreference(
-                titleRes = R.string.monthly_limit,
+                titleRes = R.string.income,
                 summary = state.currentMonthlyLimit.takeIf { it.isNotEmpty() }
-                    ?.let { stringResource(R.string.your_limit_is_set_to_value, it) }
-                    ?: stringResource(R.string.click_to_set_monthly_limit),
+                    ?.let { stringResource(R.string.your_income_is_value, it) }
+                    ?: stringResource(R.string.click_to_update_your_income),
                 onClick = actions::onMonthlyLimitPreferenceClick
             )
         }

@@ -18,7 +18,7 @@ interface AddEditExpenseRepository {
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        tagId: String? = null
+        tagId: String?
     )
 
     suspend fun deleteExpense(id: Long)

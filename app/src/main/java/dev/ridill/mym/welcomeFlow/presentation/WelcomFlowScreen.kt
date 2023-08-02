@@ -112,7 +112,7 @@ fun WelcomeFlowScreen(
                         stringResource(R.string.app_name)
                     )
 
-                    WelcomeFlowStop.LIMIT_SET -> stringResource(R.string.set_a_monthly_limit)
+                    WelcomeFlowStop.LIMIT_SET -> stringResource(R.string.welcome_flow_stop_set_income_title)
                 }
                 FlowTitle(
                     title = title,
@@ -170,7 +170,7 @@ private fun LimitInput(
         modifier = modifier
     ) {
         Text(
-            text = stringResource(R.string.welcome_flow_stop_limit_set_message),
+            text = stringResource(R.string.welcome_flow_stop_set_income_message),
             style = MaterialTheme.typography.titleMedium
         )
         VerticalSpacer(spacing = SpacingSmall)
@@ -194,8 +194,8 @@ private fun LimitInput(
                 focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer
             ),
             shape = MaterialTheme.shapes.medium,
-            placeholder = { Text(stringResource(R.string.enter_monthly_limit)) },
-            supportingText = { Text(stringResource(R.string.you_can_change_limit_later_in_settings)) }
+            placeholder = { Text(stringResource(R.string.enter_income)) },
+            supportingText = { Text(stringResource(R.string.you_can_change_income_later_in_settings)) }
         )
     }
 }

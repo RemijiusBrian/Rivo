@@ -99,6 +99,7 @@ class AddEditExpenseViewModel @Inject constructor(
 
     override fun onTagClick(tagId: String) {
         savedStateHandle[SELECTED_TAG_ID] = tagId
+            .takeIf { selectedTagId.value != it }
     }
 
     override fun onSave() {

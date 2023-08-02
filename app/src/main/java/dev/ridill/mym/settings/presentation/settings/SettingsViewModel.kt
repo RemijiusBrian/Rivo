@@ -111,7 +111,7 @@ class SettingsViewModel @Inject constructor(
             savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
             eventBus.send(
                 SettingsEvent.ShowUiMessage(
-                    UiText.StringResource(R.string.monthly_limit_updated)
+                    UiText.StringResource(R.string.income_updated)
                 )
             )
         }

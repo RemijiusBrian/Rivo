@@ -8,9 +8,10 @@
     <string name="destination_add_expense">Add Expense</string>
     <string name="destination_edit_expense">Edit Expense</string>
     <string name="destination_settings">Settings</string>
+    <string name="destination_all_expenses">All Expenses</string>
 
     <!-- Content Description -->
-    <string name="cd_set_monthly_limit">Set Monthly Limit</string>
+    <string name="cd_set_monthly_income">Set Monthly Income</string>
     <string name="cd_new_expense">New Expense</string>
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_save">Save</string>
@@ -31,7 +32,9 @@
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
-    <string name="welcome_flow_stop_limit_set_message">Set a monthly limit for you to keep your expenses under</string>
+    <string name="welcome_flow_stop_set_income_title">Set your monthly income</string>
+    <string name="welcome_flow_stop_set_income_message">Enter the income you earn per month</string>
+    <string name="you_can_change_income_later_in_settings">You can always change this later in the app settings</string>
 
     <string name="part_of_day_morning">Morning</string>
     <string name="part_of_day_noon">Noon</string>
@@ -41,21 +44,28 @@
     <string name="delete_expense_confirmation_title">Delete Expense?</string>
     <string name="delete_expense_confirmation_content">Once this expense is deleted, it cannot be undone.</string>
 
-    <string name="monthly_limit_input_title">Monthly Limit</string>
-    <string name="monthly_limit_input_content">Set a monthly goal for you to keep your expenses under</string>
+    <!-- Dialog Content -->
+    <string name="monthly_income_input_dialog_title">Monthly Income</string>
+    <string name="monthly_income_input_dialog_content">Enter your income on a monthly basis</string>
 
-    <string name="monthly_limit_set">Monthly limit set</string>
+    <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
 
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
     <string name="app_theme_dark">Dark</string>
 
-    <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
+    <!-- Preferences -->
+    <string name="preference_option_app_theme">App Theme</string>
+    <string name="preference_option_dynamic_colors">Dynamic Colors</string>
+    <string name="preference_option_dynamic_colors_summary">Set app colors based on your wallpaper</string>
+    <string name="notifications">Notifications</string>
+    <string name="click_to_update_your_income">Click to update your income</string>
+    <string name="your_income_is_value">Your income is %s</string>
 
     <string name="app_greeting">Good %s,</string>
-    <string name="you_can_change_limit_later_in_settings">You can always change your limit in the app settings</string>
     <string name="your_balance">Your Balance</string>
-    <string name="fwd_slash_limit">/ %s</string>
+    <string name="fwd_slash_amount_value">/ %s</string>
+    <string name="income">Income</string>
     <string name="recent_spends">Recent Spends</string>
     <string name="spent_this_month">Spent this month</string>
     <string name="amount_zero">0</string>
@@ -63,18 +73,8 @@
     <string name="expense_added">Expense Added</string>
     <string name="expense_updated">Expense Updated</string>
     <string name="expense_deleted">Expense Deleted</string>
-    <string name="how_much_did_you_spend">How much did you spend?</string>
-    <string name="set_a_monthly_limit">Set a Monthly Limit</string>
-    <string name="enter_monthly_limit">Enter your limit</string>
-    <string name="monthly_limit">Monthly Limit</string>
-    <string name="general">General</string>
-    <string name="app_theme">App Theme</string>
     <string name="choose_theme">Choose Theme</string>
-    <string name="dynamic_colors">Dynamic Colors</string>
-    <string name="dynamic_colors_summary">Set app colors based on your wallpaper</string>
-    <string name="expenses">Expenses</string>
-    <string name="monthly_limit_updated">Monthly limit updated</string>
-    <string name="click_to_set_monthly_limit">Click to set Monthly Limit</string>
-    <string name="your_limit_is_set_to_value">Your limit is set to %s</string>
-    <string name="notifications">Notifications</string>
+    <string name="income_updated">Your income has been updated</string>
+    <string name="enter_income">Enter Income</string>
+    <string name="tag_your_expense">Tag your expense</string>
 </resources>

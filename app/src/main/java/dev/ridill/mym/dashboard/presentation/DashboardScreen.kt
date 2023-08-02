@@ -164,7 +164,6 @@ private fun Greeting(
     Crossfade(targetState = partOfDay, label = "Greeting") { part ->
         Text(
             text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium,
             modifier = modifier
         )
@@ -193,17 +192,20 @@ private fun BalanceAndLimit(
                 .alignBy(LastBaseline)
         ) {
             Text(
-                text = stringResource(R.string.fwd_slash_limit, Formatter.currency(it)),
+                text = stringResource(R.string.fwd_slash_amount_value, Formatter.currency(it)),
                 style = MaterialTheme.typography.titleLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
         HorizontalSpacer(spacing = SpacingExtraSmall)
         Text(
-            text = stringResource(R.string.monthly_limit),
+            text = stringResource(R.string.income),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Normal,
             modifier = Modifier
-                .alignBy(LastBaseline)
+                .alignBy(LastBaseline),
+            maxLines = 1
         )
     }
 }
@@ -228,7 +230,8 @@ private fun Balance(
                 text = Formatter.currency(it),
                 style = MaterialTheme.typography.displayLarge,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

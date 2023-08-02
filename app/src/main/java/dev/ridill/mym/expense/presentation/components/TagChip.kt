@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import dev.ridill.mym.core.ui.theme.SpacingSmall
+import dev.ridill.mym.core.ui.util.contentColor
 
 @Composable
 fun FilledTagChip(
@@ -32,6 +33,7 @@ fun FilledTagChip(
         Text(
             text = name,
             style = MaterialTheme.typography.labelLarge,
+            color = color.contentColor()
         )
     }
 }
