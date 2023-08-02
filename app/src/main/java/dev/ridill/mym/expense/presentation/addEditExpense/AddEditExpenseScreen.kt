@@ -115,13 +115,21 @@ fun AddEditExpenseScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(SpacingMedium),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
+            VerticalSpacer(spacing = SpacingLarge)
             AmountInput(
                 amount = amountInput,
                 onAmountChange = actions::onAmountChange,
                 modifier = Modifier
                     .focusRequester(amountFocusRequester)
+            )
+
+            NoteInput(
+                input = noteInput,
+                onValueChange = actions::onNoteChange,
+                onFocused = actions::onNoteInputFocused
             )
 
             if (!isEditMode) {
@@ -132,16 +140,15 @@ fun AddEditExpenseScreen(
                         focusManager.moveFocus(FocusDirection.Down)
                     },
                     modifier = Modifier
-                        .fillMaxWidth(0.8f)
+                        .fillMaxWidth(AMOUNT_RECOMMENDATION_WIDTH_FRACTION)
                 )
-
-                VerticalSpacer(spacing = SpacingLarge)
             }
 
-            NoteInput(
-                input = noteInput,
-                onValueChange = actions::onNoteChange,
-                onFocused = actions::onNoteInputFocused
+            ExpenseDate(
+                date = state.expenseDate,
+                time = state.expenseTime,
+                modifier = Modifier
+                    .align(Alignment.Start)
             )
         }
 
@@ -226,6 +233,8 @@ private fun AmountRecommendations(
         }
     }
 }
+
+private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 
 @Composable
 private fun ExpenseDate(
