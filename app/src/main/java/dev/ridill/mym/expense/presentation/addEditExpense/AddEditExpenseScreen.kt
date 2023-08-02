@@ -2,6 +2,7 @@ package dev.ridill.mym.expense.presentation.addEditExpense
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +55,8 @@ import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
+import dev.ridill.mym.core.ui.util.contentColor
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 
 @Composable
 fun AddEditExpenseScreen(
@@ -145,10 +150,16 @@ fun AddEditExpenseScreen(
             }
 
             ExpenseDate(
-                date = state.expenseDate,
-                time = state.expenseTime,
+                date = state.expenseDateFormatted,
+                time = state.expenseTimeFormatted,
                 modifier = Modifier
                     .align(Alignment.Start)
+            )
+
+            TagsList(
+                tagsList = state.tagsList,
+                selectedTag = state.selectedTagId,
+                onTagClick = actions::onTagClick
             )
         }
 
@@ -261,6 +272,31 @@ private fun ExpenseDate(
                 style = MaterialTheme.typography.bodySmall,
                 color = LocalContentColor.current
                     .copy(alpha = ContentAlpha.SUB_CONTENT)
+            )
+        }
+    }
+}
+
+@Composable
+fun TagsList(
+    tagsList: List<ExpenseTag>,
+    selectedTag: String?,
+    onTagClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+    ) {
+        tagsList.forEach { tag ->
+            FilterChip(
+                selected = tag.name == selectedTag,
+                onClick = { onTagClick(tag.name) },
+                label = { Text(tag.name) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = tag.color,
+                    selectedLabelColor = tag.color.contentColor()
+                )
             )
         }
     }

@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import dev.ridill.mym.expense.data.local.ExpenseDao
+import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.entity.TagEntity
 
@@ -23,4 +24,5 @@ abstract class MYMDatabase : RoomDatabase() {
 
     // Dao Methods
     abstract fun expenseDao(): ExpenseDao
+    abstract fun tagsDao(): TagsDao
 }

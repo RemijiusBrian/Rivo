@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 fun Context.findActivity(): Activity {
     var context = this
@@ -21,3 +23,9 @@ fun Context.launchNotificationSettings() {
     }
     startActivity(intent)
 }
+
+fun Color.contentColor(
+    onLight: Color = Color.Black,
+    onDark: Color = Color.White
+): Color = if (luminance() >= 0.4f) onLight
+else onDark
