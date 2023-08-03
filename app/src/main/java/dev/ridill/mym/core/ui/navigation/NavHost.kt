@@ -2,6 +2,8 @@ package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
 import android.os.Build
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +16,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.defaultFadeIn
+import dev.ridill.mym.core.ui.components.defaultFadeOut
 import dev.ridill.mym.core.ui.components.rememberPermissionLauncher
 import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
@@ -115,7 +119,9 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
 // Dashboard
 private fun NavGraphBuilder.dashboard(navController: NavHostController) {
     composable(
-        route = DashboardDestination.route
+        route = DashboardDestination.route,
+        exitTransition = { defaultFadeOut() },
+        popEnterTransition = { defaultFadeIn() }
     ) { navBackStackEntry ->
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -156,7 +162,9 @@ private fun NavGraphBuilder.dashboard(navController: NavHostController) {
 private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
     composable(
         route = AddEditExpenseDestination.route,
-        arguments = AddEditExpenseDestination.arguments
+        arguments = AddEditExpenseDestination.arguments,
+        enterTransition = { slideInVertically { it } },
+        popExitTransition = { slideOutVertically { it } }
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
@@ -216,7 +224,9 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
 
 private fun NavGraphBuilder.settings(navController: NavHostController) {
     composable(
-        route = SettingsDestination.route
+        route = SettingsDestination.route,
+        enterTransition = { defaultFadeIn() },
+        popExitTransition = { defaultFadeOut() }
     ) { navBackStackEntry ->
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
