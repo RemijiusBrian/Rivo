@@ -160,7 +160,9 @@ fun AddEditExpenseScreen(
                 TagsList(
                     tagsList = state.tagsList,
                     selectedTag = state.selectedTagId,
-                    onTagClick = actions::onTagClick
+                    onTagClick = actions::onTagClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             }
         }
@@ -316,5 +318,10 @@ fun TagsList(
 private fun NewTagChip(
     modifier: Modifier = Modifier
 ) {
+
+}
+
+@Composable
+private fun NewChipInput() {
 
 }
