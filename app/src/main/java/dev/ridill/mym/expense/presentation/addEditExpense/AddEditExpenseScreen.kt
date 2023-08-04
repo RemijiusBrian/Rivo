@@ -57,6 +57,7 @@ import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.util.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseTag
+import dev.ridill.mym.expense.presentation.components.NewTagChip
 
 @Composable
 fun AddEditExpenseScreen(
@@ -156,15 +157,14 @@ fun AddEditExpenseScreen(
                     .align(Alignment.Start)
             )
 
-            if (state.tagsList.isNotEmpty()) {
-                TagsList(
-                    tagsList = state.tagsList,
-                    selectedTag = state.selectedTagId,
-                    onTagClick = actions::onTagClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
+            TagsList(
+                tagsList = state.tagsList,
+                selectedTag = state.selectedTagId,
+                onTagClick = actions::onTagClick,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onNewTagClick = actions::onNoteInputFocused
+            )
         }
 
         if (state.showDeleteConfirmation) {
@@ -286,6 +286,7 @@ fun TagsList(
     tagsList: List<ExpenseTag>,
     selectedTag: String?,
     onTagClick: (String) -> Unit,
+    onNewTagClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -309,16 +310,9 @@ fun TagsList(
                 )
             }
 
-
+            NewTagChip(onClick = onNewTagClick)
         }
     }
-}
-
-@Composable
-private fun NewTagChip(
-    modifier: Modifier = Modifier
-) {
-
 }
 
 @Composable

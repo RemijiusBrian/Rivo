@@ -1,7 +1,7 @@
 package dev.ridill.mym.expense.domain.model
 
+import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.Zero
 import java.time.LocalDateTime
 
 data class Expense(
@@ -12,7 +12,7 @@ data class Expense(
 ) {
     companion object {
         val DEFAULT = Expense(
-            id = Long.Zero,
+            id = MYMDatabase.DEFAULT_ID_LONG,
             amount = "",
             note = "",
             dateTime = DateUtil.now()

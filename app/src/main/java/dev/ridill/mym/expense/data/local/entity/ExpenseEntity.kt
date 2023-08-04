@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.core.data.db.MYMDatabase
 import java.time.LocalDateTime
 
 @Entity(
@@ -19,9 +19,9 @@ import java.time.LocalDateTime
 )
 data class ExpenseEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Long = Long.Zero,
+    val id: Long = MYMDatabase.DEFAULT_ID_LONG,
     val note: String,
     val amount: Double,
     val dateTime: LocalDateTime,
-    val tagId: String? = null
+    val tagId: String?
 )

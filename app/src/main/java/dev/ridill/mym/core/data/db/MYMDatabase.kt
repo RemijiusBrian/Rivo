@@ -20,6 +20,7 @@ import dev.ridill.mym.expense.data.local.entity.TagEntity
 abstract class MYMDatabase : RoomDatabase() {
     companion object {
         const val NAME = "MYM.db"
+        const val DEFAULT_ID_LONG = 0L
     }
 
     // Dao Methods

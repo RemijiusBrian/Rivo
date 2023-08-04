@@ -1,5 +1,7 @@
 package dev.ridill.mym.expense.presentation.addEditExpense
 
+import androidx.compose.ui.graphics.Color
+
 interface AddEditExpenseActions {
     fun onAmountChange(value: String)
     fun onNoteInputFocused()
@@ -10,4 +12,8 @@ interface AddEditExpenseActions {
     fun onDeleteClick()
     fun onDeleteDismiss()
     fun onDeleteConfirm()
+    fun onNewTagClick()
+    fun onNewTagNameChange(value: String)
+    fun onNewTagColorSelected(color: Color)
+    fun onNewTagSave()
 }

@@ -19,6 +19,7 @@
     <string name="cd_expense_date">Expense Date</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
     <string name="cd_action_continue">Continue</string>
+    <string name="cd_create_new_tag">Create New Tag</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -77,4 +78,5 @@
     <string name="income_updated">Your income has been updated</string>
     <string name="enter_income">Enter Income</string>
     <string name="tag_your_expense">Tag your expense</string>
+    <string name="new_tag_chip_label">New</string>
 </resources>

@@ -9,7 +9,8 @@ data class AddEditExpenseState(
     val tagsList: List<ExpenseTag> = emptyList(),
     val selectedTagId: String? = null,
     val expenseDateTime: LocalDateTime = DateUtil.now(),
-    val showDeleteConfirmation: Boolean = false
+    val showDeleteConfirmation: Boolean = false,
+    val showNewTagInput: Boolean = false
 ) {
     val expenseTimeFormatted: String
         get() = expenseDateTime.format(DateUtil.Formatters.localizedTimeShort)

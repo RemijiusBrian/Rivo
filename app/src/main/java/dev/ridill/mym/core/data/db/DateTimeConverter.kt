@@ -8,12 +8,12 @@ import java.time.format.DateTimeFormatter
 class DateTimeConverter {
 
     @TypeConverter
-    fun fromTimestamp(value: String): LocalDateTime? = tryOrNull {
+    fun fromTimestamp(value: String?): LocalDateTime? = tryOrNull {
         LocalDateTime.parse(value, DateTimeFormatter.ISO_DATE_TIME)
     }
 
     @TypeConverter
-    fun dateToTimestamp(dateTime: LocalDateTime): String? = tryOrNull {
-        dateTime.format(DateTimeFormatter.ISO_DATE_TIME)
+    fun dateToTimestamp(dateTime: LocalDateTime?): String? = tryOrNull {
+        dateTime?.format(DateTimeFormatter.ISO_DATE_TIME)
     }
 }

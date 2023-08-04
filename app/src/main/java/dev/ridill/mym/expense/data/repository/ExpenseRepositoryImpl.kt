@@ -2,14 +2,10 @@ package dev.ridill.mym.expense.data.repository
 
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.expense.data.local.ExpenseDao
-import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
-import dev.ridill.mym.expense.data.local.entity.TagEntity
 import dev.ridill.mym.expense.data.toExpense
-import dev.ridill.mym.expense.data.toExpenseTag
 import dev.ridill.mym.expense.domain.model.Expense
-import dev.ridill.mym.expense.domain.model.ExpenseTag
-import dev.ridill.mym.expense.domain.repository.AddEditExpenseRepository
+import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,15 +13,14 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import kotlin.math.roundToLong
 
-class AddEditExpenseRepositoryImpl(
-    private val expenseDao: ExpenseDao,
-    private val tagsDao: TagsDao
-) : AddEditExpenseRepository {
+class ExpenseRepositoryImpl(
+    private val dao: ExpenseDao
+) : ExpenseRepository {
     override suspend fun getExpenseById(id: Long): Expense? = withContext(Dispatchers.IO) {
-        expenseDao.getExpenseById(id)?.toExpense()
+        dao.getExpenseById(id)?.toExpense()
     }
 
-    override fun getAmountRecommendations(): Flow<List<Long>> = expenseDao.getExpenseRange()
+    override fun getAmountRecommendations(): Flow<List<Long>> = dao.getExpenseRange()
         .map { (upperLimit, lowerLimit) ->
             val roundUpper = (upperLimit.roundToLong() / 10) * 10
             val roundLower = (lowerLimit.roundToLong() / 10) * 10
@@ -36,29 +31,27 @@ class AddEditExpenseRepositoryImpl(
             else listOf(roundLower, roundLower + (range / 2), roundUpper)
         }
 
-    override fun getTagsList(): Flow<List<ExpenseTag>> =
-        tagsDao.getTagsList().map { entities ->
-            entities.map(TagEntity::toExpenseTag)
-        }
-
     override suspend fun cacheExpense(
-        id: Long,
+        id: Long?,
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
         tagId: String?
     ) = withContext(Dispatchers.IO) {
         val entity = ExpenseEntity(
-            id = id,
+            id = id ?: Long.Zero,
             note = note,
             amount = amount,
             dateTime = dateTime,
             tagId = tagId
         )
-        expenseDao.insert(entity)
+        dao.insert(entity)
     }
 
     override suspend fun deleteExpense(id: Long) = withContext(Dispatchers.IO) {
-        expenseDao.deleteExpenseById(id)
+        dao.deleteExpenseById(id)
     }
+
+    override fun getTotalExpenditureForDate(monthAndYearString: String): Flow<Double> =
+        dao.getExpenditureForMonth(monthAndYearString)
 }

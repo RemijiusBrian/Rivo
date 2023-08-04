@@ -37,6 +37,7 @@ import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesScreen
+import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesViewModel
 import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
@@ -265,11 +266,18 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
         enterTransition = { defaultFadeIn() },
         popExitTransition = { defaultFadeOut() }
     ) { navBackStackEntry ->
+        val viewModel: AllExpensesViewModel = hiltViewModel(navBackStackEntry)
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
+        val context = LocalContext.current
         val snackbarHostState = rememberSnackbarHostState()
+
+        LaunchedEffect(viewModel, context, snackbarHostState) {}
 
         AllExpensesScreen(
             snackbarHostState = snackbarHostState,
+            state = state,
+            actions = viewModel,
             navigateUp = navController::navigateUp
         )
     }
