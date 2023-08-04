@@ -1,7 +1,6 @@
 package dev.ridill.mym.expense.data
 
 import androidx.compose.ui.graphics.Color
-import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.expense.data.local.entity.TagEntity
 import dev.ridill.mym.expense.data.local.relations.TagWithExpenditureRelation
 import dev.ridill.mym.expense.domain.model.ExpenseTag
@@ -22,6 +21,5 @@ fun TagWithExpenditureRelation.toTagWithExpenditure(
         createdTimestamp = createdTimestamp
     ),
     expenditure = amount,
-    percentOfTotalExpenditure = Float.Zero
-//    ((expenditure ?: Double.Zero) / totalExpenditure).toFloat()
+    percentOfTotalExpenditure = (amount / totalExpenditure).toFloat()
 )

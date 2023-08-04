@@ -4,5 +4,7 @@ import java.time.Month
 
 interface AllExpensesActions {
     fun onMonthSelect(month: Month)
-    fun onYearSelect(year: String)
+    fun onYearSelect(year: Int)
+    fun onTagClick(tag: String)
+    fun onNewTagClick()
 }

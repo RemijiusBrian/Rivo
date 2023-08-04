@@ -79,4 +79,6 @@
     <string name="enter_income">Enter Income</string>
     <string name="tag_your_expense">Tag your expense</string>
     <string name="new_tag_chip_label">New</string>
+    <string name="percent_of_total">%s Percent of total</string>
+    <string name="amount_worth_spent">%s worth spent</string>
 </resources>

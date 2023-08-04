@@ -18,11 +18,8 @@ object DateUtil {
         else -> PartOfDay.EVENING
     }
 
-    fun currentMonthYear(): String = now()
-        .format(Formatters.MM_yyyy_hyphenSep)
-
     object Formatters {
-        val MM_yyyy_hyphenSep: DateTimeFormatter
+        val MM_yyyy_dbFormat: DateTimeFormatter
             get() = DateTimeFormatter.ofPattern("MM-yyyy")
 
         val localizedTimeShort: DateTimeFormatter

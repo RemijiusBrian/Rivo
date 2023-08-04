@@ -24,11 +24,14 @@ class DashboardRepositoryImpl(
     }
 
     override fun getExpenditureForCurrentMonth(): Flow<Double> =
-        dao.getExpenditureForMonth(DateUtil.currentMonthYear())
+        dao.getExpenditureForMonth(currentDateDbFormat())
             .distinctUntilChanged()
 
     override fun getRecentSpends(): Flow<List<RecentSpend>> =
-        dao.getExpensesForMonth(DateUtil.currentMonthYear()).map { entities ->
+        dao.getExpensesForMonth(currentDateDbFormat()).map { entities ->
             entities.map(ExpenseWithTag::toRecentSpend)
         }
+
+    private fun currentDateDbFormat(): String =
+        DateUtil.now().format(DateUtil.Formatters.MM_yyyy_dbFormat)
 }

@@ -1,5 +1,6 @@
 package dev.ridill.mym.expense.data.repository
 
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
@@ -10,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.roundToLong
 
@@ -52,6 +54,6 @@ class ExpenseRepositoryImpl(
         dao.deleteExpenseById(id)
     }
 
-    override fun getTotalExpenditureForDate(monthAndYearString: String): Flow<Double> =
-        dao.getExpenditureForMonth(monthAndYearString)
+    override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =
+        dao.getExpenditureForMonth(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))
 }

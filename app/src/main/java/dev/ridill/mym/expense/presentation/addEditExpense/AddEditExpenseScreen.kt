@@ -45,7 +45,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.mym.R
-import dev.ridill.mym.core.domain.util.Formatter
+import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -188,7 +188,7 @@ private fun AmountInput(
         value = amount,
         onValueChange = onAmountChange,
         modifier = modifier,
-        leadingIcon = { Text(Formatter.currencySymbol()) },
+        leadingIcon = { Text(TextFormatter.currencySymbol()) },
         textStyle = MaterialTheme.typography.headlineMedium,
         placeholder = { Text(stringResource(R.string.amount_zero)) },
         singleLine = true,
@@ -243,7 +243,7 @@ private fun AmountRecommendations(
         recommendations.forEach { amount ->
             SuggestionChip(
                 onClick = { onRecommendationClick(amount) },
-                label = { Text(Formatter.currency(amount)) }
+                label = { Text(TextFormatter.currency(amount)) }
             )
         }
     }

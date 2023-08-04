@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 val Double.Companion.Zero: Double get() = 0.0
+fun Double?.orZero(): Double = this ?: Double.Zero
 
 val Float.Companion.Zero: Float get() = 0f
 val Float.Companion.One: Float get() = 1f

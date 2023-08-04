@@ -5,14 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import java.time.Month
 import javax.inject.Inject
 
@@ -23,57 +22,61 @@ class AllExpensesViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), AllExpensesActions {
 
-    private val selectedMonth = savedStateHandle.getStateFlow(SELECTED_MONTH, Month.AUGUST)
-    private val selectedYear = savedStateHandle.getStateFlow(SELECTED_YEAR, "2023")
+    private val selectedDate = savedStateHandle
+        .getStateFlow(SELECTED_DATE, DateUtil.now().toLocalDate())
 
-    private val selectedMonthAndYear = combine(selectedMonth, selectedYear) { month, year ->
-        "${month.value.toString().padStart(2, '0')}-$year"
-    }
-        .onEach { println("AppDebug: Date $it") }
-        .distinctUntilChanged()
-
-    private val totalExpenditure = selectedMonthAndYear.flatMapLatest { date ->
+    private val totalExpenditure = selectedDate.flatMapLatest { date ->
         expenseRepo.getTotalExpenditureForDate(date)
     }.distinctUntilChanged()
 
     private val tagsWithExpenditures = combineTuple(
-        selectedMonthAndYear,
+        selectedDate,
         totalExpenditure
     ).flatMapLatest { (date, expenditure) ->
         tagsRepo.getTagsWithExpenditures(
-            monthAndYearString = date,
+            date = date,
             totalExpenditure = expenditure
         )
-    }.onEach { println("AppDebug: Tags Info - $it") }
+    }
+
+    private val selectedTag = savedStateHandle.getStateFlow<String?>(SELECTED_TAG, null)
 
     val state = combineTuple(
+        selectedDate,
         totalExpenditure,
         tagsWithExpenditures,
-        selectedMonth,
-        selectedYear
+        selectedTag
     ).map { (
+                selectedDate,
                 totalExpenditure,
                 tagsWithExpenditures,
-                selectedMonth,
-                selectedYear
+                selectedTag
             ) ->
         AllExpensesState(
+            selectedDate = selectedDate,
+            yearsList = listOf(2023),
             totalExpenditure = totalExpenditure,
             tagsWithExpenditures = tagsWithExpenditures,
-            selectedMonth = selectedMonth,
-            yearsList = listOf("2023"),
-            selectedYear = selectedYear
+            selectedTag = selectedTag
         )
     }.asStateFlow(viewModelScope, AllExpensesState())
 
     override fun onMonthSelect(month: Month) {
-        savedStateHandle[SELECTED_MONTH] = month
+        savedStateHandle[SELECTED_DATE] = selectedDate.value.withMonth(month.value)
     }
 
-    override fun onYearSelect(year: String) {
-        savedStateHandle[SELECTED_YEAR] = year
+    override fun onYearSelect(year: Int) {
+        savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
+    }
+
+    override fun onTagClick(tag: String) {
+        savedStateHandle[SELECTED_TAG] = tag
+            .takeIf { it != selectedTag.value }
+    }
+
+    override fun onNewTagClick() {
     }
 }
 
-private const val SELECTED_MONTH = "SELECTED_MONTH"
-private const val SELECTED_YEAR = "SELECTED_YEAR"
+private const val SELECTED_DATE = "SELECTED_DATE"
+private const val SELECTED_TAG = "SELECTED_TAG_NAME"

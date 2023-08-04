@@ -1,5 +1,6 @@
 package dev.ridill.mym.expense.data.repository
 
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.TagEntity
 import dev.ridill.mym.expense.data.toExpenseTag
@@ -9,6 +10,7 @@ import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 
 class TagsRepositoryImpl(
     private val dao: TagsDao
@@ -20,9 +22,10 @@ class TagsRepositoryImpl(
         }
 
     override fun getTagsWithExpenditures(
-        monthAndYearString: String,
+        date: LocalDate,
         totalExpenditure: Double
-    ): Flow<List<TagWithExpenditure>> = dao.getTagsWithExpenditureForDate(monthAndYearString)
+    ): Flow<List<TagWithExpenditure>> = dao
+        .getTagsWithExpenditureForDate(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))
         .map { entities ->
             entities.map { it.toTagWithExpenditure(totalExpenditure) }
         }

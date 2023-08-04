@@ -50,13 +50,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.Formatter
+import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
 import dev.ridill.mym.core.domain.util.Zero
@@ -76,7 +77,6 @@ import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.dashboard.domain.model.RecentSpend
 import dev.ridill.mym.expense.domain.model.ExpenseTag
-import dev.ridill.mym.expense.presentation.components.FilledTagChip
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -192,7 +192,7 @@ private fun BalanceAndLimit(
                 .alignBy(LastBaseline)
         ) {
             Text(
-                text = stringResource(R.string.fwd_slash_amount_value, Formatter.currency(it)),
+                text = stringResource(R.string.fwd_slash_amount_value, TextFormatter.currency(it)),
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -227,7 +227,7 @@ private fun Balance(
         )
         VerticalNumberSpinnerContent(number = amount) {
             Text(
-                text = Formatter.currency(it),
+                text = TextFormatter.currency(it),
                 style = MaterialTheme.typography.displayLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -361,7 +361,7 @@ private fun SpentAmount(
                 .alignByBaseline()
         ) {
             Text(
-                text = Formatter.currency(it),
+                text = TextFormatter.currency(it),
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -415,9 +415,9 @@ private fun RecentTransactionItem(
         },
         supportingContent = {
             tag?.let {
-                FilledTagChip(
-                    name = it.name,
-                    color = it.color
+                Text(
+                    text = it.name,
+                    textDecoration = TextDecoration.Underline
                 )
             }
         },

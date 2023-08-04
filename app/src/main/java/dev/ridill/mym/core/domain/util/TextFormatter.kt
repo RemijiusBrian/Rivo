@@ -4,7 +4,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-object Formatter {
+object TextFormatter {
     fun currency(
         amount: Double,
         locale: Locale = Locale.getDefault(),
@@ -34,6 +34,12 @@ object Formatter {
     fun currencySymbol(
         locale: Locale = Locale.getDefault()
     ): String = Currency.getInstance(locale).symbol
+
+    fun percent(
+        value: Float,
+        locale: Locale = Locale.getDefault()
+    ): String = NumberFormat.getPercentInstance(locale)
+        .format(value)
 }
 
 private const val DEFAULT_MAX_FRACTION_DIGITS = 2
