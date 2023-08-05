@@ -17,12 +17,10 @@ interface TagsDao : BaseDao<TagEntity> {
     @Transaction
     @Query(
         """
-        SELECT tag.name as name, tag.colorCode as colorCode, tag.dateCreated as createdTimestamp, IFNULL(SUM(exp.amount), 0.0) as amount
+        SELECT tag.name as name, tag.colorCode as colorCode, tag.dateCreated as createdTimestamp,
+            (SELECT IFNULL(SUM(subExp.amount), 0.0) FROM ExpenseEntity subExp WHERE subExp.tagId = tag.name AND strftime('%m-%Y', subExp.dateTime) = :monthAndYear) as amount
         FROM TagEntity tag
-        JOIN ExpenseEntity exp
-        ON tag.name = exp.tagId
-        GROUP BY tag.name
-        HAVING strftime('%m-%Y', exp.dateTime) = :monthAndYear
+        ORDER BY tag.name ASC 
     """
     )
     fun getTagsWithExpenditureForDate(

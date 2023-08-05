@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
+import dev.ridill.mym.core.ui.util.MaterialIconDimension
 
 val Icons.Outlined.Brightness: ImageVector
     get() {
@@ -16,11 +17,11 @@ val Icons.Outlined.Brightness: ImageVector
             return _brightness!!
         }
         _brightness = ImageVector.Builder(
-            name = "vector",
-            defaultWidth = 512.dp,
-            defaultHeight = 512.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
+            name = "Outlined.Brightness",
+            defaultWidth = MaterialIconDimension.dp,
+            defaultHeight = MaterialIconDimension.dp,
+            viewportWidth = MaterialIconDimension,
+            viewportHeight = MaterialIconDimension
         ).apply {
             path(
                 fill = SolidColor(Color.Black),

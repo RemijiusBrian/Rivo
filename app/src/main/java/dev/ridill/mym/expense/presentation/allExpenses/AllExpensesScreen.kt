@@ -60,6 +60,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
+import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.theme.ContentAlpha
@@ -439,45 +440,57 @@ private fun ExpenseList(
     onExpenseClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
+    val isListEmpty by remember(expenseList) {
+        derivedStateOf { expenseList.isEmpty() }
+    }
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
-        AnimatedVisibility(visible = multiSelectionModeActive) {
-            Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                ExpenseBulkOperation.values().forEach { operation ->
-                    IconButton(onClick = { onBulkOperationClick(operation) }) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(operation.iconRes),
-                            contentDescription = stringResource(operation.contentDescriptionRes)
-                        )
-                    }
-                }
-                TriStateCheckbox(
-                    state = selectionState,
-                    onClick = onSelectionStateChange
-                )
-            }
+        if (isListEmpty) {
+            EmptyListIndicator(resId = R.raw.lottie_empty_list_ghost)
         }
-        LazyColumn(
-            contentPadding = PaddingValues(
-                bottom = SpacingListEnd
-            ),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        Column(
+            modifier = Modifier
+                .matchParentSize()
         ) {
-            items(items = expenseList, key = { it.id }) { expense ->
-                ExpenseCard(
-                    note = expense.note,
-                    amount = expense.amount,
-                    date = expense.date,
-                    selected = expense.id in selectedExpenseIds,
-                    onLongClick = { onExpenseLongClick(expense.id) },
-                    onClick = { onExpenseClick(expense.id) }
-                )
+            AnimatedVisibility(visible = multiSelectionModeActive) {
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    ExpenseBulkOperation.values().forEach { operation ->
+                        IconButton(onClick = { onBulkOperationClick(operation) }) {
+                            Icon(
+                                imageVector = operation.icon,
+                                contentDescription = stringResource(operation.contentDescriptionRes)
+                            )
+                        }
+                    }
+                    TriStateCheckbox(
+                        state = selectionState,
+                        onClick = onSelectionStateChange
+                    )
+                }
+            }
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    bottom = SpacingListEnd
+                ),
+                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            ) {
+                items(items = expenseList, key = { it.id }) { expense ->
+                    ExpenseCard(
+                        note = expense.note,
+                        amount = expense.amount,
+                        date = expense.date,
+                        selected = expense.id in selectedExpenseIds,
+                        onLongClick = { onExpenseLongClick(expense.id) },
+                        onClick = { onExpenseClick(expense.id) }
+                    )
+                }
             }
         }
     }

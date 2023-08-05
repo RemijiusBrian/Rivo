@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
+import dev.ridill.mym.core.ui.util.MaterialIconDimension
 
 val Icons.Outlined.Palette: ImageVector
     get() {
@@ -17,11 +18,11 @@ val Icons.Outlined.Palette: ImageVector
             return _palette!!
         }
         _palette = ImageVector.Builder(
-            name = "vector",
-            defaultWidth = 512.dp,
-            defaultHeight = 512.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f
+            name = "Outlined.Palette",
+            defaultWidth = MaterialIconDimension.dp,
+            defaultHeight = MaterialIconDimension.dp,
+            viewportWidth = MaterialIconDimension,
+            viewportHeight = MaterialIconDimension
         ).apply {
             group {
                 path(
