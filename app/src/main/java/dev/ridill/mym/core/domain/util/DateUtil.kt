@@ -49,7 +49,7 @@ object DateUtil {
                     23L to "23rd",
                     31L to "31st",
                 ).also { map ->
-                    (1L..31L).forEach { map.putIfAbsent(it, "th") }
+                    (1L..31L).forEach { map.putIfAbsent(it, "${it}th") }
                 }
 
                 return mutableMap.toMap()
