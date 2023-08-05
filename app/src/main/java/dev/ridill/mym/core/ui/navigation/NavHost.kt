@@ -174,6 +174,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val tagNameInput = viewModel.tagNameInput.collectAsStateWithLifecycle()
+        val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
 
         val isEditMode = AddEditExpenseDestination.isArgEditMode(navBackStackEntry)
 
@@ -219,6 +221,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
             amountInput = { amount.value },
             noteInput = { note.value },
             isEditMode = isEditMode,
+            tagNameInput = { tagNameInput.value },
+            tagColorInput = { tagColorInput.value },
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp
@@ -273,6 +277,8 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
     ) { navBackStackEntry ->
         val viewModel: AllExpensesViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val tagNameInput = viewModel.tagNameInput.collectAsStateWithLifecycle()
+        val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
         val snackbarHostState = rememberSnackbarHostState()
@@ -293,6 +299,8 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
         AllExpensesScreen(
             snackbarHostState = snackbarHostState,
             state = state,
+            tagNameInput = { tagNameInput.value },
+            tagColorInput = { tagColorInput.value },
             actions = viewModel,
             navigateUp = navController::navigateUp
         )

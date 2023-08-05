@@ -1,7 +1,7 @@
 package dev.ridill.mym.expense.domain.repository
 
-import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.Expense
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,6 +21,8 @@ interface ExpenseRepository {
     )
 
     suspend fun deleteExpense(id: Long)
+
+    suspend fun deleteExpenses(ids: List<Long>)
 
     fun getTotalExpenditureForDate(date: LocalDate): Flow<Double>
 

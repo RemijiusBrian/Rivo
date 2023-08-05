@@ -52,4 +52,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
 
     @Query("DELETE FROM ExpenseEntity WHERE id = :id")
     suspend fun deleteExpenseById(id: Long)
+
+    @Query("DELETE FROM ExpenseEntity WHERE id IN (:ids)")
+    suspend fun deleteMultipleExpenseById(ids: List<Long>)
 }

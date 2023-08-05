@@ -1,5 +1,7 @@
 package dev.ridill.mym.expense.data.repository
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.TagEntity
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class TagsRepositoryImpl(
     private val dao: TagsDao
@@ -39,5 +42,20 @@ class TagsRepositoryImpl(
 
     override suspend fun untagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
         dao.untagExpenses(ids)
+    }
+
+    override suspend fun saveTag(name: String, color: Color, timestamp: LocalDateTime) =
+        withContext(Dispatchers.IO) {
+            val entity = TagEntity(
+                name = name,
+                colorCode = color.toArgb(),
+                dateCreated = timestamp
+            )
+
+            dao.insert(entity)
+        }
+
+    override suspend fun deleteTagByName(name: String) = withContext(Dispatchers.IO) {
+        dao.clearAndDeleteTag(name)
     }
 }

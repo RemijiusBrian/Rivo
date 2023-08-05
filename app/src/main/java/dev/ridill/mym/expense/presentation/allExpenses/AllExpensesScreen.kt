@@ -60,6 +60,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
+import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
@@ -74,6 +75,7 @@ import dev.ridill.mym.expense.domain.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.BaseExpenseLayout
+import dev.ridill.mym.expense.presentation.components.NewTagDialog
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -83,6 +85,8 @@ import java.util.Locale
 fun AllExpensesScreen(
     snackbarHostState: SnackbarHostState,
     state: AllExpensesState,
+    tagNameInput: () -> String,
+    tagColorInput: () -> Int?,
     actions: AllExpensesActions,
     navigateUp: () -> Unit
 ) {
@@ -127,6 +131,7 @@ fun AllExpensesScreen(
                 tags = state.tagsWithExpenditures,
                 selectedTagId = state.selectedTag,
                 onTagClick = actions::onTagClick,
+                onTagDeleteClick = actions::onDeleteTagClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.expenseMultiSelectionModeActive,
                 modifier = Modifier
@@ -155,6 +160,35 @@ fun AllExpensesScreen(
                     .weight(Float.One)
             )
         }
+
+        if (state.showDeleteExpenseConfirmation) {
+            ConfirmationDialog(
+                titleRes = R.string.delete_multiple_expense_confirmation_title,
+                contentRes = R.string.action_irreversible_message,
+                onConfirm = actions::onDeleteExpenseConfirm,
+                onDismiss = actions::onDeleteExpenseDismiss
+            )
+        }
+
+        if (state.showDeleteTagConfirmation) {
+            ConfirmationDialog(
+                titleRes = R.string.delete_tag_confirmation_title,
+                contentRes = R.string.action_irreversible_message,
+                onConfirm = actions::onDeleteTagConfirm,
+                onDismiss = actions::onDeleteTagDismiss
+            )
+        }
+
+        if (state.showNewTagInput) {
+            NewTagDialog(
+                nameInput = tagNameInput,
+                onNameChange = actions::onNewTagNameChange,
+                selectedColorCode = tagColorInput(),
+                onColorSelect = actions::onNewTagColorSelect,
+                onDismiss = actions::onNewTagInputDismiss,
+                onConfirm = actions::onNewTagInputConfirm
+            )
+        }
     }
 }
 
@@ -163,6 +197,7 @@ private fun TagsInfoList(
     tags: List<TagWithExpenditure>,
     selectedTagId: String?,
     onTagClick: (String) -> Unit,
+    onTagDeleteClick: (String) -> Unit,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -186,6 +221,7 @@ private fun TagsInfoList(
                     percentOfTotalExpenditure = item.percentOfTotalExpenditure,
                     isSelected = item.tag.name == selectedTagId,
                     onClick = { onTagClick(item.tag.name) },
+                    onDeleteClick = { onTagDeleteClick(item.tag.name) },
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
@@ -222,6 +258,7 @@ private fun TagInfoCard(
     percentOfTotalExpenditure: Float,
     isSelected: Boolean,
     onClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val transition = updateTransition(targetState = isSelected, label = "IsSelectedTransition")
@@ -261,16 +298,31 @@ private fun TagInfoCard(
                 .padding(SpacingMedium),
             verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleLarge
-                    .copy(
-                        fontSize = titleTextSize,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleLarge
+                        .copy(
+                            fontSize = titleTextSize,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(Float.One)
+                )
+                AnimatedVisibility(visible = isSelected) {
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = stringResource(R.string.cd_delete_tag)
+                        )
+                    }
+                }
+            }
 
             AnimatedVisibility(visible = isSelected) {
                 Text(

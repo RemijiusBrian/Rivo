@@ -24,10 +24,13 @@
     <string name="cd_long_press_to_select_expense">Long Press To Select Expense</string>
     <string name="cd_clear_expense_selection">Clear Expense Selection</string>
     <string name="cd_untag_expenses">Untag Expenses</string>
+    <string name="cd_select_tag_color">Select Tag Color</string>
+    <string name="cd_delete_tag">Delete Tag</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
+    <string name="error_invalid_tag_name">Invalid tag name</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -47,7 +50,9 @@
     <string name="part_of_day_evening">Evening</string>
 
     <string name="delete_expense_confirmation_title">Delete Expense?</string>
-    <string name="delete_expense_confirmation_content">Once this expense is deleted, it cannot be undone.</string>
+    <string name="delete_multiple_expense_confirmation_title">Delete Expenses?</string>
+    <string name="delete_tag_confirmation_title">Delete Tag?</string>
+    <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <!-- Dialog Content -->
     <string name="monthly_income_input_dialog_title">Monthly Income</string>
@@ -91,4 +96,7 @@
     <string name="expenses_untagged">Expenses Untagged</string>
     <string name="source_code">Source Code</string>
     <string name="version">Version</string>
+    <string name="new_tag">New Tag</string>
+    <string name="new_tag_created">New tag created</string>
+    <string name="tag_deleted">Tag deleted</string>
 </resources>

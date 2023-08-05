@@ -32,4 +32,16 @@ interface TagsDao : BaseDao<TagEntity> {
 
     @Query("UPDATE ExpenseEntity SET tagId = NULL WHERE id IN (:ids)")
     suspend fun untagExpenses(ids: List<Long>)
+
+    @Query("UPDATE ExpenseEntity SET tagId = NULL WHERE tagId = :name")
+    suspend fun untagExpensesByTag(name: String)
+
+    @Query("DELETE FROM TagEntity WHERE name = :name")
+    suspend fun deleteTagByName(name: String)
+
+    @Transaction
+    suspend fun clearAndDeleteTag(name: String) {
+        untagExpensesByTag(name)
+        deleteTagByName(name)
+    }
 }

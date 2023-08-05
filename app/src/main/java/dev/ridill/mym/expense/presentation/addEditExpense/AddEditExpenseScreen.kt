@@ -58,12 +58,15 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.util.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.NewTagChip
+import dev.ridill.mym.expense.presentation.components.NewTagDialog
 
 @Composable
 fun AddEditExpenseScreen(
     snackbarHostState: SnackbarHostState,
     amountInput: () -> String,
     noteInput: () -> String,
+    tagNameInput: () -> String,
+    tagColorInput: () -> Int?,
     isEditMode: Boolean,
     state: AddEditExpenseState,
     actions: AddEditExpenseActions,
@@ -161,18 +164,29 @@ fun AddEditExpenseScreen(
                 tagsList = state.tagsList,
                 selectedTag = state.selectedTagId,
                 onTagClick = actions::onTagClick,
+                onNewTagClick = actions::onNewTagClick,
                 modifier = Modifier
-                    .fillMaxWidth(),
-                onNewTagClick = actions::onNoteInputFocused
+                    .fillMaxWidth()
             )
         }
 
         if (state.showDeleteConfirmation) {
             ConfirmationDialog(
                 titleRes = R.string.delete_expense_confirmation_title,
-                contentRes = R.string.delete_expense_confirmation_content,
+                contentRes = R.string.action_irreversible_message,
                 onConfirm = actions::onDeleteConfirm,
                 onDismiss = actions::onDeleteDismiss
+            )
+        }
+
+        if (state.showNewTagInput) {
+            NewTagDialog(
+                nameInput = tagNameInput,
+                onNameChange = actions::onNewTagNameChange,
+                selectedColorCode = tagColorInput(),
+                onColorSelect = actions::onNewTagColorSelect,
+                onDismiss = actions::onNewTagInputDismiss,
+                onConfirm = actions::onNewTagInputConfirm
             )
         }
     }
@@ -313,9 +327,4 @@ fun TagsList(
             NewTagChip(onClick = onNewTagClick)
         }
     }
-}
-
-@Composable
-private fun NewChipInput() {
-
 }

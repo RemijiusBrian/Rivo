@@ -18,5 +18,6 @@ data class AllExpensesState(
     val expenseSelectionState: ToggleableState = ToggleableState.Off,
     val expenseMultiSelectionModeActive: Boolean = false,
     val showDeleteExpenseConfirmation: Boolean = false,
-    val showDeleteTagConfirmation: Boolean = false
+    val showDeleteTagConfirmation: Boolean = false,
+    val showNewTagInput: Boolean = false
 )

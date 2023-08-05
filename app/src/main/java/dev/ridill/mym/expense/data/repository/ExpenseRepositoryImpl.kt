@@ -2,13 +2,13 @@ package dev.ridill.mym.expense.data.repository
 
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
-import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.data.toExpense
 import dev.ridill.mym.expense.data.toRecentSpend
 import dev.ridill.mym.expense.domain.model.Expense
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +55,10 @@ class ExpenseRepositoryImpl(
 
     override suspend fun deleteExpense(id: Long) = withContext(Dispatchers.IO) {
         dao.deleteExpenseById(id)
+    }
+
+    override suspend fun deleteExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
+        dao.deleteMultipleExpenseById(ids)
     }
 
     override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =

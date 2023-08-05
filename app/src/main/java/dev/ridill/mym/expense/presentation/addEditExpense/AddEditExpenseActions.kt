@@ -14,6 +14,7 @@ interface AddEditExpenseActions {
     fun onDeleteConfirm()
     fun onNewTagClick()
     fun onNewTagNameChange(value: String)
-    fun onNewTagColorSelected(color: Color)
-    fun onNewTagSave()
+    fun onNewTagColorSelect(color: Color)
+    fun onNewTagInputDismiss()
+    fun onNewTagInputConfirm()
 }
