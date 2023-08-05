@@ -2,9 +2,12 @@ package dev.ridill.mym.expense.data.repository
 
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
+import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.data.toExpense
+import dev.ridill.mym.expense.data.toRecentSpend
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.Dispatchers
@@ -56,4 +59,12 @@ class ExpenseRepositoryImpl(
 
     override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =
         dao.getExpenditureForMonth(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))
+
+    override fun getExpenseForDateByTag(
+        date: LocalDate,
+        tagId: String?
+    ): Flow<List<ExpenseListItem>> = dao.getExpenseForMonthByTag(
+        monthAndYear = date.format(DateUtil.Formatters.MM_yyyy_dbFormat),
+        tagId = tagId
+    ).map { entities -> entities.map(ExpenseWithTagRelation::toRecentSpend) }
 }

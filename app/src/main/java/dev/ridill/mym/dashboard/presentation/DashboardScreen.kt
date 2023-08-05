@@ -1,7 +1,6 @@
 package dev.ridill.mym.dashboard.presentation
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,7 +24,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -43,23 +40,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
+import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
@@ -75,8 +68,9 @@ import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
-import dev.ridill.mym.dashboard.domain.model.RecentSpend
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.ExpenseTag
+import dev.ridill.mym.expense.presentation.components.BaseExpenseLayout
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -240,8 +234,8 @@ private fun Balance(
 @Composable
 private fun RecentTransactionsList(
     spentAmount: Double,
-    recentSpends: List<RecentSpend>,
-    onTransactionClick: (RecentSpend) -> Unit,
+    recentSpends: List<ExpenseListItem>,
+    onTransactionClick: (ExpenseListItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
@@ -290,7 +284,7 @@ private fun RecentTransactionsList(
             ) {
                 if (recentSpends.isEmpty()) {
                     EmptyListIndicator(
-                        resId = R.raw.empty_list_ghost
+                        resId = R.raw.lottie_empty_list_ghost
                     )
                 }
                 LazyColumn(
@@ -304,7 +298,7 @@ private fun RecentTransactionsList(
                     state = lazyListState
                 ) {
                     items(items = recentSpends, key = { it.id }) { transaction ->
-                        RecentTransactionItem(
+                        RecentSpend(
                             note = transaction.note,
                             amount = transaction.amount,
                             date = transaction.date,
@@ -385,82 +379,26 @@ private fun SpentAmount(
 }
 
 @Composable
-private fun RecentTransactionItem(
+private fun RecentSpend(
     note: String,
     amount: String,
     date: LocalDate,
     onClick: () -> Unit,
     tag: ExpenseTag?,
     modifier: Modifier = Modifier
-) {
-    ListItem(
-        headlineContent = {
-            Text(
-                text = note,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        leadingContent = {
-            TransactionDate(
-                date = date
-            )
-        },
-        trailingContent = {
-            Text(
-                text = amount,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        supportingContent = {
-            tag?.let {
-                Text(
-                    text = it.name,
-                    textDecoration = TextDecoration.Underline
-                )
-            }
-        },
-        colors = ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        modifier = modifier
-            .clickable(
-                role = Role.Button,
-                onClick = onClick
-            )
+) = BaseExpenseLayout(
+    note = note,
+    amount = amount,
+    date = date,
+    tag = tag,
+    modifier = modifier.clickable(
+        role = Role.Button,
+        onClick = onClick
+    ),
+    colors = ListItemDefaults.colors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer
     )
-}
-
-@Composable
-private fun TransactionDate(
-    date: LocalDate,
-    modifier: Modifier = Modifier
-) {
-    val dateFormatted = remember(date) {
-        date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
-            .replace(" ", "\n")
-    }
-    Box(
-        modifier = Modifier
-            .widthIn(min = DateContainerMinWidth)
-            .clip(MaterialTheme.shapes.small)
-            .background(
-                color = MaterialTheme.colorScheme.primary
-                    .copy(alpha = 0.12f)
-            )
-            .padding(SpacingSmall)
-            .then(modifier),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = dateFormatted,
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-private val DateContainerMinWidth: Dp = 56.dp
+)
 
 @Preview(showBackground = true)
 @Composable

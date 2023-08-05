@@ -1,11 +1,11 @@
 package dev.ridill.mym.dashboard.presentation
 
 import dev.ridill.mym.core.domain.util.Zero
-import dev.ridill.mym.dashboard.domain.model.RecentSpend
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 
 data class DashboardState(
     val balance: Double = Double.Zero,
     val spentAmount: Double = Double.Zero,
     val monthlyLimit: Long = Long.Zero,
-    val recentSpends: List<RecentSpend> = emptyList()
+    val recentSpends: List<ExpenseListItem> = emptyList()
 )

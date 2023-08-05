@@ -8,8 +8,10 @@ import dev.ridill.mym.expense.data.toTagWithExpenditure
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.domain.repository.TagsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class TagsRepositoryImpl(
@@ -29,4 +31,13 @@ class TagsRepositoryImpl(
         .map { entities ->
             entities.map { it.toTagWithExpenditure(totalExpenditure) }
         }
+
+    override suspend fun assignTagToExpenses(tagName: String, ids: List<Long>) =
+        withContext(Dispatchers.IO) {
+            dao.assignTagToExpensesWithIds(tagName, ids)
+        }
+
+    override suspend fun untagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
+        dao.untagExpenses(ids)
+    }
 }

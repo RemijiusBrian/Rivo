@@ -28,4 +28,10 @@ interface TagsDao : BaseDao<TagEntity> {
     fun getTagsWithExpenditureForDate(
         monthAndYear: String
     ): Flow<List<TagWithExpenditureRelation>>
+
+    @Query("UPDATE ExpenseEntity SET tagId = :tag WHERE id IN (:ids)")
+    suspend fun assignTagToExpensesWithIds(tag: String, ids: List<Long>)
+
+    @Query("UPDATE ExpenseEntity SET tagId = NULL WHERE id IN (:ids)")
+    suspend fun untagExpenses(ids: List<Long>)
 }

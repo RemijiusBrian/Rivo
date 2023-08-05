@@ -272,7 +272,18 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
         val context = LocalContext.current
         val snackbarHostState = rememberSnackbarHostState()
 
-        LaunchedEffect(viewModel, context, snackbarHostState) {}
+        LaunchedEffect(viewModel, context, snackbarHostState) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is AllExpensesViewModel.AllExpenseEvent.ShowUiMessage -> {
+                        snackbarHostState.showMymSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+                }
+            }
+        }
 
         AllExpensesScreen(
             snackbarHostState = snackbarHostState,

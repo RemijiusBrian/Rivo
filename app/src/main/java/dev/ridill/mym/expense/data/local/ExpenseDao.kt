@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.mym.core.data.db.BaseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
-import dev.ridill.mym.expense.data.local.relations.ExpenseWithTag
+import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.domain.model.ExpenseLimits
 import kotlinx.coroutines.flow.Flow
 
@@ -34,7 +34,21 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
 
     @Transaction
     @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY date(dateTime) DESC")
-    fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTag>>
+    fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTagRelation>>
+
+    @Transaction
+    @Query(
+        """
+        SELECT *
+        FROM ExpenseEntity
+        WHERE strftime('%m-%Y', datetime) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId)
+        ORDER BY date(dateTime) DESC
+    """
+    )
+    fun getExpenseForMonthByTag(
+        monthAndYear: String,
+        tagId: String?
+    ): Flow<List<ExpenseWithTagRelation>>
 
     @Query("DELETE FROM ExpenseEntity WHERE id = :id")
     suspend fun deleteExpenseById(id: Long)

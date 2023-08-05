@@ -1,6 +1,6 @@
 package dev.ridill.mym.dashboard.domain.repository
 
-import dev.ridill.mym.dashboard.domain.model.RecentSpend
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import kotlinx.coroutines.flow.Flow
 
 interface DashboardRepository {
@@ -10,5 +10,5 @@ interface DashboardRepository {
 
     fun getExpenditureForCurrentMonth(): Flow<Double>
 
-    fun getRecentSpends(): Flow<List<RecentSpend>>
+    fun getRecentSpends(): Flow<List<ExpenseListItem>>
 }

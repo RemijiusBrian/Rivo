@@ -1,5 +1,6 @@
 package dev.ridill.mym.expense.presentation.allExpenses
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
@@ -7,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,20 +20,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -44,21 +51,28 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.TextFormatter
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.theme.ContentAlpha
+import dev.ridill.mym.core.ui.theme.ElevationLevel0
+import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.util.contentColor
+import dev.ridill.mym.expense.domain.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
+import dev.ridill.mym.expense.presentation.components.BaseExpenseLayout
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -71,12 +85,34 @@ fun AllExpensesScreen(
     actions: AllExpensesActions,
     navigateUp: () -> Unit
 ) {
+    BackHandler(
+        enabled = state.expenseMultiSelectionModeActive,
+        onBack = actions::onDismissMultiSelectionMode
+    )
+
     MYMScaffold(
         snackbarHostState = snackbarHostState,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(AllExpensesDestination.labelRes)) },
-                navigationIcon = { BackArrowButton(onClick = navigateUp) }
+                title = {
+                    Text(
+                        text = if (state.expenseMultiSelectionModeActive)
+                            stringResource(R.string.count_selected, state.selectedExpenseIds.size)
+                        else stringResource(AllExpensesDestination.labelRes)
+                    )
+                },
+                navigationIcon = {
+                    if (state.expenseMultiSelectionModeActive) {
+                        IconButton(onClick = actions::onDismissMultiSelectionMode) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.cd_clear_expense_selection)
+                            )
+                        }
+                    } else {
+                        BackArrowButton(onClick = navigateUp)
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -91,6 +127,7 @@ fun AllExpensesScreen(
                 selectedTagId = state.selectedTag,
                 onTagClick = actions::onTagClick,
                 onNewTagClick = actions::onNewTagClick,
+                tagAssignModeActive = state.expenseMultiSelectionModeActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.20f)
@@ -102,6 +139,20 @@ fun AllExpensesScreen(
                 yearsList = state.yearsList,
                 onYearSelect = actions::onYearSelect
             )
+
+            ExpenseList(
+                expenseList = state.expenseList,
+                selectedExpenseIds = state.selectedExpenseIds,
+                selectionState = state.expenseSelectionState,
+                multiSelectionModeActive = state.expenseMultiSelectionModeActive,
+                onSelectionStateChange = actions::onSelectionStateChange,
+                onBulkOperationClick = actions::onExpenseBulkOperationClick,
+                onExpenseLongClick = actions::onExpenseLongClick,
+                onExpenseClick = actions::onExpenseClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(Float.One)
+            )
         }
     }
 }
@@ -112,36 +163,51 @@ private fun TagsInfoList(
     selectedTagId: String?,
     onTagClick: (String) -> Unit,
     onNewTagClick: () -> Unit,
+    tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
 ) {
-    LazyRow(
-        modifier = modifier,
-        contentPadding = PaddingValues(
-            start = SpacingMedium,
-            end = SpacingListEnd
-        ),
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
-        items(items = tags) { item ->
-            TagInfoCard(
-                name = item.tag.name,
-                color = item.tag.color,
-                amount = TextFormatter.currency(item.expenditure),
-                percentOfTotalExpenditure = item.percentOfTotalExpenditure,
-                isSelected = item.tag.name == selectedTagId,
-                onClick = { onTagClick(item.tag.name) },
-                modifier = Modifier
-                    .fillParentMaxHeight()
-                    .animateItemPlacement()
-            )
-        }
+        LazyRow(
+            modifier = modifier,
+            contentPadding = PaddingValues(
+                start = SpacingMedium,
+                end = SpacingListEnd
+            ),
+            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        ) {
+            items(items = tags) { item ->
+                TagInfoCard(
+                    name = item.tag.name,
+                    color = item.tag.color,
+                    amount = TextFormatter.currency(item.expenditure),
+                    percentOfTotalExpenditure = item.percentOfTotalExpenditure,
+                    isSelected = item.tag.name == selectedTagId,
+                    onClick = { onTagClick(item.tag.name) },
+                    modifier = Modifier
+                        .fillParentMaxHeight()
+                        .animateItemPlacement()
+                )
+            }
 
-        item(key = "NewTagCard") {
-            NewTagCard(
-                onClick = onNewTagClick,
+            item(key = "NewTagCard") {
+                NewTagCard(
+                    onClick = onNewTagClick,
+                    modifier = Modifier
+                        .fillParentMaxHeight()
+                        .animateItemPlacement()
+                )
+            }
+        }
+        AnimatedVisibility(visible = tagAssignModeActive) {
+            Text(
+                text = stringResource(R.string.click_tag_to_assign_to_selected_expenses),
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
-                    .fillParentMaxHeight()
-                    .animateItemPlacement()
+                    .padding(horizontal = SpacingMedium),
+                color = LocalContentColor.current
+                    .copy(alpha = 0.80f)
             )
         }
     }
@@ -248,7 +314,6 @@ private fun NewTagCard(
 }
 
 private val TagInfoCardWidth = 120.dp
-
 
 @Composable
 private fun DateFilter(
@@ -360,4 +425,88 @@ private fun DateIndicator(
             }
         }
     }
+}
+
+@Composable
+private fun ExpenseList(
+    expenseList: List<ExpenseListItem>,
+    selectedExpenseIds: List<Long>,
+    selectionState: ToggleableState,
+    onSelectionStateChange: () -> Unit,
+    onBulkOperationClick: (ExpenseBulkOperation) -> Unit,
+    multiSelectionModeActive: Boolean,
+    onExpenseLongClick: (Long) -> Unit,
+    onExpenseClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        AnimatedVisibility(visible = multiSelectionModeActive) {
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                ExpenseBulkOperation.values().forEach { operation ->
+                    IconButton(onClick = { onBulkOperationClick(operation) }) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(operation.iconRes),
+                            contentDescription = stringResource(operation.contentDescriptionRes)
+                        )
+                    }
+                }
+                TriStateCheckbox(
+                    state = selectionState,
+                    onClick = onSelectionStateChange
+                )
+            }
+        }
+        LazyColumn(
+            contentPadding = PaddingValues(
+                bottom = SpacingListEnd
+            ),
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        ) {
+            items(items = expenseList, key = { it.id }) { expense ->
+                ExpenseCard(
+                    note = expense.note,
+                    amount = expense.amount,
+                    date = expense.date,
+                    selected = expense.id in selectedExpenseIds,
+                    onLongClick = { onExpenseLongClick(expense.id) },
+                    onClick = { onExpenseClick(expense.id) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpenseCard(
+    note: String,
+    amount: String,
+    date: LocalDate,
+    selected: Boolean,
+    onLongClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BaseExpenseLayout(
+        note = note,
+        amount = amount,
+        date = date,
+        tag = null,
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                role = Role.Button,
+                onClick = onClick,
+                onClickLabel = stringResource(R.string.cd_expense_selection_change),
+                onLongClick = onLongClick,
+                onLongClickLabel = stringResource(R.string.cd_long_press_to_select_expense)
+            ),
+        tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0
+    )
 }

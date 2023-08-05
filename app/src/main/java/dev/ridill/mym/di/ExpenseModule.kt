@@ -13,6 +13,7 @@ import dev.ridill.mym.expense.data.repository.TagsRepositoryImpl
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
 import dev.ridill.mym.expense.presentation.addEditExpense.AddEditExpenseViewModel
+import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesViewModel
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -33,4 +34,7 @@ object ExpenseModule {
     @Provides
     fun provideAddEditExpenseEventBus(): EventBus<AddEditExpenseViewModel.AddEditExpenseEvent> =
         EventBus()
+
+    @Provides
+    fun provideAllExpenseEventBus(): EventBus<AllExpensesViewModel.AllExpenseEvent> = EventBus()
 }

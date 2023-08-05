@@ -5,7 +5,7 @@ import androidx.room.Relation
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.entity.TagEntity
 
-data class ExpenseWithTag(
+data class ExpenseWithTagRelation(
     @Embedded
     val expenseEntity: ExpenseEntity,
     @Relation(
