@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.One
@@ -42,6 +43,8 @@ import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
 import dev.ridill.mym.core.ui.components.icons.Brightness
+import dev.ridill.mym.core.ui.components.icons.Github
+import dev.ridill.mym.core.ui.components.icons.Info
 import dev.ridill.mym.core.ui.components.icons.NotificationBell
 import dev.ridill.mym.core.ui.components.icons.Palette
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
@@ -55,7 +58,8 @@ fun SettingsScreen(
     state: SettingsState,
     actions: SettingsActions,
     navigateUp: () -> Unit,
-    navigateToNotificationSettings: () -> Unit
+    navigateToNotificationSettings: () -> Unit,
+    navigateToSourceCode: () -> Unit
 ) {
     MYMScaffold(
         modifier = Modifier
@@ -105,6 +109,19 @@ fun SettingsScreen(
                     ?.let { stringResource(R.string.your_income_is_value, it) }
                     ?: stringResource(R.string.click_to_update_your_income),
                 onClick = actions::onMonthlyLimitPreferenceClick
+            )
+
+            PreferenceDivider()
+            SimplePreference(
+                titleRes = R.string.source_code,
+                leadingIcon = Icons.Filled.Github,
+                onClick = navigateToSourceCode
+            )
+
+            SimplePreference(
+                titleRes = R.string.version,
+                leadingIcon = Icons.Outlined.Info,
+                summary = BuildConfig.VERSION_NAME
             )
         }
 
