@@ -16,6 +16,9 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.data.preferences.PreferencesManagerImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -48,4 +51,12 @@ object AppModule {
     fun providePreferencesManager(
         dataStore: DataStore<Preferences>
     ): PreferencesManager = PreferencesManagerImpl(dataStore)
+
+    @ApplicationScope
+    @Provides
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob())
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationScope

@@ -9,7 +9,7 @@ import androidx.room.OnConflictStrategy
 interface BaseDao<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(vararg entity: T)
+    suspend fun insert(vararg entity: T): List<Long>
 
     @Delete
     suspend fun delete(vararg entity: T)

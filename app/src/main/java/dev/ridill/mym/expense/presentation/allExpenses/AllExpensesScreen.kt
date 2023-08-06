@@ -71,7 +71,7 @@ import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.util.contentColor
-import dev.ridill.mym.expense.domain.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.BaseExpenseLayout

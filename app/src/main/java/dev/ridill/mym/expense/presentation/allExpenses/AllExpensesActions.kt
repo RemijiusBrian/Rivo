@@ -1,7 +1,7 @@
 package dev.ridill.mym.expense.presentation.allExpenses
 
 import androidx.compose.ui.graphics.Color
-import dev.ridill.mym.expense.domain.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import java.time.Month
 
 interface AllExpensesActions {

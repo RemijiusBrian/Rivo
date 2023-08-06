@@ -10,6 +10,10 @@
     <string name="destination_settings">Settings</string>
     <string name="destination_all_expenses">All Expenses</string>
 
+    <!-- Notifications -->
+    <string name="notification_channel_group_name_expenses">Expenses</string>
+    <string name="notification_channel_name_auto_add_expenses">Auto Add Expenses</string>
+
     <!-- Content Description -->
     <string name="cd_set_monthly_income">Set Monthly Income</string>
     <string name="cd_new_expense">New Expense</string>
