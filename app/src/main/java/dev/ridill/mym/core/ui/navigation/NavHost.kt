@@ -28,7 +28,8 @@ import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
-import dev.ridill.mym.core.ui.util.launchNotificationSettings
+import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
+import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.core.ui.util.launchUrlExternally
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
@@ -242,6 +243,9 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val snackbarHostState = rememberSnackbarHostState()
         val context = LocalContext.current
 
+        val smsPermissionState =
+            rememberPermissionsState(permissionString = Manifest.permission.RECEIVE_SMS)
+
         LaunchedEffect(viewModel, snackbarHostState, context) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -250,6 +254,14 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                             event.uiText.asString(context),
                             event.uiText.isErrorText
                         )
+                    }
+
+                    SettingsViewModel.SettingsEvent.RequestSmsPermission -> {
+                        if (smsPermissionState.isPermanentlyDenied) {
+                            context.launchAppSettings()
+                        } else {
+                            smsPermissionState.launchRequest()
+                        }
                     }
                 }
             }
@@ -260,7 +272,7 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
-            navigateToNotificationSettings = context::launchNotificationSettings,
+            navigateToNotificationSettings = context::launchAppNotificationSettings,
             navigateToSourceCode = {
                 context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
             }

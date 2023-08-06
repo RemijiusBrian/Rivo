@@ -63,6 +63,7 @@
     <string name="monthly_income_input_dialog_content">Enter your income on a monthly basis</string>
 
     <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
+    <string name="permission_rationale_sms_for_expense">MYM needs SMS read permission to try and add expenses automatically from your SMS messages</string>
 
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
@@ -103,4 +104,7 @@
     <string name="new_tag">New Tag</string>
     <string name="new_tag_created">New tag created</string>
     <string name="tag_deleted">Tag deleted</string>
+    <string name="auto_add_expenses">Auto Add Expenses</string>
+    <string name="try_to_add_expenses_from_sms">Try to add expenses from SMS</string>
+    <string name="amount_spent_at_merchant">%1$s spent at %2$s</string>
 </resources>

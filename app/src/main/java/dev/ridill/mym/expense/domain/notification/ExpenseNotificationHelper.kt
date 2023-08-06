@@ -7,13 +7,21 @@ import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dev.ridill.mym.R
-import dev.ridill.mym.core.domain.notification.BaseNotificationHelper
+import dev.ridill.mym.core.domain.notification.NotificationHelper
 
 class ExpenseNotificationHelper(
     private val context: Context
-) : BaseNotificationHelper(context) {
+) : NotificationHelper {
+
+    private val notificationManager = NotificationManagerCompat.from(context)
+
+    init {
+        registerChannelGroup()
+        registerChannel()
+    }
+
     override fun registerChannelGroup() {
-        val group = NotificationChannelGroupCompat.Builder(Groups.EXPENSES)
+        val group = NotificationChannelGroupCompat.Builder(NotificationHelper.Groups.EXPENSES)
             .setName(context.getString(R.string.notification_channel_group_name_expenses))
             .build()
         notificationManager.createNotificationChannelGroup(group)
@@ -23,7 +31,7 @@ class ExpenseNotificationHelper(
         val channel = NotificationChannelCompat
             .Builder(ID, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(context.getString(R.string.notification_channel_name_auto_add_expenses))
-            .setGroup(Groups.EXPENSES)
+            .setGroup(NotificationHelper.Groups.EXPENSES)
             .build()
         notificationManager.createNotificationChannel(channel)
     }
@@ -33,8 +41,12 @@ class ExpenseNotificationHelper(
         if (!notificationManager.areNotificationsEnabled()) return
 
         val notification = NotificationCompat.Builder(context, ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
-            .setContentText(content)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(content)
+            )
             .build()
 
         notificationManager.notify(id, notification)

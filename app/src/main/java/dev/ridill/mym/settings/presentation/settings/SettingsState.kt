@@ -7,5 +7,6 @@ data class SettingsState(
     val dynamicColorsEnabled: Boolean = false,
     val showAppThemeSelection: Boolean = false,
     val currentMonthlyLimit: String = "",
-    val showMonthlyLimitInput: Boolean = false
+    val showMonthlyLimitInput: Boolean = false,
+    val showSmsPermissionRationale: Boolean = false
 )

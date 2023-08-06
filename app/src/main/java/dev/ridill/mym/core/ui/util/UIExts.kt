@@ -18,9 +18,16 @@ fun Context.findActivity(): Activity {
     throw IllegalStateException("no activity")
 }
 
-fun Context.launchNotificationSettings() {
+fun Context.launchAppNotificationSettings() {
     val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
         putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+    }
+    startActivity(intent)
+}
+
+fun Context.launchAppSettings() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = Uri.fromParts("package", packageName, null)
     }
     startActivity(intent)
 }
