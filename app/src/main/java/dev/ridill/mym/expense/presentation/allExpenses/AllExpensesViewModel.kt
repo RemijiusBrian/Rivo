@@ -20,6 +20,7 @@ import dev.ridill.mym.expense.presentation.components.TagColors
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Month
 import javax.inject.Inject
@@ -56,6 +57,10 @@ class AllExpensesViewModel @Inject constructor(
         selectedTag
     ).flatMapLatest { (date, tag) ->
         expenseRepo.getExpenseForDateByTag(date, tag)
+    }.onEach { list ->
+        val ids = list.map { it.id }
+        savedStateHandle[SELECTED_EXPENSE_IDS] = selectedExpenseIds.value
+            .filter { it in ids }
     }.asStateFlow(viewModelScope, emptyList())
 
     private val selectedExpenseIds = savedStateHandle
@@ -233,11 +238,7 @@ class AllExpensesViewModel @Inject constructor(
                 savedStateHandle[SELECTED_EXPENSE_IDS] = emptyList<Long>()
             }
 
-            ToggleableState.Off -> {
-                savedStateHandle[SELECTED_EXPENSE_IDS] = listOf(expenseList.value.first().id)
-            }
-
-            ToggleableState.Indeterminate -> {
+            else -> {
                 savedStateHandle[SELECTED_EXPENSE_IDS] = expenseList.value.map { it.id }
             }
         }
