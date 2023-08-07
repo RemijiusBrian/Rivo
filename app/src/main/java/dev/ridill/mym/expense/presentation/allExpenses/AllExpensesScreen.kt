@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
-import dev.ridill.mym.core.domain.util.TextFormatter
+import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
@@ -217,7 +217,7 @@ private fun TagsInfoList(
                 TagInfoCard(
                     name = item.tag.name,
                     color = item.tag.color,
-                    amount = TextFormatter.currency(item.expenditure),
+                    amount = TextFormatUtil.currency(item.expenditure),
                     percentOfTotalExpenditure = item.percentOfTotalExpenditure,
                     isSelected = item.tag.name == selectedTagId,
                     onClick = { onTagClick(item.tag.name) },
@@ -334,7 +334,7 @@ private fun TagInfoCard(
             }
 
             Text(
-                text = stringResource(R.string.percent_of_total, TextFormatter.percent(percent)),
+                text = stringResource(R.string.percent_of_total, TextFormatUtil.percent(percent)),
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
             )

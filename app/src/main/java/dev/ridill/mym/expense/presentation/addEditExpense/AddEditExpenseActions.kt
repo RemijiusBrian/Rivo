@@ -8,7 +8,7 @@ interface AddEditExpenseActions {
     fun onNoteChange(value: String)
     fun onRecommendedAmountClick(amount: Long)
     fun onTagClick(tagId: String)
-    fun onSave()
+    fun onSaveClick()
     fun onDeleteClick()
     fun onDeleteDismiss()
     fun onDeleteConfirm()

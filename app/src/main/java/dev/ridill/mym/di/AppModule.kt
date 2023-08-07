@@ -16,6 +16,7 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.data.preferences.PreferencesManagerImpl
+import dev.ridill.mym.core.domain.service.ExpEvalService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
@@ -51,6 +52,9 @@ object AppModule {
     fun providePreferencesManager(
         dataStore: DataStore<Preferences>
     ): PreferencesManager = PreferencesManagerImpl(dataStore)
+
+    @Provides
+    fun provideEvaluationExpressionService(): ExpEvalService = ExpEvalService()
 
     @ApplicationScope
     @Provides
