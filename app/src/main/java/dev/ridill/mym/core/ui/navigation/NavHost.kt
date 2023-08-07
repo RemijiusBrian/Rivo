@@ -60,15 +60,19 @@ fun MYMNavHost(
     ) {
         welcomeFlow(navController)
         dashboard(navController)
+        allExpenses(navController)
         addEditExpense(navController)
         settings(navController)
-        allExpenses(navController)
     }
 }
 
 // Welcome Flow
 private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
-    composable(WelcomeFlowDestination.route) { navBackStackEntry ->
+    composable(
+        route = WelcomeFlowDestination.route,
+        enterTransition = { defaultFadeIn() },
+        exitTransition = { defaultFadeOut() }
+    ) { navBackStackEntry ->
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
         val limitInput = viewModel.limitInput.collectAsStateWithLifecycle()
@@ -231,6 +235,46 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
     }
 }
 
+// All Expenses
+private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
+    composable(
+        route = AllExpensesDestination.route,
+        enterTransition = { defaultFadeIn() },
+        popExitTransition = { defaultFadeOut() }
+    ) { navBackStackEntry ->
+        val viewModel: AllExpensesViewModel = hiltViewModel(navBackStackEntry)
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val tagNameInput = viewModel.tagNameInput.collectAsStateWithLifecycle()
+        val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
+
+        val context = LocalContext.current
+        val snackbarHostState = rememberSnackbarHostState()
+
+        LaunchedEffect(viewModel, context, snackbarHostState) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is AllExpensesViewModel.AllExpenseEvent.ShowUiMessage -> {
+                        snackbarHostState.showMymSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+                }
+            }
+        }
+
+        AllExpensesScreen(
+            snackbarHostState = snackbarHostState,
+            state = state,
+            tagNameInput = { tagNameInput.value },
+            tagColorInput = { tagColorInput.value },
+            actions = viewModel,
+            navigateUp = navController::navigateUp
+        )
+    }
+}
+
+// Settings
 private fun NavGraphBuilder.settings(navController: NavHostController) {
     composable(
         route = SettingsDestination.route,
@@ -276,45 +320,6 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             navigateToSourceCode = {
                 context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
             }
-        )
-    }
-}
-
-// All Expenses
-private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
-    composable(
-        route = AllExpensesDestination.route,
-        enterTransition = { defaultFadeIn() },
-        popExitTransition = { defaultFadeOut() }
-    ) { navBackStackEntry ->
-        val viewModel: AllExpensesViewModel = hiltViewModel(navBackStackEntry)
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagNameInput = viewModel.tagNameInput.collectAsStateWithLifecycle()
-        val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
-
-        val context = LocalContext.current
-        val snackbarHostState = rememberSnackbarHostState()
-
-        LaunchedEffect(viewModel, context, snackbarHostState) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    is AllExpensesViewModel.AllExpenseEvent.ShowUiMessage -> {
-                        snackbarHostState.showMymSnackbar(
-                            event.uiText.asString(context),
-                            event.uiText.isErrorText
-                        )
-                    }
-                }
-            }
-        }
-
-        AllExpensesScreen(
-            snackbarHostState = snackbarHostState,
-            state = state,
-            tagNameInput = { tagNameInput.value },
-            tagColorInput = { tagColorInput.value },
-            actions = viewModel,
-            navigateUp = navController::navigateUp
         )
     }
 }
