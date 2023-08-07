@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material3.Divider
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -21,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
@@ -45,11 +47,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.mym.R
-import dev.ridill.mym.core.domain.util.TextFormatter
+import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
-import dev.ridill.mym.core.ui.components.MinWidthTextField
+import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -107,7 +109,7 @@ fun AddEditExpenseScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = actions::onSave) {
+            FloatingActionButton(onClick = actions::onSaveClick) {
                 Icon(
                     imageVector = Icons.Default.Save,
                     contentDescription = stringResource(R.string.cd_save)
@@ -160,6 +162,8 @@ fun AddEditExpenseScreen(
                     .align(Alignment.Start)
             )
 
+            Divider()
+
             TagsList(
                 tagsList = state.tagsList,
                 selectedTag = state.selectedTagId,
@@ -198,17 +202,28 @@ private fun AmountInput(
     onAmountChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    MinWidthTextField(
+    MinWidthOutlinedTextField(
         value = amount,
         onValueChange = onAmountChange,
         modifier = modifier,
-        leadingIcon = { Text(TextFormatter.currencySymbol()) },
+        prefix = { Text(TextFormatUtil.currencySymbol()) },
         textStyle = MaterialTheme.typography.headlineMedium,
-        placeholder = { Text(stringResource(R.string.amount_zero)) },
+        placeholder = {
+            Text(
+                text = stringResource(R.string.amount_zero),
+                style = MaterialTheme.typography.headlineMedium
+            )
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Phone,
+            keyboardType = KeyboardType.Decimal,
             imeAction = ImeAction.Next
+        ),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent,
+            errorBorderColor = Color.Transparent,
+            disabledBorderColor = Color.Transparent
         )
     )
 }
@@ -257,7 +272,7 @@ private fun AmountRecommendations(
         recommendations.forEach { amount ->
             SuggestionChip(
                 onClick = { onRecommendationClick(amount) },
-                label = { Text(TextFormatter.currency(amount)) }
+                label = { Text(TextFormatUtil.currency(amount)) }
             )
         }
     }

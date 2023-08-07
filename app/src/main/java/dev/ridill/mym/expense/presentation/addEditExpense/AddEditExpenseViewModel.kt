@@ -5,16 +5,17 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.notkamui.keval.keval
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.domain.service.ExpEvalService
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.EventBus
+import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
-import dev.ridill.mym.core.domain.util.tryOrNull
+import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
@@ -30,7 +31,8 @@ class AddEditExpenseViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val expenseRepo: ExpenseRepository,
     private val tagsRepo: TagsRepository,
-    private val eventBus: EventBus<AddEditExpenseEvent>
+    private val eventBus: EventBus<AddEditExpenseEvent>,
+    private val evalService: ExpEvalService
 ) : ViewModel(), AddEditExpenseActions {
 
     private val expenseIdArg = AddEditExpenseDestination
@@ -105,7 +107,16 @@ class AddEditExpenseViewModel @Inject constructor(
 
     override fun onNoteInputFocused() {
         val amountInput = amountInput.value
-        savedStateHandle[AMOUNT_INPUT] = evalAmountExpression(amountInput).toString()
+            .trim()
+            .ifEmpty { return }
+
+        val isExpression = evalService.isExpression(amountInput)
+        val result = if (isExpression) evalService.evalOrNull(amountInput)
+        else TextFormatUtil.parseNumber(amountInput)
+        savedStateHandle[AMOUNT_INPUT] = TextFormatUtil.number(
+            value = result.orZero(),
+            isGroupingUsed = false
+        )
     }
 
     override fun onNoteChange(value: String) {
@@ -121,10 +132,13 @@ class AddEditExpenseViewModel @Inject constructor(
             .takeIf { selectedTagId.value != it }
     }
 
-    override fun onSave() {
+    override fun onSaveClick() {
         viewModelScope.launch {
-            val amount = evalAmountExpression(amountInput.value)
-            if (amount <= -1.0) {
+            val amountInput = amountInput.value.trim()
+            val isExp = evalService.isExpression(amountInput)
+            val amount = (if (isExp) evalService.evalOrNull(amountInput)
+            else TextFormatUtil.parseNumber(amountInput)) ?: -1.0
+            if (amount < Double.Zero) {
                 eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(
                         UiText.StringResource(
@@ -176,10 +190,6 @@ class AddEditExpenseViewModel @Inject constructor(
             eventBus.send(AddEditExpenseEvent.ExpenseDeleted)
         }
     }
-
-    private fun evalAmountExpression(exp: String): Double = tryOrNull {
-        exp.keval()
-    } ?: Double.Zero
 
     override fun onNewTagClick() {
         savedStateHandle[SHOW_NEW_TAG_INPUT] = true
