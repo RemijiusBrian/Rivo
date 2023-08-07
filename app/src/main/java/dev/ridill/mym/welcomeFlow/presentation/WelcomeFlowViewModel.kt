@@ -40,8 +40,8 @@ class WelcomeFlowViewModel @Inject constructor(
     }
 
     private fun updateLimitAndContinue() = viewModelScope.launch {
-        val limitValue = limitInput.value.toLongOrNull() ?: Long.Zero
-        if (limitValue < Long.Zero) {
+        val limitValue = limitInput.value.toLongOrNull() ?: -1L
+        if (limitValue <= Long.Zero) {
             eventBus.send(
                 WelcomeFlowEvent.ShowUiMessage(
                     UiText.StringResource(R.string.error_invalid_amount, true)
