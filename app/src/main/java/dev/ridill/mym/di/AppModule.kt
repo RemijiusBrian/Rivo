@@ -17,6 +17,9 @@ import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.data.preferences.PreferencesManagerImpl
 import dev.ridill.mym.core.domain.service.ExpEvalService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -52,4 +55,12 @@ object AppModule {
 
     @Provides
     fun provideEvaluationExpressionService(): ExpEvalService = ExpEvalService()
+
+    @ApplicationScope
+    @Provides
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob())
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationScope

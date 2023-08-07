@@ -1,4 +1,4 @@
-package dev.ridill.mym.expense.domain
+package dev.ridill.mym.expense.domain.model
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons

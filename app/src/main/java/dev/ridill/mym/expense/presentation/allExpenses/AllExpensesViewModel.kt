@@ -13,7 +13,7 @@ import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
-import dev.ridill.mym.expense.domain.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
 import dev.ridill.mym.expense.presentation.components.TagColors

@@ -42,7 +42,7 @@ class ExpenseRepositoryImpl(
         note: String,
         dateTime: LocalDateTime,
         tagId: String?
-    ) = withContext(Dispatchers.IO) {
+    ): Long = withContext(Dispatchers.IO) {
         val entity = ExpenseEntity(
             id = id ?: Long.Zero,
             note = note,
@@ -50,7 +50,7 @@ class ExpenseRepositoryImpl(
             dateTime = dateTime,
             tagId = tagId
         )
-        dao.insert(entity)
+        dao.insert(entity).first()
     }
 
     override suspend fun deleteExpense(id: Long) = withContext(Dispatchers.IO) {

@@ -18,4 +18,5 @@ sealed interface NavDestination {
         get() = emptyList()
 }
 
+const val DEEP_LINK_URI = "https://www.mym.com"
 const val ARG_INVALID_ID_LONG = -1L

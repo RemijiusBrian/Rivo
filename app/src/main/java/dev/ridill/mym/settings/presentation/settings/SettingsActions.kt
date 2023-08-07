@@ -10,4 +10,7 @@ interface SettingsActions {
     fun onMonthlyLimitPreferenceClick()
     fun onMonthlyLimitInputDismiss()
     fun onMonthlyLimitInputConfirm(value: String)
+    fun onAutoAddExpensePreferenceClick()
+    fun onSmsPermissionRationaleDismiss()
+    fun onSmsPermissionRationaleAgree()
 }

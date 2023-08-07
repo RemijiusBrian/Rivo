@@ -38,18 +38,23 @@ class SettingsViewModel @Inject constructor(
     private val showMonthlyLimitInput = savedStateHandle
         .getStateFlow(SHOW_MONTHLY_LIMIT_INPUT, false)
 
+    private val showSmsPermissionRationale = savedStateHandle
+        .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
+
     val state = combineTuple(
         appTheme,
         dynamicColorsEnabled,
         showAppThemeSelection,
         monthlyLimit,
-        showMonthlyLimitInput
+        showMonthlyLimitInput,
+        showSmsPermissionRationale
     ).map { (
                 appTheme,
                 dynamicThemeEnabled,
                 showAppThemeSelection,
                 monthlyLimit,
-                showMonthlyLimitInput
+                showMonthlyLimitInput,
+                showSmsPermissionRationale
             ) ->
         SettingsState(
             appTheme = appTheme,
@@ -57,7 +62,8 @@ class SettingsViewModel @Inject constructor(
             showAppThemeSelection = showAppThemeSelection,
             currentMonthlyLimit = monthlyLimit.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
-            showMonthlyLimitInput = showMonthlyLimitInput
+            showMonthlyLimitInput = showMonthlyLimitInput,
+            showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())
 
@@ -117,10 +123,27 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    override fun onAutoAddExpensePreferenceClick() {
+        savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = true
+    }
+
+    override fun onSmsPermissionRationaleDismiss() {
+        savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
+    }
+
+    override fun onSmsPermissionRationaleAgree() {
+        viewModelScope.launch {
+            savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
+            eventBus.send(SettingsEvent.RequestSmsPermission)
+        }
+    }
+
     sealed class SettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
+        object RequestSmsPermission : SettingsEvent()
     }
 }
 
 private const val SHOW_APP_THEME_SELECTION = "SHOW_APP_THEME_SELECTION"
 private const val SHOW_MONTHLY_LIMIT_INPUT = "SHOW_MONTHLY_LIMIT_INPUT"
+private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"

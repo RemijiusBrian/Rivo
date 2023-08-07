@@ -28,7 +28,8 @@ import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
-import dev.ridill.mym.core.ui.util.launchNotificationSettings
+import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
+import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.core.ui.util.launchUrlExternally
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
@@ -59,15 +60,19 @@ fun MYMNavHost(
     ) {
         welcomeFlow(navController)
         dashboard(navController)
+        allExpenses(navController)
         addEditExpense(navController)
         settings(navController)
-        allExpenses(navController)
     }
 }
 
 // Welcome Flow
 private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
-    composable(WelcomeFlowDestination.route) { navBackStackEntry ->
+    composable(
+        route = WelcomeFlowDestination.route,
+        enterTransition = { defaultFadeIn() },
+        exitTransition = { defaultFadeOut() }
+    ) { navBackStackEntry ->
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
         val limitInput = viewModel.limitInput.collectAsStateWithLifecycle()
@@ -168,7 +173,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
         route = AddEditExpenseDestination.route,
         arguments = AddEditExpenseDestination.arguments,
         enterTransition = { slideInVertically { it } },
-        popExitTransition = { slideOutVertically { it } }
+        popExitTransition = { slideOutVertically { it } },
+        deepLinks = AddEditExpenseDestination.deepLinks
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
@@ -230,44 +236,6 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
     }
 }
 
-private fun NavGraphBuilder.settings(navController: NavHostController) {
-    composable(
-        route = SettingsDestination.route,
-        enterTransition = { defaultFadeIn() },
-        popExitTransition = { defaultFadeOut() }
-    ) { navBackStackEntry ->
-        val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
-        val state by viewModel.state.collectAsStateWithLifecycle()
-
-        val snackbarHostState = rememberSnackbarHostState()
-        val context = LocalContext.current
-
-        LaunchedEffect(viewModel, snackbarHostState, context) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    is SettingsViewModel.SettingsEvent.ShowUiMessage -> {
-                        snackbarHostState.showMymSnackbar(
-                            event.uiText.asString(context),
-                            event.uiText.isErrorText
-                        )
-                    }
-                }
-            }
-        }
-
-        SettingsScreen(
-            snackbarHostState = snackbarHostState,
-            state = state,
-            actions = viewModel,
-            navigateUp = navController::navigateUp,
-            navigateToNotificationSettings = context::launchNotificationSettings,
-            navigateToSourceCode = {
-                context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
-            }
-        )
-    }
-}
-
 // All Expenses
 private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
     composable(
@@ -303,6 +271,56 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
             tagColorInput = { tagColorInput.value },
             actions = viewModel,
             navigateUp = navController::navigateUp
+        )
+    }
+}
+
+// Settings
+private fun NavGraphBuilder.settings(navController: NavHostController) {
+    composable(
+        route = SettingsDestination.route,
+        enterTransition = { defaultFadeIn() },
+        popExitTransition = { defaultFadeOut() }
+    ) { navBackStackEntry ->
+        val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
+        val state by viewModel.state.collectAsStateWithLifecycle()
+
+        val snackbarHostState = rememberSnackbarHostState()
+        val context = LocalContext.current
+
+        val smsPermissionState =
+            rememberPermissionsState(permissionString = Manifest.permission.RECEIVE_SMS)
+
+        LaunchedEffect(viewModel, snackbarHostState, context) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is SettingsViewModel.SettingsEvent.ShowUiMessage -> {
+                        snackbarHostState.showMymSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+
+                    SettingsViewModel.SettingsEvent.RequestSmsPermission -> {
+                        if (smsPermissionState.isPermanentlyDenied) {
+                            context.launchAppSettings()
+                        } else {
+                            smsPermissionState.launchRequest()
+                        }
+                    }
+                }
+            }
+        }
+
+        SettingsScreen(
+            snackbarHostState = snackbarHostState,
+            state = state,
+            actions = viewModel,
+            navigateUp = navController::navigateUp,
+            navigateToNotificationSettings = context::launchAppNotificationSettings,
+            navigateToSourceCode = {
+                context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
+            }
         )
     }
 }

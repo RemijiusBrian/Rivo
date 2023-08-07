@@ -44,7 +44,7 @@ class TagsRepositoryImpl(
         dao.untagExpenses(ids)
     }
 
-    override suspend fun saveTag(name: String, color: Color, timestamp: LocalDateTime) =
+    override suspend fun saveTag(name: String, color: Color, timestamp: LocalDateTime) {
         withContext(Dispatchers.IO) {
             val entity = TagEntity(
                 name = name,
@@ -54,6 +54,7 @@ class TagsRepositoryImpl(
 
             dao.insert(entity)
         }
+    }
 
     override suspend fun deleteTagByName(name: String) = withContext(Dispatchers.IO) {
         dao.clearAndDeleteTag(name)

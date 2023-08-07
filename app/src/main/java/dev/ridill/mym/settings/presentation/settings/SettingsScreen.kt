@@ -44,9 +44,11 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
+import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.icons.Brightness
 import dev.ridill.mym.core.ui.components.icons.Github
 import dev.ridill.mym.core.ui.components.icons.Info
+import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.components.icons.NotificationBell
 import dev.ridill.mym.core.ui.components.icons.Palette
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
@@ -116,6 +118,12 @@ fun SettingsScreen(
                 onClick = actions::onMonthlyLimitPreferenceClick
             )
 
+            SimplePreference(
+                titleRes = R.string.auto_add_expenses,
+                summary = stringResource(R.string.try_to_add_expenses_from_sms),
+                onClick = actions::onAutoAddExpensePreferenceClick
+            )
+
             PreferenceDivider()
             SimplePreference(
                 titleRes = R.string.source_code,
@@ -143,6 +151,15 @@ fun SettingsScreen(
                 onConfirm = actions::onMonthlyLimitInputConfirm,
                 onDismiss = actions::onMonthlyLimitInputDismiss,
                 placeholderAmount = state.currentMonthlyLimit
+            )
+        }
+
+        if (state.showSmsPermissionRationale) {
+            PermissionRationaleDialog(
+                icon = Icons.Rounded.Message,
+                textRes = R.string.permission_rationale_sms_for_expense,
+                onDismiss = actions::onSmsPermissionRationaleDismiss,
+                onAgree = actions::onSmsPermissionRationaleAgree
             )
         }
     }
