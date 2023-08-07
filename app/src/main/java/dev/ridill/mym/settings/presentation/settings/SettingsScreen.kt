@@ -25,10 +25,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -63,13 +65,16 @@ fun SettingsScreen(
     navigateToNotificationSettings: () -> Unit,
     navigateToSourceCode: () -> Unit
 ) {
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(SettingsDestination.labelRes)) },
-                navigationIcon = { BackArrowButton(onClick = navigateUp) }
+                navigationIcon = { BackArrowButton(onClick = navigateUp) },
+                scrollBehavior = topAppBarScrollBehavior
             )
         },
         snackbarHostState = snackbarHostState
