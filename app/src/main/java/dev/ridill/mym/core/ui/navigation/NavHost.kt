@@ -1,7 +1,6 @@
 package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.rememberPermissionLauncher
 import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
@@ -71,13 +71,13 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
     ) { navBackStackEntry ->
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
-        val limitInput = viewModel.limitInput.collectAsStateWithLifecycle()
+        val incomeInput = viewModel.incomeInput.collectAsStateWithLifecycle()
         val showPermissionRationale by viewModel.showNotificationRationale
             .collectAsStateWithLifecycle()
 
         val snackbarHostState = rememberSnackbarHostState()
         val context = LocalContext.current
-        val permissionsState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        val permissionsState = if (BuildUtil.isNotificationRuntimePermissionNeeded())
             rememberPermissionsState(
                 permissionString = Manifest.permission.POST_NOTIFICATIONS,
                 launcher = rememberPermissionLauncher(
@@ -114,7 +114,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         WelcomeFlowScreen(
             snackbarHostState = snackbarHostState,
             flowStop = flowStop,
-            limitInput = { limitInput.value },
+            incomeInput = { incomeInput.value },
             showPermissionRationale = showPermissionRationale,
             actions = viewModel
         )

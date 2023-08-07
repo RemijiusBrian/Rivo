@@ -1,3 +1,3 @@
 package dev.ridill.mym.welcomeFlow.domain.model
 
-enum class WelcomeFlowStop { WELCOME, LIMIT_SET }
+enum class WelcomeFlowStop { WELCOME, INCOME_SET }

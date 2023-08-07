@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
+import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
@@ -21,7 +22,7 @@ class WelcomeFlowViewModel @Inject constructor(
 ) : ViewModel(), WelcomeFlowActions {
 
     val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
-    val limitInput = savedStateHandle.getStateFlow(LIMIT_INPUT, "")
+    val incomeInput = savedStateHandle.getStateFlow(INCOME_INPUT, "")
     val showNotificationRationale = savedStateHandle
         .getStateFlow(SHOW_NOTIFICATION_RATIONALE, false)
 
@@ -30,17 +31,17 @@ class WelcomeFlowViewModel @Inject constructor(
     override fun onNextClick() {
         when (currentFlowStop.value) {
             WelcomeFlowStop.WELCOME -> {
-                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.LIMIT_SET
+                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
             }
 
-            WelcomeFlowStop.LIMIT_SET -> {
+            WelcomeFlowStop.INCOME_SET -> {
                 updateLimitAndContinue()
             }
         }
     }
 
     private fun updateLimitAndContinue() = viewModelScope.launch {
-        val limitValue = limitInput.value.toLongOrNull() ?: -1L
+        val limitValue = incomeInput.value.toLongOrNull() ?: -1L
         if (limitValue <= Long.Zero) {
             eventBus.send(
                 WelcomeFlowEvent.ShowUiMessage(
@@ -50,7 +51,11 @@ class WelcomeFlowViewModel @Inject constructor(
             return@launch
         }
         preferenceManager.updateMonthlyLimit(limitValue)
-        savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = true
+        if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
+            savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = true
+        } else {
+            concludeWelcomeFlow()
+        }
     }
 
     private fun concludeWelcomeFlow() = viewModelScope.launch {
@@ -58,8 +63,8 @@ class WelcomeFlowViewModel @Inject constructor(
         eventBus.send(WelcomeFlowEvent.WelcomeFlowConcluded)
     }
 
-    override fun onLimitAmountChange(value: String) {
-        savedStateHandle[LIMIT_INPUT] = value
+    override fun onIncomeInputChange(value: String) {
+        savedStateHandle[INCOME_INPUT] = value
     }
 
     override fun onNotificationRationaleDismiss() {
@@ -86,5 +91,5 @@ class WelcomeFlowViewModel @Inject constructor(
 }
 
 private const val FLOW_STOP = "FLOW_STOP"
-private const val LIMIT_INPUT = "LIMIT_INPUT"
+private const val INCOME_INPUT = "INCOME_INPUT"
 private const val SHOW_NOTIFICATION_RATIONALE = "SHOW_NOTIFICATION_RATIONALE"
