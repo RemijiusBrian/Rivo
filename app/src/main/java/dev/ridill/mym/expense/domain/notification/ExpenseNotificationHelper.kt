@@ -15,6 +15,7 @@ import dev.ridill.mym.application.MYMActivity
 import dev.ridill.mym.core.domain.notification.NotificationHelper
 import dev.ridill.mym.core.ui.navigation.destinations.ARG_EXPENSE_ID
 
+@SuppressLint("MissingPermission")
 class ExpenseNotificationHelper(
     private val context: Context
 ) : NotificationHelper {
@@ -49,7 +50,6 @@ class ExpenseNotificationHelper(
             .setOnlyAlertOnce(true)
             .setGroup(SUMMARY_GROUP)
 
-    @SuppressLint("MissingPermission")
     override fun postNotification(id: Int, title: String, content: String?) {
         if (!notificationManager.areNotificationsEnabled()) return
 
@@ -78,7 +78,6 @@ class ExpenseNotificationHelper(
         }
     }
 
-    @SuppressLint("MissingPermission")
     fun updateNotificationToExpenseDeleted(id: Int) {
         val notification = buildBaseNotification()
             .setContentTitle(context.getString(R.string.expense_deleted))
