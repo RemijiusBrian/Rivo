@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
@@ -41,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -209,6 +211,15 @@ private fun TagsInfoList(
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val lazyListState = rememberLazyListState()
+
+    // Prevent tags list starting of at last index
+    LaunchedEffect(lazyListState, tags) {
+        if (tags.isNotEmpty()) {
+            lazyListState.scrollToItem(0)
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
@@ -218,7 +229,8 @@ private fun TagsInfoList(
                 start = SpacingMedium,
                 end = SpacingListEnd
             ),
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+            state = lazyListState
         ) {
             items(items = tags) { item ->
                 TagInfoCard(
@@ -385,6 +397,13 @@ private fun DateFilter(
 ) {
     val monthsList = remember { Month.values() }
 
+    val monthsListState = rememberLazyListState()
+
+    // Scroll to initial selected month
+    LaunchedEffect(monthsListState) {
+        monthsListState.scrollToItem(selectedDate.monthValue - 1)
+    }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
@@ -421,7 +440,8 @@ private fun DateFilter(
             contentPadding = PaddingValues(
                 start = SpacingMedium,
                 end = SpacingListEnd
-            )
+            ),
+            state = monthsListState
         ) {
             items(items = monthsList, key = { it.value }) { month ->
                 ElevatedFilterChip(
