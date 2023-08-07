@@ -97,7 +97,7 @@ fun AllExpensesScreen(
         onBack = actions::onDismissMultiSelectionMode
     )
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
         snackbarHostState = snackbarHostState,
         topBar = {
@@ -121,11 +121,11 @@ fun AllExpensesScreen(
                         BackArrowButton(onClick = navigateUp)
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = topAppBarScrollBehavior
             )
         },
         modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
         Column(
             modifier = Modifier

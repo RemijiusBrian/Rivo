@@ -87,7 +87,7 @@ fun AddEditExpenseScreen(
             amountFocusRequester.requestFocus()
     }
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
         topBar = {
             TopAppBar(
@@ -112,7 +112,7 @@ fun AddEditExpenseScreen(
                         }
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = topAppBarScrollBehavior
             )
         },
         floatingActionButton = {
@@ -124,7 +124,7 @@ fun AddEditExpenseScreen(
             }
         },
         modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
             .imePadding(),
         snackbarHostState = snackbarHostState
     ) { paddingValues ->
