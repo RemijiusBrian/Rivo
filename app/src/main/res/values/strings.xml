@@ -41,6 +41,7 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_continue">Continue</string>
     <string name="action_not_now">Not Now</string>
+    <string name="action_delete">Delete</string>
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
@@ -107,4 +108,6 @@
     <string name="auto_add_expenses">Auto Add Expenses</string>
     <string name="try_to_add_expenses_from_sms">Try to add expenses from SMS</string>
     <string name="amount_spent_at_merchant">%1$s spent at %2$s</string>
+    <string name="count_new_expenses">%s New Expenses</string>
+    <string name="new_expenses_detected">New Expenses Detected</string>
 </resources>

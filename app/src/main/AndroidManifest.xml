@@ -30,6 +30,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <data
+                    android:host="www.mym.com"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
 
         <receiver
@@ -40,6 +46,8 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".expense.domain.notification.DeleteExpenseActionReceiver" />
     </application>
 
 </manifest>

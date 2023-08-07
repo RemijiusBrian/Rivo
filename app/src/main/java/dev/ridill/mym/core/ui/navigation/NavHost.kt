@@ -173,7 +173,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
         route = AddEditExpenseDestination.route,
         arguments = AddEditExpenseDestination.arguments,
         enterTransition = { slideInVertically { it } },
-        popExitTransition = { slideOutVertically { it } }
+        popExitTransition = { slideOutVertically { it } },
+        deepLinks = AddEditExpenseDestination.deepLinks
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")

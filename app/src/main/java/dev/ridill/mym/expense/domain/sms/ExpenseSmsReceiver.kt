@@ -39,6 +39,8 @@ class ExpenseSmsReceiver : BroadcastReceiver() {
                 if (!service.isBankSms(message.originatingAddress)) continue
 
                 val content = message.messageBody
+                if (!service.isDebitSms(content)) continue
+
                 val amount = service.extractAmount(content)?.toDoubleOrNull() ?: continue
                 val merchant = service.extractMerchant(content) ?: continue
 

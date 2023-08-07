@@ -19,6 +19,10 @@ class ExpenseSmsService {
     fun isBankSms(sender: String?): Boolean =
         senderRegex.matches(sender.orEmpty())
 
+    fun isDebitSms(content: String): Boolean =
+        content.contains("debited", true)
+                || content.contains("spent", true)
+
     fun extractAmount(content: String): String? =
         amountRegex.find(content)?.groupValues?.get(1)
 
