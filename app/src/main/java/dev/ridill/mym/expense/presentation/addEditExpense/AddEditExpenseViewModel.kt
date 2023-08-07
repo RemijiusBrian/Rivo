@@ -104,7 +104,7 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 
     override fun onNoteInputFocused() {
-        val amountInput = amountInput.value
+        val amountInput = amountInput.value.ifEmpty { return }
         savedStateHandle[AMOUNT_INPUT] = evalAmountExpression(amountInput).toString()
     }
 
