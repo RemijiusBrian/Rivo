@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -40,12 +41,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
@@ -55,6 +59,7 @@ import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
+import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.util.contentColor
@@ -82,6 +87,7 @@ fun AddEditExpenseScreen(
             amountFocusRequester.requestFocus()
     }
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
         topBar = {
             TopAppBar(
@@ -105,7 +111,8 @@ fun AddEditExpenseScreen(
                             )
                         }
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
@@ -117,6 +124,7 @@ fun AddEditExpenseScreen(
             }
         },
         modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
             .imePadding(),
         snackbarHostState = snackbarHostState
     ) { paddingValues ->
@@ -171,6 +179,7 @@ fun AddEditExpenseScreen(
                 onNewTagClick = actions::onNewTagClick,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(end = SpacingListEnd)
             )
         }
 
@@ -331,7 +340,14 @@ fun TagsList(
                 FilterChip(
                     selected = tag.name == selectedTag,
                     onClick = { onTagClick(tag.name) },
-                    label = { Text(tag.name) },
+                    label = {
+                        Text(
+                            text = tag.name,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = tag.color,
                         selectedLabelColor = tag.color.contentColor()
