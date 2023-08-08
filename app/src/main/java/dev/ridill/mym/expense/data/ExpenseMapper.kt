@@ -1,16 +1,17 @@
 package dev.ridill.mym.expense.data
 
 import dev.ridill.mym.core.domain.util.TextFormatUtil
-import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.domain.model.Expense
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 
 fun ExpenseEntity.toExpense(): Expense = Expense(
     id = id,
     amount = amount.toString(),
     note = note,
-    dateTime = dateTime
+    dateTime = dateTime,
+    tagId = tagId
 )
 
 fun ExpenseWithTagRelation.toRecentSpend(): ExpenseListItem = ExpenseListItem(

@@ -99,6 +99,7 @@ class AddEditExpenseViewModel @Inject constructor(
         savedStateHandle[AMOUNT_INPUT] = expense.amount
         savedStateHandle[NOTE_INPUT] = expense.note
         savedStateHandle[EXPENSE_DATE_TIME] = expense.dateTime
+        savedStateHandle[SELECTED_TAG_ID] = expense.tagId
     }
 
     override fun onAmountChange(value: String) {
