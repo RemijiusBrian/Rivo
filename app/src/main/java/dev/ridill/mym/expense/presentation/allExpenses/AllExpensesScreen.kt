@@ -353,7 +353,11 @@ private fun TagInfoCard(
             }
 
             Text(
-                text = stringResource(R.string.percent_of_total, TextFormatUtil.percent(percent)),
+                text = if (percent.isNaN()) stringResource(R.string.no_expenditure_yet)
+                else stringResource(
+                    R.string.percent_of_total,
+                    TextFormatUtil.percent(percent)
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
             )

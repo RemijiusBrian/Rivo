@@ -116,4 +116,5 @@
     <string name="click_to_submit_feedback">Click to submit your feedback to the developer</string>
     <string name="feedback_message">Share your experience and let us know how we can help improve your expense management with MYM</string>
     <string name="testing_features_enabled">Testing features enabled</string>
+    <string name="no_expenditure_yet">No Expenditure Yet</string>
 </resources>
