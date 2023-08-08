@@ -35,6 +35,7 @@
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
+    <string name="error_testing_feature_enable_failed">Failed to enable testing features</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -110,4 +111,8 @@
     <string name="amount_spent_at_merchant">%1$s spent at %2$s</string>
     <string name="count_new_expenses">%s New Expenses</string>
     <string name="new_expenses_detected">New Expenses Detected</string>
+    <string name="feedback">Feedback</string>
+    <string name="click_to_submit_feedback">Click to submit your feedback to the developer</string>
+    <string name="feedback_message">Share your experience and let us know how we can help improve your expense management with MYM</string>
+    <string name="testing_features_enabled">Testing features enabled</string>
 </resources>

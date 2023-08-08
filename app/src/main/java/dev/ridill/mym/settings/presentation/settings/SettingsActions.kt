@@ -13,4 +13,5 @@ interface SettingsActions {
     fun onAutoAddExpensePreferenceClick()
     fun onSmsPermissionRationaleDismiss()
     fun onSmsPermissionRationaleAgree()
+    fun onFeedbackPreferenceClick()
 }

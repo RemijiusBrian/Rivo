@@ -41,11 +41,12 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.BackArrowButton
+import dev.ridill.mym.core.ui.components.IncomeInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
-import dev.ridill.mym.core.ui.components.MonthlyLimitInputDialog
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.icons.Brightness
+import dev.ridill.mym.core.ui.components.icons.Feedback
 import dev.ridill.mym.core.ui.components.icons.Github
 import dev.ridill.mym.core.ui.components.icons.Info
 import dev.ridill.mym.core.ui.components.icons.Message
@@ -125,6 +126,14 @@ fun SettingsScreen(
             )
 
             PreferenceDivider()
+
+            SimplePreference(
+                titleRes = R.string.feedback,
+                summary = stringResource(R.string.click_to_submit_feedback),
+                leadingIcon = Icons.Rounded.Feedback,
+                onClick = actions::onFeedbackPreferenceClick
+            )
+
             SimplePreference(
                 titleRes = R.string.source_code,
                 leadingIcon = Icons.Filled.Github,
@@ -147,7 +156,7 @@ fun SettingsScreen(
         }
 
         if (state.showMonthlyLimitInput) {
-            MonthlyLimitInputDialog(
+            IncomeInputDialog(
                 onConfirm = actions::onMonthlyLimitInputConfirm,
                 onDismiss = actions::onMonthlyLimitInputDismiss,
                 placeholderAmount = state.currentMonthlyLimit
