@@ -287,6 +287,8 @@ class AllExpensesViewModel @Inject constructor(
             val selectedIds = selectedExpenseIds.value
             deleteExpenses(selectedIds)
             savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = false
+            dismissMultiSelectionMode()
+            eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.expenses_deleted)))
         }
     }
 

@@ -101,6 +101,7 @@
     <string name="click_tag_to_assign_to_selected_expenses">Click on a tag to assign it to the selected expenses</string>
     <string name="tag_assigned_to_expenses">Tag assigned to expenses</string>
     <string name="expenses_untagged">Expenses Untagged</string>
+    <string name="expenses_deleted">Expenses Deleted</string>
     <string name="source_code">Source Code</string>
     <string name="version">Version</string>
     <string name="new_tag">New Tag</string>
