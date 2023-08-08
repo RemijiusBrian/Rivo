@@ -120,9 +120,15 @@ private fun TagIndicator(
             contentDescription = null,
             tint = color,
             modifier = Modifier
-                .size(12.dp)
+                .size(TagIconSize)
         )
         HorizontalSpacer(spacing = SpacingSmall)
-        Text(text = name)
+        Text(
+            text = name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
+
+private val TagIconSize = 12.dp
