@@ -163,7 +163,7 @@ fun AddEditExpenseScreen(
                 )
             }
 
-            ExpenseDate(
+            ExpenseTimestamp(
                 date = state.expenseDateFormatted,
                 time = state.expenseTimeFormatted,
                 modifier = Modifier
@@ -290,7 +290,7 @@ private fun AmountRecommendations(
 private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 
 @Composable
-private fun ExpenseDate(
+private fun ExpenseTimestamp(
     date: String,
     time: String,
     modifier: Modifier = Modifier

@@ -8,7 +8,7 @@ data class Expense(
     val id: Long,
     val amount: String,
     val note: String,
-    val dateTime: LocalDateTime,
+    val createdTimestamp: LocalDateTime,
     val tagId: String?
 ) {
     companion object {
@@ -16,7 +16,7 @@ data class Expense(
             id = MYMDatabase.DEFAULT_ID_LONG,
             amount = "",
             note = "",
-            dateTime = DateUtil.now(),
+            createdTimestamp = DateUtil.now(),
             tagId = null
         )
     }

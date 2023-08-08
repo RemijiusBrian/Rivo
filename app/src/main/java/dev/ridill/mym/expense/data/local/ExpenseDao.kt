@@ -33,7 +33,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     suspend fun getExpenseById(id: Long): ExpenseEntity?
 
     @Transaction
-    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY datetime(dateTime) DESC")
+    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY time(dateTime) DESC, id DESC")
     fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTagRelation>>
 
     @Transaction
@@ -42,7 +42,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         SELECT *
         FROM ExpenseEntity
         WHERE strftime('%m-%Y', datetime) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId)
-        ORDER BY datetime(dateTime) DESC
+        ORDER BY time(dateTime) DESC, id DESC
     """
     )
     fun getExpenseForMonthByTag(

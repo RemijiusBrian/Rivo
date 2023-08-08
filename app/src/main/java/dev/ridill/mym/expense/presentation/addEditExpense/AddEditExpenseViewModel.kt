@@ -48,7 +48,7 @@ class AddEditExpenseViewModel @Inject constructor(
     private val tagsList = tagsRepo.getAllTags()
     private val selectedTagId = savedStateHandle.getStateFlow<String?>(SELECTED_TAG_ID, null)
 
-    private val expenseDateTime = savedStateHandle.getStateFlow(EXPENSE_DATE_TIME, DateUtil.now())
+    private val expenseTimestamp = savedStateHandle.getStateFlow(EXPENSE_TIMESTAMP, DateUtil.now())
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
@@ -66,14 +66,14 @@ class AddEditExpenseViewModel @Inject constructor(
         amountRecommendations,
         tagsList,
         selectedTagId,
-        expenseDateTime,
+        expenseTimestamp,
         showDeleteConfirmation,
         showNewTagInput
     ).map { (
                 amountRecommendations,
                 tagsList,
                 selectedTagId,
-                expenseDateTime,
+                expenseTimestamp,
                 showDeleteConfirmation,
                 showNewTagInput
             ) ->
@@ -81,7 +81,7 @@ class AddEditExpenseViewModel @Inject constructor(
             amountRecommendations = amountRecommendations,
             tagsList = tagsList,
             selectedTagId = selectedTagId,
-            expenseDateTime = expenseDateTime,
+            expenseTimestamp = expenseTimestamp,
             showDeleteConfirmation = showDeleteConfirmation,
             showNewTagInput = showNewTagInput
         )
@@ -98,7 +98,7 @@ class AddEditExpenseViewModel @Inject constructor(
             ?: Expense.DEFAULT
         savedStateHandle[AMOUNT_INPUT] = expense.amount
         savedStateHandle[NOTE_INPUT] = expense.note
-        savedStateHandle[EXPENSE_DATE_TIME] = expense.dateTime
+        savedStateHandle[EXPENSE_TIMESTAMP] = expense.createdTimestamp
         savedStateHandle[SELECTED_TAG_ID] = expense.tagId
     }
 
@@ -168,7 +168,7 @@ class AddEditExpenseViewModel @Inject constructor(
                 amount = amount,
                 note = note,
                 tagId = tagId,
-                dateTime = expenseDateTime.value
+                dateTime = expenseTimestamp.value
             )
             val event = if (isEditMode) AddEditExpenseEvent.ExpenseUpdated
             else AddEditExpenseEvent.ExpenseAdded
@@ -257,7 +257,7 @@ class AddEditExpenseViewModel @Inject constructor(
 private const val AMOUNT_INPUT = "AMOUNT_INPUT"
 private const val NOTE_INPUT = "NOTE_INPUT"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
-private const val EXPENSE_DATE_TIME = "EXPENSE_DATE_TIME"
+private const val EXPENSE_TIMESTAMP = "EXPENSE_TIMESTAMP"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_NAME_INPUT = "TAG_NAME_INPUT"

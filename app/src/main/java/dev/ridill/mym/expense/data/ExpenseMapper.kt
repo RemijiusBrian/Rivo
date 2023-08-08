@@ -10,7 +10,7 @@ fun ExpenseEntity.toExpense(): Expense = Expense(
     id = id,
     amount = amount.toString(),
     note = note,
-    dateTime = dateTime,
+    createdTimestamp = dateTime,
     tagId = tagId
 )
 

@@ -2,11 +2,11 @@ package dev.ridill.mym.dashboard.data.repository
 
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.data.toRecentSpend
+import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -28,9 +28,10 @@ class DashboardRepositoryImpl(
             .distinctUntilChanged()
 
     override fun getRecentSpends(): Flow<List<ExpenseListItem>> =
-        dao.getExpensesForMonth(currentDateDbFormat()).map { entities ->
-            entities.map(ExpenseWithTagRelation::toRecentSpend)
-        }
+        dao.getExpensesForMonth(currentDateDbFormat())
+            .map { entities ->
+                entities.map(ExpenseWithTagRelation::toRecentSpend)
+            }
 
     private fun currentDateDbFormat(): String =
         DateUtil.now().format(DateUtil.Formatters.MM_yyyy_dbFormat)
