@@ -142,7 +142,7 @@ fun TextInputDialog(
 }
 
 @Composable
-fun MonthlyLimitInputDialog(
+fun IncomeInputDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,

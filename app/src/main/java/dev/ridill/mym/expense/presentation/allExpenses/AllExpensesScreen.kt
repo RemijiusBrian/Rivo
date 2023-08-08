@@ -78,7 +78,7 @@ import dev.ridill.mym.core.ui.util.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
-import dev.ridill.mym.expense.presentation.components.BaseExpenseLayout
+import dev.ridill.mym.expense.presentation.components.ExpenseListItem
 import dev.ridill.mym.expense.presentation.components.NewTagDialog
 import java.time.LocalDate
 import java.time.Month
@@ -585,7 +585,7 @@ private fun ExpenseCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BaseExpenseLayout(
+    ExpenseListItem(
         note = note,
         amount = amount,
         date = date,

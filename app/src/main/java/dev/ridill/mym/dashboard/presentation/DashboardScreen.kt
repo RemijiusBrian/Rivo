@@ -70,7 +70,7 @@ import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.ExpenseTag
-import dev.ridill.mym.expense.presentation.components.BaseExpenseLayout
+import dev.ridill.mym.expense.presentation.components.ExpenseListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -386,7 +386,7 @@ private fun RecentSpend(
     onClick: () -> Unit,
     tag: ExpenseTag?,
     modifier: Modifier = Modifier
-) = BaseExpenseLayout(
+) = ExpenseListItem(
     note = note,
     amount = amount,
     date = date,
