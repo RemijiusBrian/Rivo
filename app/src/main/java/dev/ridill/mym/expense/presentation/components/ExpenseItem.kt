@@ -11,9 +11,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,7 +80,9 @@ fun ExpenseListItem(
 @Composable
 fun TransactionDate(
     date: LocalDate,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    contentColor: Color = contentColorFor(containerColor)
 ) {
     val dateFormatted = remember(date) {
         date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
@@ -88,18 +93,20 @@ fun TransactionDate(
             .widthIn(min = DateContainerMinWidth)
             .clip(MaterialTheme.shapes.small)
             .background(
-                color = MaterialTheme.colorScheme.primary
-                    .copy(alpha = 0.20f)
+                color = containerColor
             )
             .padding(SpacingSmall)
             .then(modifier),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = dateFormatted,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            Text(
+                text = dateFormatted,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = LocalContentColor.current
+            )
+        }
     }
 }
 

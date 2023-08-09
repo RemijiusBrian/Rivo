@@ -1,7 +1,6 @@
 package dev.ridill.mym.dashboard.presentation
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +18,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,7 +43,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,8 +58,10 @@ import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
+import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -132,7 +132,7 @@ fun DashboardScreen(
                     .padding(horizontal = SpacingMedium)
             )
 
-            RecentTransactionsList(
+            SpendsOverview(
                 spentAmount = state.spentAmount,
                 recentSpends = state.recentSpends,
                 onTransactionClick = { navigateToAddEditExpense(it.id) },
@@ -232,7 +232,7 @@ private fun Balance(
 }
 
 @Composable
-private fun RecentTransactionsList(
+private fun SpendsOverview(
     spentAmount: Double,
     recentSpends: List<ExpenseListItem>,
     onTransactionClick: (ExpenseListItem) -> Unit,
@@ -246,15 +246,13 @@ private fun RecentTransactionsList(
 
     Surface(
         shape = MaterialTheme.shapes.medium
-            .copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+            .copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         modifier = modifier,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        tonalElevation = ElevationLevel1
     ) {
         Column(
             modifier = Modifier
-                .padding(top = SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+                .padding(top = SpacingMedium)
         ) {
             Text(
                 text = stringResource(R.string.recent_spends),
@@ -263,6 +261,8 @@ private fun RecentTransactionsList(
                     .padding(horizontal = SpacingMedium)
             )
 
+            VerticalSpacer(spacing = SpacingSmall)
+
             SpentAmount(
                 amount = spentAmount,
                 modifier = Modifier
@@ -270,8 +270,9 @@ private fun RecentTransactionsList(
                     .padding(horizontal = SpacingMedium)
             )
 
+            VerticalSpacer(spacing = SpacingSmall)
+
             Divider(
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             )
@@ -292,7 +293,9 @@ private fun RecentTransactionsList(
                         .matchParentSize(),
                     contentPadding = PaddingValues(
                         top = SpacingSmall,
-                        bottom = SpacingListEnd
+                        bottom = SpacingListEnd,
+                        start = SpacingSmall,
+                        end = SpacingSmall
                     ),
                     verticalArrangement = Arrangement.spacedBy(SpacingSmall),
                     state = lazyListState
@@ -317,7 +320,7 @@ private fun RecentTransactionsList(
                         .align(Alignment.BottomCenter)
                         .padding(SpacingMedium)
                 ) {
-                    SmallFloatingActionButton(
+                    FilledTonalIconButton(
                         onClick = {
                             coroutineScope.launch {
                                 if (lazyListState.isScrollInProgress)
@@ -326,8 +329,7 @@ private fun RecentTransactionsList(
                                     lazyListState.animateScrollToItem(Int.Zero)
                             }
                         },
-                        shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                        shape = CircleShape
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowUpward,
@@ -386,19 +388,19 @@ private fun RecentSpend(
     onClick: () -> Unit,
     tag: ExpenseTag?,
     modifier: Modifier = Modifier
-) = ExpenseListItem(
-    note = note,
-    amount = amount,
-    date = date,
-    tag = tag,
-    modifier = modifier.clickable(
-        role = Role.Button,
-        onClick = onClick
-    ),
-    colors = ListItemDefaults.colors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer
-    )
-)
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        ExpenseListItem(
+            note = note,
+            amount = amount,
+            date = date,
+            tag = tag
+        )
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
