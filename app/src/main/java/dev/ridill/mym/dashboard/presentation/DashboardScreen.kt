@@ -1,36 +1,44 @@
 package dev.ridill.mym.dashboard.presentation
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -40,14 +48,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.One
@@ -60,8 +67,10 @@ import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
-import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
+import dev.ridill.mym.core.ui.theme.ContentAlpha
+import dev.ridill.mym.core.ui.theme.ElevationLevel2
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -71,6 +80,7 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -79,12 +89,13 @@ fun DashboardScreen(
     state: DashboardState,
     snackbarHostState: SnackbarHostState,
     navigateToAddEditExpense: (Long?) -> Unit,
-    navigateToBottomNavDestination: (BottomNavDestination) -> Unit
+    navigateToSettings: () -> Unit,
+    navigateToAllExpenses: () -> Unit
 ) {
     MYMScaffold(
         modifier = Modifier
             .fillMaxSize(),
-        bottomBar = {
+        /*bottomBar = {
             BottomAppBar(
                 actions = {
                     BottomNavDestination.bottomNavDestinations.forEach { destination ->
@@ -110,20 +121,40 @@ fun DashboardScreen(
                     }
                 }
             )
+        },*/
+        snackbarHostState = snackbarHostState,
+        topBar = {
+            TopAppBar(
+                title = { Greeting() },
+                actions = {
+                    IconButton(onClick = navigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = stringResource(R.string.destination_settings)
+                        )
+                    }
+                }
+            )
         },
-        snackbarHostState = snackbarHostState
+        floatingActionButton = {
+            FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.cd_new_expense)
+                )
+            }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr)
+                ),
             verticalArrangement = Arrangement.spacedBy(SpacingLarge)
         ) {
-            Greeting(
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-                    .padding(top = SpacingMedium)
-            )
             BalanceAndLimit(
                 balance = state.balance,
                 monthlyLimit = state.monthlyLimit,
@@ -132,14 +163,15 @@ fun DashboardScreen(
                     .padding(horizontal = SpacingMedium)
             )
 
-            RecentTransactionsList(
+            SpendsOverview(
                 spentAmount = state.spentAmount,
                 recentSpends = state.recentSpends,
                 onTransactionClick = { navigateToAddEditExpense(it.id) },
+                onAllExpensesClick = navigateToAllExpenses,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = SpacingSmall)
             )
         }
     }
@@ -232,36 +264,49 @@ private fun Balance(
 }
 
 @Composable
-private fun RecentTransactionsList(
+private fun SpendsOverview(
     spentAmount: Double,
     recentSpends: List<ExpenseListItem>,
     onTransactionClick: (ExpenseListItem) -> Unit,
+    onAllExpensesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val lazyListState = rememberLazyListState()
-    val showScrollUpButton by remember {
-        derivedStateOf { lazyListState.firstVisibleItemIndex > 3 }
-    }
-    val coroutineScope = rememberCoroutineScope()
-
     Surface(
-        shape = MaterialTheme.shapes.medium
-            .copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+        shape = MaterialTheme.shapes.medium/*
+            .copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)*/,
         modifier = modifier,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        tonalElevation = ElevationLevel2
     ) {
         Column(
             modifier = Modifier
                 .padding(top = SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+//            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            Text(
-                text = stringResource(R.string.recent_spends),
-                style = MaterialTheme.typography.titleSmall,
+            Row(
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-            )
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingMedium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.recent_spends),
+                    style = MaterialTheme.typography.titleSmall
+                )
+
+                TextButton(onClick = onAllExpensesClick) {
+                    Text(text = stringResource(R.string.destination_all_expenses))
+                    HorizontalSpacer(spacing = ButtonDefaults.IconSpacing)
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(ButtonDefaults.IconSize)
+                    )
+                }
+            }
+
+            VerticalSpacer(spacing = SpacingSmall)
 
             SpentAmount(
                 amount = spentAmount,
@@ -270,72 +315,20 @@ private fun RecentTransactionsList(
                     .padding(horizontal = SpacingMedium)
             )
 
+            VerticalSpacer(spacing = SpacingSmall)
+
             Divider(
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             )
 
-            Box(
+            RecentSpendList(
+                recentSpends = recentSpends,
+                onRecentSpendClick = onTransactionClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(Float.One),
-                contentAlignment = Alignment.Center
-            ) {
-                if (recentSpends.isEmpty()) {
-                    EmptyListIndicator(
-                        resId = R.raw.lottie_empty_list_ghost
-                    )
-                }
-                LazyColumn(
-                    modifier = Modifier
-                        .matchParentSize(),
-                    contentPadding = PaddingValues(
-                        top = SpacingSmall,
-                        bottom = SpacingListEnd
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSmall),
-                    state = lazyListState
-                ) {
-                    items(items = recentSpends, key = { it.id }) { transaction ->
-                        RecentSpend(
-                            note = transaction.note,
-                            amount = transaction.amount,
-                            date = transaction.date,
-                            onClick = { onTransactionClick(transaction) },
-                            tag = transaction.tag,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItemPlacement()
-                        )
-                    }
-                }
-
-                FadedVisibility(
-                    visible = showScrollUpButton,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(SpacingMedium)
-                ) {
-                    SmallFloatingActionButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                if (lazyListState.isScrollInProgress)
-                                    lazyListState.scrollToItem(Int.Zero)
-                                else
-                                    lazyListState.animateScrollToItem(Int.Zero)
-                            }
-                        },
-                        shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowUpward,
-                            contentDescription = stringResource(R.string.cd_scroll_to_top)
-                        )
-                    }
-                }
-            }
+                    .weight(Float.One)
+            )
         }
     }
 }
@@ -371,7 +364,7 @@ private fun SpentAmount(
             modifier = Modifier
                 .alignByBaseline(),
             color = contentColor.copy(
-                alpha = 0.80f
+                alpha = ContentAlpha.SUB_CONTENT
             ),
             fontWeight = FontWeight.Normal
         )
@@ -379,26 +372,103 @@ private fun SpentAmount(
 }
 
 @Composable
-private fun RecentSpend(
+private fun RecentSpendList(
+    recentSpends: List<ExpenseListItem>,
+    onRecentSpendClick: (ExpenseListItem) -> Unit,
+    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    paddingValues: PaddingValues = WindowInsets.navigationBars.asPaddingValues()
+) {
+    val lazyListState = rememberLazyListState()
+    val showScrollUpButton by remember {
+        derivedStateOf { lazyListState.firstVisibleItemIndex > 3 }
+    }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        if (recentSpends.isEmpty()) {
+            EmptyListIndicator(
+                resId = R.raw.lottie_empty_list_ghost
+            )
+        }
+        LazyColumn(
+            modifier = Modifier
+                .matchParentSize(),
+            contentPadding = PaddingValues(
+                top = SpacingSmall,
+                bottom = paddingValues.calculateBottomPadding() + SpacingListEnd,
+                start = SpacingSmall,
+                end = SpacingSmall
+            ),
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            state = lazyListState
+        ) {
+            items(items = recentSpends, key = { it.id }) { transaction ->
+                RecentSpendCard(
+                    note = transaction.note,
+                    amount = transaction.amount,
+                    date = transaction.date,
+                    onClick = { onRecentSpendClick(transaction) },
+                    tag = transaction.tag,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItemPlacement()
+                )
+            }
+        }
+
+        FadedVisibility(
+            visible = showScrollUpButton,
+            modifier = Modifier
+                .padding(paddingValues)
+                .align(Alignment.BottomCenter)
+        ) {
+            FilledTonalIconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        if (lazyListState.isScrollInProgress)
+                            lazyListState.scrollToItem(Int.Zero)
+                        else
+                            lazyListState.animateScrollToItem(Int.Zero)
+                    }
+                },
+                shape = CircleShape
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowUpward,
+                    contentDescription = stringResource(R.string.cd_scroll_to_top)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,
     onClick: () -> Unit,
     tag: ExpenseTag?,
     modifier: Modifier = Modifier
-) = ExpenseListItem(
-    note = note,
-    amount = amount,
-    date = date,
-    tag = tag,
-    modifier = modifier.clickable(
-        role = Role.Button,
-        onClick = onClick
-    ),
-    colors = ListItemDefaults.colors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer
-    )
-)
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        ExpenseListItem(
+            note = note,
+            amount = amount,
+            date = date,
+            tag = tag,
+            colors = ListItemDefaults.colors(
+                containerColor = Color.Transparent
+            )
+        )
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -412,7 +482,8 @@ private fun PreviewDashboardScreen() {
             ),
             navigateToAddEditExpense = {},
             snackbarHostState = rememberSnackbarHostState(),
-            navigateToBottomNavDestination = {}
+            navigateToSettings = {},
+            navigateToAllExpenses = {}
         )
     }
 }
