@@ -156,11 +156,8 @@ private fun NavGraphBuilder.dashboard(navController: NavHostController) {
             navigateToAddEditExpense = {
                 navController.navigate(AddEditExpenseDestination.routeWithArg(it))
             },
-            navigateToSettings = {
-                navController.navigate(SettingsDestination.route)
-            },
-            navigateToAllExpenses = {
-                navController.navigate(AllExpensesDestination.route)
+            navigateToBottomNavDestination = {
+                navController.navigate(it.route)
             }
         )
     }
