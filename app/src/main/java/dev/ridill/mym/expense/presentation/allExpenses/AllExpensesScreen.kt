@@ -35,7 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -67,6 +66,7 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.MYMScaffold
+import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.ElevationLevel0
@@ -87,7 +87,7 @@ import java.util.Locale
 
 @Composable
 fun AllExpensesScreen(
-    snackbarHostState: SnackbarHostState,
+    snackbarController: SnackbarController,
     state: AllExpensesState,
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
@@ -101,7 +101,7 @@ fun AllExpensesScreen(
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
-        snackbarHostState = snackbarHostState,
+        snackbarController = snackbarController,
         topBar = {
             TopAppBar(
                 title = {

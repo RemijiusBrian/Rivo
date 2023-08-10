@@ -20,7 +20,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +44,7 @@ import dev.ridill.mym.core.ui.components.IncomeInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
+import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.icons.Brightness
 import dev.ridill.mym.core.ui.components.icons.Feedback
 import dev.ridill.mym.core.ui.components.icons.Github
@@ -59,7 +59,7 @@ import dev.ridill.mym.settings.domain.modal.AppTheme
 
 @Composable
 fun SettingsScreen(
-    snackbarHostState: SnackbarHostState,
+    snackbarController: SnackbarController,
     state: SettingsState,
     actions: SettingsActions,
     navigateUp: () -> Unit,
@@ -78,7 +78,7 @@ fun SettingsScreen(
                 scrollBehavior = topAppBarScrollBehavior
             )
         },
-        snackbarHostState = snackbarHostState
+        snackbarController = snackbarController
     ) { paddingValues ->
         Column(
             modifier = Modifier

@@ -27,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,9 +56,10 @@ import dev.ridill.mym.core.ui.components.FadedVisibility
 import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
+import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.VerticalSpacer
-import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
+import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.MYMTheme
@@ -77,7 +77,7 @@ import java.time.LocalDate
 @Composable
 fun DashboardScreen(
     state: DashboardState,
-    snackbarHostState: SnackbarHostState,
+    snackbarController: SnackbarController,
     navigateToAddEditExpense: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
@@ -111,7 +111,7 @@ fun DashboardScreen(
                 }
             )
         },
-        snackbarHostState = snackbarHostState
+        snackbarController = snackbarController
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -413,7 +413,7 @@ private fun PreviewDashboardScreen() {
                 monthlyLimit = 5_000L
             ),
             navigateToAddEditExpense = {},
-            snackbarHostState = rememberSnackbarHostState(),
+            snackbarController = rememberSnackbarController(),
             navigateToBottomNavDestination = {}
         )
     }
