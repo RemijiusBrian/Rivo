@@ -2,6 +2,7 @@ package dev.ridill.mym.expense.presentation.allExpenses
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.state.ToggleableState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -214,10 +215,13 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onExpenseLongClick(id: Long) {
-        if (expenseMultiSelectionModeActive.value) dismissMultiSelectionMode()
-        else {
-            savedStateHandle[SELECTED_TAG] = null
-            enableMultiSelectionModeWithId(id)
+        viewModelScope.launch {
+            if (expenseMultiSelectionModeActive.value) dismissMultiSelectionMode()
+            else {
+                savedStateHandle[SELECTED_TAG] = null
+                enableMultiSelectionModeWithId(id)
+            }
+            eventBus.send(AllExpenseEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
         }
     }
 
@@ -245,7 +249,10 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onDismissMultiSelectionMode() {
-        dismissMultiSelectionMode()
+        viewModelScope.launch {
+            dismissMultiSelectionMode()
+            eventBus.send(AllExpenseEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
+        }
     }
 
     private fun dismissMultiSelectionMode() {
@@ -321,6 +328,7 @@ class AllExpensesViewModel @Inject constructor(
 
     sealed class AllExpenseEvent {
         data class ShowUiMessage(val uiText: UiText) : AllExpenseEvent()
+        data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllExpenseEvent()
     }
 }
 

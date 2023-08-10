@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -251,6 +252,8 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
         val context = LocalContext.current
         val snackbarHostState = rememberSnackbarHostState()
 
+        val hapticFeedback = LocalHapticFeedback.current
+
         LaunchedEffect(viewModel, context, snackbarHostState) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -259,6 +262,10 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
                             event.uiText.asString(context),
                             event.uiText.isErrorText
                         )
+                    }
+
+                    is AllExpensesViewModel.AllExpenseEvent.ProvideHapticFeedback -> {
+                        hapticFeedback.performHapticFeedback(event.type)
                     }
                 }
             }
