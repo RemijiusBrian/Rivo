@@ -225,7 +225,7 @@ private fun AmountInput(
         },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Decimal,
+            keyboardType = KeyboardType.Phone,
             imeAction = ImeAction.Next
         ),
         colors = OutlinedTextFieldDefaults.colors(
