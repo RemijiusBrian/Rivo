@@ -14,7 +14,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -27,6 +26,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
+import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import dev.ridill.mym.welcomeFlow.presentation.components.IncomeInputContent
@@ -34,7 +34,7 @@ import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageContent
 
 @Composable
 fun WelcomeFlowScreen(
-    snackbarHostState: SnackbarHostState,
+    snackbarController: SnackbarController,
     flowStop: WelcomeFlowStop,
     incomeInput: () -> String,
     showPermissionRationale: Boolean,
@@ -44,7 +44,7 @@ fun WelcomeFlowScreen(
         modifier = Modifier
             .imePadding(),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
-        snackbarHostState = snackbarHostState,
+        snackbarController = snackbarController,
         floatingActionButton = {
             val isLimitInputEmpty by remember {
                 derivedStateOf { incomeInput().isEmpty() }

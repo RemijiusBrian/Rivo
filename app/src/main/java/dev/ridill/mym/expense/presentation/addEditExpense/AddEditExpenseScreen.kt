@@ -23,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -56,6 +55,7 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
+import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -69,7 +69,7 @@ import dev.ridill.mym.expense.presentation.components.NewTagDialog
 
 @Composable
 fun AddEditExpenseScreen(
-    snackbarHostState: SnackbarHostState,
+    snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
     tagNameInput: () -> String,
@@ -126,7 +126,7 @@ fun AddEditExpenseScreen(
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
             .imePadding(),
-        snackbarHostState = snackbarHostState
+        snackbarController = snackbarController
     ) { paddingValues ->
         Column(
             modifier = Modifier

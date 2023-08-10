@@ -20,8 +20,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.rememberPermissionLauncher
 import dev.ridill.mym.core.ui.components.rememberPermissionsState
-import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
-import dev.ridill.mym.core.ui.components.showMymSnackbar
+import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
@@ -80,7 +79,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         val showPermissionRationale by viewModel.showNotificationRationale
             .collectAsStateWithLifecycle()
 
-        val snackbarHostState = rememberSnackbarHostState()
+        val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
         val permissionsState = if (BuildUtil.isNotificationRuntimePermissionNeeded())
             rememberPermissionsState(
@@ -91,7 +90,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
             )
         else null
 
-        LaunchedEffect(viewModel, snackbarHostState, context) {
+        LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
                     WelcomeFlowViewModel.WelcomeFlowEvent.RequestPermissionRequest -> {
@@ -103,7 +102,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                     }
 
                     is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
-                        snackbarHostState.showMymSnackbar(
+                        snackbarController.showSnackbar(
                             event.uiText.asString(context),
                             event.uiText.isErrorText
                         )
@@ -117,7 +116,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         }
 
         WelcomeFlowScreen(
-            snackbarHostState = snackbarHostState,
+            snackbarController = snackbarController,
             flowStop = flowStop,
             incomeInput = { incomeInput.value },
             showPermissionRationale = showPermissionRationale,
@@ -136,27 +135,27 @@ private fun NavGraphBuilder.dashboard(navController: NavHostController) {
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        val snackbarHostState = rememberSnackbarHostState()
+        val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
         val dashboardResult = navBackStackEntry
             .savedStateHandle
             .get<String>(DASHBOARD_ACTION_RESULT)
 
-        LaunchedEffect(dashboardResult, context, snackbarHostState) {
+        LaunchedEffect(dashboardResult, context, snackbarController) {
             when (dashboardResult) {
                 RESULT_EXPENSE_ADDED -> R.string.expense_added
                 RESULT_EXPENSE_UPDATED -> R.string.expense_updated
                 RESULT_EXPENSE_DELETED -> R.string.expense_deleted
                 else -> null
             }?.let { messageRes ->
-                snackbarHostState.showMymSnackbar(context.getString(messageRes))
+                snackbarController.showSnackbar(context.getString(messageRes))
             }
             navBackStackEntry.savedStateHandle
                 .remove<String>(DASHBOARD_ACTION_RESULT)
         }
 
         DashboardScreen(
-            snackbarHostState = snackbarHostState,
+            snackbarController = snackbarController,
             state = state,
             navigateToAddEditExpense = {
                 navController.navigate(AddEditExpenseDestination.routeWithArg(it))
@@ -186,10 +185,10 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
 
         val isEditMode = AddEditExpenseDestination.isArgEditMode(navBackStackEntry)
 
-        val snackbarHostState = rememberSnackbarHostState()
+        val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        LaunchedEffect(viewModel, snackbarHostState, context) {
+        LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
                     AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseAdded -> {
@@ -214,7 +213,7 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
                     }
 
                     is AddEditExpenseViewModel.AddEditExpenseEvent.ShowUiMessage -> {
-                        snackbarHostState.showMymSnackbar(
+                        snackbarController.showSnackbar(
                             message = event.uiText.asString(context),
                             isError = event.uiText.isErrorText
                         )
@@ -224,7 +223,7 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
         }
 
         AddEditExpenseScreen(
-            snackbarHostState = snackbarHostState,
+            snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
             isEditMode = isEditMode,
@@ -250,15 +249,15 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
         val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
-        val snackbarHostState = rememberSnackbarHostState()
+        val snackbarController = rememberSnackbarController()
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        LaunchedEffect(viewModel, context, snackbarHostState) {
+        LaunchedEffect(viewModel, context, snackbarController) {
             viewModel.events.collect { event ->
                 when (event) {
                     is AllExpensesViewModel.AllExpenseEvent.ShowUiMessage -> {
-                        snackbarHostState.showMymSnackbar(
+                        snackbarController.showSnackbar(
                             event.uiText.asString(context),
                             event.uiText.isErrorText
                         )
@@ -272,7 +271,7 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
         }
 
         AllExpensesScreen(
-            snackbarHostState = snackbarHostState,
+            snackbarController = snackbarController,
             state = state,
             tagNameInput = { tagNameInput.value },
             tagColorInput = { tagColorInput.value },
@@ -292,17 +291,17 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 
-        val snackbarHostState = rememberSnackbarHostState()
         val context = LocalContext.current
+        val snackbarController = rememberSnackbarController()
 
         val smsPermissionState =
             rememberPermissionsState(permissionString = Manifest.permission.RECEIVE_SMS)
 
-        LaunchedEffect(viewModel, snackbarHostState, context) {
+        LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
                     is SettingsViewModel.SettingsEvent.ShowUiMessage -> {
-                        snackbarHostState.showMymSnackbar(
+                        snackbarController.showSnackbar(
                             event.uiText.asString(context),
                             event.uiText.isErrorText
                         )
@@ -320,7 +319,7 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         }
 
         SettingsScreen(
-            snackbarHostState = snackbarHostState,
+            snackbarController = snackbarController,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
