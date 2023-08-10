@@ -12,7 +12,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,13 +31,11 @@ fun <T> VerticalNumberSpinnerContent(
         transitionSpec = {
             if (targetState > initialState) {
                 (slideInVertically { height -> height } + fadeIn())
-                    .with(
-                        slideOutVertically { height -> -height } + fadeOut()
+                    .togetherWith(slideOutVertically { height -> -height } + fadeOut()
                     )
             } else {
                 (slideInVertically { height -> -height } + fadeIn())
-                    .with(
-                        slideOutVertically { height -> height } + fadeOut()
+                    .togetherWith(slideOutVertically { height -> height } + fadeOut()
                     )
             }.using(SizeTransform(clip = false))
         },
@@ -63,12 +61,12 @@ fun FadedVisibility(
     content = content
 )
 
-fun defaultFadeIn(
+fun simpleFadeIn(
     animationSpec: FiniteAnimationSpec<Float> = tween(),
     initialAlpha: Float = Float.Zero
 ): EnterTransition = fadeIn(animationSpec, initialAlpha)
 
-fun defaultFadeOut(
+fun simpleFadeOut(
     animationSpec: FiniteAnimationSpec<Float> = tween(),
     targetAlpha: Float = Float.Zero
 ): ExitTransition = fadeOut(animationSpec, targetAlpha)

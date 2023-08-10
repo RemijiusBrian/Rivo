@@ -1,6 +1,8 @@
 package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,6 +21,8 @@ import dev.ridill.mym.core.ui.components.rememberPermissionLauncher
 import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarHostState
 import dev.ridill.mym.core.ui.components.showMymSnackbar
+import dev.ridill.mym.core.ui.components.simpleFadeIn
+import dev.ridill.mym.core.ui.components.simpleFadeOut
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
@@ -66,8 +70,8 @@ fun MYMNavHost(
 private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
     composable(
         route = WelcomeFlowDestination.route,
-//        enterTransition = { defaultFadeIn() },
-//        exitTransition = { defaultFadeOut() }
+        enterTransition = { simpleFadeIn() },
+        exitTransition = { simpleFadeOut() }
     ) { navBackStackEntry ->
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
@@ -125,8 +129,8 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
 private fun NavGraphBuilder.dashboard(navController: NavHostController) {
     composable(
         route = DashboardDestination.route,
-//        exitTransition = { defaultFadeOut() },
-//        popEnterTransition = { defaultFadeIn() }
+        exitTransition = { simpleFadeOut() },
+        popEnterTransition = { simpleFadeIn() }
     ) { navBackStackEntry ->
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -168,9 +172,9 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
     composable(
         route = AddEditExpenseDestination.route,
         arguments = AddEditExpenseDestination.arguments,
-        deepLinks = AddEditExpenseDestination.deepLinks
-//        enterTransition = { slideInVertically { it } },
-//        popExitTransition = { slideOutVertically { it } },
+        deepLinks = AddEditExpenseDestination.deepLinks,
+        enterTransition = { slideInVertically { it } },
+        popExitTransition = { slideOutVertically { it } },
     ) { navBackStackEntry ->
         val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
@@ -236,8 +240,8 @@ private fun NavGraphBuilder.addEditExpense(navController: NavHostController) {
 private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
     composable(
         route = AllExpensesDestination.route,
-//        enterTransition = { defaultFadeIn() },
-//        popExitTransition = { defaultFadeOut() }
+        enterTransition = { simpleFadeIn() },
+        popExitTransition = { simpleFadeOut() }
     ) { navBackStackEntry ->
         val viewModel: AllExpensesViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -275,8 +279,8 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
 private fun NavGraphBuilder.settings(navController: NavHostController) {
     composable(
         route = SettingsDestination.route,
-//        enterTransition = { defaultFadeIn() },
-//        popExitTransition = { defaultFadeOut() }
+        enterTransition = { simpleFadeIn() },
+        popExitTransition = { simpleFadeOut() }
     ) { navBackStackEntry ->
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
