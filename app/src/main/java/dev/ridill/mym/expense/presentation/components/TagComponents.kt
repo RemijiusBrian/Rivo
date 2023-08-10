@@ -1,6 +1,5 @@
 package dev.ridill.mym.expense.presentation.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,15 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -138,45 +136,49 @@ private fun ColorSelector(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+    val selectedColor = MaterialTheme.colorScheme.primary
+    Box(
+        modifier = Modifier
+            .size(ColorSelectorSize)
+            .clip(CircleShape)
+            .border(
+                width = if (selected) 2.dp else 1.dp,
+                color = if (selected) selectedColor
+                else LocalContentColor.current,
+                shape = CircleShape
+            )
+            .background(color)
+            .clickable(
+                role = Role.Button,
+                onClick = onClick,
+                onClickLabel = stringResource(R.string.cd_select_tag_color)
+            )
+            .then(modifier),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(ColorSelectorSize)
-                .clip(CircleShape)
-                .border(
-                    width = 2.dp,
-                    color = LocalContentColor.current,
-                    shape = CircleShape
-                )
-                .background(color)
-                .clickable(
-                    role = Role.Button,
-                    onClick = onClick,
-                    onClickLabel = stringResource(R.string.cd_select_tag_color)
-                )
-        )
-        AnimatedVisibility(visible = selected) {
-            Box(
-                modifier = Modifier
-                    .height(ColorSelctionIndicatorHeight)
-                    .width(ColorSelectorSize)
-                    .clip(CircleShape)
-                    .background(color)
+        if (selected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = stringResource(R.string.cd_tag_color_selected),
+                tint = selectedColor
             )
         }
     }
 }
 
 private val ColorSelectorSize = 32.dp
-private val ColorSelctionIndicatorHeight = 2.dp
 
 val TagColors: List<Color>
     get() = listOf(
-        Color.Red,
-        Color.Green,
-        Color.Blue
-    )
+        Color(0xFF77172E),
+        Color(0xFF692C18),
+        Color(0xFF7C4A03),
+        Color(0xFF274D3B),
+        Color(0xFF0D635D),
+        Color(0xFF246377),
+        Color(0xFF284255),
+        Color(0xFF472E5B),
+        Color(0xFF6C3A4F),
+        Color(0xFF4B443A),
+        Color(0xFF232427)
+    ).map { it.copy(alpha = 0.64f) }
