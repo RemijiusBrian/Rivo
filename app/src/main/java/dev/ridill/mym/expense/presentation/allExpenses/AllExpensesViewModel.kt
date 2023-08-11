@@ -37,6 +37,8 @@ class AllExpensesViewModel @Inject constructor(
     private val selectedDate = savedStateHandle
         .getStateFlow(SELECTED_DATE, DateUtil.now().toLocalDate())
 
+    private val yearsList = expenseRepo.getExpenseYearsList()
+
     private val totalExpenditure = selectedDate.flatMapLatest { date ->
         expenseRepo.getTotalExpenditureForDate(date)
     }.distinctUntilChanged()
@@ -97,6 +99,7 @@ class AllExpensesViewModel @Inject constructor(
 
     val state = combineTuple(
         selectedDate,
+        yearsList,
         totalExpenditure,
         tagsWithExpenditures,
         selectedTag,
@@ -109,6 +112,7 @@ class AllExpensesViewModel @Inject constructor(
         showNewTagInput
     ).map { (
                 selectedDate,
+                yearsList,
                 totalExpenditure,
                 tagsWithExpenditures,
                 selectedTag,
@@ -122,7 +126,7 @@ class AllExpensesViewModel @Inject constructor(
             ) ->
         AllExpensesState(
             selectedDate = selectedDate,
-            yearsList = listOf(2023),
+            yearsList = yearsList,
             totalExpenditure = totalExpenditure,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTag = selectedTag,

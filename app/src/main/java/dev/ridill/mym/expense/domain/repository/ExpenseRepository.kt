@@ -24,6 +24,8 @@ interface ExpenseRepository {
 
     suspend fun deleteExpenses(ids: List<Long>)
 
+    fun getExpenseYearsList(paddingCount: Int = 5): Flow<List<Int>>
+
     fun getTotalExpenditureForDate(date: LocalDate): Flow<Double>
 
     fun getExpenseForDateByTag(date: LocalDate, tagId: String?): Flow<List<ExpenseListItem>>

@@ -11,6 +11,7 @@ val Float.Companion.One: Float get() = 1f
 inline fun Float.ifNaN(value: () -> Float): Float = if (isNaN()) value() else this
 
 val Int.Companion.Zero: Int get() = 0
+fun Int?.orZero(): Int = this ?: Int.Zero
 
 val Long.Companion.Zero: Long get() = 0L
 

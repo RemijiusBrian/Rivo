@@ -36,6 +36,9 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY time(dateTime) DESC, id DESC")
     fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTagRelation>>
 
+    @Query("SELECT DISTINCT(strftime('%Y', datetime)) as year FROM ExpenseEntity ORDER BY year DESC")
+    fun getDistinctYears(): Flow<List<Int>>
+
     @Transaction
     @Query(
         """
