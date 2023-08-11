@@ -13,6 +13,7 @@
     <!-- Notifications -->
     <string name="notification_channel_group_name_expenses">Expenses</string>
     <string name="notification_channel_name_auto_add_expenses">Auto Add Expenses</string>
+    <string name="notification_channel_group_name_others">Others</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_income">Set Monthly Income</string>
@@ -121,4 +122,6 @@
     <string name="testing_features_enabled">Testing features enabled</string>
     <string name="no_expenditure_yet">No Expenditure Yet</string>
     <string name="tag_name">Tag Name</string>
+    <string name="app_update_in_progress">App update in progress</string>
+    <string name="update_failed">Update failed</string>
 </resources>

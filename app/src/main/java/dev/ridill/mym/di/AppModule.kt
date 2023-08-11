@@ -16,6 +16,7 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.data.preferences.PreferencesManagerImpl
+import dev.ridill.mym.core.domain.notification.AppUpdateNotificationHelper
 import dev.ridill.mym.core.domain.service.ExpEvalService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -59,6 +60,11 @@ object AppModule {
     @ApplicationScope
     @Provides
     fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob())
+
+    @Provides
+    fun provideAppUpdateNotificationHelper(
+        @ApplicationContext context: Context
+    ): AppUpdateNotificationHelper = AppUpdateNotificationHelper(context)
 }
 
 @Qualifier

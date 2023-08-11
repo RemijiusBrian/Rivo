@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.domain.service
 
 import android.content.Context
+import com.google.firebase.appdistribution.AppDistributionRelease
 import com.google.firebase.appdistribution.FirebaseAppDistributionException
 import com.google.firebase.appdistribution.ktx.appDistribution
 import com.google.firebase.ktx.Firebase
@@ -16,7 +17,7 @@ class AppDistributionService(
     val isTesterSignedIn: Boolean
         get() = appDistribution.isTesterSignedIn
 
-    suspend fun enableTestingFeatures(): UiText = try {
+    suspend fun signInTester(): UiText = try {
         appDistribution.signInTester().await()
         UiText.StringResource(R.string.testing_features_enabled)
     } catch (e: FirebaseAppDistributionException) {
@@ -29,5 +30,14 @@ class AppDistributionService(
 
     fun startFeedback() {
         appDistribution.startFeedback(context.getString(R.string.feedback_message))
+    }
+
+    @Throws(FirebaseAppDistributionException::class, Throwable::class)
+    suspend fun checkForNewRelease(): AppDistributionRelease =
+        appDistribution.checkForNewRelease().await()
+
+    @Throws(FirebaseAppDistributionException::class, Throwable::class)
+    suspend fun updateApp() {
+        appDistribution.updateApp().await()
     }
 }

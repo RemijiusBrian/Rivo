@@ -7,6 +7,8 @@ object BuildUtil {
 
     val versionName: String get() = BuildConfig.VERSION_NAME
 
+    val versionCode: Long get() = BuildConfig.VERSION_CODE.toLong()
+
     fun isDynamicColorsSupported(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 

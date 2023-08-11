@@ -145,7 +145,7 @@ class SettingsViewModel @Inject constructor(
             if (appDistributionService.isTesterSignedIn) {
                 appDistributionService.startFeedback()
             } else {
-                val message = appDistributionService.enableTestingFeatures()
+                val message = appDistributionService.signInTester()
                 eventBus.send(SettingsEvent.ShowUiMessage(message))
             }
         }

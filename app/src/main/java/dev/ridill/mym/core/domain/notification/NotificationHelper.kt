@@ -16,6 +16,7 @@ interface NotificationHelper {
 
     object Groups {
         const val EXPENSES = "dev.ridill.mym.CHANNEL_GROUP_EXPENSE_NOTIFICATIONS"
+        const val OTHERS = "dev.ridill.mym.CHANNEL_GROUP_OTHERS"
     }
 
     object Utils {
