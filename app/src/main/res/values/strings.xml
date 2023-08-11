@@ -73,12 +73,19 @@
     <string name="app_theme_dark">Dark</string>
 
     <!-- Preferences -->
-    <string name="preference_option_app_theme">App Theme</string>
-    <string name="preference_option_dynamic_colors">Dynamic Colors</string>
-    <string name="preference_option_dynamic_colors_summary">Set app colors based on your wallpaper</string>
-    <string name="notifications">Notifications</string>
-    <string name="click_to_update_your_income">Click to update your income</string>
-    <string name="your_income_is_value">Your income is %s</string>
+    <string name="preference_app_theme">App Theme</string>
+    <string name="preference_dynamic_colors">Dynamic Colors</string>
+    <string name="preference_dynamic_colors_summary">Set app colors based on your wallpaper</string>
+    <string name="preference_notifications">Notifications</string>
+    <string name="preference_notification_summary">Manage your notification preferences</string>
+    <string name="preference_set_income_summary">Click to update your income</string>
+    <string name="preference_current_income_summary">Your income is %s</string>
+    <string name="preference_auto_add_expenses">Auto Add Expenses</string>
+    <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
+    <string name="preference_feedback">Feedback</string>
+    <string name="preference_feedback_summary">Provide feedback to the developer</string>
+    <string name="preference_source_code">Source Code</string>
+    <string name="preference_version">Version</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -103,18 +110,12 @@
     <string name="tag_assigned_to_expenses">Tag assigned to expenses</string>
     <string name="expenses_untagged">Expenses Untagged</string>
     <string name="expenses_deleted">Expenses Deleted</string>
-    <string name="source_code">Source Code</string>
-    <string name="version">Version</string>
     <string name="new_tag">New Tag</string>
     <string name="new_tag_created">New tag created</string>
     <string name="tag_deleted">Tag deleted</string>
-    <string name="auto_add_expenses">Auto Add Expenses</string>
-    <string name="try_to_add_expenses_from_sms">Try to add expenses from SMS</string>
     <string name="amount_spent_at_merchant">%1$s spent at %2$s</string>
     <string name="count_new_expenses">%s New Expenses</string>
     <string name="new_expenses_detected">New Expenses Detected</string>
-    <string name="feedback">Feedback</string>
-    <string name="click_to_submit_feedback">Click to submit your feedback to the developer</string>
     <string name="feedback_message">Share your experience and let us know how we can help improve your expense management with MYM</string>
     <string name="testing_features_enabled">Testing features enabled</string>
     <string name="no_expenditure_yet">No Expenditure Yet</string>
