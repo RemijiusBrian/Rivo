@@ -46,7 +46,7 @@ class MYMViewModel @Inject constructor(
     }
 
     private fun onInit() {
-        if (!BuildUtil.isBuildFlavourInternal()) return
+        if (!BuildUtil.isBuildInternalRelease()) return
 
         viewModelScope.launch {
             if (showWelcomeFlow.first()) return@launch

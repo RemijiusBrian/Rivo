@@ -15,8 +15,9 @@ object BuildUtil {
     fun isNotificationRuntimePermissionNeeded(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
-    fun isBuildFlavourInternal(): Boolean =
+    fun isBuildInternalRelease(): Boolean =
         BuildConfig.FLAVOR == Flavours.INTERNAL
+                && !BuildConfig.DEBUG
 
     object Flavours {
         const val INTERNAL = "internal"

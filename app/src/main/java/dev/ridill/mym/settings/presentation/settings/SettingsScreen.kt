@@ -130,7 +130,7 @@ fun SettingsScreen(
 
             PreferenceDivider()
 
-            if (BuildUtil.isBuildFlavourInternal()) {
+            if (BuildUtil.isBuildInternalRelease()) {
                 SimplePreference(
                     titleRes = R.string.preference_feedback,
                     summary = stringResource(R.string.preference_feedback_summary),

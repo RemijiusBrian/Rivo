@@ -33,7 +33,7 @@ class WelcomeFlowViewModel @Inject constructor(
     override fun onNextClick() {
         when (currentFlowStop.value) {
             WelcomeFlowStop.WELCOME -> {
-                savedStateHandle[FLOW_STOP] = if (BuildUtil.isBuildFlavourInternal())
+                savedStateHandle[FLOW_STOP] = if (BuildUtil.isBuildInternalRelease())
                     WelcomeFlowStop.ENABLE_TESTING_FEATURES
                 else
                     WelcomeFlowStop.INCOME_SET
