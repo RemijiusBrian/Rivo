@@ -43,7 +43,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.One
@@ -131,12 +130,14 @@ fun SettingsScreen(
 
             PreferenceDivider()
 
-            SimplePreference(
-                titleRes = R.string.preference_feedback,
-                summary = stringResource(R.string.preference_feedback_summary),
-                leadingIcon = Icons.Rounded.RateReview,
-                onClick = actions::onFeedbackPreferenceClick
-            )
+            if (BuildUtil.isBuildFlavourInternal()) {
+                SimplePreference(
+                    titleRes = R.string.preference_feedback,
+                    summary = stringResource(R.string.preference_feedback_summary),
+                    leadingIcon = Icons.Rounded.RateReview,
+                    onClick = actions::onFeedbackPreferenceClick
+                )
+            }
 
             SimplePreference(
                 titleRes = R.string.preference_source_code,
@@ -147,7 +148,7 @@ fun SettingsScreen(
             SimplePreference(
                 titleRes = R.string.preference_version,
                 leadingIcon = Icons.Rounded.Info,
-                summary = BuildConfig.VERSION_NAME
+                summary = BuildUtil.versionName
             )
         }
 
