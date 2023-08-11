@@ -51,7 +51,9 @@ fun ConfirmationDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     @StringRes confirmActionRes: Int = R.string.action_confirm,
-    @StringRes dismissActionRes: Int = R.string.action_cancel
+    @StringRes dismissActionRes: Int = R.string.action_cancel,
+    showDismissButton: Boolean = true,
+    properties: DialogProperties = DialogProperties()
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -61,13 +63,49 @@ fun ConfirmationDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(dismissActionRes))
+            if (showDismissButton) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(dismissActionRes))
+                }
             }
         },
         title = { Text(stringResource(titleRes)) },
         text = { Text(stringResource(contentRes)) },
-        modifier = modifier
+        modifier = modifier,
+        properties = properties
+    )
+}
+
+@Composable
+fun ConfirmationDialog(
+    @StringRes titleRes: Int,
+    content: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes confirmActionRes: Int = R.string.action_confirm,
+    @StringRes dismissActionRes: Int = R.string.action_cancel,
+    showDismissButton: Boolean = true,
+    properties: DialogProperties = DialogProperties()
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text(stringResource(confirmActionRes))
+            }
+        },
+        dismissButton = {
+            if (showDismissButton) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(dismissActionRes))
+                }
+            }
+        },
+        title = { Text(stringResource(titleRes)) },
+        text = { Text(content) },
+        modifier = modifier,
+        properties = properties
     )
 }
 

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 inline fun <T> tryOrNull(
-    crossinline tryBlock: () -> T
+    tryBlock: () -> T
 ): T? = try {
     tryBlock()
 } catch (t: Throwable) {
