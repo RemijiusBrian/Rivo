@@ -29,6 +29,7 @@ import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
+import dev.ridill.mym.welcomeFlow.presentation.components.EnableTestingFeaturesContent
 import dev.ridill.mym.welcomeFlow.presentation.components.IncomeInputContent
 import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageContent
 
@@ -61,6 +62,7 @@ fun WelcomeFlowScreen(
             ) {
                 val imageVector = when (flowStop) {
                     WelcomeFlowStop.WELCOME -> Icons.Default.KeyboardArrowRight
+                    WelcomeFlowStop.ENABLE_TESTING_FEATURES -> Icons.Default.KeyboardArrowRight
                     WelcomeFlowStop.INCOME_SET -> {
                         if (isLimitInputEmpty) Icons.Default.KeyboardArrowRight
                         else Icons.Default.Check
@@ -89,6 +91,13 @@ fun WelcomeFlowScreen(
                 when (stop) {
                     WelcomeFlowStop.WELCOME -> {
                         WelcomeMessageContent(
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
+
+                    WelcomeFlowStop.ENABLE_TESTING_FEATURES -> {
+                        EnableTestingFeaturesContent(
                             modifier = Modifier
                                 .fillMaxSize()
                         )
