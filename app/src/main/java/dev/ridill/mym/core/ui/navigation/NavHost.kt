@@ -1,7 +1,9 @@
 package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
-import android.content.Intent
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
@@ -32,6 +34,7 @@ import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
 import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
 import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.core.ui.util.launchUrlExternally
+import dev.ridill.mym.core.ui.util.restartApplication
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
 import dev.ridill.mym.dashboard.presentation.DashboardViewModel
@@ -46,7 +49,6 @@ import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
-import kotlin.system.exitProcess
 
 @Composable
 fun MYMNavHost(
@@ -299,6 +301,16 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val smsPermissionState =
             rememberPermissionsState(permissionString = Manifest.permission.RECEIVE_SMS)
 
+        val googleSignInLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = {
+                println("AppDebug: Sign In result - $it")
+                if (it.resultCode == Activity.RESULT_OK) {
+                    viewModel.onSignInResult(it.data)
+                }
+            }
+        )
+
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -318,10 +330,11 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                     }
 
                     SettingsViewModel.SettingsEvent.RestartApp -> {
-                        val i = context.packageManager.getLaunchIntentForPackage(context.packageName)
-                        i!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        context.startActivity(i)
-                        exitProcess(0)
+                        context.restartApplication()
+                    }
+
+                    is SettingsViewModel.SettingsEvent.LaunchGoogleSignIn -> {
+                        googleSignInLauncher.launch(event.intent)
                     }
                 }
             }

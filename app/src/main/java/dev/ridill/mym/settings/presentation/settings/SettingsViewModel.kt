@@ -1,5 +1,6 @@
 package dev.ridill.mym.settings.presentation.settings
 
+import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,8 +17,11 @@ import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.domain.service.BackupService
+import dev.ridill.mym.settings.domain.service.GoogleSignInService
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,7 +31,8 @@ class SettingsViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<SettingsEvent>,
     private val appDistributionService: AppDistributionService,
-    private val backupService: BackupService
+    private val backupService: BackupService,
+    private val signInService: GoogleSignInService
 ) : ViewModel(), SettingsActions {
 
     private val preferences = preferencesManager.preferences
@@ -46,20 +51,24 @@ class SettingsViewModel @Inject constructor(
     private val showSmsPermissionRationale = savedStateHandle
         .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
 
+    private val backupAccountEmail = MutableStateFlow<String?>(null)
+
     val state = combineTuple(
         appTheme,
         dynamicColorsEnabled,
         showAppThemeSelection,
         monthlyLimit,
         showMonthlyLimitInput,
-        showSmsPermissionRationale
+        showSmsPermissionRationale,
+        backupAccountEmail
     ).map { (
                 appTheme,
                 dynamicThemeEnabled,
                 showAppThemeSelection,
                 monthlyLimit,
                 showMonthlyLimitInput,
-                showSmsPermissionRationale
+                showSmsPermissionRationale,
+                backupAccountEmail
             ) ->
         SettingsState(
             appTheme = appTheme,
@@ -68,11 +77,22 @@ class SettingsViewModel @Inject constructor(
             currentMonthlyLimit = monthlyLimit.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
             showMonthlyLimitInput = showMonthlyLimitInput,
-            showSmsPermissionRationale = showSmsPermissionRationale
+            showSmsPermissionRationale = showSmsPermissionRationale,
+            backupAccountEmail = backupAccountEmail
         )
     }.asStateFlow(viewModelScope, SettingsState())
 
     val events = eventBus.eventFlow
+
+    init {
+        onInit()
+    }
+
+    private fun onInit() {
+        backupAccountEmail.update {
+            signInService.getCurrentSignedInAccount()?.email
+        }
+    }
 
     override fun onAppThemePreferenceClick() {
         savedStateHandle[SHOW_APP_THEME_SELECTION] = true
@@ -154,6 +174,20 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    override fun onBackupAccountClick() {
+        viewModelScope.launch {
+            val intent = signInService.getSignInIntent()
+            eventBus.send(SettingsEvent.LaunchGoogleSignIn(intent))
+        }
+    }
+
+    fun onSignInResult(intent: Intent?) {
+        viewModelScope.launch {
+            val account = signInService.onSignInResult(intent)
+            backupAccountEmail.update { account.email }
+        }
+    }
+
     override fun onBackupClick() {
         viewModelScope.launch {
             val response = backupService.backupDb()
@@ -179,6 +213,7 @@ class SettingsViewModel @Inject constructor(
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
         object RequestSmsPermission : SettingsEvent()
         object RestartApp : SettingsEvent()
+        data class LaunchGoogleSignIn(val intent: Intent) : SettingsEvent()
     }
 }
 

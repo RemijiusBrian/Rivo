@@ -126,6 +126,7 @@
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>
     <string name="update_failed">Update failed</string>
+    <string name="backup_account">Backup Account</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
 </resources>

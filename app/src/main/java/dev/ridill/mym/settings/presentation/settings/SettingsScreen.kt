@@ -15,6 +15,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Info
@@ -126,6 +127,13 @@ fun SettingsScreen(
                 titleRes = R.string.preference_auto_add_expenses,
                 summary = stringResource(R.string.preference_auto_add_expense_summary),
                 onClick = actions::onAutoAddExpensePreferenceClick
+            )
+
+            SimplePreference(
+                titleRes = R.string.backup_account,
+                summary = state.backupAccountEmail,
+                onClick = actions::onBackupAccountClick,
+                leadingIcon = Icons.Rounded.Backup
             )
 
             PreferenceDivider()
