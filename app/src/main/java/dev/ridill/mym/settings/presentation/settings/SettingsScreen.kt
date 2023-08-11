@@ -242,7 +242,6 @@ private fun SwitchPreference(
     leadingIcon: ImageVector? = null,
     contentPadding: PaddingValues = PreferenceContentPadding
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
