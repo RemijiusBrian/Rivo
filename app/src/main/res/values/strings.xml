@@ -39,6 +39,8 @@
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
     <string name="error_testing_feature_enable_failed">Failed to enable testing features</string>
+    <string name="error_app_data_backup_failed">Failed to backup App Data</string>
+    <string name="error_app_data_restore_failed">Failed to restore App Data</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -124,4 +126,6 @@
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>
     <string name="update_failed">Update failed</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
 </resources>

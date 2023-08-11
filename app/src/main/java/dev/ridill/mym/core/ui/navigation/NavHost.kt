@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
+import android.content.Intent
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
+import kotlin.system.exitProcess
 
 @Composable
 fun MYMNavHost(
@@ -313,6 +315,13 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                         } else {
                             smsPermissionState.launchRequest()
                         }
+                    }
+
+                    SettingsViewModel.SettingsEvent.RestartApp -> {
+                        val i = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                        i!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        context.startActivity(i)
+                        exitProcess(0)
                     }
                 }
             }

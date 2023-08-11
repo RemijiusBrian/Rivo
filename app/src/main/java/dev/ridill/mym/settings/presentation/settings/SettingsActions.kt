@@ -14,4 +14,6 @@ interface SettingsActions {
     fun onSmsPermissionRationaleDismiss()
     fun onSmsPermissionRationaleAgree()
     fun onFeedbackPreferenceClick()
+    fun onBackupClick()
+    fun onRestoreClick()
 }

@@ -7,6 +7,7 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
+import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.service.AppDistributionService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.TextFormatUtil
@@ -14,6 +15,7 @@ import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
+import dev.ridill.mym.settings.domain.service.BackupService
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -24,7 +26,8 @@ class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<SettingsEvent>,
-    private val appDistributionService: AppDistributionService
+    private val appDistributionService: AppDistributionService,
+    private val backupService: BackupService
 ) : ViewModel(), SettingsActions {
 
     private val preferences = preferencesManager.preferences
@@ -151,9 +154,31 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    override fun onBackupClick() {
+        viewModelScope.launch {
+            val response = backupService.backupDb()
+            println("AppDebug: Backup Response - $response")
+        }
+    }
+
+    override fun onRestoreClick() {
+        viewModelScope.launch {
+            when (val resource = backupService.restoreDb()) {
+                is Resource.Error -> {
+                    println("AppDebug: Restore Failed")
+                }
+
+                is Resource.Success -> {
+                    eventBus.send(SettingsEvent.RestartApp)
+                }
+            }
+        }
+    }
+
     sealed class SettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
         object RequestSmsPermission : SettingsEvent()
+        object RestartApp : SettingsEvent()
     }
 }
 

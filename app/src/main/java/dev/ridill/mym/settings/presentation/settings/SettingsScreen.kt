@@ -150,6 +150,16 @@ fun SettingsScreen(
                 leadingIcon = Icons.Rounded.Info,
                 summary = BuildUtil.versionName
             )
+
+            SimplePreference(
+                titleRes = R.string.backup,
+                onClick = actions::onBackupClick
+            )
+
+            SimplePreference(
+                titleRes = R.string.restore,
+                onClick = actions::onRestoreClick
+            )
         }
 
         if (state.showAppThemeSelection) {
