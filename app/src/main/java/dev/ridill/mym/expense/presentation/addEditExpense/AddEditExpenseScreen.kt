@@ -137,7 +137,15 @@ fun AddEditExpenseScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
+            ExpenseTimestamp(
+                date = state.expenseDateFormatted,
+                time = state.expenseTimeFormatted,
+                modifier = Modifier
+                    .align(Alignment.Start)
+            )
+
             VerticalSpacer(spacing = SpacingLarge)
+
             AmountInput(
                 amount = amountInput,
                 onAmountChange = actions::onAmountChange,
@@ -162,13 +170,6 @@ fun AddEditExpenseScreen(
                         .fillMaxWidth(AMOUNT_RECOMMENDATION_WIDTH_FRACTION)
                 )
             }
-
-            ExpenseTimestamp(
-                date = state.expenseDateFormatted,
-                time = state.expenseTimeFormatted,
-                modifier = Modifier
-                    .align(Alignment.Start)
-            )
 
             Divider()
 
