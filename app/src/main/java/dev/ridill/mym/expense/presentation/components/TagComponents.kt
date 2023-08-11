@@ -104,7 +104,8 @@ fun NewTagDialog(
                         keyboardType = KeyboardType.Text,
                         capitalization = KeyboardCapitalization.Words,
                         imeAction = ImeAction.Done
-                    )
+                    ),
+                    label = { Text(stringResource(R.string.tag_name)) }
                 )
 
                 LazyRow(
