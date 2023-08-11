@@ -2,7 +2,6 @@ package dev.ridill.mym.expense.data.repository
 
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
-import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
@@ -67,8 +66,8 @@ class ExpenseRepositoryImpl(
             if (years.size >= paddingCount) years
             else {
                 val difference = paddingCount - years.size
-                val lastYear = years.lastOrNull().orZero()
-                val paddingYears = ((lastYear + 1)..(lastYear + difference))
+                val latestYear = years.lastOrNull() ?: (DateUtil.now().year - 1)
+                val paddingYears = ((latestYear + 1)..(latestYear + difference))
                 years + paddingYears
             }
         }
