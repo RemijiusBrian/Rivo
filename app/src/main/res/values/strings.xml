@@ -48,12 +48,15 @@
     <string name="action_continue">Continue</string>
     <string name="action_not_now">Not Now</string>
     <string name="action_delete">Delete</string>
+    <string name="action_skip">Skip</string>
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
     <string name="welcome_flow_stop_set_income_title">Set your monthly income</string>
     <string name="welcome_flow_stop_set_income_message">Enter the income you earn per month</string>
     <string name="you_can_change_income_later_in_settings">You can always change this later in the app settings</string>
+    <string name="restore_data">Restore Data</string>
+    <string name="sign_in_and_restore_data_message">Sign in to your google account and restore your data from your drive</string>
 
     <string name="part_of_day_morning">Morning</string>
     <string name="part_of_day_noon">Noon</string>
@@ -129,4 +132,6 @@
     <string name="backup_account">Backup Account</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
+    <string name="check_for_backup">Check For Backup</string>
+    <string name="error_sign_in_failed">Failed to sign in to your account</string>
 </resources>

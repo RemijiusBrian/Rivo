@@ -1,12 +1,12 @@
 package dev.ridill.mym.welcomeFlow.presentation.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.LargeTitle
 import dev.ridill.mym.core.ui.components.LottieAnim
 import dev.ridill.mym.core.ui.components.VerticalSpacer
@@ -17,8 +17,7 @@ fun WelcomeMessageContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.SpaceBetween
+        modifier = modifier
     ) {
         VerticalSpacer(spacing = SpacingExtraLarge)
         LargeTitle(
@@ -29,6 +28,8 @@ fun WelcomeMessageContent(
             modifier = Modifier
                 .fillMaxWidth(0.80f)
         )
+
+        VerticalSpacer(weight = Float.One)
 
         LottieAnim(
             resId = R.raw.lottie_wallet,

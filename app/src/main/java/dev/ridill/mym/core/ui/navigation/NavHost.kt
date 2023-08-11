@@ -82,6 +82,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         val incomeInput = viewModel.incomeInput.collectAsStateWithLifecycle()
         val showPermissionRationale by viewModel.showNotificationRationale
             .collectAsStateWithLifecycle()
+        val showNextButton by viewModel.showNextButton.collectAsStateWithLifecycle(true)
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -93,6 +94,15 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                 )
             )
         else null
+
+        val signInLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = {
+                if (it.resultCode == Activity.RESULT_OK) {
+                    viewModel.onGoogleSignInResult(it.data)
+                }
+            }
+        )
 
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
@@ -115,6 +125,10 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                     WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
                         navController.navigate(DashboardDestination.route)
                     }
+
+                    is WelcomeFlowViewModel.WelcomeFlowEvent.LaunchGoogleSignIn -> {
+                        signInLauncher.launch(event.intent)
+                    }
                 }
             }
         }
@@ -124,6 +138,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
             flowStop = flowStop,
             incomeInput = { incomeInput.value },
             showPermissionRationale = showPermissionRationale,
+            showNextButton = showNextButton,
             actions = viewModel
         )
     }

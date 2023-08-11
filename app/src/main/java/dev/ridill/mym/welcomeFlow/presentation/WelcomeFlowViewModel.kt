@@ -1,5 +1,6 @@
 package dev.ridill.mym.welcomeFlow.presentation
 
+import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,10 @@ import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
+import dev.ridill.mym.settings.domain.service.GoogleSignInService
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,13 +24,17 @@ class WelcomeFlowViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val preferenceManager: PreferencesManager,
     private val appDistributionService: AppDistributionService,
-    private val eventBus: EventBus<WelcomeFlowEvent>
+    private val eventBus: EventBus<WelcomeFlowEvent>,
+    private val signInService: GoogleSignInService
 ) : ViewModel(), WelcomeFlowActions {
 
     val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
     val incomeInput = savedStateHandle.getStateFlow(INCOME_INPUT, "")
     val showNotificationRationale = savedStateHandle
         .getStateFlow(SHOW_NOTIFICATION_RATIONALE, false)
+    val showNextButton = currentFlowStop.map { stop ->
+        stop != WelcomeFlowStop.RESTORE_DATA
+    }.distinctUntilChanged()
 
     val events = eventBus.eventFlow
 
@@ -36,17 +44,51 @@ class WelcomeFlowViewModel @Inject constructor(
                 savedStateHandle[FLOW_STOP] = if (BuildUtil.isBuildInternalRelease())
                     WelcomeFlowStop.ENABLE_TESTING_FEATURES
                 else
-                    WelcomeFlowStop.INCOME_SET
+                    WelcomeFlowStop.RESTORE_DATA
             }
 
             WelcomeFlowStop.ENABLE_TESTING_FEATURES -> {
                 signInTesterAndContinue()
             }
 
+            WelcomeFlowStop.RESTORE_DATA -> {}
+
             WelcomeFlowStop.INCOME_SET -> {
-                updateLimitAndContinue()
+                updateIncomeAndContinue()
             }
         }
+    }
+
+    override fun onCheckForBackupClick() {
+        viewModelScope.launch {
+            val intent = signInService.getSignInIntent()
+            eventBus.send(WelcomeFlowEvent.LaunchGoogleSignIn(intent))
+        }
+    }
+
+    override fun onSkipDataRestore() {
+        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
+    }
+
+    fun onGoogleSignInResult(intent: Intent?) = viewModelScope.launch {
+        val account = signInService.onSignInResult(intent)
+        if (account == null) {
+            eventBus.send(
+                WelcomeFlowEvent.ShowUiMessage(
+                    UiText.StringResource(
+                        R.string.error_sign_in_failed,
+                        true
+                    )
+                )
+            )
+            return@launch
+        }
+
+        restoreDataIfBackupExists()
+    }
+
+    private suspend fun restoreDataIfBackupExists() {
+        // TODO: Check GDrive for backup
     }
 
     private fun signInTesterAndContinue() = viewModelScope.launch {
@@ -59,7 +101,7 @@ class WelcomeFlowViewModel @Inject constructor(
         savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
     }
 
-    private fun updateLimitAndContinue() = viewModelScope.launch {
+    private fun updateIncomeAndContinue() = viewModelScope.launch {
         val limitValue = incomeInput.value.toLongOrNull() ?: -1L
         if (limitValue <= Long.Zero) {
             eventBus.send(
@@ -106,6 +148,7 @@ class WelcomeFlowViewModel @Inject constructor(
         object WelcomeFlowConcluded : WelcomeFlowEvent()
         data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
         object RequestPermissionRequest : WelcomeFlowEvent()
+        data class LaunchGoogleSignIn(val intent: Intent) : WelcomeFlowEvent()
     }
 }
 

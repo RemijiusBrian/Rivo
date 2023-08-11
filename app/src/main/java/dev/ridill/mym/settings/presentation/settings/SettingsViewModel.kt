@@ -184,7 +184,7 @@ class SettingsViewModel @Inject constructor(
     fun onSignInResult(intent: Intent?) {
         viewModelScope.launch {
             val account = signInService.onSignInResult(intent)
-            backupAccountEmail.update { account.email }
+            backupAccountEmail.update { account?.email }
         }
     }
 

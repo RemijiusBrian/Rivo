@@ -31,6 +31,7 @@ import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import dev.ridill.mym.welcomeFlow.presentation.components.EnableTestingFeaturesContent
 import dev.ridill.mym.welcomeFlow.presentation.components.IncomeInputContent
+import dev.ridill.mym.welcomeFlow.presentation.components.RestoreDataContent
 import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageContent
 
 @Composable
@@ -39,6 +40,7 @@ fun WelcomeFlowScreen(
     flowStop: WelcomeFlowStop,
     incomeInput: () -> String,
     showPermissionRationale: Boolean,
+    showNextButton: Boolean,
     actions: WelcomeFlowActions
 ) {
     MYMScaffold(
@@ -50,31 +52,35 @@ fun WelcomeFlowScreen(
             val isLimitInputEmpty by remember {
                 derivedStateOf { incomeInput().isEmpty() }
             }
-            LargeFloatingActionButton(
-                onClick = actions::onNextClick,
-                containerColor = Color.Transparent,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = Dp.Zero,
-                    pressedElevation = Dp.Zero,
-                    focusedElevation = Dp.Zero,
-                    hoveredElevation = Dp.Zero
-                )
-            ) {
-                val imageVector = when (flowStop) {
-                    WelcomeFlowStop.WELCOME -> Icons.Default.KeyboardArrowRight
-                    WelcomeFlowStop.ENABLE_TESTING_FEATURES -> Icons.Default.KeyboardArrowRight
-                    WelcomeFlowStop.INCOME_SET -> {
-                        if (isLimitInputEmpty) Icons.Default.KeyboardArrowRight
-                        else Icons.Default.Check
-                    }
-                }
+            if (showNextButton) {
+                LargeFloatingActionButton(
+                    onClick = actions::onNextClick,
+                    containerColor = Color.Transparent,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = Dp.Zero,
+                        pressedElevation = Dp.Zero,
+                        focusedElevation = Dp.Zero,
+                        hoveredElevation = Dp.Zero
+                    )
+                ) {
+                    val imageVector = when (flowStop) {
+                        WelcomeFlowStop.WELCOME -> Icons.Default.KeyboardArrowRight
+                        WelcomeFlowStop.ENABLE_TESTING_FEATURES -> Icons.Default.KeyboardArrowRight
+                        WelcomeFlowStop.RESTORE_DATA -> Icons.Default.KeyboardArrowRight
+                        WelcomeFlowStop.INCOME_SET -> {
+                            if (isLimitInputEmpty) Icons.Default.KeyboardArrowRight
+                            else Icons.Default.Check
+                        }
 
-                Icon(
-                    imageVector = imageVector,
-                    contentDescription = stringResource(R.string.cd_action_continue),
-                    modifier = Modifier
-                        .size(FloatingActionButtonDefaults.LargeIconSize)
-                )
+                    }
+
+                    Icon(
+                        imageVector = imageVector,
+                        contentDescription = stringResource(R.string.cd_action_continue),
+                        modifier = Modifier
+                            .size(FloatingActionButtonDefaults.LargeIconSize)
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -98,6 +104,15 @@ fun WelcomeFlowScreen(
 
                     WelcomeFlowStop.ENABLE_TESTING_FEATURES -> {
                         EnableTestingFeaturesContent(
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
+
+                    WelcomeFlowStop.RESTORE_DATA -> {
+                        RestoreDataContent(
+                            onCheckForBackupClick = actions::onCheckForBackupClick,
+                            onSkipClick = actions::onSkipDataRestore,
                             modifier = Modifier
                                 .fillMaxSize()
                         )

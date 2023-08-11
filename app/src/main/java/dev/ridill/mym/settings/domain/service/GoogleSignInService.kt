@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.tryOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -30,6 +31,7 @@ class GoogleSignInService(
     fun getCurrentSignedInAccount(): GoogleSignInAccount? =
         GoogleSignIn.getLastSignedInAccount(context)
 
-    suspend fun onSignInResult(intent: Intent?): GoogleSignInAccount =
+    suspend fun onSignInResult(intent: Intent?): GoogleSignInAccount? = tryOrNull {
         GoogleSignIn.getSignedInAccountFromIntent(intent).await()
+    }
 }
