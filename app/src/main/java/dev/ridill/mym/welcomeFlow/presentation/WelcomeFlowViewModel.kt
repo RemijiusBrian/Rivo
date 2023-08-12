@@ -12,7 +12,7 @@ import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
-import dev.ridill.mym.settings.domain.service.GoogleSignInService
+import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -71,7 +71,7 @@ class WelcomeFlowViewModel @Inject constructor(
     }
 
     fun onGoogleSignInResult(intent: Intent?) = viewModelScope.launch {
-        val account = signInService.onSignInResult(intent)
+        val account = signInService.getAccountFromIntent(intent)
         if (account == null) {
             eventBus.send(
                 WelcomeFlowEvent.ShowUiMessage(

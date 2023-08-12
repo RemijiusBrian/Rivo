@@ -6,7 +6,7 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
-import dev.ridill.mym.settings.domain.service.GoogleSignInService
+import dev.ridill.mym.core.domain.service.GoogleSignInService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -58,7 +58,7 @@ class DashboardViewModel @Inject constructor(
 
     init {
         signedInUsername.update {
-            signInService.getCurrentSignedInAccount()?.displayName
+            signInService.getSignedInAccount()?.displayName
         }
     }
 }

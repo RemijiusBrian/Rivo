@@ -18,6 +18,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
@@ -28,13 +29,14 @@ import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
+import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsDestination
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardDestination
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
+import dev.ridill.mym.core.ui.navigation.destinations.SettingsGraph
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
 import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
 import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.core.ui.util.launchUrlExternally
-import dev.ridill.mym.core.ui.util.restartApplication
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
 import dev.ridill.mym.dashboard.presentation.DashboardViewModel
@@ -45,6 +47,8 @@ import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesScreen
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesViewModel
+import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsScreen
+import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
@@ -66,7 +70,7 @@ fun MYMNavHost(
         dashboard(navController)
         allExpenses(navController)
         addEditExpense(navController)
-        settings(navController)
+        settingsGraph(navController)
     }
 }
 
@@ -300,6 +304,17 @@ private fun NavGraphBuilder.allExpenses(navController: NavHostController) {
     }
 }
 
+// Settings Graph
+private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
+    navigation(
+        startDestination = SettingsDestination.route,
+        route = SettingsGraph.route
+    ) {
+        settings(navController)
+        backupSettings(navController)
+    }
+}
+
 // Settings
 private fun NavGraphBuilder.settings(navController: NavHostController) {
     composable(
@@ -313,17 +328,8 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
-        val smsPermissionState =
-            rememberPermissionsState(permissionString = Manifest.permission.RECEIVE_SMS)
-
-        val googleSignInLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = {
-                println("AppDebug: Sign In result - $it")
-                if (it.resultCode == Activity.RESULT_OK) {
-                    viewModel.onSignInResult(it.data)
-                }
-            }
+        val smsPermissionState = rememberPermissionsState(
+            permissionString = Manifest.permission.RECEIVE_SMS
         )
 
         LaunchedEffect(viewModel, snackbarController, context) {
@@ -343,14 +349,6 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                             smsPermissionState.launchRequest()
                         }
                     }
-
-                    SettingsViewModel.SettingsEvent.RestartApp -> {
-                        context.restartApplication()
-                    }
-
-                    is SettingsViewModel.SettingsEvent.LaunchGoogleSignIn -> {
-                        googleSignInLauncher.launch(event.intent)
-                    }
                 }
             }
         }
@@ -363,7 +361,52 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             navigateToNotificationSettings = context::launchAppNotificationSettings,
             navigateToSourceCode = {
                 context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
+            },
+            navigateToBackupSettings = { navController.navigate(BackupSettingsDestination.route) }
+        )
+    }
+}
+
+// Backup Settings
+private fun NavGraphBuilder.backupSettings(navController: NavHostController) {
+    composable(
+        route = BackupSettingsDestination.route,
+        enterTransition = { simpleFadeIn() },
+        popExitTransition = { simpleFadeOut() }
+    ) { navBackStackEntry ->
+        val viewModel: BackupSettingsViewModel = hiltViewModel(navBackStackEntry)
+        val state by viewModel.state.collectAsStateWithLifecycle()
+
+        val snackbarController = rememberSnackbarController()
+        val context = LocalContext.current
+
+        val googleSignInLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = viewModel::onSignInResult
+        )
+
+        LaunchedEffect(viewModel, snackbarController, context) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is BackupSettingsViewModel.BackupEvent.ShowUiMessage -> {
+                        snackbarController.showSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+
+                    is BackupSettingsViewModel.BackupEvent.LaunchGoogleSignIn -> {
+                        googleSignInLauncher.launch(event.intent)
+                    }
+                }
             }
+        }
+
+        BackupSettingsScreen(
+            snackbarController = snackbarController,
+            state = state,
+            actions = viewModel,
+            navigateUp = navController::navigateUp
         )
     }
 }

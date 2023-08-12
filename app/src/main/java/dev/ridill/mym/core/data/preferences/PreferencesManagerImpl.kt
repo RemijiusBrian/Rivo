@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.mym.core.domain.model.MYMPreferences
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.settings.domain.modal.AppTheme
+import dev.ridill.mym.settings.domain.modal.BackupInterval
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,12 +27,16 @@ class PreferencesManagerImpl(
                 preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM_DEFAULT.name
             )
             val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED] ?: false
+            val appBackupInterval = BackupInterval.valueOf(
+                preferences[Keys.APP_BACKUP_INTERVAL] ?: BackupInterval.NEVER.name
+            )
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
                 monthlyLimit = monthlyLimit,
                 appTheme = appTheme,
-                dynamicColorsEnabled = dynamicColorsEnabled
+                dynamicColorsEnabled = dynamicColorsEnabled,
+                appBackupInterval = appBackupInterval
             )
         }
 
@@ -67,10 +72,19 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateAppBackupInterval(interval: BackupInterval) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.APP_BACKUP_INTERVAL] = interval.name
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val MONTHLY_LIMIT = longPreferencesKey("MONTHLY_LIMIT")
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
+        val APP_BACKUP_INTERVAL = stringPreferencesKey("APP_BACKUP_INTERVAL")
     }
 }

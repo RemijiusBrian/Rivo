@@ -1,21 +1,13 @@
 package dev.ridill.mym.settings.presentation.settings
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Info
@@ -24,29 +16,19 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RateReview
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
-import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.IncomeInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
@@ -56,9 +38,9 @@ import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
-import dev.ridill.mym.core.ui.theme.SpacingMedium
-import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.settings.domain.modal.AppTheme
+import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
+import dev.ridill.mym.settings.presentation.components.SwitchPreference
 
 @Composable
 fun SettingsScreen(
@@ -67,7 +49,8 @@ fun SettingsScreen(
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
-    navigateToSourceCode: () -> Unit
+    navigateToSourceCode: () -> Unit,
+    navigateToBackupSettings: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
@@ -89,7 +72,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,
                 summary = stringResource(state.appTheme.labelRes),
                 onClick = actions::onAppThemePreferenceClick,
@@ -100,22 +83,25 @@ fun SettingsScreen(
                 SwitchPreference(
                     titleRes = R.string.preference_dynamic_colors,
                     summary = stringResource(R.string.preference_dynamic_colors_summary),
-                    checked = state.dynamicColorsEnabled,
-                    onCheckedChange = actions::onDynamicThemeEnabledChange,
+                    value = state.dynamicColorsEnabled,
+                    onValueChange = actions::onDynamicThemeEnabledChange,
                     leadingIcon = Icons.Rounded.Palette
                 )
             }
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_notifications,
                 summary = stringResource(R.string.preference_notification_summary),
                 onClick = navigateToNotificationSettings,
                 leadingIcon = Icons.Rounded.Notifications
             )
 
-            PreferenceDivider()
+            Divider(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+            )
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.income,
                 summary = state.currentMonthlyLimit.takeIf { it.isNotEmpty() }
                     ?.let { stringResource(R.string.preference_current_income_summary, it) }
@@ -123,23 +109,25 @@ fun SettingsScreen(
                 onClick = actions::onMonthlyLimitPreferenceClick
             )
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_auto_add_expenses,
                 summary = stringResource(R.string.preference_auto_add_expense_summary),
                 onClick = actions::onAutoAddExpensePreferenceClick
             )
 
-            SimplePreference(
-                titleRes = R.string.backup_account,
-                summary = state.backupAccountEmail,
-                onClick = actions::onBackupAccountClick,
-                leadingIcon = Icons.Rounded.Backup
+            SimpleSettingsPreference(
+                titleRes = R.string.preference_backup,
+                summary = stringResource(R.string.preference_backup_summary),
+                onClick = navigateToBackupSettings,
             )
 
-            PreferenceDivider()
+            Divider(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+            )
 
             if (BuildUtil.isBuildInternalRelease()) {
-                SimplePreference(
+                SimpleSettingsPreference(
                     titleRes = R.string.preference_feedback,
                     summary = stringResource(R.string.preference_feedback_summary),
                     leadingIcon = Icons.Rounded.RateReview,
@@ -147,26 +135,16 @@ fun SettingsScreen(
                 )
             }
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_source_code,
                 leadingIcon = Icons.Rounded.Code,
                 onClick = navigateToSourceCode
             )
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_version,
                 leadingIcon = Icons.Rounded.Info,
                 summary = BuildUtil.versionName
-            )
-
-            SimplePreference(
-                titleRes = R.string.backup,
-                onClick = actions::onBackupClick
-            )
-
-            SimplePreference(
-                titleRes = R.string.restore,
-                onClick = actions::onRestoreClick
             )
         }
 
@@ -196,130 +174,6 @@ fun SettingsScreen(
         }
     }
 }
-
-@Composable
-fun SimplePreference(
-    @StringRes titleRes: Int,
-    modifier: Modifier = Modifier,
-    summary: String? = null,
-    onClick: (() -> Unit)? = null,
-    leadingIcon: ImageVector? = null,
-    contentPadding: PaddingValues = PreferenceContentPadding
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onClick != null) Modifier
-                    .clickable(
-                        role = Role.Button,
-                        onClick = onClick
-                    )
-                else Modifier
-            )
-            .padding(contentPadding)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-    ) {
-        leadingIcon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(PreferenceIconSize)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .weight(Float.One)
-        ) {
-            Text(
-                text = stringResource(titleRes),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            summary?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Normal,
-                    color = LocalContentColor.current
-                        .copy(alpha = 0.64f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SwitchPreference(
-    @StringRes titleRes: Int,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    summary: String? = null,
-    leadingIcon: ImageVector? = null,
-    contentPadding: PaddingValues = PreferenceContentPadding
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .toggleable(
-                value = checked,
-                role = Role.Checkbox,
-                onValueChange = onCheckedChange
-            )
-            .padding(contentPadding)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-    ) {
-        leadingIcon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(PreferenceIconSize)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .weight(Float.One)
-        ) {
-            Text(
-                text = stringResource(titleRes),
-                style = MaterialTheme.typography.titleMedium
-            )
-            summary?.let {
-                Text(
-                    text = summary,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Normal,
-                    color = LocalContentColor.current
-                        .copy(alpha = 0.64f)
-                )
-            }
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier
-                .clearAndSetSemantics {}
-        )
-    }
-}
-
-private val PreferenceIconSize = 24.dp
-private val PreferenceContentPadding = PaddingValues(
-    horizontal = SpacingMedium,
-    vertical = SpacingSmall
-)
-
-@Composable
-private fun PreferenceDivider() = Divider(
-    modifier = Modifier
-        .padding(vertical = 12.dp)
-)
 
 @Composable
 private fun AppThemeSelectionDialog(
@@ -360,7 +214,7 @@ private fun AppThemeSelectionDialog(
 fun PreviewSimplePreference() {
     MYMTheme {
         Surface {
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,
                 modifier = Modifier
                     .fillMaxWidth(),

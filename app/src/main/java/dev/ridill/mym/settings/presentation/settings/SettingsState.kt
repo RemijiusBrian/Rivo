@@ -8,6 +8,5 @@ data class SettingsState(
     val showAppThemeSelection: Boolean = false,
     val currentMonthlyLimit: String = "",
     val showMonthlyLimitInput: Boolean = false,
-    val showSmsPermissionRationale: Boolean = false,
-    val backupAccountEmail: String? = null
+    val showSmsPermissionRationale: Boolean = false
 )

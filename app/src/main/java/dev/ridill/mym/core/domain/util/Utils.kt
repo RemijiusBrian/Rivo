@@ -11,6 +11,7 @@ inline fun <T> tryOrNull(
 ): T? = try {
     tryBlock()
 } catch (t: Throwable) {
+    t.printStackTrace()
     null
 }
 
