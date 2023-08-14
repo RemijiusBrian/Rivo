@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
-import dev.ridill.mym.core.domain.service.AppDistributionService
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
@@ -19,7 +18,6 @@ import javax.inject.Inject
 class WelcomeFlowViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val preferenceManager: PreferencesManager,
-    private val appDistributionService: AppDistributionService,
     private val eventBus: EventBus<WelcomeFlowEvent>
 ) : ViewModel(), WelcomeFlowActions {
 
@@ -33,30 +31,13 @@ class WelcomeFlowViewModel @Inject constructor(
     override fun onNextClick() {
         when (currentFlowStop.value) {
             WelcomeFlowStop.WELCOME -> {
-                savedStateHandle[FLOW_STOP] = if (BuildUtil.isBuildInternalRelease())
-                    WelcomeFlowStop.ENABLE_TESTING_FEATURES
-                else
-                    WelcomeFlowStop.INCOME_SET
-            }
-
-            WelcomeFlowStop.ENABLE_TESTING_FEATURES -> {
-                signInTesterAndContinue()
+                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
             }
 
             WelcomeFlowStop.INCOME_SET -> {
                 updateLimitAndContinue()
             }
         }
-    }
-
-    private fun signInTesterAndContinue() = viewModelScope.launch {
-        val message = appDistributionService.signInTester()
-        if (message.isErrorText) {
-            eventBus.send(WelcomeFlowEvent.ShowUiMessage(message))
-            return@launch
-        }
-
-        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
     }
 
     private fun updateLimitAndContinue() = viewModelScope.launch {

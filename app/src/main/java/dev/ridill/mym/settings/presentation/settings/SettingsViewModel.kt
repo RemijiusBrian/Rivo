@@ -7,7 +7,6 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
-import dev.ridill.mym.core.domain.service.AppDistributionService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.domain.util.Zero
@@ -23,8 +22,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val preferencesManager: PreferencesManager,
-    private val eventBus: EventBus<SettingsEvent>,
-    private val appDistributionService: AppDistributionService
+    private val eventBus: EventBus<SettingsEvent>
 ) : ViewModel(), SettingsActions {
 
     private val preferences = preferencesManager.preferences
@@ -137,17 +135,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
             eventBus.send(SettingsEvent.RequestSmsPermission)
-        }
-    }
-
-    override fun onFeedbackPreferenceClick() {
-        viewModelScope.launch {
-            if (appDistributionService.isTesterSignedIn) {
-                appDistributionService.startFeedback()
-            } else {
-                val message = appDistributionService.signInTester()
-                eventBus.send(SettingsEvent.ShowUiMessage(message))
-            }
         }
     }
 

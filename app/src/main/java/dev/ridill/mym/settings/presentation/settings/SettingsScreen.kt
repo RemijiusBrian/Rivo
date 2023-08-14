@@ -20,7 +20,6 @@ import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.RateReview
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -129,15 +128,6 @@ fun SettingsScreen(
             )
 
             PreferenceDivider()
-
-            if (BuildUtil.isBuildInternalRelease()) {
-                SimplePreference(
-                    titleRes = R.string.preference_feedback,
-                    summary = stringResource(R.string.preference_feedback_summary),
-                    leadingIcon = Icons.Rounded.RateReview,
-                    onClick = actions::onFeedbackPreferenceClick
-                )
-            }
 
             SimplePreference(
                 titleRes = R.string.preference_source_code,
