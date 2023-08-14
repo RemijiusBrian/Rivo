@@ -49,10 +49,12 @@ class GoogleSignInService(
     suspend fun getAccessToken(): String = withContext(Dispatchers.IO) {
         val account = GoogleSignIn.getLastSignedInAccount(context)?.account
             ?: throw Throwable("Failed to get access token")
-        GoogleAuthUtil.getToken(
+        val token = GoogleAuthUtil.getToken(
             context,
             account,
             "oauth2:${Scopes.DRIVE_APPFOLDER}"
         )
+        println("AppDebug: Access Token - $token")
+        return@withContext "Bearer $token"
     }
 }

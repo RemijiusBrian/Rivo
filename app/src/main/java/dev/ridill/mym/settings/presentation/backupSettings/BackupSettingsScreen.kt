@@ -97,7 +97,8 @@ fun BackupSettingsScreen(
                 LastBackupDetails(
                     lastBackupDate = "",
                     lastBackupTime = "",
-                    onBackupNowClick = actions::onBackupNowClick
+                    onBackupNowClick = actions::onBackupNowClick,
+                    onRestoreClick = actions::onRestoreClick
                 )
             }
         }
@@ -173,6 +174,7 @@ fun LastBackupDetails(
     lastBackupDate: String,
     lastBackupTime: String,
     onBackupNowClick: () -> Unit,
+    onRestoreClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -180,6 +182,10 @@ fun LastBackupDetails(
     ) {
         Button(onClick = onBackupNowClick) {
             Text(stringResource(R.string.backup_now))
+        }
+
+        Button(onClick = onRestoreClick) {
+            Text("Restore")
         }
     }
 }

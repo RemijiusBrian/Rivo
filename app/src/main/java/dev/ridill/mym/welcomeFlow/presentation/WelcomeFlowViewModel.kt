@@ -8,11 +8,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.service.AppDistributionService
+import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
-import dev.ridill.mym.core.domain.service.GoogleSignInService
+import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -25,7 +26,8 @@ class WelcomeFlowViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val appDistributionService: AppDistributionService,
     private val eventBus: EventBus<WelcomeFlowEvent>,
-    private val signInService: GoogleSignInService
+    private val signInService: GoogleSignInService,
+    private val backupWorkManager: BackupWorkManager
 ) : ViewModel(), WelcomeFlowActions {
 
     val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
@@ -37,6 +39,10 @@ class WelcomeFlowViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     val events = eventBus.eventFlow
+
+    init {
+        observeRestoreWork()
+    }
 
     override fun onNextClick() {
         when (currentFlowStop.value) {
@@ -87,8 +93,29 @@ class WelcomeFlowViewModel @Inject constructor(
         restoreDataIfBackupExists()
     }
 
-    private suspend fun restoreDataIfBackupExists() {
-        // TODO: Check GDrive for backup
+    private fun restoreDataIfBackupExists() {
+        backupWorkManager.runRestoreWorkerNow()
+    }
+
+    private fun observeRestoreWork() = viewModelScope.launch {
+        /*backupWorkManager.getRestoreWorkInfoLiveData().asFlow().collectLatest { info ->
+            log { "Restore Work - ${info.state}" }
+            when (info.state) {
+                WorkInfo.State.ENQUEUED -> {}
+                WorkInfo.State.RUNNING -> {}
+                WorkInfo.State.SUCCEEDED -> {
+                    preferenceManager.concludeWelcomeFlow()
+                    eventBus.send(WelcomeFlowEvent.RestartApplication)
+                }
+
+                WorkInfo.State.FAILED -> {
+                    eventBus.send(WelcomeFlowEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_restore_failed)))
+                }
+
+                WorkInfo.State.BLOCKED -> {}
+                WorkInfo.State.CANCELLED -> {}
+            }
+        }*/
     }
 
     private fun signInTesterAndContinue() = viewModelScope.launch {
@@ -149,6 +176,7 @@ class WelcomeFlowViewModel @Inject constructor(
         data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
         object RequestPermissionRequest : WelcomeFlowEvent()
         data class LaunchGoogleSignIn(val intent: Intent) : WelcomeFlowEvent()
+        object RestartApplication : WelcomeFlowEvent()
     }
 }
 

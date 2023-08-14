@@ -2,6 +2,7 @@ package dev.ridill.mym.core.domain.util
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import java.nio.ByteBuffer
 
 val Double.Companion.Zero: Double get() = 0.0
 fun Double?.orZero(): Double = this ?: Double.Zero
@@ -12,6 +13,8 @@ inline fun Float.ifNaN(value: () -> Float): Float = if (isNaN()) value() else th
 
 val Int.Companion.Zero: Int get() = 0
 fun Int?.orZero(): Int = this ?: Int.Zero
+fun Int.toByteArray(): ByteArray = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(this).array()
+fun ByteArray.toInt(): Int = ByteBuffer.wrap(this).int
 
 val Long.Companion.Zero: Long get() = 0L
 

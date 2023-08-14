@@ -66,6 +66,7 @@ class BackupSettingsViewModel @Inject constructor(
 
     init {
         onInit()
+//        restoreWorker()
     }
 
     private fun onInit() {
@@ -128,6 +129,18 @@ class BackupSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             backupWorkManager.runBackupWorkerOnceNow()
         }
+    }
+
+    override fun onRestoreClick() {
+        viewModelScope.launch {
+            backupWorkManager.runRestoreWorkerNow()
+        }
+    }
+
+    private fun restoreWorker() = viewModelScope.launch {
+//        backupWorkManager.getRestoreWorkInfoLiveData().asFlow().collectLatest { info ->
+//            log { "Restore Worker - ${info.state}" }
+//        }
     }
 
     sealed class BackupEvent {

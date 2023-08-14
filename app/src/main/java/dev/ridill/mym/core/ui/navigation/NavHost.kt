@@ -37,6 +37,7 @@ import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
 import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
 import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.core.ui.util.launchUrlExternally
+import dev.ridill.mym.core.ui.util.restartApplication
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
 import dev.ridill.mym.dashboard.presentation.DashboardViewModel
@@ -132,6 +133,10 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
 
                     is WelcomeFlowViewModel.WelcomeFlowEvent.LaunchGoogleSignIn -> {
                         signInLauncher.launch(event.intent)
+                    }
+
+                    WelcomeFlowViewModel.WelcomeFlowEvent.RestartApplication -> {
+                        context.restartApplication()
                     }
                 }
             }

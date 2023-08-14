@@ -14,9 +14,11 @@ import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.repository.BackupRepositoryImpl
-import dev.ridill.mym.settings.domain.BackupRepository
+import dev.ridill.mym.settings.domain.backup.BackupService
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
-import dev.ridill.mym.settings.domain.backup.LocalDataService
+import dev.ridill.mym.settings.domain.backup.GDriveService
+import dev.ridill.mym.settings.domain.notification.BackupNotificationHelper
+import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
@@ -78,26 +80,42 @@ object SettingsModule {
         retrofit.create(GDriveApi::class.java)
 
     @Provides
-    fun provideLocalDataService(
+    fun provideBackupService(
         @ApplicationContext context: Context,
         database: MYMDatabase
-    ): LocalDataService = LocalDataService(context, database)
+    ): BackupService = BackupService(context, database)
 
     @Provides
     fun provideBackupRepository(
-        localDataService: LocalDataService,
+        backupService: BackupService,
         gDriveApi: GDriveApi,
-        signInService: GoogleSignInService
+        signInService: GoogleSignInService,
+        gDriveService: GDriveService
     ): BackupRepository = BackupRepositoryImpl(
-        localDataService = localDataService,
+        backupService = backupService,
         gDriveApi = gDriveApi,
-        signInService = signInService
+        signInService = signInService,
+        gDriveService = gDriveService
     )
 
     @Provides
     fun provideBackupWorkManager(
         @ApplicationContext context: Context
     ): BackupWorkManager = BackupWorkManager(context)
+
+    @Provides
+    fun provideBackupNotificationHelper(
+        @ApplicationContext context: Context
+    ): BackupNotificationHelper = BackupNotificationHelper(context)
+
+    @Provides
+    fun provideGDriveService(
+        @ApplicationContext context: Context,
+        signInService: GoogleSignInService
+    ): GDriveService = GDriveService(
+        context = context,
+        signInService = signInService
+    )
 }
 
 @Qualifier

@@ -1,70 +1,91 @@
 package dev.ridill.mym.settings.data.repository
 
-import com.google.gson.Gson
+import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.model.Resource
+import dev.ridill.mym.core.domain.model.SimpleResource
 import dev.ridill.mym.core.domain.service.GoogleSignInService
-import dev.ridill.mym.settings.data.remote.DB_MIME_TYPE
+import dev.ridill.mym.core.domain.util.log
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.data.remote.GDriveApi
-import dev.ridill.mym.settings.data.remote.JSON_MIME_TYPE
-import dev.ridill.mym.settings.data.remote.MEDIA_PART_KEY
-import dev.ridill.mym.settings.domain.BackupRepository
-import dev.ridill.mym.settings.domain.backup.LocalDataService
+import dev.ridill.mym.settings.domain.backup.BackupService
+import dev.ridill.mym.settings.domain.backup.GDriveService
+import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
 
 class BackupRepositoryImpl(
-    private val localDataService: LocalDataService,
+    private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
-    private val signInService: GoogleSignInService
+    private val signInService: GoogleSignInService,
+    private val gDriveService: GDriveService
 ) : BackupRepository {
-    override suspend fun performAppDataBackup() = withContext(Dispatchers.IO) {
+    override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
         try {
-            val token = signInService.getAccessToken()
-            val authToken = "Bearer $token"
+//            val token = signInService.getAccessToken()
+//            gDriveApi.getBackupFilesList(token).files.forEach { file ->
+//                gDriveApi.deleteFile(token, file.id)
+//            }
 
-            uploadDbData(authToken)
+            val backupFile = backupService.buildBackupFile()
+            /*val metadataMap = mapOf(
+                "name" to backupFile.name,
+                "parents" to appDataFolderParents
+            )
+            val metadataJson = Gson().toJson(metadataMap)
+            val metadataPart = metadataJson.toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
 
+            val fileBody = backupFile.asRequestBody(BACKUP_MIME_TYPE.toMediaTypeOrNull())
+            val mediaPart = MultipartBody.Part.createFormData(
+                MEDIA_PART_KEY,
+                backupFile.name,
+                fileBody
+            )
+
+            val response = gDriveApi.uploadFile(
+                token = token,
+                metadata = metadataPart,
+                file = mediaPart
+            )*/
+
+            gDriveService.getFilesList().files.forEach {
+                gDriveService.deleteFile(it.id)
+            }
+
+            val response = gDriveService.uploadBackupFile(backupFile)
+
+            println("AppDebug: Response - $response")
+
+            Resource.Success(Unit)
         } catch (t: Throwable) {
             t.printStackTrace()
+            Resource.Error(UiText.StringResource(R.string.error_unknown))
         }
     }
 
-    private suspend fun uploadDbData(token: String) {
-        val dbCache = localDataService.getDatabaseCache()
-        println("AppDebug: DB Cache - $dbCache")
-        uploadDbFile(dbCache.dbFile, token)
-        dbCache.walFile?.let { uploadDbFile(it, token) }
-        dbCache.shmFile?.let { uploadDbFile(it, token) }
-    }
-
-    private suspend fun uploadDbFile(file: File, token: String) {
-        val metadataMap = mapOf(
-            "name" to "${file.name}.db",
-            "parents" to appDataFolderParents
-        )
-        val metadataJson = Gson().toJson(metadataMap)
-        val metadataPart = metadataJson.toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
-
-        val fileBody = file.asRequestBody(DB_MIME_TYPE.toMediaTypeOrNull())
-        val mediaPart = MultipartBody.Part.createFormData(
-            MEDIA_PART_KEY,
-            file.name,
-            fileBody
-        )
-
-        val response = gDriveApi.uploadFile(
-            token = token,
-            metadata = metadataPart,
-            file = mediaPart
-        )
-
-        println("AppDebug: Response - $response")
+    override suspend fun performAppDataRestore(): SimpleResource = withContext(Dispatchers.IO) {
+        try {
+//            val token = signInService.getAccessToken()
+//            val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
+//                ?: throw Throwable("No Backup Found")
+//            val fileBody = gDriveApi.downloadFile(token, backupFile.id).body()
+//                ?: throw Throwable("Body Null")
+//            backupService.restoreBackupFile(fileBody.byteStream())
+            val files = gDriveService.getFilesList()
+            log { "Files List - $files" }
+            val backupFile = files.files.firstOrNull()
+                ?: throw Throwable("No Backup Found")
+            val downloadedStream = gDriveService.downloadBackupFile(backupFile.id)
+            backupService.restoreBackupFile(downloadedStream)
+            Resource.Success(Unit)
+        } catch (t: Throwable) {
+            t.printStackTrace()
+            Resource.Error(UiText.StringResource(R.string.error_unknown))
+        }
     }
 }
+
+const val JSON_MIME_TYPE = "application/json"
+const val BACKUP_MIME_TYPE = "application/octet-stream"
 
 private val appDataFolderParents: List<String>
     get() = listOf("appDataFolder")

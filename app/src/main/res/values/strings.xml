@@ -15,6 +15,7 @@
     <string name="notification_channel_group_name_expenses">Expenses</string>
     <string name="notification_channel_name_auto_add_expenses">Auto Add Expenses</string>
     <string name="notification_channel_group_name_others">Others</string>
+    <string name="notification_channel_name_backups">Backups</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_income">Set Monthly Income</string>
@@ -42,6 +43,8 @@
     <string name="error_testing_feature_enable_failed">Failed to enable testing features</string>
     <string name="error_app_data_backup_failed">Failed to backup App Data</string>
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
+    <string name="error_sign_in_failed">Failed to sign in to your account</string>
+    <string name="error_unknown">An Unknown error occurred</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -145,7 +148,7 @@
     <string name="backup_account">Backup Account</string>
     <string name="restore">Restore</string>
     <string name="check_for_backup">Check For Backup</string>
-    <string name="error_sign_in_failed">Failed to sign in to your account</string>
     <string name="choose_backup_interval">Choose Backup Interval</string>
     <string name="backup_now">Backup Now</string>
+    <string name="restoring_app_data">Restoring App Data</string>
 </resources>
