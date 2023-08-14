@@ -1,6 +1,7 @@
 package dev.ridill.mym.settings.presentation.backupSettings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,12 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsDestination
+import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.settings.domain.modal.BackupInterval
@@ -95,10 +99,10 @@ fun BackupSettingsScreen(
 
             AnimatedVisibility(visible = state.isAccountAdded) {
                 LastBackupDetails(
-                    lastBackupDate = "",
-                    lastBackupTime = "",
+                    lastBackupDate = state.lastBackupDateFormatted,
+                    lastBackupTime = state.lastBackupTimeFormatted,
                     onBackupNowClick = actions::onBackupNowClick,
-                    onRestoreClick = actions::onRestoreClick
+                    isBackupRunning = state.isBackupRunning
                 )
             }
         }
@@ -171,21 +175,46 @@ private fun BackupIntervalSelection(
 
 @Composable
 fun LastBackupDetails(
-    lastBackupDate: String,
-    lastBackupTime: String,
+    lastBackupDate: String?,
+    lastBackupTime: String?,
     onBackupNowClick: () -> Unit,
-    onRestoreClick: () -> Unit,
+    isBackupRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-    ) {
-        Button(onClick = onBackupNowClick) {
-            Text(stringResource(R.string.backup_now))
-        }
+    BasicPreference(
+        titleContent = {
+            Text(
+                text = stringResource(R.string.last_backup),
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        leadingIcon = { EmptyIconSpacer() },
+        summaryContent = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall),
+                modifier = Modifier
+                    .padding(vertical = SpacingSmall)
+            ) {
+                lastBackupDate?.let { Text(stringResource(R.string.date_label, it)) }
+                lastBackupTime?.let { Text(stringResource(R.string.time_label, it)) }
 
-        Button(onClick = onRestoreClick) {
-            Text("Restore")
-        }
-    }
+                Crossfade(
+                    targetState = isBackupRunning,
+                    label = "BackupProgressBarAnimation"
+                ) { loading ->
+                    if (loading) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    } else {
+                        Button(onClick = onBackupNowClick) {
+                            Text(stringResource(R.string.backup_now))
+                        }
+                    }
+                }
+            }
+        },
+        modifier = modifier
+    )
 }

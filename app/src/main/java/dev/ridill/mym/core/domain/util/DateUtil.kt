@@ -27,8 +27,10 @@ object DateUtil {
             get() = DateTimeFormatter.ofPattern("MM-yyyy")
 
         val localizedTimeShort: DateTimeFormatter
-            get() = DateTimeFormatter
-                .ofLocalizedTime(FormatStyle.SHORT)
+            get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+
+        val localizedDateLong: DateTimeFormatter
+            get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
         val ddth_EEE_spaceSep: DateTimeFormatter
             get() = DateTimeFormatterBuilder()

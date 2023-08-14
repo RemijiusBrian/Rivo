@@ -17,6 +17,7 @@ import dev.ridill.mym.core.domain.util.tryOrNull
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.settings.domain.modal.BackupInterval
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -37,39 +38,51 @@ class BackupSettingsViewModel @Inject constructor(
     private val isAccountAdded = backupAccount.map { !it.isNullOrEmpty() }
         .distinctUntilChanged()
 
-    private val backupInterval = preferencesManager.preferences.map { it.appBackupInterval }
+    private val preferences = preferencesManager.preferences
+
+    private val backupInterval = preferences.map { it.appBackupInterval }
         .distinctUntilChanged()
 
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
 
+    private val lastBackupDateTime = preferences.map { it.lastBackupDateTime }
+        .distinctUntilChanged()
+
+    private val isBackupWorkerRunning = MutableStateFlow(false)
+
     val state = combineTuple(
         backupAccount,
         isAccountAdded,
         backupInterval,
-        showBackupIntervalSelection
+        showBackupIntervalSelection,
+        lastBackupDateTime,
+        isBackupWorkerRunning
     ).map { (
                 backupAccount,
                 isAccountAdded,
                 backupInterval,
-                showBackupIntervalSelection
+                showBackupIntervalSelection,
+                lastBackupDateTime,
+                isBackupWorkerRunning
             ) ->
         BackupSettingsState(
             accountEmail = backupAccount,
             isAccountAdded = isAccountAdded,
             showBackupIntervalSelection = showBackupIntervalSelection,
-            interval = backupInterval
+            interval = backupInterval,
+            lastBackupDateTime = lastBackupDateTime,
+            isBackupRunning = isBackupWorkerRunning
         )
     }.asStateFlow(viewModelScope, BackupSettingsState())
 
     val events = eventBus.eventFlow
 
     init {
-        onInit()
-//        restoreWorker()
+        getSignedInUser()
     }
 
-    private fun onInit() {
+    private fun getSignedInUser() {
         backupAccount.update {
             signInService.getSignedInAccount()?.email
         }
@@ -89,9 +102,6 @@ class BackupSettingsViewModel @Inject constructor(
         }
         val account = tryOrNull { signInService.getAccountFromIntent(result.data) }
         backupAccount.update { account?.email }
-
-        val token = tryOrNull { signInService.getAccessToken() }
-        println("AppDebug: Token - $token")
 
         if (account == null) {
             eventBus.send(
@@ -117,7 +127,7 @@ class BackupSettingsViewModel @Inject constructor(
 
             if (signInService.getSignedInAccount() == null) return@launch
 
-//            backupWorkManager.schedulePeriodicWorker(interval)
+            backupWorkManager.schedulePeriodicWorker(interval)
         }
     }
 
@@ -125,22 +135,12 @@ class BackupSettingsViewModel @Inject constructor(
         savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
     }
 
+    private var backupJob: Job? = null
     override fun onBackupNowClick() {
-        viewModelScope.launch {
+        backupJob?.cancel()
+        backupJob = viewModelScope.launch {
             backupWorkManager.runBackupWorkerOnceNow()
         }
-    }
-
-    override fun onRestoreClick() {
-        viewModelScope.launch {
-            backupWorkManager.runRestoreWorkerNow()
-        }
-    }
-
-    private fun restoreWorker() = viewModelScope.launch {
-//        backupWorkManager.getRestoreWorkInfoLiveData().asFlow().collectLatest { info ->
-//            log { "Restore Worker - ${info.state}" }
-//        }
     }
 
     sealed class BackupEvent {

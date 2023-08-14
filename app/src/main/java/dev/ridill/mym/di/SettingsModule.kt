@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.settings.data.remote.GDriveApi
@@ -82,11 +83,13 @@ object SettingsModule {
     fun provideBackupRepository(
         backupService: BackupService,
         gDriveApi: GDriveApi,
-        signInService: GoogleSignInService
+        signInService: GoogleSignInService,
+        preferencesManager: PreferencesManager
     ): BackupRepository = BackupRepositoryImpl(
         backupService = backupService,
         gDriveApi = gDriveApi,
-        signInService = signInService
+        signInService = signInService,
+        preferencesManager = preferencesManager
     )
 
     @Provides

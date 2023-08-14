@@ -154,4 +154,7 @@
     <string name="data_restore_in_progress">Data restore in progress</string>
     <string name="restarting_app">Restarting App</string>
     <string name="data_restore_disclaimer">Please do not close app while the restore is in progress. The app will automatically restart once the restore process is completed.</string>
+    <string name="last_backup">Last Backup</string>
+    <string name="date_label">Date: %s</string>
+    <string name="time_label">Time: %s</string>
 </resources>

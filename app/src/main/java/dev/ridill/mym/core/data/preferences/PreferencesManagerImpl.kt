@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.mym.core.domain.model.MYMPreferences
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.domain.modal.BackupInterval
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class PreferencesManagerImpl(
     private val dataStore: DataStore<Preferences>
@@ -30,13 +32,16 @@ class PreferencesManagerImpl(
             val appBackupInterval = BackupInterval.valueOf(
                 preferences[Keys.APP_BACKUP_INTERVAL] ?: BackupInterval.NEVER.name
             )
+            val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
+                ?.let { DateUtil.parse(it) }
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
                 monthlyLimit = monthlyLimit,
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
-                appBackupInterval = appBackupInterval
+                appBackupInterval = appBackupInterval,
+                lastBackupDateTime = lastBackupDateTime
             )
         }
 
@@ -80,11 +85,20 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.LAST_BACKUP_TIMESTAMP] = localDateTime.toString()
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val MONTHLY_LIMIT = longPreferencesKey("MONTHLY_LIMIT")
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val APP_BACKUP_INTERVAL = stringPreferencesKey("APP_BACKUP_INTERVAL")
+        val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
     }
 }

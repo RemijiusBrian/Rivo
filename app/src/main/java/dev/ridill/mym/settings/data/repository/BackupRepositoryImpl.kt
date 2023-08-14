@@ -2,15 +2,17 @@ package dev.ridill.mym.settings.data.repository
 
 import com.google.gson.Gson
 import dev.ridill.mym.R
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.model.SimpleResource
 import dev.ridill.mym.core.domain.service.GoogleSignInService
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.remote.MEDIA_PART_KEY
-import dev.ridill.mym.settings.data.toBackupFile
+import dev.ridill.mym.settings.data.toBackupDetails
 import dev.ridill.mym.settings.domain.backup.BackupService
-import dev.ridill.mym.settings.domain.modal.BackupFile
+import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,15 +24,18 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
-    private val signInService: GoogleSignInService
+    private val signInService: GoogleSignInService,
+    private val preferencesManager: PreferencesManager
 ) : BackupRepository {
-    override suspend fun checkForBackup(): Resource<BackupFile> = withContext(Dispatchers.IO) {
+    override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
         try {
             val token = signInService.getAccessToken()
             val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
                 ?: throw NoBackupFoundThrowable()
 
-            Resource.Success(backupFile.toBackupFile())
+            val backupDetails = backupFile.toBackupDetails()
+            backupDetails.backupDateTime?.let { preferencesManager.updateLastBackupTimestamp(it) }
+            Resource.Success(backupDetails)
         } catch (t: NoBackupFoundThrowable) {
             Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
         } catch (t: Throwable) {
@@ -69,6 +74,7 @@ class BackupRepositoryImpl(
                 file = mediaPart
             )
 
+            preferencesManager.updateLastBackupTimestamp(DateUtil.now())
             Resource.Success(Unit)
         } catch (t: Throwable) {
             t.printStackTrace()
