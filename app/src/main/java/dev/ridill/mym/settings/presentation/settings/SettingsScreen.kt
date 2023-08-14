@@ -46,7 +46,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.BackArrowButton
-import dev.ridill.mym.core.ui.components.IncomeInputDialog
+import dev.ridill.mym.core.ui.components.BudgetInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
@@ -114,11 +114,11 @@ fun SettingsScreen(
             PreferenceDivider()
 
             SimplePreference(
-                titleRes = R.string.income,
-                summary = state.currentMonthlyLimit.takeIf { it.isNotEmpty() }
-                    ?.let { stringResource(R.string.preference_current_income_summary, it) }
-                    ?: stringResource(R.string.preference_set_income_summary),
-                onClick = actions::onMonthlyLimitPreferenceClick
+                titleRes = R.string.preference_budget,
+                summary = state.currentMonthlyBudget.takeIf { it.isNotEmpty() }
+                    ?.let { stringResource(R.string.preference_current_budget_summary, it) }
+                    ?: stringResource(R.string.preference_set_budget_summary),
+                onClick = actions::onMonthlyBudgetPreferenceClick
             )
 
             SimplePreference(
@@ -150,11 +150,11 @@ fun SettingsScreen(
             )
         }
 
-        if (state.showMonthlyLimitInput) {
-            IncomeInputDialog(
-                onConfirm = actions::onMonthlyLimitInputConfirm,
-                onDismiss = actions::onMonthlyLimitInputDismiss,
-                placeholderAmount = state.currentMonthlyLimit
+        if (state.showBudgetInput) {
+            BudgetInputDialog(
+                onConfirm = actions::onMonthlyBudgetInputConfirm,
+                onDismiss = actions::onMonthlyBudgetInputDismiss,
+                placeholderAmount = state.currentMonthlyBudget
             )
         }
 

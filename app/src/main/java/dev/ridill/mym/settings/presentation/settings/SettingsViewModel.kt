@@ -60,9 +60,9 @@ class SettingsViewModel @Inject constructor(
             appTheme = appTheme,
             dynamicColorsEnabled = dynamicThemeEnabled,
             showAppThemeSelection = showAppThemeSelection,
-            currentMonthlyLimit = monthlyLimit.takeIf { it > Long.Zero }
+            currentMonthlyBudget = monthlyLimit.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
-            showMonthlyLimitInput = showMonthlyLimitInput,
+            showBudgetInput = showMonthlyLimitInput,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())
@@ -90,15 +90,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    override fun onMonthlyLimitPreferenceClick() {
+    override fun onMonthlyBudgetPreferenceClick() {
         savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = true
     }
 
-    override fun onMonthlyLimitInputDismiss() {
+    override fun onMonthlyBudgetInputDismiss() {
         savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
     }
 
-    override fun onMonthlyLimitInputConfirm(value: String) {
+    override fun onMonthlyBudgetInputConfirm(value: String) {
         viewModelScope.launch {
             val longValue = value.toLongOrNull() ?: -1L
             if (longValue <= -1L) {
@@ -117,7 +117,7 @@ class SettingsViewModel @Inject constructor(
             savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
             eventBus.send(
                 SettingsEvent.ShowUiMessage(
-                    UiText.StringResource(R.string.income_updated)
+                    UiText.StringResource(R.string.budget_updated)
                 )
             )
         }

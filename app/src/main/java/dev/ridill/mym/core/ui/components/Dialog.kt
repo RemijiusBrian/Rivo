@@ -145,7 +145,6 @@ fun TextInputDialog(
         title = { Text(stringResource(titleRes)) },
         text = {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(SpacingMedium)
             ) {
                 Text(stringResource(contentRes))
@@ -180,7 +179,7 @@ fun TextInputDialog(
 }
 
 @Composable
-fun IncomeInputDialog(
+fun BudgetInputDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -188,8 +187,8 @@ fun IncomeInputDialog(
     focusRequester: FocusRequester = remember { FocusRequester() },
     placeholderAmount: String? = null
 ) = TextInputDialog(
-    titleRes = R.string.monthly_income_input_dialog_title,
-    contentRes = R.string.monthly_income_input_dialog_content,
+    titleRes = R.string.monthly_budget_input_dialog_title,
+    contentRes = R.string.monthly_budget_input_dialog_content,
     onConfirm = onConfirm,
     onDismiss = onDismiss,
     isInputError = isInputError,
@@ -198,7 +197,7 @@ fun IncomeInputDialog(
         imeAction = ImeAction.Done
     ),
     errorRes = R.string.error_invalid_amount,
-    placeholder = placeholderAmount ?: stringResource(R.string.enter_income),
+    placeholder = placeholderAmount ?: stringResource(R.string.enter_budget),
     modifier = modifier,
     focusRequester = focusRequester
 )

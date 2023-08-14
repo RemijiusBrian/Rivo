@@ -194,7 +194,7 @@ private fun BalanceAndLimit(
         }
         HorizontalSpacer(spacing = SpacingExtraSmall)
         Text(
-            text = stringResource(R.string.income),
+            text = stringResource(R.string.budget),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Normal,
             modifier = Modifier

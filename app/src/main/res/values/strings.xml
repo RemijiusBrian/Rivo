@@ -16,7 +16,7 @@
     <string name="notification_channel_group_name_others">Others</string>
 
     <!-- Content Description -->
-    <string name="cd_set_monthly_income">Set Monthly Income</string>
+    <string name="cd_set_monthly_budget">Set Monthly Budget</string>
     <string name="cd_new_expense">New Expense</string>
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_save">Save</string>
@@ -47,9 +47,9 @@
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
-    <string name="welcome_flow_stop_set_income_title">Set your monthly income</string>
-    <string name="welcome_flow_stop_set_income_message">Enter the income you earn per month</string>
-    <string name="you_can_change_income_later_in_settings">You can always change this later in the app settings</string>
+    <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
+    <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
+    <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
 
     <string name="part_of_day_morning">Morning</string>
     <string name="part_of_day_noon">Noon</string>
@@ -62,8 +62,8 @@
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <!-- Dialog Content -->
-    <string name="monthly_income_input_dialog_title">Monthly Income</string>
-    <string name="monthly_income_input_dialog_content">Enter your income on a monthly basis</string>
+    <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
+    <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
 
     <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
     <string name="permission_rationale_sms_for_expense">MYM needs SMS read permission to try and add expenses automatically from your SMS messages</string>
@@ -78,8 +78,9 @@
     <string name="preference_dynamic_colors_summary">Set app colors based on your wallpaper</string>
     <string name="preference_notifications">Notifications</string>
     <string name="preference_notification_summary">Manage your notification preferences</string>
-    <string name="preference_set_income_summary">Click to update your income</string>
-    <string name="preference_current_income_summary">Your income is %s</string>
+    <string name="preference_budget">Monthly Budget</string>
+    <string name="preference_set_budget_summary">Click to update your budget</string>
+    <string name="preference_current_budget_summary">Your budget is set to %s</string>
     <string name="preference_auto_add_expenses">Auto Add Expenses</string>
     <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
     <string name="preference_feedback">Feedback</string>
@@ -90,7 +91,7 @@
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
     <string name="fwd_slash_amount_value">/ %s</string>
-    <string name="income">Income</string>
+    <string name="budget">Budget</string>
     <string name="recent_spends">Recent Spends</string>
     <string name="spent_this_month">Spent this month</string>
     <string name="amount_zero">0</string>
@@ -99,8 +100,8 @@
     <string name="expense_updated">Expense Updated</string>
     <string name="expense_deleted">Expense Deleted</string>
     <string name="choose_theme">Choose Theme</string>
-    <string name="income_updated">Your income has been updated</string>
-    <string name="enter_income">Enter Income</string>
+    <string name="budget_updated">Your budget has been updated</string>
+    <string name="enter_budget">Enter Budget</string>
     <string name="tag_your_expense">Tag your expense</string>
     <string name="new_tag_chip_label">New</string>
     <string name="percent_of_total">%s Percent of total</string>
