@@ -22,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -102,7 +103,10 @@ fun DashboardScreen(
                     }
                 },
                 floatingActionButton = {
-                    FloatingActionButton(onClick = { navigateToAddEditExpense(null) }) {
+                    FloatingActionButton(
+                        onClick = { navigateToAddEditExpense(null) },
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = stringResource(R.string.cd_new_expense)
