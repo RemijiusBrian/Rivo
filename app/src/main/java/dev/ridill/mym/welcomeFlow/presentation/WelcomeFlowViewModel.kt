@@ -3,7 +3,9 @@ package dev.ridill.mym.welcomeFlow.presentation
 import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
@@ -14,6 +16,8 @@ import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -35,6 +39,8 @@ class WelcomeFlowViewModel @Inject constructor(
     val showNextButton = currentFlowStop.map { stop ->
         stop != WelcomeFlowStop.RESTORE_DATA
     }.distinctUntilChanged()
+
+    val restoreState = savedStateHandle.getStateFlow(RESTORE_JOB_STATE, WorkInfo.State.BLOCKED)
 
     val events = eventBus.eventFlow
 
@@ -77,32 +83,31 @@ class WelcomeFlowViewModel @Inject constructor(
             return@launch
         }
 
-        restoreDataIfBackupExists()
+        tryRestoreDataIfBackupExits()
     }
 
-    private fun restoreDataIfBackupExists() {
-        backupWorkManager.runRestoreWorkerNow()
-    }
+    private var restoreJob: Job? = null
+    private fun tryRestoreDataIfBackupExits() {
+        restoreJob?.cancel()
+        restoreJob = viewModelScope.launch {
+            backupWorkManager.runRestoreWorkerNow().asFlow().collectLatest { info ->
+                val state = info.state
+                savedStateHandle[RESTORE_JOB_STATE] = state
 
-    private fun observeRestoreWork() = viewModelScope.launch {
-        /*backupWorkManager.getRestoreWorkInfoLiveData().asFlow().collectLatest { info ->
-            log { "Restore Work - ${info.state}" }
-            when (info.state) {
-                WorkInfo.State.ENQUEUED -> {}
-                WorkInfo.State.RUNNING -> {}
-                WorkInfo.State.SUCCEEDED -> {
-                    preferenceManager.concludeWelcomeFlow()
-                    eventBus.send(WelcomeFlowEvent.RestartApplication)
+                when (state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        preferenceManager.concludeWelcomeFlow()
+                        eventBus.send(WelcomeFlowEvent.RestartApplication)
+                    }
+
+                    WorkInfo.State.FAILED -> {
+                        eventBus.send(WelcomeFlowEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_restore_failed)))
+                    }
+
+                    else -> {}
                 }
-
-                WorkInfo.State.FAILED -> {
-                    eventBus.send(WelcomeFlowEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_restore_failed)))
-                }
-
-                WorkInfo.State.BLOCKED -> {}
-                WorkInfo.State.CANCELLED -> {}
             }
-        }*/
+        }
     }
 
     private fun updateLimitAndContinue() = viewModelScope.launch {
@@ -160,3 +165,4 @@ class WelcomeFlowViewModel @Inject constructor(
 private const val FLOW_STOP = "FLOW_STOP"
 private const val INCOME_INPUT = "INCOME_INPUT"
 private const val SHOW_NOTIFICATION_RATIONALE = "SHOW_NOTIFICATION_RATIONALE"
+private const val RESTORE_JOB_STATE = "RESTORE_JOB_STATE"

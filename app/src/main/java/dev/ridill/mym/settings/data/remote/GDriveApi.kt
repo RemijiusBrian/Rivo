@@ -2,6 +2,7 @@ package dev.ridill.mym.settings.data.remote
 
 import dev.ridill.mym.settings.data.remote.dto.GDriveFileDto
 import dev.ridill.mym.settings.data.remote.dto.GDriveFilesListResponse
+import dev.ridill.mym.settings.data.repository.APP_DATA_SPACE
 import dev.ridill.mym.settings.domain.backup.BACKUP_FILE_NAME
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -26,7 +27,12 @@ interface GDriveApi {
         @Part file: MultipartBody.Part
     ): GDriveFileDto
 
-    @GET("drive/v3/files?orderBy=recency&q=name = '$BACKUP_FILE_NAME' and trashed=false&spaces=appDataFolder")
+    @GET("drive/v3/files?orderBy=recency&q=trashed=false&spaces=appDataFolder")
+    suspend fun getFilesInAppDataFolder(
+        @Header(AUTH_HEADER_KEY) token: String
+    ): GDriveFilesListResponse
+
+    @GET("drive/v3/files?orderBy=createdTime desc&q=name contains '$BACKUP_FILE_NAME' and trashed=false&spaces=$APP_DATA_SPACE")
     suspend fun getBackupFilesList(
         @Header(AUTH_HEADER_KEY) token: String
     ): GDriveFilesListResponse

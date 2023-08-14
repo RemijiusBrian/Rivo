@@ -2,6 +2,7 @@ package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
 import android.app.Activity
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.slideInVertically
@@ -88,6 +89,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         val showPermissionRationale by viewModel.showNotificationRationale
             .collectAsStateWithLifecycle()
         val showNextButton by viewModel.showNextButton.collectAsStateWithLifecycle(true)
+        val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -136,6 +138,11 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                     }
 
                     WelcomeFlowViewModel.WelcomeFlowEvent.RestartApplication -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.restarting_app),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         context.restartApplication()
                     }
                 }
@@ -147,6 +154,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
             flowStop = flowStop,
             incomeInput = { incomeInput.value },
             showPermissionRationale = showPermissionRationale,
+            restoreState = restoreState,
             showNextButton = showNextButton,
             actions = viewModel
         )

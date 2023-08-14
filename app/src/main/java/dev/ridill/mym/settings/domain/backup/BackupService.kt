@@ -2,7 +2,7 @@ package dev.ridill.mym.settings.domain.backup
 
 import android.content.Context
 import dev.ridill.mym.core.data.db.MYMDatabase
-import dev.ridill.mym.core.domain.util.log
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.toByteArray
 import dev.ridill.mym.core.domain.util.toInt
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,6 @@ class BackupService(
     private val context: Context,
     private val database: MYMDatabase
 ) {
-
     @Throws(BackupCachingFailedThrowable::class)
     suspend fun buildBackupFile(): File = withContext(Dispatchers.IO) {
         val dbFile = context.getDatabasePath(MYMDatabase.NAME)
@@ -22,7 +21,7 @@ class BackupService(
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
 
         val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
-        val backupFile = File(cachePath, BACKUP_FILE_NAME)
+        val backupFile = File(cachePath, backupFileName())
         if (backupFile.exists()) backupFile.delete()
 
         checkpointDb()
@@ -30,8 +29,6 @@ class BackupService(
             // Write DB Data
             dbFile.inputStream().use dbInputStream@{
                 val dbData = it.readBytes()
-                log { "DB Size - ${dbData.size}" }
-                log { "DB Data - ${dbData.contentToString()}" }
                 outputStream.write(dbData.size.toByteArray())
                 outputStream.write(dbData)
             }
@@ -39,8 +36,6 @@ class BackupService(
             // Write WAL Data
             if (dbWalFile.exists()) dbWalFile.inputStream().use walInputStream@{
                 val walData = it.readBytes()
-                log { "WAL Size - ${walData.size}" }
-                log { "WAL Data - ${walData.contentToString()}" }
                 outputStream.write(walData.size.toByteArray())
                 outputStream.write(walData)
             }
@@ -48,8 +43,6 @@ class BackupService(
             // Write SHM Data
             if (dbShmFile.exists()) dbShmFile.inputStream().use shmInputStream@{
                 val shmData = it.readBytes()
-                log { "SHM Size - ${shmData.size}" }
-                log { "SHM Data - ${shmData.contentToString()}" }
                 outputStream.write(shmData.size.toByteArray())
                 outputStream.write(shmData)
             }
@@ -71,42 +64,53 @@ class BackupService(
                 val dbSizeBytes = ByteArray(Int.SIZE_BYTES)
                 inputStream.read(dbSizeBytes)
                 val dbSize = dbSizeBytes.toInt()
-                log { "DB Size - $dbSize" }
-                val dbData = ByteArray(dbSize)
-                inputStream.read(dbData)
-                log { "DB Data - ${dbData.contentToString()}" }
-                it.write(dbData)
+
+                var bytesLeft = dbSize
+                var byteArray = ByteArray(0)
+                while (bytesLeft > 0) {
+                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
+                    val bytesRead = inputStream.read(data)
+                    byteArray += data.copyOfRange(0, bytesRead)
+                    bytesLeft -= bytesRead
+                }
+                it.write(byteArray)
             }
 
             // Read WAL Data
             dbWalFile.outputStream().use walOutputStream@{
                 val walSizeBytes = ByteArray(Int.SIZE_BYTES)
-                val bytesRead = inputStream.read(walSizeBytes)
-                if (bytesRead == -1) return@walOutputStream
+                val sizeBytesRead = inputStream.read(walSizeBytes)
+                if (sizeBytesRead == -1) return@walOutputStream
                 val walSize = walSizeBytes.toInt()
 
-                log { "WAL Size - $walSize" }
-                val walData = ByteArray(walSize)
-                inputStream.read(walData)
-                log { "WAL Data - ${walData.contentToString()}" }
-                it.write(walData)
+                var bytesLeft = walSize
+                var byteArray = ByteArray(0)
+                while (bytesLeft > 0) {
+                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
+                    val bytesRead = inputStream.read(data)
+                    byteArray += data.copyOfRange(0, bytesRead)
+                    bytesLeft -= bytesRead
+                }
+                it.write(byteArray)
             }
 
             // Read SHM Data
             dbShmFile.outputStream().use shmOutputStream@{
                 val shmSizeBytes = ByteArray(Int.SIZE_BYTES)
-                val bytesRead = inputStream.read(shmSizeBytes)
-                if (bytesRead == -1) return@shmOutputStream
+                val sizeBytesRead = inputStream.read(shmSizeBytes)
+                if (sizeBytesRead == -1) return@shmOutputStream
                 val shmSize = shmSizeBytes.toInt()
 
-                log { "SHM Size - $shmSize" }
-                val shmData = ByteArray(shmSize)
-                inputStream.read(shmData)
-                log { "SHM Data - ${shmData.contentToString()}" }
-                it.write(shmData)
+                var bytesLeft = shmSize
+                var byteArray = byteArrayOf()
+                while (bytesLeft > 0) {
+                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
+                    val bytesRead = inputStream.read(data)
+                    byteArray += data.copyOfRange(0, bytesRead)
+                    bytesLeft -= bytesRead
+                }
+                it.write(byteArray)
             }
-
-            log { "Restore Done" }
         }
         checkpointDb()
     }
@@ -116,6 +120,8 @@ class BackupService(
         writableDb.query("PRAGMA wal_checkpoint(FULL);")
         writableDb.query("PRAGMA wal_checkpoint(TRUNCATE);")
     }
+
+    private fun backupFileName(): String = "${DateUtil.now()}-$BACKUP_FILE_NAME"
 
     /*suspend fun backupDb(): SimpleResource = withContext(Dispatchers.IO) {
         val dbFile = context.getDatabasePath(MYMDatabase.NAME)

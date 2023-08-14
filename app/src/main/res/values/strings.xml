@@ -44,6 +44,7 @@
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
     <string name="error_unknown">An Unknown error occurred</string>
+    <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -150,4 +151,7 @@
     <string name="choose_backup_interval">Choose Backup Interval</string>
     <string name="backup_now">Backup Now</string>
     <string name="restoring_app_data">Restoring App Data</string>
+    <string name="data_restore_in_progress">Data restore in progress</string>
+    <string name="restarting_app">Restarting App</string>
+    <string name="data_restore_disclaimer">Please do not close app while the restore is in progress. The app will automatically restart once the restore process is completed.</string>
 </resources>

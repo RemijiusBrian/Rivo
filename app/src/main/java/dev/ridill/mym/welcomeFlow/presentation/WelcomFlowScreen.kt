@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.work.WorkInfo
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -40,6 +41,7 @@ fun WelcomeFlowScreen(
     incomeInput: () -> String,
     showPermissionRationale: Boolean,
     showNextButton: Boolean,
+    restoreState: WorkInfo.State,
     actions: WelcomeFlowActions
 ) {
     MYMScaffold(
@@ -104,7 +106,8 @@ fun WelcomeFlowScreen(
                             onCheckForBackupClick = actions::onCheckForBackupClick,
                             onSkipClick = actions::onSkipDataRestore,
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxSize(),
+                            restoreState = restoreState
                         )
                     }
 

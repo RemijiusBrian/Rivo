@@ -11,6 +11,10 @@ import java.time.temporal.ChronoField
 object DateUtil {
     fun now(): LocalDateTime = LocalDateTime.now()
 
+    fun parse(value: String): LocalDateTime? = tryOrNull {
+        LocalDateTime.parse(value)
+    }
+
     fun getPartOfDay(): PartOfDay = when (now().hour) {
         in (0..11) -> PartOfDay.MORNING
         12 -> PartOfDay.NOON

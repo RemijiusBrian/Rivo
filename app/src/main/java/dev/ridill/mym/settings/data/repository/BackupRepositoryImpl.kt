@@ -1,35 +1,57 @@
 package dev.ridill.mym.settings.data.repository
 
+import com.google.gson.Gson
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.model.SimpleResource
 import dev.ridill.mym.core.domain.service.GoogleSignInService
-import dev.ridill.mym.core.domain.util.log
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.data.remote.GDriveApi
+import dev.ridill.mym.settings.data.remote.MEDIA_PART_KEY
+import dev.ridill.mym.settings.data.toBackupFile
 import dev.ridill.mym.settings.domain.backup.BackupService
-import dev.ridill.mym.settings.domain.backup.GDriveService
+import dev.ridill.mym.settings.domain.modal.BackupFile
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
-    private val signInService: GoogleSignInService,
-    private val gDriveService: GDriveService
+    private val signInService: GoogleSignInService
 ) : BackupRepository {
+    override suspend fun checkForBackup(): Resource<BackupFile> = withContext(Dispatchers.IO) {
+        try {
+            val token = signInService.getAccessToken()
+            val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
+                ?: throw NoBackupFoundThrowable()
+
+            Resource.Success(backupFile.toBackupFile())
+        } catch (t: NoBackupFoundThrowable) {
+            Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
+        } catch (t: Throwable) {
+            Resource.Error(
+                t.localizedMessage?.let { UiText.DynamicString(it) }
+                    ?: UiText.StringResource(R.string.error_unknown)
+            )
+        }
+    }
+
     override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
         try {
-//            val token = signInService.getAccessToken()
-//            gDriveApi.getBackupFilesList(token).files.forEach { file ->
-//                gDriveApi.deleteFile(token, file.id)
-//            }
+            val token = signInService.getAccessToken()
+            gDriveApi.getFilesInAppDataFolder(token).files.forEach { file ->
+                gDriveApi.deleteFile(token, file.id)
+            }
 
             val backupFile = backupService.buildBackupFile()
-            /*val metadataMap = mapOf(
+            val metadataMap = mapOf(
                 "name" to backupFile.name,
-                "parents" to appDataFolderParents
+                "parents" to backupParents
             )
             val metadataJson = Gson().toJson(metadataMap)
             val metadataPart = metadataJson.toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
@@ -41,19 +63,11 @@ class BackupRepositoryImpl(
                 fileBody
             )
 
-            val response = gDriveApi.uploadFile(
+            gDriveApi.uploadFile(
                 token = token,
                 metadata = metadataPart,
                 file = mediaPart
-            )*/
-
-            gDriveService.getFilesList().files.forEach {
-                gDriveService.deleteFile(it.id)
-            }
-
-            val response = gDriveService.uploadBackupFile(backupFile)
-
-            println("AppDebug: Response - $response")
+            )
 
             Resource.Success(Unit)
         } catch (t: Throwable) {
@@ -64,18 +78,15 @@ class BackupRepositoryImpl(
 
     override suspend fun performAppDataRestore(): SimpleResource = withContext(Dispatchers.IO) {
         try {
-//            val token = signInService.getAccessToken()
-//            val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
-//                ?: throw Throwable("No Backup Found")
-//            val fileBody = gDriveApi.downloadFile(token, backupFile.id).body()
-//                ?: throw Throwable("Body Null")
-//            backupService.restoreBackupFile(fileBody.byteStream())
-            val files = gDriveService.getFilesList()
-            log { "Files List - $files" }
-            val backupFile = files.files.firstOrNull()
+            val token = signInService.getAccessToken()
+            val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
                 ?: throw Throwable("No Backup Found")
-            val downloadedStream = gDriveService.downloadBackupFile(backupFile.id)
-            backupService.restoreBackupFile(downloadedStream)
+
+            val response = gDriveApi.downloadFile(token, backupFile.id)
+            val fileBody = response.body()
+                ?: throw Throwable("Body Null")
+
+            backupService.restoreBackupFile(fileBody.byteStream())
             Resource.Success(Unit)
         } catch (t: Throwable) {
             t.printStackTrace()
@@ -86,6 +97,8 @@ class BackupRepositoryImpl(
 
 const val JSON_MIME_TYPE = "application/json"
 const val BACKUP_MIME_TYPE = "application/octet-stream"
+const val APP_DATA_SPACE = "appDataFolder"
+private val backupParents: List<String>
+    get() = listOf(APP_DATA_SPACE)
 
-private val appDataFolderParents: List<String>
-    get() = listOf("appDataFolder")
+class NoBackupFoundThrowable : Throwable("No Backups Found")

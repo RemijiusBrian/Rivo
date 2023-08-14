@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
@@ -21,6 +22,7 @@ class BackupWorkManager(
 
     fun runBackupWorkerOnceNow(): LiveData<WorkInfo> {
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
+            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .build()
 
         workManager.enqueue(workRequest)
@@ -40,22 +42,25 @@ class BackupWorkManager(
             .build()
 
         workManager.enqueueUniquePeriodicWork(
-            WORK_NAME,
+            G_DRIVE_BACKUP_WORK_NAME,
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             workRequest
         )
     }
 
-    fun runRestoreWorkerNow() {
+    fun runRestoreWorkerNow(): LiveData<WorkInfo> {
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .build()
 
-        workManager.enqueue(workRequest)
-    }
+        workManager.enqueueUniqueWork(
+            G_DRIVE_RESTORE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
 
-//    fun getRestoreWorkInfoLiveData(): LiveData<WorkInfo> = workManager
-//        .getWorkInfoByIdLiveData(UUID.nameUUIDFromBytes(RESTORE_WORK_ID_STRING.toByteArray()))
+        return workManager.getWorkInfoByIdLiveData(workRequest.id)
+    }
 
     private fun buildConstraints(): Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.UNMETERED)
@@ -63,6 +68,6 @@ class BackupWorkManager(
         .build()
 }
 
-private const val RESTORE_WORK_ID_STRING = "1000"
-private const val WORK_NAME = "dev.ridill.mym.G_DRIVE_BACKUP_WORK"
+private const val G_DRIVE_BACKUP_WORK_NAME = "dev.ridill.mym.G_DRIVE_BACKUP_WORK"
+private const val G_DRIVE_RESTORE_WORK_NAME = "dev.ridill.mym.G_DRIVE_BACKUP_WORK"
 private const val BACK_OFF_DELAY = 5L

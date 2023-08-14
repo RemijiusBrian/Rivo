@@ -15,7 +15,6 @@ import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.repository.BackupRepositoryImpl
 import dev.ridill.mym.settings.domain.backup.BackupService
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
-import dev.ridill.mym.settings.domain.backup.GDriveService
 import dev.ridill.mym.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
@@ -83,13 +82,11 @@ object SettingsModule {
     fun provideBackupRepository(
         backupService: BackupService,
         gDriveApi: GDriveApi,
-        signInService: GoogleSignInService,
-        gDriveService: GDriveService
+        signInService: GoogleSignInService
     ): BackupRepository = BackupRepositoryImpl(
         backupService = backupService,
         gDriveApi = gDriveApi,
-        signInService = signInService,
-        gDriveService = gDriveService
+        signInService = signInService
     )
 
     @Provides
@@ -101,15 +98,6 @@ object SettingsModule {
     fun provideBackupNotificationHelper(
         @ApplicationContext context: Context
     ): BackupNotificationHelper = BackupNotificationHelper(context)
-
-    @Provides
-    fun provideGDriveService(
-        @ApplicationContext context: Context,
-        signInService: GoogleSignInService
-    ): GDriveService = GDriveService(
-        context = context,
-        signInService = signInService
-    )
 }
 
 @Qualifier
