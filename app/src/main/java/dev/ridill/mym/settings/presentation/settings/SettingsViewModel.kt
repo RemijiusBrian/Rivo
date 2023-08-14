@@ -7,7 +7,6 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
-import dev.ridill.mym.core.domain.service.AppDistributionService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.domain.util.Zero
@@ -23,8 +22,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val preferencesManager: PreferencesManager,
-    private val eventBus: EventBus<SettingsEvent>,
-    private val appDistributionService: AppDistributionService
+    private val eventBus: EventBus<SettingsEvent>
 ) : ViewModel(), SettingsActions {
 
     private val preferences = preferencesManager.preferences
@@ -62,9 +60,9 @@ class SettingsViewModel @Inject constructor(
             appTheme = appTheme,
             dynamicColorsEnabled = dynamicThemeEnabled,
             showAppThemeSelection = showAppThemeSelection,
-            currentMonthlyLimit = monthlyLimit.takeIf { it > Long.Zero }
+            currentMonthlyBudget = monthlyLimit.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
-            showMonthlyLimitInput = showMonthlyLimitInput,
+            showBudgetInput = showMonthlyLimitInput,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())
@@ -92,15 +90,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    override fun onMonthlyLimitPreferenceClick() {
+    override fun onMonthlyBudgetPreferenceClick() {
         savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = true
     }
 
-    override fun onMonthlyLimitInputDismiss() {
+    override fun onMonthlyBudgetInputDismiss() {
         savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
     }
 
-    override fun onMonthlyLimitInputConfirm(value: String) {
+    override fun onMonthlyBudgetInputConfirm(value: String) {
         viewModelScope.launch {
             val longValue = value.toLongOrNull() ?: -1L
             if (longValue <= -1L) {
@@ -119,7 +117,7 @@ class SettingsViewModel @Inject constructor(
             savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
             eventBus.send(
                 SettingsEvent.ShowUiMessage(
-                    UiText.StringResource(R.string.income_updated)
+                    UiText.StringResource(R.string.budget_updated)
                 )
             )
         }
@@ -137,17 +135,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
             eventBus.send(SettingsEvent.RequestSmsPermission)
-        }
-    }
-
-    override fun onFeedbackPreferenceClick() {
-        viewModelScope.launch {
-            if (appDistributionService.isTesterSignedIn) {
-                appDistributionService.startFeedback()
-            } else {
-                val message = appDistributionService.signInTester()
-                eventBus.send(SettingsEvent.ShowUiMessage(message))
-            }
         }
     }
 

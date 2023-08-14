@@ -34,7 +34,7 @@ fun IncomeInputContent(
         VerticalSpacer(spacing = SpacingExtraLarge)
         LargeTitle(
             title = stringResource(
-                R.string.welcome_flow_stop_set_income_title,
+                R.string.welcome_flow_stop_set_budget_title,
                 stringResource(R.string.app_name)
             ),
             modifier = Modifier
@@ -59,7 +59,7 @@ private fun LimitInput(
         modifier = modifier
     ) {
         Text(
-            text = stringResource(R.string.welcome_flow_stop_set_income_message),
+            text = stringResource(R.string.welcome_flow_stop_set_budget_message),
             style = MaterialTheme.typography.titleMedium
         )
         VerticalSpacer(spacing = SpacingSmall)
@@ -83,8 +83,8 @@ private fun LimitInput(
                 focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer
             ),
             shape = MaterialTheme.shapes.medium,
-            placeholder = { Text(stringResource(R.string.enter_income)) },
-            supportingText = { Text(stringResource(R.string.you_can_change_income_later_in_settings)) }
+            placeholder = { Text(stringResource(R.string.enter_budget)) },
+            supportingText = { Text(stringResource(R.string.you_can_change_budget_later_in_settings)) }
         )
     }
 }

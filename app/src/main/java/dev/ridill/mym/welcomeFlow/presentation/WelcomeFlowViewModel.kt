@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
-import dev.ridill.mym.core.domain.service.AppDistributionService
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
@@ -24,7 +23,6 @@ import javax.inject.Inject
 class WelcomeFlowViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val preferenceManager: PreferencesManager,
-    private val appDistributionService: AppDistributionService,
     private val eventBus: EventBus<WelcomeFlowEvent>,
     private val signInService: GoogleSignInService,
     private val backupWorkManager: BackupWorkManager
@@ -40,27 +38,16 @@ class WelcomeFlowViewModel @Inject constructor(
 
     val events = eventBus.eventFlow
 
-    init {
-        observeRestoreWork()
-    }
-
     override fun onNextClick() {
         when (currentFlowStop.value) {
             WelcomeFlowStop.WELCOME -> {
-                savedStateHandle[FLOW_STOP] = if (BuildUtil.isBuildInternalRelease())
-                    WelcomeFlowStop.ENABLE_TESTING_FEATURES
-                else
-                    WelcomeFlowStop.RESTORE_DATA
-            }
-
-            WelcomeFlowStop.ENABLE_TESTING_FEATURES -> {
-                signInTesterAndContinue()
+                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.RESTORE_DATA
             }
 
             WelcomeFlowStop.RESTORE_DATA -> {}
 
             WelcomeFlowStop.INCOME_SET -> {
-                updateIncomeAndContinue()
+                updateLimitAndContinue()
             }
         }
     }
@@ -118,17 +105,7 @@ class WelcomeFlowViewModel @Inject constructor(
         }*/
     }
 
-    private fun signInTesterAndContinue() = viewModelScope.launch {
-        val message = appDistributionService.signInTester()
-        if (message.isErrorText) {
-            eventBus.send(WelcomeFlowEvent.ShowUiMessage(message))
-            return@launch
-        }
-
-        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
-    }
-
-    private fun updateIncomeAndContinue() = viewModelScope.launch {
+    private fun updateLimitAndContinue() = viewModelScope.launch {
         val limitValue = incomeInput.value.toLongOrNull() ?: -1L
         if (limitValue <= Long.Zero) {
             eventBus.send(

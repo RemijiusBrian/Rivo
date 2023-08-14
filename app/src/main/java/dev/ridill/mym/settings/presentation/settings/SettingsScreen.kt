@@ -13,7 +13,6 @@ import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.RateReview
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
-import dev.ridill.mym.core.ui.components.IncomeInputDialog
+import dev.ridill.mym.core.ui.components.BudgetInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
@@ -102,11 +101,11 @@ fun SettingsScreen(
             )
 
             SimpleSettingsPreference(
-                titleRes = R.string.income,
-                summary = state.currentMonthlyLimit.takeIf { it.isNotEmpty() }
-                    ?.let { stringResource(R.string.preference_current_income_summary, it) }
-                    ?: stringResource(R.string.preference_set_income_summary),
-                onClick = actions::onMonthlyLimitPreferenceClick
+                titleRes = R.string.preference_budget,
+                summary = state.currentMonthlyBudget.takeIf { it.isNotEmpty() }
+                    ?.let { stringResource(R.string.preference_current_budget_summary, it) }
+                    ?: stringResource(R.string.preference_set_budget_summary),
+                onClick = actions::onMonthlyBudgetPreferenceClick
             )
 
             SimpleSettingsPreference(
@@ -125,15 +124,6 @@ fun SettingsScreen(
                 modifier = Modifier
                     .padding(vertical = 12.dp)
             )
-
-            if (BuildUtil.isBuildInternalRelease()) {
-                SimpleSettingsPreference(
-                    titleRes = R.string.preference_feedback,
-                    summary = stringResource(R.string.preference_feedback_summary),
-                    leadingIcon = Icons.Rounded.RateReview,
-                    onClick = actions::onFeedbackPreferenceClick
-                )
-            }
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_source_code,
@@ -156,11 +146,11 @@ fun SettingsScreen(
             )
         }
 
-        if (state.showMonthlyLimitInput) {
-            IncomeInputDialog(
-                onConfirm = actions::onMonthlyLimitInputConfirm,
-                onDismiss = actions::onMonthlyLimitInputDismiss,
-                placeholderAmount = state.currentMonthlyLimit
+        if (state.showBudgetInput) {
+            BudgetInputDialog(
+                onConfirm = actions::onMonthlyBudgetInputConfirm,
+                onDismiss = actions::onMonthlyBudgetInputDismiss,
+                placeholderAmount = state.currentMonthlyBudget
             )
         }
 

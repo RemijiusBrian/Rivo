@@ -18,7 +18,7 @@
     <string name="notification_channel_name_backups">Backups</string>
 
     <!-- Content Description -->
-    <string name="cd_set_monthly_income">Set Monthly Income</string>
+    <string name="cd_set_monthly_budget">Set Monthly Budget</string>
     <string name="cd_new_expense">New Expense</string>
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_save">Save</string>
@@ -40,7 +40,6 @@
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
-    <string name="error_testing_feature_enable_failed">Failed to enable testing features</string>
     <string name="error_app_data_backup_failed">Failed to backup App Data</string>
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
@@ -56,9 +55,9 @@
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
-    <string name="welcome_flow_stop_set_income_title">Set your monthly income</string>
-    <string name="welcome_flow_stop_set_income_message">Enter the income you earn per month</string>
-    <string name="you_can_change_income_later_in_settings">You can always change this later in the app settings</string>
+    <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
+    <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
+    <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
     <string name="restore_data">Restore Data</string>
     <string name="sign_in_and_restore_data_message">Sign in to your google account and restore your data from your drive</string>
 
@@ -73,8 +72,8 @@
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <!-- Dialog Content -->
-    <string name="monthly_income_input_dialog_title">Monthly Income</string>
-    <string name="monthly_income_input_dialog_content">Enter your income on a monthly basis</string>
+    <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
+    <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
 
     <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
     <string name="permission_rationale_sms_for_expense">MYM needs SMS read permission to try and add expenses automatically from your SMS messages</string>
@@ -85,8 +84,9 @@
     <string name="preference_dynamic_colors_summary">Set app colors based on your wallpaper</string>
     <string name="preference_notifications">Notifications</string>
     <string name="preference_notification_summary">Manage your notification preferences</string>
-    <string name="preference_set_income_summary">Click to update your income</string>
-    <string name="preference_current_income_summary">Your income is %s</string>
+    <string name="preference_budget">Monthly Budget</string>
+    <string name="preference_set_budget_summary">Click to update your budget</string>
+    <string name="preference_current_budget_summary">Your budget is set to %s</string>
     <string name="preference_auto_add_expenses">Auto Add Expenses</string>
     <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
     <string name="preference_feedback">Feedback</string>
@@ -113,7 +113,7 @@
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
     <string name="fwd_slash_amount_value">/ %s</string>
-    <string name="income">Income</string>
+    <string name="budget">Budget</string>
     <string name="recent_spends">Recent Spends</string>
     <string name="spent_this_month">Spent this month</string>
     <string name="amount_zero">0</string>
@@ -122,8 +122,8 @@
     <string name="expense_updated">Expense Updated</string>
     <string name="expense_deleted">Expense Deleted</string>
     <string name="choose_theme">Choose Theme</string>
-    <string name="income_updated">Your income has been updated</string>
-    <string name="enter_income">Enter Income</string>
+    <string name="budget_updated">Your budget has been updated</string>
+    <string name="enter_budget">Enter Budget</string>
     <string name="tag_your_expense">Tag your expense</string>
     <string name="new_tag_chip_label">New</string>
     <string name="percent_of_total">%s Percent of total</string>
@@ -140,7 +140,6 @@
     <string name="count_new_expenses">%s New Expenses</string>
     <string name="new_expenses_detected">New Expenses Detected</string>
     <string name="feedback_message">Share your experience and let us know how we can help improve your expense management with MYM</string>
-    <string name="testing_features_enabled">Testing features enabled</string>
     <string name="no_expenditure_yet">No Expenditure Yet</string>
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>

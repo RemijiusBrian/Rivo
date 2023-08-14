@@ -9,7 +9,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.core.data.db.MYMDatabase
-import dev.ridill.mym.core.domain.service.AppDistributionService
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.settings.data.remote.GDriveApi
@@ -33,11 +32,6 @@ object SettingsModule {
 
     @Provides
     fun provideSettingsEventBus(): EventBus<SettingsViewModel.SettingsEvent> = EventBus()
-
-    @Provides
-    fun provideAppDistributionService(
-        @ApplicationContext context: Context
-    ): AppDistributionService = AppDistributionService(context)
 
     @Provides
     fun provideGoogleSignInService(
