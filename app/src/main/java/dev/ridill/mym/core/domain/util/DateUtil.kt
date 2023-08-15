@@ -13,6 +13,10 @@ import java.time.temporal.ChronoField
 object DateUtil {
     fun now(): LocalDateTime = LocalDateTime.now()
 
+    fun parse(value: String): LocalDateTime? = tryOrNull {
+        LocalDateTime.parse(value)
+    }
+
     fun getPartOfDay(): PartOfDay = when (now().hour) {
         in (0..11) -> PartOfDay.MORNING
         12 -> PartOfDay.NOON
@@ -47,19 +51,19 @@ object DateUtil {
         val MM_yyyy_dbFormat: DateTimeFormatter
             get() = DateTimeFormatter.ofPattern("MM-yyyy")
 
+        val localizedTimeShort: DateTimeFormatter
+            get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+
         val localizedDateMedium: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+
+        val localizedDateLong: DateTimeFormatter
+            get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
         val ddth_EEE_spaceSep: DateTimeFormatter
             get() = DateTimeFormatterBuilder()
                 .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)
                 .appendPattern(" EEE")
-                .toFormatter()
-
-        val ddth_MMM_spaceSep: DateTimeFormatter
-            get() = DateTimeFormatterBuilder()
-                .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)
-                .appendPattern(" MMM")
                 .toFormatter()
 
         private val ordinalsMap: Map<Long, String>

@@ -50,7 +50,7 @@ fun rememberPermissionLauncher(
     onResult = onResult
 )
 
-private fun isPermissionGranted(
+fun isPermissionGranted(
     context: Context,
     permissionString: String
 ): Boolean = ContextCompat.checkSelfPermission(context, permissionString) ==

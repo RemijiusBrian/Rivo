@@ -8,12 +8,14 @@
     <string name="destination_add_expense">Add Expense</string>
     <string name="destination_edit_expense">Edit Expense</string>
     <string name="destination_settings">Settings</string>
+    <string name="destination_backup_settings">Backup</string>
     <string name="destination_all_expenses">All Expenses</string>
 
     <!-- Notifications -->
     <string name="notification_channel_group_name_expenses">Expenses</string>
     <string name="notification_channel_name_auto_add_expenses">Auto Add Expenses</string>
     <string name="notification_channel_group_name_others">Others</string>
+    <string name="notification_channel_name_backups">Backups</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_budget">Set Monthly Budget</string>
@@ -38,6 +40,12 @@
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
+    <string name="error_app_data_backup_failed">Failed to backup App Data</string>
+    <string name="error_app_data_restore_failed">Failed to restore App Data</string>
+    <string name="error_sign_in_failed">Failed to sign in to your account</string>
+    <string name="error_unknown">An Unknown error occurred</string>
+    <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
+
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
     <string name="action_cancel">Cancel</string>
@@ -45,12 +53,16 @@
     <string name="action_not_now">Not Now</string>
     <string name="action_delete">Delete</string>
     <string name="action_ok">OK</string>
+    <string name="action_skip">Skip</string>
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
+    <string name="welcome_flow_stop_permissions_title">Some Permissions</string>
+    <string name="welcome_flow_stop_data_restore_title">Restore Your App Data</string>
     <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
     <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
+    <string name="sign_in_and_restore_data_message">Sign in to your google account and restore your data from your drive</string>
 
     <string name="part_of_day_morning">Morning</string>
     <string name="part_of_day_noon">Noon</string>
@@ -66,12 +78,10 @@
     <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
     <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
 
-    <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
-    <string name="permission_rationale_sms_for_expense">MYM needs SMS read permission to try and add expenses automatically from your SMS messages</string>
-
-    <string name="app_theme_system_default">System Default</string>
-    <string name="app_theme_light">Light</string>
-    <string name="app_theme_dark">Dark</string>
+    <string name="permission_notification">Notifications</string>
+    <string name="permission_rationale_notification">%s needs notification permission to post notifications</string>
+    <string name="permission_sms">Receive SMS Messages</string>
+    <string name="permission_rationale_sms_for_expense">%s needs SMS read permission to try and add expenses automatically from your SMS messages</string>
 
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>
@@ -88,6 +98,21 @@
     <string name="preference_feedback_summary">Provide feedback to the developer</string>
     <string name="preference_source_code">Source Code</string>
     <string name="preference_version">Version</string>
+    <string name="preference_backup">Backup</string>
+    <string name="preference_backup_summary">Backup your expenses</string>
+    <string name="preference_title_google_drive">Google Drive</string>
+    <string name="preference_google_drive_backup_message">MYM uses Google Drive to backup up your data. You can restore your data when you install the app.</string>
+    <string name="preference_google_account">Google Account</string>
+    <string name="click_to_sign_in_to_google_account">Click to sign in to your Google account</string>
+    <string name="preference_backup_interval">Backup Interval</string>
+
+    <string name="app_theme_system_default">System Default</string>
+    <string name="app_theme_light">Light</string>
+    <string name="app_theme_dark">Dark</string>
+
+    <string name="backup_interval_daily">Daily</string>
+    <string name="backup_interval_weekly">Weekly</string>
+    <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -123,4 +148,18 @@
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>
     <string name="update_failed">Update failed</string>
+    <string name="backup_account">Backup Account</string>
+    <string name="restore">Restore</string>
+    <string name="check_for_backup">Check For Backup</string>
+    <string name="choose_backup_interval">Choose Backup Interval</string>
+    <string name="backup_now">Backup Now</string>
+    <string name="restoring_app_data">Restoring App Data</string>
+    <string name="data_restore_in_progress">Data restore in progress</string>
+    <string name="restarting_app">Restarting App</string>
+    <string name="data_restore_disclaimer">Please do not close app while the restore is in progress. The app will automatically restart once the restore process is completed.</string>
+    <string name="last_backup">Last Backup</string>
+    <string name="date_label">Date: %s</string>
+    <string name="time_label">Time: %s</string>
+    <string name="backup_complete">Data backed up to you google drive</string>
+    <string name="backing_up_app_data">Backing up app data</string>
 </resources>

@@ -8,6 +8,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import kotlin.system.exitProcess
 
 fun Context.findActivity(): Activity {
     var context = this
@@ -35,6 +36,14 @@ fun Context.launchAppSettings() {
 fun Context.launchUrlExternally(url: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     startActivity(intent)
+}
+
+fun Context.restartApplication() {
+    val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    }
+    startActivity(intent)
+    exitProcess(0)
 }
 
 fun Color.contentColor(

@@ -3,6 +3,8 @@ package dev.ridill.mym.core.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import dev.ridill.mym.dashboard.data.local.BudgetDao
+import dev.ridill.mym.dashboard.data.local.entity.BudgetEntity
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
@@ -10,6 +12,7 @@ import dev.ridill.mym.expense.data.local.entity.TagEntity
 
 @Database(
     entities = [
+        BudgetEntity::class,
         ExpenseEntity::class,
         TagEntity::class
     ],
@@ -24,6 +27,7 @@ abstract class MYMDatabase : RoomDatabase() {
     }
 
     // Dao Methods
+    abstract fun budgetDao(): BudgetDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun tagsDao(): TagsDao
 }

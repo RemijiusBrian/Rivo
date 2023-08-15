@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.ui.components.icons
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -8,21 +9,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.unit.dp
-import dev.ridill.mym.core.ui.util.MaterialIconDimension
 
 val Icons.Rounded.ArithmeticSymbols: ImageVector
     get() {
         if (_arithmeticSymbols != null) {
             return _arithmeticSymbols!!
         }
-        _arithmeticSymbols = ImageVector.Builder(
-            name = "Rounded.ArithmeticSymbols",
-            defaultWidth = MaterialIconDimension.dp,
-            defaultHeight = MaterialIconDimension.dp,
-            viewportWidth = MaterialIconDimension,
-            viewportHeight = MaterialIconDimension
-        ).apply {
+        _arithmeticSymbols = materialIcon("Rounded.ArithmeticSymbols") {
             path(
                 fill = SolidColor(Color.Black),
                 fillAlpha = 1.0f,
@@ -115,7 +108,7 @@ val Icons.Rounded.ArithmeticSymbols: ImageVector
                 curveToRelative(0.391f, -0.391f, 0.391f, -1.023f, 0f, -1.414f)
                 close()
             }
-        }.build()
+        }
         return _arithmeticSymbols!!
     }
 

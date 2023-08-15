@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -69,6 +68,7 @@ import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.util.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseTag
+import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.expense.presentation.components.NewTagChip
 import dev.ridill.mym.expense.presentation.components.NewTagDialog
 
@@ -163,7 +163,7 @@ fun AddEditExpenseScreen(
             )
 
             if (!isEditMode) {
-                AmountRecommendations(
+                AmountRecommendationsRow(
                     recommendations = state.amountRecommendations,
                     onRecommendationClick = {
                         actions.onRecommendedAmountClick(it)
@@ -300,26 +300,6 @@ fun NoteInput(
             errorIndicatorColor = Color.Transparent
         )
     )
-}
-
-@Composable
-private fun AmountRecommendations(
-    recommendations: List<Long>,
-    onRecommendationClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        recommendations.forEach { amount ->
-            SuggestionChip(
-                onClick = { onRecommendationClick(amount) },
-                label = { Text(TextFormatUtil.currency(amount)) }
-            )
-        }
-    }
 }
 
 private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f

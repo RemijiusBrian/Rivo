@@ -8,6 +8,7 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".application.MYMApplication"
@@ -48,6 +49,11 @@
         </receiver>
 
         <receiver android:name=".expense.domain.notification.DeleteExpenseActionReceiver" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
     </application>
 
 </manifest>

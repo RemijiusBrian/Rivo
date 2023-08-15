@@ -1,18 +1,13 @@
 package dev.ridill.mym.settings.presentation.settings
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrightnessMedium
@@ -21,42 +16,45 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
-import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.BackArrowButton
-import dev.ridill.mym.core.ui.components.BudgetInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingMedium
-import dev.ridill.mym.core.ui.theme.SpacingSmall
+import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.settings.domain.modal.AppTheme
+import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
+import dev.ridill.mym.settings.presentation.components.SwitchPreference
 
 @Composable
 fun SettingsScreen(
@@ -65,7 +63,8 @@ fun SettingsScreen(
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
-    navigateToSourceCode: () -> Unit
+    navigateToSourceCode: () -> Unit,
+    navigateToBackupSettings: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     MYMScaffold(
@@ -87,7 +86,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,
                 summary = stringResource(state.appTheme.labelRes),
                 onClick = actions::onAppThemePreferenceClick,
@@ -98,22 +97,25 @@ fun SettingsScreen(
                 SwitchPreference(
                     titleRes = R.string.preference_dynamic_colors,
                     summary = stringResource(R.string.preference_dynamic_colors_summary),
-                    checked = state.dynamicColorsEnabled,
-                    onCheckedChange = actions::onDynamicThemeEnabledChange,
+                    value = state.dynamicColorsEnabled,
+                    onValueChange = actions::onDynamicThemeEnabledChange,
                     leadingIcon = Icons.Rounded.Palette
                 )
             }
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_notifications,
                 summary = stringResource(R.string.preference_notification_summary),
                 onClick = navigateToNotificationSettings,
                 leadingIcon = Icons.Rounded.Notifications
             )
 
-            PreferenceDivider()
+            Divider(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+            )
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_budget,
                 summary = state.currentMonthlyBudget.takeIf { it.isNotEmpty() }
                     ?.let { stringResource(R.string.preference_current_budget_summary, it) }
@@ -121,21 +123,30 @@ fun SettingsScreen(
                 onClick = actions::onMonthlyBudgetPreferenceClick
             )
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_auto_add_expenses,
                 summary = stringResource(R.string.preference_auto_add_expense_summary),
                 onClick = actions::onAutoAddExpensePreferenceClick
             )
 
-            PreferenceDivider()
+            SimpleSettingsPreference(
+                titleRes = R.string.preference_backup,
+                summary = stringResource(R.string.preference_backup_summary),
+                onClick = navigateToBackupSettings,
+            )
 
-            SimplePreference(
+            Divider(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+            )
+
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_source_code,
                 leadingIcon = Icons.Rounded.Code,
                 onClick = navigateToSourceCode
             )
 
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_version,
                 leadingIcon = Icons.Rounded.Info,
                 summary = BuildUtil.versionName
@@ -154,7 +165,8 @@ fun SettingsScreen(
             BudgetInputDialog(
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
-                placeholderAmount = state.currentMonthlyBudget
+                recommendations = state.budgetRecommendations,
+                placeholder = state.currentMonthlyBudget
             )
         }
 
@@ -168,130 +180,6 @@ fun SettingsScreen(
         }
     }
 }
-
-@Composable
-fun SimplePreference(
-    @StringRes titleRes: Int,
-    modifier: Modifier = Modifier,
-    summary: String? = null,
-    onClick: (() -> Unit)? = null,
-    leadingIcon: ImageVector? = null,
-    contentPadding: PaddingValues = PreferenceContentPadding
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onClick != null) Modifier
-                    .clickable(
-                        role = Role.Button,
-                        onClick = onClick
-                    )
-                else Modifier
-            )
-            .padding(contentPadding)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-    ) {
-        leadingIcon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(PreferenceIconSize)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .weight(Float.One)
-        ) {
-            Text(
-                text = stringResource(titleRes),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            summary?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Normal,
-                    color = LocalContentColor.current
-                        .copy(alpha = 0.64f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SwitchPreference(
-    @StringRes titleRes: Int,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    summary: String? = null,
-    leadingIcon: ImageVector? = null,
-    contentPadding: PaddingValues = PreferenceContentPadding
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .toggleable(
-                value = checked,
-                role = Role.Checkbox,
-                onValueChange = onCheckedChange
-            )
-            .padding(contentPadding)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-    ) {
-        leadingIcon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(PreferenceIconSize)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .weight(Float.One)
-        ) {
-            Text(
-                text = stringResource(titleRes),
-                style = MaterialTheme.typography.titleMedium
-            )
-            summary?.let {
-                Text(
-                    text = summary,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Normal,
-                    color = LocalContentColor.current
-                        .copy(alpha = 0.64f)
-                )
-            }
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier
-                .clearAndSetSemantics {}
-        )
-    }
-}
-
-private val PreferenceIconSize = 24.dp
-private val PreferenceContentPadding = PaddingValues(
-    horizontal = SpacingMedium,
-    vertical = SpacingSmall
-)
-
-@Composable
-private fun PreferenceDivider() = Divider(
-    modifier = Modifier
-        .padding(vertical = 12.dp)
-)
 
 @Composable
 private fun AppThemeSelectionDialog(
@@ -327,12 +215,80 @@ private fun AppThemeSelectionDialog(
     )
 }
 
+@Composable
+fun BudgetInputDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+    recommendations: List<Long>,
+    modifier: Modifier = Modifier,
+    isInputError: Boolean = false,
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    placeholder: String = ""
+) {
+    var input by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = { onConfirm(input) }) {
+                Text(stringResource(R.string.action_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        },
+        title = { Text(stringResource(R.string.monthly_budget_input_dialog_title)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            ) {
+                Text(stringResource(R.string.monthly_budget_input_dialog_content))
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    singleLine = true,
+                    isError = isInputError,
+                    shape = MaterialTheme.shapes.medium,
+                    /*supportingText = {
+                        errorRes?.let {
+                            AnimatedVisibility(
+                                visible = showSupportingText,
+                                enter = slideInVertically() + fadeIn(),
+                                exit = slideOutVertically() + fadeOut()
+                            ) {
+                                Text(stringResource(it))
+                            }
+                        }
+                    },*/
+                    placeholder = { Text(placeholder) }
+                )
+                VerticalSpacer(spacing = SpacingMedium)
+                AmountRecommendationsRow(
+                    recommendations = recommendations,
+                    onRecommendationClick = {
+                        input = it.toString()
+                    }
+                )
+            }
+        },
+        modifier = modifier
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewSimplePreference() {
     MYMTheme {
         Surface {
-            SimplePreference(
+            SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,
                 modifier = Modifier
                     .fillMaxWidth(),

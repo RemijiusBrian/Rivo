@@ -129,6 +129,7 @@ fun DashboardScreen(
             verticalArrangement = Arrangement.spacedBy(SpacingLarge)
         ) {
             Greeting(
+                username = state.signedInUsername,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
                     .padding(top = SpacingMedium)
@@ -156,6 +157,7 @@ fun DashboardScreen(
 
 @Composable
 private fun Greeting(
+    username: String?,
     modifier: Modifier = Modifier
 ) {
     var partOfDay by remember { mutableStateOf(PartOfDay.MORNING) }
@@ -164,12 +166,24 @@ private fun Greeting(
         partOfDay = DateUtil.getPartOfDay()
     }
 
-    Crossfade(targetState = partOfDay, label = "Greeting") { part ->
-        Text(
-            text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = modifier
-        )
+    Column(
+        modifier = modifier
+    ) {
+        Crossfade(targetState = partOfDay, label = "Greeting") { part ->
+            Text(
+                text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+        username?.let { name ->
+            Text(
+                text = name,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                style = MaterialTheme.typography.titleLarge,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

@@ -8,5 +8,6 @@ data class SettingsState(
     val showAppThemeSelection: Boolean = false,
     val currentMonthlyBudget: String = "",
     val showBudgetInput: Boolean = false,
+    val budgetRecommendations: List<Long> = emptyList(),
     val showSmsPermissionRationale: Boolean = false
 )

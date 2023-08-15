@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.ui.components.icons
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -8,21 +9,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.unit.dp
-import dev.ridill.mym.core.ui.util.MaterialIconDimension
 
 val Icons.Rounded.Message: ImageVector
     get() {
         if (_message != null) {
             return _message!!
         }
-        _message = ImageVector.Builder(
-            name = "Rounded.Message",
-            defaultWidth = MaterialIconDimension.dp,
-            defaultHeight = MaterialIconDimension.dp,
-            viewportWidth = MaterialIconDimension,
-            viewportHeight = MaterialIconDimension
-        ).apply {
+        _message = materialIcon("Rounded.Message") {
             path(
                 fill = SolidColor(Color.Black),
                 fillAlpha = 1.0f,
@@ -86,7 +79,7 @@ val Icons.Rounded.Message: ImageVector
                 arcToRelative(1f, 1f, 0f, isMoreThanHalf = false, isPositiveArc = true, 0f, 2f)
                 close()
             }
-        }.build()
+        }
         return _message!!
     }
 

@@ -1,5 +1,7 @@
 package dev.ridill.mym.core.ui.components
 
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -13,6 +15,16 @@ fun VerticalSpacer(
 ) = Spacer(modifier = Modifier.height(spacing))
 
 @Composable
+fun ColumnScope.VerticalSpacer(
+    weight: Float
+) = Spacer(modifier = Modifier.weight(weight))
+
+@Composable
 fun HorizontalSpacer(
     spacing: Dp
 ) = Spacer(modifier = Modifier.width(spacing))
+
+@Composable
+fun RowScope.HorizontalSpacer(
+    weight: Float
+) = Spacer(modifier = Modifier.weight(weight))
