@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.ui.components.icons
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -8,21 +9,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.unit.dp
-import dev.ridill.mym.core.ui.util.MaterialIconDimension
 
 val Icons.Rounded.Untag: ImageVector
     get() {
         if (_untag != null) {
             return _untag!!
         }
-        _untag = ImageVector.Builder(
-            name = "Rounded.Untag",
-            defaultWidth = MaterialIconDimension.dp,
-            defaultHeight = MaterialIconDimension.dp,
-            viewportWidth = MaterialIconDimension,
-            viewportHeight = MaterialIconDimension
-        ).apply {
+        _untag = materialIcon("Rounded.Untag") {
             path(
                 fill = SolidColor(Color.Black),
                 fillAlpha = 1.0f,
@@ -124,7 +117,7 @@ val Icons.Rounded.Untag: ImageVector
                 lineToRelative(-2.293f, 2.293f)
                 close()
             }
-        }.build()
+        }
         return _untag!!
     }
 

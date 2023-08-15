@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.ui.components.icons
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -8,21 +9,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.unit.dp
-import dev.ridill.mym.core.ui.util.MaterialIconDimension
 
 val Icons.Outlined.Tags: ImageVector
     get() {
         if (_tags != null) {
             return _tags!!
         }
-        _tags = ImageVector.Builder(
-            name = "Outlined.Tags",
-            defaultWidth = MaterialIconDimension.dp,
-            defaultHeight = MaterialIconDimension.dp,
-            viewportWidth = MaterialIconDimension,
-            viewportHeight = MaterialIconDimension
-        ).apply {
+        _tags = materialIcon("Outlined.Tags") {
             path(
                 fill = SolidColor(Color.Black),
                 fillAlpha = 1.0f,
@@ -66,7 +59,7 @@ val Icons.Outlined.Tags: ImageVector
                 curveToRelative(0f, 0.552f, -0.448f, 1f, -1f, 1f)
                 close()
             }
-        }.build()
+        }
         return _tags!!
     }
 

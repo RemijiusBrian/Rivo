@@ -12,8 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.rounded.Backup
+import androidx.compose.material.icons.rounded.AddToDrive
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -35,6 +34,7 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.icons.Google
 import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsDestination
 import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
@@ -72,7 +72,7 @@ fun BackupSettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            BackupDetailsText(
+            BackupInfoText(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = SpacingLarge)
@@ -82,7 +82,7 @@ fun BackupSettingsScreen(
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_google_account,
-                leadingIcon = Icons.Default.CloudUpload,
+                leadingIcon = Icons.Default.Google,
                 onClick = actions::onBackupAccountClick,
                 summary = state.accountEmail
                     ?: stringResource(R.string.click_to_sign_in_to_google_account)
@@ -98,7 +98,7 @@ fun BackupSettingsScreen(
             }
 
             AnimatedVisibility(visible = state.isAccountAdded) {
-                LastBackupDetails(
+                PreviousBackupDetails(
                     lastBackupDate = state.lastBackupDateFormatted,
                     lastBackupTime = state.lastBackupTimeFormatted,
                     onBackupNowClick = actions::onBackupNowClick,
@@ -118,7 +118,7 @@ fun BackupSettingsScreen(
 }
 
 @Composable
-private fun BackupDetailsText(
+private fun BackupInfoText(
     modifier: Modifier = Modifier
 ) {
     BasicPreference(
@@ -126,7 +126,7 @@ private fun BackupDetailsText(
         summaryContent = { Text(stringResource(R.string.preference_google_drive_backup_message)) },
         leadingIcon = {
             Icon(
-                imageVector = Icons.Rounded.Backup,
+                imageVector = Icons.Rounded.AddToDrive,
                 contentDescription = null,
                 modifier = Modifier
                     .size(PreferenceIconSize)
@@ -174,7 +174,7 @@ private fun BackupIntervalSelection(
 }
 
 @Composable
-fun LastBackupDetails(
+fun PreviousBackupDetails(
     lastBackupDate: String?,
     lastBackupTime: String?,
     onBackupNowClick: () -> Unit,
