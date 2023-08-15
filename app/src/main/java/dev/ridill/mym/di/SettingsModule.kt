@@ -28,6 +28,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -66,6 +67,7 @@ object SettingsModule {
             .build()
 
     @GoogleApis
+    @Singleton
     @Provides
     fun provideGoogleApisRetrofit(
         @GoogleApis client: OkHttpClient

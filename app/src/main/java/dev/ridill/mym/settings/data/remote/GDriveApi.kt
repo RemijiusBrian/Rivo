@@ -48,7 +48,7 @@ interface GDriveApi {
     suspend fun deleteFile(
         @Header(AUTH_HEADER_KEY) token: String,
         @Path("fileId") fileId: String
-    ): Response<Void>
+    )
 }
 
 private const val AUTH_HEADER_KEY = "Authorization"

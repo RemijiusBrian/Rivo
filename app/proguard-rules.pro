@@ -20,12 +20,16 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# --- DTOs ---
+-keep class dev.ridill.mym.settings.data.remote.dto.* { *; }
+
 # --- Preferences DataStore ---
 -keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
     <fields>;
 }
 
 # --- Retrofit ---
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
 # EnclosingMethod is required to use InnerClasses.
 -keepattributes Signature, InnerClasses, EnclosingMethod
