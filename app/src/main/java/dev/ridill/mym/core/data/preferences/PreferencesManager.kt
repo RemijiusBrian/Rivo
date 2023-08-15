@@ -14,7 +14,6 @@ interface PreferencesManager {
     val preferences: Flow<MYMPreferences>
 
     suspend fun concludeWelcomeFlow()
-    suspend fun updateMonthlyLimit(value: Long)
     suspend fun updateAppThem(theme: AppTheme)
     suspend fun updateDynamicColorsEnabled(enabled: Boolean)
     suspend fun updateAppBackupInterval(interval: BackupInterval)

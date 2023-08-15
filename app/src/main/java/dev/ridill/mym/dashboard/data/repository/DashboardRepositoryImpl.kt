@@ -1,7 +1,8 @@
 package dev.ridill.mym.dashboard.data.repository
 
-import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.DateUtil
+import dev.ridill.mym.core.domain.util.orZero
+import dev.ridill.mym.dashboard.data.local.BudgetDao
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
@@ -12,23 +13,19 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class DashboardRepositoryImpl(
-    private val dao: ExpenseDao,
-    private val preferencesManager: PreferencesManager
+    private val budgetDao: BudgetDao,
+    private val expenseDao: ExpenseDao
 ) : DashboardRepository {
-    override fun getMonthlyLimit(): Flow<Long> = preferencesManager.preferences
-        .map { it.monthlyLimit }
+    override fun getCurrentBudget(): Flow<Long> = budgetDao.getCurrentBudget()
+        .map { it?.amount.orZero() }
         .distinctUntilChanged()
 
-    override suspend fun updateMonthlyLimit(value: Long) {
-        preferencesManager.updateMonthlyLimit(value)
-    }
-
     override fun getExpenditureForCurrentMonth(): Flow<Double> =
-        dao.getExpenditureForMonth(currentDateDbFormat())
+        expenseDao.getExpenditureForMonth(currentDateDbFormat())
             .distinctUntilChanged()
 
     override fun getRecentSpends(): Flow<List<ExpenseListItem>> =
-        dao.getExpensesForMonth(currentDateDbFormat())
+        expenseDao.getExpensesForMonth(currentDateDbFormat())
             .map { entities ->
                 entities.map(ExpenseWithTagRelation::toRecentSpend)
             }

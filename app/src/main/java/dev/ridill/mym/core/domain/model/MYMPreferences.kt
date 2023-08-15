@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 
 data class MYMPreferences(
     val showAppWelcomeFlow: Boolean,
-    val monthlyLimit: Long,
     val appTheme: AppTheme,
     val dynamicColorsEnabled: Boolean,
     val appBackupInterval: BackupInterval,

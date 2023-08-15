@@ -12,12 +12,15 @@ import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.EventBus
+import dev.ridill.mym.dashboard.data.local.BudgetDao
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.repository.BackupRepositoryImpl
+import dev.ridill.mym.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.mym.settings.domain.backup.BackupService
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
+import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
@@ -31,6 +34,16 @@ import javax.inject.Qualifier
 object SettingsModule {
 
     @Provides
+    fun provideBudgetDao(database: MYMDatabase): BudgetDao = database.budgetDao()
+
+    @Provides
+    fun provideSettingsRepository(
+        budgetDao: BudgetDao
+    ): SettingsRepository = SettingsRepositoryImpl(
+        budgetDao = budgetDao
+    )
+
+    @Provides
     fun provideSettingsEventBus(): EventBus<SettingsViewModel.SettingsEvent> = EventBus()
 
     @Provides
@@ -40,7 +53,6 @@ object SettingsModule {
 
     @Provides
     fun provideBackupSettingsEventBus(): EventBus<BackupSettingsViewModel.BackupEvent> = EventBus()
-
 
     @GoogleApis
     @Provides

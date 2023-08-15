@@ -1,11 +1,13 @@
 package dev.ridill.mym.settings.presentation.settings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrightnessMedium
@@ -14,29 +16,42 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
-import dev.ridill.mym.core.ui.components.BudgetInputDialog
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
+import dev.ridill.mym.core.ui.theme.SpacingMedium
+import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.mym.settings.presentation.components.SwitchPreference
@@ -150,7 +165,8 @@ fun SettingsScreen(
             BudgetInputDialog(
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
-                placeholderAmount = state.currentMonthlyBudget
+                recommendations = state.budgetRecommendations,
+                placeholder = state.currentMonthlyBudget
             )
         }
 
@@ -196,6 +212,74 @@ private fun AppThemeSelectionDialog(
                 }
             }
         }
+    )
+}
+
+@Composable
+fun BudgetInputDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+    recommendations: List<Long>,
+    modifier: Modifier = Modifier,
+    isInputError: Boolean = false,
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    placeholder: String = ""
+) {
+    var input by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = { onConfirm(input) }) {
+                Text(stringResource(R.string.action_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        },
+        title = { Text(stringResource(R.string.monthly_budget_input_dialog_title)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            ) {
+                Text(stringResource(R.string.monthly_budget_input_dialog_content))
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    singleLine = true,
+                    isError = isInputError,
+                    shape = MaterialTheme.shapes.medium,
+                    /*supportingText = {
+                        errorRes?.let {
+                            AnimatedVisibility(
+                                visible = showSupportingText,
+                                enter = slideInVertically() + fadeIn(),
+                                exit = slideOutVertically() + fadeOut()
+                            ) {
+                                Text(stringResource(it))
+                            }
+                        }
+                    },*/
+                    placeholder = { Text(placeholder) }
+                )
+                VerticalSpacer(spacing = SpacingMedium)
+                AmountRecommendationsRow(
+                    recommendations = recommendations,
+                    onRecommendationClick = {
+                        input = it.toString()
+                    }
+                )
+            }
+        },
+        modifier = modifier
     )
 }
 

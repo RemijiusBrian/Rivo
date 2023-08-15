@@ -13,6 +13,7 @@ import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
+import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
+    private val repo: SettingsRepository,
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<SettingsEvent>
 ) : ViewModel(), SettingsActions {
@@ -30,8 +32,11 @@ class SettingsViewModel @Inject constructor(
         .distinctUntilChanged()
     private val dynamicColorsEnabled = preferences.map { it.dynamicColorsEnabled }
         .distinctUntilChanged()
-    private val monthlyLimit = preferences.map { it.monthlyLimit }
+
+    private val monthlyBudget = repo.getCurrentBudget()
         .distinctUntilChanged()
+
+    private val budgetRecommendations = repo.getPreviousBudgets()
 
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
@@ -45,24 +50,27 @@ class SettingsViewModel @Inject constructor(
         appTheme,
         dynamicColorsEnabled,
         showAppThemeSelection,
-        monthlyLimit,
+        monthlyBudget,
         showMonthlyLimitInput,
+        budgetRecommendations,
         showSmsPermissionRationale
     ).map { (
                 appTheme,
                 dynamicThemeEnabled,
                 showAppThemeSelection,
-                monthlyLimit,
+                monthlyBudget,
                 showMonthlyLimitInput,
+                budgetRecommendations,
                 showSmsPermissionRationale
             ) ->
         SettingsState(
             appTheme = appTheme,
             dynamicColorsEnabled = dynamicThemeEnabled,
             showAppThemeSelection = showAppThemeSelection,
-            currentMonthlyBudget = monthlyLimit.takeIf { it > Long.Zero }
+            currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
             showBudgetInput = showMonthlyLimitInput,
+            budgetRecommendations = budgetRecommendations,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())
@@ -113,7 +121,7 @@ class SettingsViewModel @Inject constructor(
                 )
                 return@launch
             }
-            preferencesManager.updateMonthlyLimit(longValue)
+            repo.updateCurrentBudget(longValue)
             savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
             eventBus.send(
                 SettingsEvent.ShowUiMessage(
