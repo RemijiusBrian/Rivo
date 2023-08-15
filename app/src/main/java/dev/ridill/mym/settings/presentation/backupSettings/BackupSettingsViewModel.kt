@@ -102,24 +102,37 @@ class BackupSettingsViewModel @Inject constructor(
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
         backupWorkManager.getPeriodicBackupWorkInfoFlow()
             .collectLatest { info ->
-                val state = info?.state
+                updateBackupInterval(info)
+                isBackupWorkerRunning.update { info?.state == WorkInfo.State.RUNNING }
 
-                if (state == WorkInfo.State.CANCELLED) {
-                    backupInterval.update { BackupInterval.MANUAL }
-                } else {
-                    val indexOfIntervalTag = info?.tags
-                        ?.indexOfFirst { it.startsWith(BackupWorkManager.INTERVAL_TAG_PREFIX) }
-                        ?: -1
-                    val workInterval = BackupInterval.valueOf(
-                        info?.tags?.elementAtOrNull(indexOfIntervalTag)
-                            ?.removePrefix(BackupWorkManager.INTERVAL_TAG_PREFIX)
-                            ?: BackupInterval.MANUAL.name
-                    )
-                    backupInterval.update { workInterval }
+                when (info?.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.backup_complete)))
+                    }
+
+                    WorkInfo.State.FAILED -> {
+                        eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_backup_failed)))
+                    }
+
+                    else -> Unit
                 }
-
-                isBackupWorkerRunning.update { state == WorkInfo.State.RUNNING }
             }
+    }
+
+    private fun updateBackupInterval(info: WorkInfo?) {
+        if (info?.state == WorkInfo.State.CANCELLED) {
+            backupInterval.update { BackupInterval.MANUAL }
+        } else {
+            val indexOfIntervalTag = info?.tags
+                ?.indexOfFirst { it.startsWith(BackupWorkManager.INTERVAL_TAG_PREFIX) }
+                ?: -1
+            val workInterval = BackupInterval.valueOf(
+                info?.tags?.elementAtOrNull(indexOfIntervalTag)
+                    ?.removePrefix(BackupWorkManager.INTERVAL_TAG_PREFIX)
+                    ?: BackupInterval.MANUAL.name
+            )
+            backupInterval.update { workInterval }
+        }
     }
 
     override fun onBackupAccountClick() {

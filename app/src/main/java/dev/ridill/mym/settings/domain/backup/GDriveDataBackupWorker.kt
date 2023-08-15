@@ -7,6 +7,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
@@ -33,7 +34,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         setForeground(
             ForegroundInfo(
                 Random.nextInt(),
-                notificationHelper.getRestoreForegroundNotification().build()
+                notificationHelper.getForegroundNotification(R.string.backing_up_app_data).build()
             )
         )
     }

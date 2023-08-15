@@ -65,7 +65,7 @@ object DateUtil {
                 .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)
                 .appendPattern(" EEE")
                 .toFormatter()
-        
+
         private val ordinalsMap: Map<Long, String>
             get() {
                 val mutableMap = mutableMapOf(

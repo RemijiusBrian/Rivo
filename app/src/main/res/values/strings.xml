@@ -160,4 +160,6 @@
     <string name="last_backup">Last Backup</string>
     <string name="date_label">Date: %s</string>
     <string name="time_label">Time: %s</string>
+    <string name="backup_complete">Data backed up to you google drive</string>
+    <string name="backing_up_app_data">Backing up app data</string>
 </resources>
