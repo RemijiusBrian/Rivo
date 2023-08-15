@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 data class BackupSettingsState(
     val accountEmail: String? = null,
     val isAccountAdded: Boolean = false,
-    val interval: BackupInterval = BackupInterval.NEVER,
+    val interval: BackupInterval = BackupInterval.MANUAL,
     val showBackupIntervalSelection: Boolean = false,
     val isBackupRunning: Boolean = false,
     val lastBackupDateTime: LocalDateTime? = null

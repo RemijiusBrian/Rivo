@@ -2,7 +2,6 @@ package dev.ridill.mym.core.ui.navigation
 
 import android.Manifest
 import android.app.Activity
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.slideInVertically
@@ -56,7 +55,6 @@ import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun MYMNavHost(
@@ -140,12 +138,6 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                     }
 
                     WelcomeFlowViewModel.WelcomeFlowEvent.RestartApplication -> {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.restarting_app),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        delay(2000L)
                         context.restartApplication()
                     }
                 }

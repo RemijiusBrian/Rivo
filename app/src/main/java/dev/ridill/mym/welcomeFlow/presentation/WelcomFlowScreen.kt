@@ -45,7 +45,7 @@ fun WelcomeFlowScreen(
     snackbarController: SnackbarController,
     flowStop: WelcomeFlowStop,
     budgetInput: () -> String,
-    restoreState: WorkInfo.State,
+    restoreState: WorkInfo.State?,
     actions: WelcomeFlowActions
 ) {
     MYMScaffold(

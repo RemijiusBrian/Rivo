@@ -3,7 +3,6 @@ package dev.ridill.mym.welcomeFlow.presentation
 import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +15,6 @@ import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,9 +31,34 @@ class WelcomeFlowViewModel @Inject constructor(
     val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
     val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
 
-    val restoreState = savedStateHandle.getStateFlow(RESTORE_JOB_STATE, WorkInfo.State.BLOCKED)
+    val restoreState = savedStateHandle.getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
 
     val events = eventBus.eventFlow
+
+    init {
+        collectRestoreWorkState()
+    }
+
+    private fun collectRestoreWorkState() = viewModelScope.launch {
+        backupWorkManager.getImmediateRestoreWorkInfoFlow().collectLatest { info ->
+            val state = info?.state
+            savedStateHandle[RESTORE_JOB_STATE] = state
+
+            when (state) {
+                WorkInfo.State.SUCCEEDED -> {
+                    preferencesManager.concludeWelcomeFlow()
+                    eventBus.send(WelcomeFlowEvent.RestartApplication)
+                }
+
+                WorkInfo.State.FAILED -> {
+                    eventBus.send(WelcomeFlowEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_restore_failed)))
+                }
+
+                else -> {}
+            }
+        }
+    }
+
     override fun onWelcomeMessageContinue() {
         savedStateHandle[FLOW_STOP] = WelcomeFlowStop.PERMISSIONS
     }
@@ -76,28 +99,8 @@ class WelcomeFlowViewModel @Inject constructor(
         tryRestoreDataIfBackupExits()
     }
 
-    private var restoreJob: Job? = null
     private fun tryRestoreDataIfBackupExits() {
-        restoreJob?.cancel()
-        restoreJob = viewModelScope.launch {
-            backupWorkManager.runRestoreWorkerNow().asFlow().collectLatest { info ->
-                val state = info.state
-                savedStateHandle[RESTORE_JOB_STATE] = state
-
-                when (state) {
-                    WorkInfo.State.SUCCEEDED -> {
-                        preferencesManager.concludeWelcomeFlow()
-                        eventBus.send(WelcomeFlowEvent.RestartApplication)
-                    }
-
-                    WorkInfo.State.FAILED -> {
-                        eventBus.send(WelcomeFlowEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_restore_failed)))
-                    }
-
-                    else -> {}
-                }
-            }
-        }
+        backupWorkManager.runImmediateRestoreWork()
     }
 
     override fun onSkipDataRestore() {

@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
@@ -17,8 +18,8 @@ import dev.ridill.mym.core.domain.util.tryOrNull
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.settings.domain.modal.BackupInterval
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class BackupSettingsViewModel @Inject constructor(
     private val eventBus: EventBus<BackupEvent>,
     private val signInService: GoogleSignInService,
-    private val preferencesManager: PreferencesManager,
+    preferencesManager: PreferencesManager,
     private val savedStateHandle: SavedStateHandle,
     private val backupWorkManager: BackupWorkManager
 ) : ViewModel(), BackupSettingsActions {
@@ -40,8 +41,7 @@ class BackupSettingsViewModel @Inject constructor(
 
     private val preferences = preferencesManager.preferences
 
-    private val backupInterval = preferences.map { it.appBackupInterval }
-        .distinctUntilChanged()
+    private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
 
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
@@ -80,12 +80,46 @@ class BackupSettingsViewModel @Inject constructor(
 
     init {
         getSignedInUser()
+        collectImmediateBackupWorkState()
+        collectPeriodicBackupWorkInfo()
     }
 
     private fun getSignedInUser() {
         backupAccount.update {
             signInService.getSignedInAccount()?.email
         }
+    }
+
+    private fun collectImmediateBackupWorkState() = viewModelScope.launch {
+        backupWorkManager.getImmediateBackupWorkInfoFlow()
+            .collect { info ->
+                isBackupWorkerRunning.update {
+                    info?.state == WorkInfo.State.RUNNING
+                }
+            }
+    }
+
+    private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
+        backupWorkManager.getPeriodicBackupWorkInfoFlow()
+            .collectLatest { info ->
+                val state = info?.state
+
+                if (state == WorkInfo.State.CANCELLED) {
+                    backupInterval.update { BackupInterval.MANUAL }
+                } else {
+                    val indexOfIntervalTag = info?.tags
+                        ?.indexOfFirst { it.startsWith(BackupWorkManager.INTERVAL_TAG_PREFIX) }
+                        ?: -1
+                    val workInterval = BackupInterval.valueOf(
+                        info?.tags?.elementAtOrNull(indexOfIntervalTag)
+                            ?.removePrefix(BackupWorkManager.INTERVAL_TAG_PREFIX)
+                            ?: BackupInterval.MANUAL.name
+                    )
+                    backupInterval.update { workInterval }
+                }
+
+                isBackupWorkerRunning.update { state == WorkInfo.State.RUNNING }
+            }
     }
 
     override fun onBackupAccountClick() {
@@ -123,11 +157,12 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupIntervalSelected(interval: BackupInterval) {
         viewModelScope.launch {
             savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
-            preferencesManager.updateAppBackupInterval(interval)
-
             if (signInService.getSignedInAccount() == null) return@launch
 
-            backupWorkManager.schedulePeriodicWorker(interval)
+            if (interval == BackupInterval.MANUAL)
+                backupWorkManager.cancelPeriodicBackupWork()
+            else
+                backupWorkManager.schedulePeriodicWorker(interval)
         }
     }
 
@@ -135,12 +170,8 @@ class BackupSettingsViewModel @Inject constructor(
         savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
     }
 
-    private var backupJob: Job? = null
     override fun onBackupNowClick() {
-        backupJob?.cancel()
-        backupJob = viewModelScope.launch {
-            backupWorkManager.runBackupWorkerOnceNow()
-        }
+        backupWorkManager.runImmediateBackupWork()
     }
 
     sealed class BackupEvent {

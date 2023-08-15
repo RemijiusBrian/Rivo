@@ -32,7 +32,7 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 
 @Composable
 fun RestoreDataStop(
-    restoreState: WorkInfo.State,
+    restoreState: WorkInfo.State?,
     onCheckForBackupClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier

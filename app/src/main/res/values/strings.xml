@@ -109,7 +109,6 @@
     <string name="app_theme_light">Light</string>
     <string name="app_theme_dark">Dark</string>
 
-    <string name="backup_interval_never">Never</string>
     <string name="backup_interval_daily">Daily</string>
     <string name="backup_interval_weekly">Weekly</string>
     <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>

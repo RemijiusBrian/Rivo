@@ -11,6 +11,7 @@ import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.remote.MEDIA_PART_KEY
 import dev.ridill.mym.settings.data.toBackupDetails
+import dev.ridill.mym.settings.domain.backup.BACKUP_FILE_NAME
 import dev.ridill.mym.settings.domain.backup.BackupService
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
@@ -34,7 +35,6 @@ class BackupRepositoryImpl(
                 ?: throw NoBackupFoundThrowable()
 
             val backupDetails = backupFile.toBackupDetails()
-            backupDetails.backupDateTime?.let { preferencesManager.updateLastBackupTimestamp(it) }
             Resource.Success(backupDetails)
         } catch (t: NoBackupFoundThrowable) {
             Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
@@ -86,13 +86,17 @@ class BackupRepositoryImpl(
         try {
             val token = signInService.getAccessToken()
             val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
-                ?: throw Throwable("No Backup Found")
+                ?: throw NoBackupFoundThrowable()
 
             val response = gDriveApi.downloadFile(token, backupFile.id)
             val fileBody = response.body()
                 ?: throw Throwable("Body Null")
 
             backupService.restoreBackupFile(fileBody.byteStream())
+            DateUtil.parse(
+                backupFile.name.removeSuffix("-$BACKUP_FILE_NAME")
+            )?.let { preferencesManager.updateLastBackupTimestamp(it) }
+
             Resource.Success(Unit)
         } catch (t: Throwable) {
             t.printStackTrace()

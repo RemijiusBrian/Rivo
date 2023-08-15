@@ -1,7 +1,7 @@
 package dev.ridill.mym.settings.domain.backup
 
 import android.content.Context
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.asFlow
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -13,6 +13,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dev.ridill.mym.settings.domain.modal.BackupInterval
+import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class BackupWorkManager(
@@ -20,18 +22,12 @@ class BackupWorkManager(
 ) {
     private val workManager = WorkManager.getInstance(context)
 
-    fun runBackupWorkerOnceNow(): LiveData<WorkInfo> {
-        val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
-            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-            .build()
-
-        workManager.enqueue(workRequest)
-
-        return workManager.getWorkInfoByIdLiveData(workRequest.id)
+    companion object {
+        const val INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
     }
 
     fun schedulePeriodicWorker(interval: BackupInterval) {
-        if (interval == BackupInterval.NEVER || interval == BackupInterval.MANUAL) return
+        if (interval == BackupInterval.MANUAL) return
 
         val workRequest = PeriodicWorkRequestBuilder<GDriveDataBackupWorker>(
             interval.daysInterval,
@@ -39,28 +35,61 @@ class BackupWorkManager(
         )
             .setConstraints(buildConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACK_OFF_DELAY, TimeUnit.MINUTES)
+            .setId(getUUIDFromName(PERIODIC_G_DRIVE_BACKUP_WORK))
+            .addTag("$INTERVAL_TAG_PREFIX${interval.name}")
             .build()
 
         workManager.enqueueUniquePeriodicWork(
-            G_DRIVE_BACKUP_WORK_NAME,
+            PERIODIC_G_DRIVE_BACKUP_WORK,
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             workRequest
         )
     }
 
-    fun runRestoreWorkerNow(): LiveData<WorkInfo> {
-        val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
+    fun getPeriodicBackupWorkInfoFlow(): Flow<WorkInfo?> = workManager
+        .getWorkInfoByIdLiveData(getUUIDFromName(PERIODIC_G_DRIVE_BACKUP_WORK))
+        .asFlow()
+
+    fun cancelPeriodicBackupWork() {
+        workManager.cancelWorkById(getUUIDFromName(PERIODIC_G_DRIVE_BACKUP_WORK))
+    }
+
+    fun runImmediateBackupWork() {
+        val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .setId(getUUIDFromName(IMMEDIATE_G_DRIVE_BACKUP_WORK))
             .build()
 
         workManager.enqueueUniqueWork(
-            G_DRIVE_RESTORE_WORK_NAME,
+            IMMEDIATE_G_DRIVE_BACKUP_WORK,
             ExistingWorkPolicy.REPLACE,
             workRequest
         )
-
-        return workManager.getWorkInfoByIdLiveData(workRequest.id)
     }
+
+    fun getImmediateBackupWorkInfoFlow(): Flow<WorkInfo?> = workManager
+        .getWorkInfoByIdLiveData(getUUIDFromName(IMMEDIATE_G_DRIVE_BACKUP_WORK))
+        .asFlow()
+
+    fun runImmediateRestoreWork() {
+        val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
+            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .setId(getUUIDFromName(IMMEDIATE_G_DRIVE_RESTORE_WORK))
+            .build()
+
+        workManager.enqueueUniqueWork(
+            IMMEDIATE_G_DRIVE_RESTORE_WORK,
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
+    }
+
+    fun getImmediateRestoreWorkInfoFlow(): Flow<WorkInfo?> = workManager
+        .getWorkInfoByIdLiveData(getUUIDFromName(IMMEDIATE_G_DRIVE_RESTORE_WORK))
+        .asFlow()
+
+    private fun getUUIDFromName(name: String): UUID =
+        UUID.nameUUIDFromBytes(name.toByteArray())
 
     private fun buildConstraints(): Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.UNMETERED)
@@ -68,6 +97,7 @@ class BackupWorkManager(
         .build()
 }
 
-private const val G_DRIVE_BACKUP_WORK_NAME = "dev.ridill.mym.G_DRIVE_BACKUP_WORK"
-private const val G_DRIVE_RESTORE_WORK_NAME = "dev.ridill.mym.G_DRIVE_BACKUP_WORK"
+private const val IMMEDIATE_G_DRIVE_BACKUP_WORK = "dev.ridill.mym.IMMEDIATE_G_DRIVE_BACKUP_WORK"
+private const val PERIODIC_G_DRIVE_BACKUP_WORK = "dev.ridill.mym.PERIODIC_G_DRIVE_BACKUP_WORK"
+private const val IMMEDIATE_G_DRIVE_RESTORE_WORK = "dev.ridill.mym.IMMEDIATE_G_DRIVE_RESTORE_WORK"
 private const val BACK_OFF_DELAY = 5L

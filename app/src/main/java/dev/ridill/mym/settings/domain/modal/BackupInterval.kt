@@ -7,7 +7,6 @@ enum class BackupInterval(
     @StringRes val labelRes: Int,
     val daysInterval: Long
 ) {
-    NEVER(R.string.backup_interval_never, -1L),
     DAILY(R.string.backup_interval_daily, 1L),
     WEEKLY(R.string.backup_interval_weekly, 7L),
     MANUAL(R.string.backup_interval_manual, -1L)
