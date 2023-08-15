@@ -52,6 +52,7 @@
     <string name="action_continue">Continue</string>
     <string name="action_not_now">Not Now</string>
     <string name="action_delete">Delete</string>
+    <string name="action_ok">OK</string>
     <string name="action_skip">Skip</string>
 
     <!-- Texts -->

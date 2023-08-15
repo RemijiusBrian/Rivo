@@ -14,20 +14,25 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -49,6 +54,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.TextFormatUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
@@ -56,7 +62,6 @@ import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.VerticalSpacer
-import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
@@ -88,6 +93,11 @@ fun AddEditExpenseScreen(
     }
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = DateUtil.toMillis(state.expenseTimestamp),
+        yearRange = IntRange(DatePickerDefaults.YearRange.first, state.expenseTimestamp.year)
+    )
+
     MYMScaffold(
         topBar = {
             TopAppBar(
@@ -137,13 +147,6 @@ fun AddEditExpenseScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
-            ExpenseTimestamp(
-                date = state.expenseDateFormatted,
-                time = state.expenseTimeFormatted,
-                modifier = Modifier
-                    .align(Alignment.Start)
-            )
-
             VerticalSpacer(spacing = SpacingLarge)
 
             AmountInput(
@@ -172,6 +175,13 @@ fun AddEditExpenseScreen(
             }
 
             Divider()
+
+            ExpenseTimestamp(
+                date = state.expenseDateFormatted,
+                modifier = Modifier
+                    .align(Alignment.End),
+                onDateClick = actions::onExpenseTimestampClick
+            )
 
             TagsList(
                 tagsList = state.tagsList,
@@ -202,6 +212,30 @@ fun AddEditExpenseScreen(
                 onDismiss = actions::onNewTagInputDismiss,
                 onConfirm = actions::onNewTagInputConfirm
             )
+        }
+
+        if (state.showDateTimePicker) {
+            DatePickerDialog(
+                onDismissRequest = actions::onExpenseTimestampSelectionDismiss,
+                confirmButton = {
+                    TextButton(onClick = {
+                        datePickerState.selectedDateMillis?.let {
+                            val dateTime =
+                                DateUtil.dateFromMillisWithTime(it, state.expenseTimestamp)
+                            actions.onExpenseTimestampSelectionConfirm(dateTime)
+                        }
+                    }) {
+                        Text(stringResource(R.string.action_ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = actions::onExpenseTimestampSelectionDismiss) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                }
+            ) {
+                DatePicker(datePickerState)
+            }
         }
     }
 }
@@ -273,7 +307,7 @@ private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 @Composable
 private fun ExpenseTimestamp(
     date: String,
-    time: String,
+    onDateClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -281,20 +315,14 @@ private fun ExpenseTimestamp(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_calendar_clock),
-            contentDescription = stringResource(R.string.cd_expense_date)
+        Text(
+            text = date,
+            style = MaterialTheme.typography.bodyLarge
         )
-        Column {
-            Text(
-                text = date,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = time,
-                style = MaterialTheme.typography.bodySmall,
-                color = LocalContentColor.current
-                    .copy(alpha = ContentAlpha.SUB_CONTENT)
+        FilledTonalIconButton(onClick = onDateClick) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_calendar_clock),
+                contentDescription = stringResource(R.string.cd_expense_date)
             )
         }
     }

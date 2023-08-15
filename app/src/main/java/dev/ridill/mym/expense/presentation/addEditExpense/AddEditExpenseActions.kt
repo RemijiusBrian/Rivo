@@ -1,6 +1,7 @@
 package dev.ridill.mym.expense.presentation.addEditExpense
 
 import androidx.compose.ui.graphics.Color
+import java.time.LocalDateTime
 
 interface AddEditExpenseActions {
     fun onAmountChange(value: String)
@@ -8,6 +9,9 @@ interface AddEditExpenseActions {
     fun onNoteChange(value: String)
     fun onRecommendedAmountClick(amount: Long)
     fun onTagClick(tagId: String)
+    fun onExpenseTimestampClick()
+    fun onExpenseTimestampSelectionDismiss()
+    fun onExpenseTimestampSelectionConfirm(dateTime: LocalDateTime)
     fun onSaveClick()
     fun onDeleteClick()
     fun onDeleteDismiss()
