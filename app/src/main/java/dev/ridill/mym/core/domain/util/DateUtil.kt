@@ -2,7 +2,9 @@ package dev.ridill.mym.core.domain.util
 
 import androidx.annotation.StringRes
 import dev.ridill.mym.R
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
@@ -18,13 +20,35 @@ object DateUtil {
         else -> PartOfDay.EVENING
     }
 
+    fun toMillis(
+        dateTime: LocalDateTime,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): Long = dateTime
+        .atZone(zoneId)
+        .toInstant()
+        .toEpochMilli()
+
+    fun dateFromMillisWithTime(
+        millis: Long,
+        time: LocalDateTime,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): LocalDateTime {
+        val date = Instant.ofEpochMilli(millis)
+            .atZone(zoneId)
+            .toLocalDate()
+
+        return time
+            .withDayOfMonth(date.dayOfMonth)
+            .withMonth(date.monthValue)
+            .withYear(date.year)
+    }
+
     object Formatters {
         val MM_yyyy_dbFormat: DateTimeFormatter
             get() = DateTimeFormatter.ofPattern("MM-yyyy")
 
-        val localizedTimeShort: DateTimeFormatter
-            get() = DateTimeFormatter
-                .ofLocalizedTime(FormatStyle.SHORT)
+        val localizedDateMedium: DateTimeFormatter
+            get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
 
         val ddth_EEE_spaceSep: DateTimeFormatter
             get() = DateTimeFormatterBuilder()

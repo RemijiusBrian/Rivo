@@ -24,6 +24,7 @@ import dev.ridill.mym.expense.domain.repository.TagsRepository
 import dev.ridill.mym.expense.presentation.components.TagColors
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,20 +63,24 @@ class AddEditExpenseViewModel @Inject constructor(
     val tagColorInput = savedStateHandle
         .getStateFlow<Int?>(TAG_COLOR_INPUT, null)
 
+    private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
+
     val state = combineTuple(
         amountRecommendations,
         tagsList,
         selectedTagId,
         expenseTimestamp,
         showDeleteConfirmation,
-        showNewTagInput
+        showNewTagInput,
+        showDateTimePicker
     ).map { (
                 amountRecommendations,
                 tagsList,
                 selectedTagId,
                 expenseTimestamp,
                 showDeleteConfirmation,
-                showNewTagInput
+                showNewTagInput,
+                showDateTimePicker
             ) ->
         AddEditExpenseState(
             amountRecommendations = amountRecommendations,
@@ -83,7 +88,8 @@ class AddEditExpenseViewModel @Inject constructor(
             selectedTagId = selectedTagId,
             expenseTimestamp = expenseTimestamp,
             showDeleteConfirmation = showDeleteConfirmation,
-            showNewTagInput = showNewTagInput
+            showNewTagInput = showNewTagInput,
+            showDateTimePicker = showDateTimePicker
         )
     }.asStateFlow(viewModelScope, AddEditExpenseState())
 
@@ -131,6 +137,19 @@ class AddEditExpenseViewModel @Inject constructor(
     override fun onTagClick(tagId: String) {
         savedStateHandle[SELECTED_TAG_ID] = tagId
             .takeIf { selectedTagId.value != it }
+    }
+
+    override fun onExpenseTimestampClick() {
+        savedStateHandle[SHOW_DATE_TIME_PICKER] = true
+    }
+
+    override fun onExpenseTimestampSelectionDismiss() {
+        savedStateHandle[SHOW_DATE_TIME_PICKER] = false
+    }
+
+    override fun onExpenseTimestampSelectionConfirm(dateTime: LocalDateTime) {
+        savedStateHandle[EXPENSE_TIMESTAMP] = dateTime
+        savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
     override fun onSaveClick() {
@@ -262,6 +281,7 @@ private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_NAME_INPUT = "TAG_NAME_INPUT"
 private const val TAG_COLOR_INPUT = "TAG_COLOR_INPUT"
+private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 
 const val RESULT_EXPENSE_ADDED = "RESULT_EXPENSE_ADDED"
 const val RESULT_EXPENSE_UPDATED = "RESULT_EXPENSE_UPDATED"

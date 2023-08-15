@@ -44,6 +44,7 @@
     <string name="action_continue">Continue</string>
     <string name="action_not_now">Not Now</string>
     <string name="action_delete">Delete</string>
+    <string name="action_ok">OK</string>
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
