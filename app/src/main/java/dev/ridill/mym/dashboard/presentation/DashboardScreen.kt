@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,16 +90,20 @@ fun DashboardScreen(
             BottomAppBar(
                 actions = {
                     BottomNavDestination.bottomNavDestinations.forEach { destination ->
-                        IconButton(
-                            onClick = { navigateToBottomNavDestination(destination) },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(destination.iconRes),
-                                contentDescription = stringResource(destination.labelRes)
-                            )
+                        PlainTooltipBox(tooltip = { Text(stringResource(destination.labelRes)) }) {
+                            IconButton(
+                                onClick = { navigateToBottomNavDestination(destination) },
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary
+                                ),
+                                modifier = Modifier
+                                    .tooltipAnchor()
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(destination.iconRes),
+                                    contentDescription = stringResource(destination.labelRes)
+                                )
+                            }
                         }
                     }
                 },
