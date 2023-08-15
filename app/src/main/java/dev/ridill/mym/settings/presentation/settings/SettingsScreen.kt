@@ -1,6 +1,5 @@
 package dev.ridill.mym.settings.presentation.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,7 +50,7 @@ import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingMedium
-import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
+import dev.ridill.mym.expense.presentation.components.BudgetRecommendationsRow
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.mym.settings.presentation.components.SwitchPreference
@@ -240,10 +239,9 @@ fun BudgetInputDialog(
         },
         title = { Text(stringResource(R.string.monthly_budget_input_dialog_title)) },
         text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
-            ) {
+            Column {
                 Text(stringResource(R.string.monthly_budget_input_dialog_content))
+                VerticalSpacer(spacing = SpacingMedium)
                 OutlinedTextField(
                     value = input,
                     onValueChange = { input = it },
@@ -257,26 +255,24 @@ fun BudgetInputDialog(
                     singleLine = true,
                     isError = isInputError,
                     shape = MaterialTheme.shapes.medium,
-                    /*supportingText = {
-                        errorRes?.let {
-                            AnimatedVisibility(
-                                visible = showSupportingText,
-                                enter = slideInVertically() + fadeIn(),
-                                exit = slideOutVertically() + fadeOut()
-                            ) {
-                                Text(stringResource(it))
-                            }
-                        }
-                    },*/
                     placeholder = { Text(placeholder) }
                 )
-                VerticalSpacer(spacing = SpacingMedium)
-                AmountRecommendationsRow(
-                    recommendations = recommendations,
-                    onRecommendationClick = {
-                        input = it.toString()
-                    }
-                )
+
+                if (recommendations.isNotEmpty()) {
+                    VerticalSpacer(spacing = SpacingMedium)
+                    Text(
+                        text = stringResource(R.string.some_previous_budgets),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    BudgetRecommendationsRow(
+                        recommendations = recommendations,
+                        onRecommendationClick = {
+                            input = it.toString()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
             }
         },
         modifier = modifier

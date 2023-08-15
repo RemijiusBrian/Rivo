@@ -176,7 +176,7 @@ fun AddEditExpenseScreen(
 
             Divider()
 
-            ExpenseTimestamp(
+            ExpenseDate(
                 date = state.expenseDateFormatted,
                 modifier = Modifier
                     .align(Alignment.End),
@@ -305,7 +305,7 @@ fun NoteInput(
 private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 
 @Composable
-private fun ExpenseTimestamp(
+private fun ExpenseDate(
     date: String,
     onDateClick: () -> Unit,
     modifier: Modifier = Modifier

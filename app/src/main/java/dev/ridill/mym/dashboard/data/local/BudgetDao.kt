@@ -12,7 +12,7 @@ interface BudgetDao : BaseDao<BudgetEntity> {
     @Query("SELECT * FROM BudgetEntity WHERE isCurrent = 1")
     fun getCurrentBudget(): Flow<BudgetEntity?>
 
-    @Query("SELECT * FROM BudgetEntity ORDER BY datetime(createdTimestamp) DESC LIMIT :limit")
+    @Query("SELECT * FROM BudgetEntity WHERE isCurrent = 0 ORDER BY datetime(createdTimestamp) DESC LIMIT :limit")
     fun getPreviousBudgets(limit: Int): Flow<List<BudgetEntity>>
 
     @Query("UPDATE BudgetEntity SET isCurrent = (amount = :amount)")
