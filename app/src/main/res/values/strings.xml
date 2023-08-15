@@ -56,10 +56,11 @@
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
+    <string name="welcome_flow_stop_permissions_title">Some Permissions</string>
+    <string name="welcome_flow_stop_data_restore_title">Restore Your App Data</string>
     <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
     <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
-    <string name="restore_data">Restore Data</string>
     <string name="sign_in_and_restore_data_message">Sign in to your google account and restore your data from your drive</string>
 
     <string name="part_of_day_morning">Morning</string>
@@ -76,8 +77,10 @@
     <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
     <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
 
-    <string name="permission_rationale_notification">MYM needs notification permission to post notifications</string>
-    <string name="permission_rationale_sms_for_expense">MYM needs SMS read permission to try and add expenses automatically from your SMS messages</string>
+    <string name="permission_notification">Notifications</string>
+    <string name="permission_rationale_notification">%s needs notification permission to post notifications</string>
+    <string name="permission_sms">Receive SMS Messages</string>
+    <string name="permission_rationale_sms_for_expense">%s needs SMS read permission to try and add expenses automatically from your SMS messages</string>
 
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>

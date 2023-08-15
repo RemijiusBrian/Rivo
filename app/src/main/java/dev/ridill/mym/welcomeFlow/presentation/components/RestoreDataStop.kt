@@ -21,21 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.work.WorkInfo
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.Empty
 import dev.ridill.mym.core.domain.util.One
-import dev.ridill.mym.core.ui.components.LargeTitle
 import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.theme.ContentAlpha
-import dev.ridill.mym.core.ui.theme.MYMTheme
-import dev.ridill.mym.core.ui.theme.SpacingExtraLarge
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 
 @Composable
-fun RestoreDataContent(
+fun RestoreDataStop(
     restoreState: WorkInfo.State,
     onCheckForBackupClick: () -> Unit,
     onSkipClick: () -> Unit,
@@ -46,16 +42,9 @@ fun RestoreDataContent(
     }
     Column(
         modifier = modifier
+            .fillMaxSize()
+            .padding(SpacingLarge)
     ) {
-        VerticalSpacer(spacing = SpacingExtraLarge)
-        LargeTitle(
-            title = stringResource(R.string.restore_data),
-            modifier = Modifier
-                .fillMaxWidth(0.80f)
-        )
-
-        VerticalSpacer(spacing = SpacingExtraLarge)
-
         Text(
             text = stringResource(R.string.sign_in_and_restore_data_message),
             style = MaterialTheme.typography.headlineSmall
@@ -125,19 +114,5 @@ fun RestoreDataContent(
                 Text(stringResource(R.string.action_skip))
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewRestoreDataContent() {
-    MYMTheme {
-        RestoreDataContent(
-            onCheckForBackupClick = {},
-            onSkipClick = {},
-            modifier = Modifier
-                .fillMaxSize(),
-            restoreState = WorkInfo.State.SUCCEEDED,
-        )
     }
 }

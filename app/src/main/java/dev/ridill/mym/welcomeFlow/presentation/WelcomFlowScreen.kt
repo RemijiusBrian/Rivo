@@ -1,46 +1,50 @@
 package dev.ridill.mym.welcomeFlow.presentation
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.AnimationConstants
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.semantics.Role
 import androidx.work.WorkInfo
 import dev.ridill.mym.R
-import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.core.ui.components.LargeTitle
 import dev.ridill.mym.core.ui.components.MYMScaffold
-import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.mym.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.mym.core.ui.theme.SpacingLarge
+import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
-import dev.ridill.mym.welcomeFlow.presentation.components.IncomeInputContent
-import dev.ridill.mym.welcomeFlow.presentation.components.RestoreDataContent
-import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageContent
+import dev.ridill.mym.welcomeFlow.presentation.components.PermissionsRationaleStop
+import dev.ridill.mym.welcomeFlow.presentation.components.RestoreDataStop
+import dev.ridill.mym.welcomeFlow.presentation.components.SetBudgetStop
+import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageStop
 
 @Composable
 fun WelcomeFlowScreen(
     snackbarController: SnackbarController,
     flowStop: WelcomeFlowStop,
-    incomeInput: () -> String,
-    showPermissionRationale: Boolean,
-    showNextButton: Boolean,
+    budgetInput: () -> String,
     restoreState: WorkInfo.State,
     actions: WelcomeFlowActions
 ) {
@@ -48,88 +52,110 @@ fun WelcomeFlowScreen(
         modifier = Modifier
             .imePadding(),
         containerColor = MaterialTheme.colorScheme.primaryContainer,
-        snackbarController = snackbarController,
-        floatingActionButton = {
-            val isLimitInputEmpty by remember {
-                derivedStateOf { incomeInput().isEmpty() }
-            }
-            if (showNextButton) {
-                LargeFloatingActionButton(
-                    onClick = actions::onNextClick,
-                    containerColor = Color.Transparent,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = Dp.Zero,
-                        pressedElevation = Dp.Zero,
-                        focusedElevation = Dp.Zero,
-                        hoveredElevation = Dp.Zero
-                    )
-                ) {
-                    val imageVector = when (flowStop) {
-                        WelcomeFlowStop.WELCOME -> Icons.Default.KeyboardArrowRight
-                        WelcomeFlowStop.RESTORE_DATA -> Icons.Default.KeyboardArrowRight
-                        WelcomeFlowStop.INCOME_SET -> {
-                            if (isLimitInputEmpty) Icons.Default.KeyboardArrowRight
-                            else Icons.Default.Check
-                        }
-                    }
-
-                    Icon(
-                        imageVector = imageVector,
-                        contentDescription = stringResource(R.string.cd_action_continue),
-                        modifier = Modifier
-                            .size(FloatingActionButtonDefaults.LargeIconSize)
-                    )
-                }
-            }
-        }
+        snackbarController = snackbarController
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingLarge)
         ) {
+            Crossfade(
+                targetState = flowStop,
+                label = "WelcomeFlowTitle",
+                animationSpec = tween(AnimationConstants.DefaultDurationMillis),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(SpacingLarge)
+            ) { stop ->
+                val title = when (stop) {
+                    WelcomeFlowStop.WELCOME -> stringResource(
+                        R.string.welcome_flow_stop_welcome_title,
+                        stringResource(R.string.app_name)
+                    )
+
+                    WelcomeFlowStop.PERMISSIONS -> stringResource(R.string.welcome_flow_stop_permissions_title)
+                    WelcomeFlowStop.RESTORE_DATA -> stringResource(R.string.welcome_flow_stop_data_restore_title)
+                    WelcomeFlowStop.SET_BUDGET -> stringResource(R.string.welcome_flow_stop_set_budget_title)
+                }
+                LargeTitle(title)
+            }
             AnimatedContent(
                 targetState = flowStop,
-                label = "WelcomeFlowStops"
+                label = "WelcomeFlowStops",
+                modifier = Modifier
+                    .fillMaxSize(),
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        slideInHorizontallyWithFadeIn { it }
+                            .togetherWith(
+                                slideOutHorizontallyWithFadeOut { -it }
+                            )
+                    } else {
+                        slideInHorizontallyWithFadeIn { -it }
+                            .togetherWith(
+                                slideOutHorizontallyWithFadeOut { it }
+                            )
+                    }
+                        .using(SizeTransform(false))
+                }
             ) { stop ->
                 when (stop) {
                     WelcomeFlowStop.WELCOME -> {
-                        WelcomeMessageContent(
-                            modifier = Modifier
-                                .fillMaxSize()
+                        WelcomeMessageStop(
+                            onContinueClick = actions::onWelcomeMessageContinue
+                        )
+                    }
+
+                    WelcomeFlowStop.PERMISSIONS -> {
+                        PermissionsRationaleStop(
+                            onContinueClick = actions::onPermissionsContinue
                         )
                     }
 
                     WelcomeFlowStop.RESTORE_DATA -> {
-                        RestoreDataContent(
+                        RestoreDataStop(
+                            restoreState = restoreState,
                             onCheckForBackupClick = actions::onCheckForBackupClick,
-                            onSkipClick = actions::onSkipDataRestore,
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            restoreState = restoreState
+                            onSkipClick = actions::onSkipDataRestore
                         )
                     }
 
-                    WelcomeFlowStop.INCOME_SET -> {
-                        IncomeInputContent(
-                            input = incomeInput,
-                            onInputChange = actions::onIncomeInputChange,
-                            modifier = Modifier
-                                .fillMaxSize()
+                    WelcomeFlowStop.SET_BUDGET -> {
+                        SetBudgetStop(
+                            input = budgetInput,
+                            onInputChange = actions::onBudgetInputChange,
+                            onContinueClick = actions::onSetBudgetContinue
                         )
                     }
                 }
             }
         }
+    }
+}
 
-        if (showPermissionRationale) {
-            PermissionRationaleDialog(
-                icon = Icons.Rounded.Notifications,
-                textRes = R.string.permission_rationale_notification,
-                onDismiss = actions::onNotificationRationaleDismiss,
-                onAgree = actions::onNotificationRationaleAgree
+@Composable
+fun ContinueAction(
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(MaterialTheme.shapes.small)
+            .clickable(
+                role = Role.Button,
+                onClick = onClick,
+                onClickLabel = stringResource(R.string.cd_action_continue)
             )
-        }
+            .padding(SpacingMedium),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .size(FloatingActionButtonDefaults.LargeIconSize),
+            tint = LocalContentColor.current
+        )
     }
 }

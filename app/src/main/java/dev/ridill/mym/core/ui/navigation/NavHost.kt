@@ -23,7 +23,8 @@ import androidx.navigation.navigation
 import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
-import dev.ridill.mym.core.ui.components.rememberPermissionLauncher
+import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsLauncher
+import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsState
 import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.components.simpleFadeIn
@@ -55,6 +56,7 @@ import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun MYMNavHost(
@@ -85,28 +87,28 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
     ) { navBackStackEntry ->
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
-        val incomeInput = viewModel.incomeInput.collectAsStateWithLifecycle()
-        val showPermissionRationale by viewModel.showNotificationRationale
-            .collectAsStateWithLifecycle()
-        val showNextButton by viewModel.showNextButton.collectAsStateWithLifecycle(true)
+        val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
         val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
-        val permissionsState = if (BuildUtil.isNotificationRuntimePermissionNeeded())
-            rememberPermissionsState(
-                permissionString = Manifest.permission.POST_NOTIFICATIONS,
-                launcher = rememberPermissionLauncher(
-                    onResult = { viewModel.onPermissionResponse() }
-                )
-            )
-        else null
+        val permissionsList = if (BuildUtil.isNotificationRuntimePermissionNeeded()) listOf(
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.RECEIVE_SMS
+        ) else listOf(Manifest.permission.RECEIVE_SMS)
+        val permissionsLauncher = rememberMultiplePermissionsLauncher(
+            onResult = { viewModel.onPermissionResponse() }
+        )
+        val multiplePermissionsState = rememberMultiplePermissionsState(
+            permissions = permissionsList,
+            launcher = permissionsLauncher
+        )
 
         val signInLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    viewModel.onGoogleSignInResult(it.data)
+            onResult = { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    viewModel.onSignInResult(result.data)
                 }
             }
         )
@@ -114,12 +116,8 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
-                    WelcomeFlowViewModel.WelcomeFlowEvent.RequestPermissionRequest -> {
-                        if (permissionsState != null) {
-                            permissionsState.launchRequest()
-                        } else {
-                            viewModel.onPermissionResponse()
-                        }
+                    WelcomeFlowViewModel.WelcomeFlowEvent.LaunchPermissionRequests -> {
+                        multiplePermissionsState.launchRequest()
                     }
 
                     is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
@@ -130,7 +128,11 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                     }
 
                     WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
-                        navController.navigate(DashboardDestination.route)
+                        navController.navigate(DashboardDestination.route) {
+                            popUpTo(WelcomeFlowDestination.route) {
+                                inclusive = true
+                            }
+                        }
                     }
 
                     is WelcomeFlowViewModel.WelcomeFlowEvent.LaunchGoogleSignIn -> {
@@ -143,6 +145,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
                             context.getString(R.string.restarting_app),
                             Toast.LENGTH_SHORT
                         ).show()
+                        delay(2000L)
                         context.restartApplication()
                     }
                 }
@@ -152,10 +155,8 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         WelcomeFlowScreen(
             snackbarController = snackbarController,
             flowStop = flowStop,
-            incomeInput = { incomeInput.value },
-            showPermissionRationale = showPermissionRationale,
+            budgetInput = { budgetInput.value },
             restoreState = restoreState,
-            showNextButton = showNextButton,
             actions = viewModel
         )
     }

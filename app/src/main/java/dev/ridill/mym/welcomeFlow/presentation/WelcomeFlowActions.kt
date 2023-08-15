@@ -1,11 +1,11 @@
 package dev.ridill.mym.welcomeFlow.presentation
 
 interface WelcomeFlowActions {
-    fun onNextClick()
+    fun onWelcomeMessageContinue()
+    fun onPermissionsContinue()
+    fun onPermissionResponse()
     fun onCheckForBackupClick()
     fun onSkipDataRestore()
-    fun onIncomeInputChange(value: String)
-    fun onNotificationRationaleDismiss()
-    fun onNotificationRationaleAgree()
-    fun onPermissionResponse()
+    fun onBudgetInputChange(value: String)
+    fun onSetBudgetContinue()
 }

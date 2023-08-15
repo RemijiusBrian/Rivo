@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
-import dev.ridill.mym.core.domain.service.GoogleSignInService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -19,7 +19,7 @@ class DashboardViewModel @Inject constructor(
     private val signInService: GoogleSignInService
 ) : ViewModel() {
 
-    private val monthlyLimit = repo.getMonthlyLimit()
+    private val monthlyLimit = repo.getCurrentBudget()
 
     private val spentAmount = repo.getExpenditureForCurrentMonth()
 

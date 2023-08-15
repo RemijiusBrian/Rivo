@@ -6,11 +6,14 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
@@ -70,3 +73,23 @@ fun simpleFadeOut(
     animationSpec: FiniteAnimationSpec<Float> = tween(),
     targetAlpha: Float = Float.Zero
 ): ExitTransition = fadeOut(animationSpec, targetAlpha)
+
+fun slideInHorizontallyWithFadeIn(
+    duration: Int = AnimationConstants.DefaultDurationMillis,
+    initialOffsetX: (fullWidth: Int) -> Int = { it }
+): EnterTransition = slideInHorizontally(
+    animationSpec = tween(durationMillis = duration),
+    initialOffsetX = initialOffsetX
+) + simpleFadeIn(
+    animationSpec = tween(durationMillis = duration)
+)
+
+fun slideOutHorizontallyWithFadeOut(
+    duration: Int = AnimationConstants.DefaultDurationMillis,
+    targetOffsetX: (fullWidth: Int) -> Int = { it }
+): ExitTransition = slideOutHorizontally(
+    animationSpec = tween(durationMillis = duration),
+    targetOffsetX = targetOffsetX
+) + simpleFadeOut(
+    animationSpec = tween(durationMillis = duration)
+)

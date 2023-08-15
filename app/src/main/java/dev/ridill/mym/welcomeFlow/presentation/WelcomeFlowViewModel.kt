@@ -10,66 +10,56 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.service.GoogleSignInService
-import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
+import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WelcomeFlowViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val preferenceManager: PreferencesManager,
     private val eventBus: EventBus<WelcomeFlowEvent>,
     private val signInService: GoogleSignInService,
-    private val backupWorkManager: BackupWorkManager
+    private val backupWorkManager: BackupWorkManager,
+    private val settingsRepository: SettingsRepository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel(), WelcomeFlowActions {
-
     val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
-    val incomeInput = savedStateHandle.getStateFlow(INCOME_INPUT, "")
-    val showNotificationRationale = savedStateHandle
-        .getStateFlow(SHOW_NOTIFICATION_RATIONALE, false)
-    val showNextButton = currentFlowStop.map { stop ->
-        stop != WelcomeFlowStop.RESTORE_DATA
-    }.distinctUntilChanged()
+    val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
 
     val restoreState = savedStateHandle.getStateFlow(RESTORE_JOB_STATE, WorkInfo.State.BLOCKED)
 
     val events = eventBus.eventFlow
+    override fun onWelcomeMessageContinue() {
+        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.PERMISSIONS
+    }
 
-    override fun onNextClick() {
-        when (currentFlowStop.value) {
-            WelcomeFlowStop.WELCOME -> {
-                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.RESTORE_DATA
-            }
+    override fun onPermissionsContinue() {
+        viewModelScope.launch {
+            eventBus.send(WelcomeFlowEvent.LaunchPermissionRequests)
+        }
+    }
 
-            WelcomeFlowStop.RESTORE_DATA -> {}
-
-            WelcomeFlowStop.INCOME_SET -> {
-                updateLimitAndContinue()
-            }
+    override fun onPermissionResponse() {
+        viewModelScope.launch {
+            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.RESTORE_DATA
         }
     }
 
     override fun onCheckForBackupClick() {
         viewModelScope.launch {
-            val intent = signInService.getSignInIntent()
-            eventBus.send(WelcomeFlowEvent.LaunchGoogleSignIn(intent))
+            val signInIntent = signInService.getSignInIntent()
+            eventBus.send(WelcomeFlowEvent.LaunchGoogleSignIn(signInIntent))
         }
     }
 
-    override fun onSkipDataRestore() {
-        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.INCOME_SET
-    }
-
-    fun onGoogleSignInResult(intent: Intent?) = viewModelScope.launch {
+    fun onSignInResult(intent: Intent?) = viewModelScope.launch {
         val account = signInService.getAccountFromIntent(intent)
         if (account == null) {
             eventBus.send(
@@ -96,7 +86,7 @@ class WelcomeFlowViewModel @Inject constructor(
 
                 when (state) {
                     WorkInfo.State.SUCCEEDED -> {
-                        preferenceManager.concludeWelcomeFlow()
+                        preferencesManager.concludeWelcomeFlow()
                         eventBus.send(WelcomeFlowEvent.RestartApplication)
                     }
 
@@ -110,59 +100,42 @@ class WelcomeFlowViewModel @Inject constructor(
         }
     }
 
-    private fun updateLimitAndContinue() = viewModelScope.launch {
-        val limitValue = incomeInput.value.toLongOrNull() ?: -1L
-        if (limitValue <= Long.Zero) {
-            eventBus.send(
-                WelcomeFlowEvent.ShowUiMessage(
-                    UiText.StringResource(R.string.error_invalid_amount, true)
-                )
-            )
-            return@launch
-        }
-        preferenceManager.updateMonthlyLimit(limitValue)
-        if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
-            savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = true
-        } else {
-            concludeWelcomeFlow()
-        }
-    }
-
-    private fun concludeWelcomeFlow() = viewModelScope.launch {
-        preferenceManager.concludeWelcomeFlow()
-        eventBus.send(WelcomeFlowEvent.WelcomeFlowConcluded)
-    }
-
-    override fun onIncomeInputChange(value: String) {
-        savedStateHandle[INCOME_INPUT] = value
-    }
-
-    override fun onNotificationRationaleDismiss() {
-        savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = false
-        concludeWelcomeFlow()
-    }
-
-    override fun onNotificationRationaleAgree() {
+    override fun onSkipDataRestore() {
         viewModelScope.launch {
-            savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = false
-            eventBus.send(WelcomeFlowEvent.RequestPermissionRequest)
+            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
         }
     }
 
-    override fun onPermissionResponse() {
-        concludeWelcomeFlow()
+    override fun onBudgetInputChange(value: String) {
+        savedStateHandle[BUDGET_INPUT] = value
+    }
+
+    override fun onSetBudgetContinue() {
+        viewModelScope.launch {
+            val budgetValue = budgetInput.value.toLongOrNull() ?: -1L
+            if (budgetValue <= Long.Zero) {
+                eventBus.send(
+                    WelcomeFlowEvent.ShowUiMessage(
+                        UiText.StringResource(R.string.error_invalid_amount, true)
+                    )
+                )
+                return@launch
+            }
+            settingsRepository.updateCurrentBudget(budgetValue)
+            preferencesManager.concludeWelcomeFlow()
+            eventBus.send(WelcomeFlowEvent.WelcomeFlowConcluded)
+        }
     }
 
     sealed class WelcomeFlowEvent {
         object WelcomeFlowConcluded : WelcomeFlowEvent()
         data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
-        object RequestPermissionRequest : WelcomeFlowEvent()
+        object LaunchPermissionRequests : WelcomeFlowEvent()
         data class LaunchGoogleSignIn(val intent: Intent) : WelcomeFlowEvent()
         object RestartApplication : WelcomeFlowEvent()
     }
 }
 
 private const val FLOW_STOP = "FLOW_STOP"
-private const val INCOME_INPUT = "INCOME_INPUT"
-private const val SHOW_NOTIFICATION_RATIONALE = "SHOW_NOTIFICATION_RATIONALE"
+private const val BUDGET_INPUT = "BUDGET_INPUT"
 private const val RESTORE_JOB_STATE = "RESTORE_JOB_STATE"

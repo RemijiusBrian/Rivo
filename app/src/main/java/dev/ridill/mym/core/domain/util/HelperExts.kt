@@ -17,6 +17,7 @@ fun Int.toByteArray(): ByteArray = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(th
 fun ByteArray.toInt(): Int = ByteBuffer.wrap(this).int
 
 val Long.Companion.Zero: Long get() = 0L
+fun Long?.orZero(): Long = this ?: Long.Zero
 
 val Dp.Companion.Zero: Dp get() = 0.dp
 
