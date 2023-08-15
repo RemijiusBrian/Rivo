@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -83,6 +84,9 @@ fun DashboardScreen(
     navigateToAddEditExpense: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
+    val recentSpendsListState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     MYMScaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -149,7 +153,16 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = SpacingMedium),
+                listState = recentSpendsListState,
+                onNavigateUpClick = {
+                    coroutineScope.launch {
+                        if (recentSpendsListState.isScrollInProgress)
+                            recentSpendsListState.scrollToItem(Int.Zero)
+                        else
+                            recentSpendsListState.animateScrollToItem(Int.Zero)
+                    }
+                }
             )
         }
     }
@@ -259,13 +272,13 @@ private fun SpendsOverview(
     spentAmount: Double,
     recentSpends: List<ExpenseListItem>,
     onTransactionClick: (ExpenseListItem) -> Unit,
+    listState: LazyListState,
+    onNavigateUpClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val lazyListState = rememberLazyListState()
     val showScrollUpButton by remember {
-        derivedStateOf { lazyListState.firstVisibleItemIndex > 3 }
+        derivedStateOf { listState.firstVisibleItemIndex > 3 }
     }
-    val coroutineScope = rememberCoroutineScope()
 
     Surface(
         shape = MaterialTheme.shapes.medium
@@ -321,7 +334,7 @@ private fun SpendsOverview(
                         end = SpacingSmall
                     ),
                     verticalArrangement = Arrangement.spacedBy(SpacingSmall),
-                    state = lazyListState
+                    state = listState
                 ) {
                     items(items = recentSpends, key = { it.id }) { transaction ->
                         RecentSpend(
@@ -344,14 +357,7 @@ private fun SpendsOverview(
                         .padding(SpacingMedium)
                 ) {
                     FilledTonalIconButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                if (lazyListState.isScrollInProgress)
-                                    lazyListState.scrollToItem(Int.Zero)
-                                else
-                                    lazyListState.animateScrollToItem(Int.Zero)
-                            }
-                        },
+                        onClick = onNavigateUpClick,
                         shape = CircleShape
                     ) {
                         Icon(
