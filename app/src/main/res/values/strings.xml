@@ -79,7 +79,7 @@
     <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
 
     <string name="permission_notification">Notifications</string>
-    <string name="permission_rationale_notification">%s needs notification permission to post notifications</string>
+    <string name="permission_rationale_notification">{@string/app_name} %s needs notification permission to post notifications</string>
     <string name="permission_sms">Receive SMS Messages</string>
     <string name="permission_rationale_sms_for_expense">%s needs SMS read permission to try and add expenses automatically from your SMS messages</string>
 

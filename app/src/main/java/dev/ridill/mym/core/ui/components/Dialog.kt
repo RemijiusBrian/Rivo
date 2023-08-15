@@ -94,7 +94,7 @@ fun ConfirmationDialog(
 @Composable
 fun PermissionRationaleDialog(
     icon: ImageVector,
-    @StringRes textRes: Int,
+    rationaleText: String,
     onDismiss: () -> Unit,
     onAgree: () -> Unit,
     modifier: Modifier = Modifier
@@ -134,7 +134,7 @@ fun PermissionRationaleDialog(
                         .padding(RationaleSpacing)
                         .fillMaxWidth()
                 ) {
-                    Text(stringResource(textRes))
+                    Text(rationaleText)
 
                     VerticalSpacer(RationaleSpacing)
 

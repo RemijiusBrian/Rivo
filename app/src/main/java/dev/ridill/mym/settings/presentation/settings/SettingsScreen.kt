@@ -62,7 +62,7 @@ fun SettingsScreen(
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
-    navigateToSourceCode: () -> Unit,
+    viewSourceCodeInBrowser: () -> Unit,
     navigateToBackupSettings: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -142,7 +142,7 @@ fun SettingsScreen(
             SimpleSettingsPreference(
                 titleRes = R.string.preference_source_code,
                 leadingIcon = Icons.Rounded.Code,
-                onClick = navigateToSourceCode
+                onClick = viewSourceCodeInBrowser
             )
 
             SimpleSettingsPreference(
@@ -172,7 +172,9 @@ fun SettingsScreen(
         if (state.showSmsPermissionRationale) {
             PermissionRationaleDialog(
                 icon = Icons.Rounded.Message,
-                textRes = R.string.permission_rationale_sms_for_expense,
+                rationaleText = stringResource(
+                    R.string.permission_rationale_sms_for_expense, stringResource(R.string.app_name)
+                ),
                 onDismiss = actions::onSmsPermissionRationaleDismiss,
                 onAgree = actions::onSmsPermissionRationaleAgree
             )

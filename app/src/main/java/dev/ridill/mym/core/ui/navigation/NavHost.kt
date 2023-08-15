@@ -24,7 +24,6 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsLauncher
 import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsState
-import dev.ridill.mym.core.ui.components.rememberPermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
@@ -334,10 +333,6 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
-        val smsPermissionState = rememberPermissionsState(
-            permissionString = Manifest.permission.RECEIVE_SMS
-        )
-
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -348,12 +343,8 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                         )
                     }
 
-                    SettingsViewModel.SettingsEvent.RequestSmsPermission -> {
-                        if (smsPermissionState.isPermanentlyDenied) {
-                            context.launchAppSettings()
-                        } else {
-                            smsPermissionState.launchRequest()
-                        }
+                    SettingsViewModel.SettingsEvent.NavigateToAppPermissionSettings -> {
+                        context.launchAppSettings()
                     }
                 }
             }
@@ -365,7 +356,7 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,
-            navigateToSourceCode = {
+            viewSourceCodeInBrowser = {
                 context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
             },
             navigateToBackupSettings = { navController.navigate(BackupSettingsDestination.route) }
