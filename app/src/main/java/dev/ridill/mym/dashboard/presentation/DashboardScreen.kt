@@ -153,7 +153,7 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
-                    .padding(horizontal = SpacingMedium),
+                    .padding(horizontal = SpacingSmall),
                 listState = recentSpendsListState,
                 onNavigateUpClick = {
                     coroutineScope.launch {
