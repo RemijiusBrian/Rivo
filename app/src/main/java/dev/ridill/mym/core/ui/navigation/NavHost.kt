@@ -27,6 +27,8 @@ import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
+import dev.ridill.mym.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.mym.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsDestination
@@ -327,7 +329,9 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
     composable(
         route = SettingsDestination.route,
         enterTransition = { simpleFadeIn() },
-        popExitTransition = { simpleFadeOut() }
+        popExitTransition = { simpleFadeOut() },
+        exitTransition = { slideOutHorizontallyWithFadeOut { -it } },
+        popEnterTransition = { slideInHorizontallyWithFadeIn { -it } }
     ) { navBackStackEntry ->
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -370,8 +374,8 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
 private fun NavGraphBuilder.backupSettings(navController: NavHostController) {
     composable(
         route = BackupSettingsDestination.route,
-        enterTransition = { simpleFadeIn() },
-        popExitTransition = { simpleFadeOut() }
+        enterTransition = { slideInHorizontallyWithFadeIn { it } },
+        popExitTransition = { slideOutHorizontallyWithFadeOut { it } }
     ) { navBackStackEntry ->
         val viewModel: BackupSettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
