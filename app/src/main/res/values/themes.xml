@@ -4,4 +4,8 @@
     <style name="Theme.MYM" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
     </style>
+
+    <style name="Theme.MYM.Splash" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.MYM</item>
+    </style>
 </resources>
