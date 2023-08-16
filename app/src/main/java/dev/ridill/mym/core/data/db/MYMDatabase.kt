@@ -3,6 +3,8 @@ package dev.ridill.mym.core.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.mym.dashboard.data.local.BudgetDao
 import dev.ridill.mym.dashboard.data.local.entity.BudgetEntity
 import dev.ridill.mym.expense.data.local.ExpenseDao
@@ -16,7 +18,7 @@ import dev.ridill.mym.expense.data.local.entity.TagEntity
         ExpenseEntity::class,
         TagEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(DateTimeConverter::class)
@@ -30,4 +32,18 @@ abstract class MYMDatabase : RoomDatabase() {
     abstract fun budgetDao(): BudgetDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun tagsDao(): TagsDao
+}
+
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.query(
+            """
+            CREATE TABLE BudgetEntity(
+                amount INTEGER PRIMARY KEY,
+                createdTimestamp TEXT NOT NULL,
+                isCurrent INTEGER NOT NULL DEFAULT 0
+            )
+            """.trimIndent()
+        )
+    }
 }
