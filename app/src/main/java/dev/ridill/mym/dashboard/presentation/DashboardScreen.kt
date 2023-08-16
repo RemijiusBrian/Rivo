@@ -138,9 +138,9 @@ fun DashboardScreen(
                     .padding(horizontal = SpacingMedium)
                     .padding(top = SpacingMedium)
             )
-            BalanceAndLimit(
+            BalanceAndBudget(
                 balance = state.balance,
-                monthlyLimit = state.monthlyLimit,
+                monthlyLimit = state.monthlyBudget,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -201,7 +201,7 @@ private fun Greeting(
 }
 
 @Composable
-private fun BalanceAndLimit(
+private fun BalanceAndBudget(
     balance: Double,
     monthlyLimit: Long,
     modifier: Modifier = Modifier
@@ -439,7 +439,7 @@ private fun PreviewDashboardScreen() {
             state = DashboardState(
                 balance = 1_000.0,
                 spentAmount = 500.0,
-                monthlyLimit = 5_000L
+                monthlyBudget = 5_000L
             ),
             navigateToAddEditExpense = {},
             snackbarController = rememberSnackbarController(),

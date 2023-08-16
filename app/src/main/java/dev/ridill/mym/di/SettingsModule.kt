@@ -12,7 +12,7 @@ import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.dashboard.data.local.BudgetDao
+import dev.ridill.mym.settings.data.local.MiscConfigDao
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.repository.BackupRepositoryImpl
 import dev.ridill.mym.settings.data.repository.SettingsRepositoryImpl
@@ -35,13 +35,13 @@ import javax.inject.Singleton
 object SettingsModule {
 
     @Provides
-    fun provideBudgetDao(database: MYMDatabase): BudgetDao = database.budgetDao()
+    fun provideMiscConfigDao(database: MYMDatabase): MiscConfigDao = database.miscConfigDao()
 
     @Provides
     fun provideSettingsRepository(
-        budgetDao: BudgetDao
+        miscConfigDao: MiscConfigDao
     ): SettingsRepository = SettingsRepositoryImpl(
-        budgetDao = budgetDao
+        dao = miscConfigDao
     )
 
     @Provides

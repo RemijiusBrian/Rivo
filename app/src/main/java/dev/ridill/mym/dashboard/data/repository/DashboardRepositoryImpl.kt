@@ -2,22 +2,22 @@ package dev.ridill.mym.dashboard.data.repository
 
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.orZero
-import dev.ridill.mym.dashboard.data.local.BudgetDao
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.data.toRecentSpend
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
+import dev.ridill.mym.settings.data.local.MiscConfigDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class DashboardRepositoryImpl(
-    private val budgetDao: BudgetDao,
+    private val configDao: MiscConfigDao,
     private val expenseDao: ExpenseDao
 ) : DashboardRepository {
-    override fun getCurrentBudget(): Flow<Long> = budgetDao.getCurrentBudget()
-        .map { it?.amount.orZero() }
+    override fun getCurrentBudget(): Flow<Long> = configDao.getBudgetAmount()
+        .map { it.toLongOrNull().orZero() }
         .distinctUntilChanged()
 
     override fun getExpenditureForCurrentMonth(): Flow<Double> =

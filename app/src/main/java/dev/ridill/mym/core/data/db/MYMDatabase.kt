@@ -3,20 +3,23 @@ package dev.ridill.mym.core.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import dev.ridill.mym.dashboard.data.local.BudgetDao
-import dev.ridill.mym.dashboard.data.local.entity.BudgetEntity
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.entity.TagEntity
+import dev.ridill.mym.settings.data.local.ConfigKeys
+import dev.ridill.mym.settings.data.local.MiscConfigDao
+import dev.ridill.mym.settings.data.local.entity.MiscConfigEntity
 
 @Database(
     entities = [
-        BudgetEntity::class,
         ExpenseEntity::class,
-        TagEntity::class
+        TagEntity::class,
+        MiscConfigEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(DateTimeConverter::class)
@@ -27,7 +30,27 @@ abstract class MYMDatabase : RoomDatabase() {
     }
 
     // Dao Methods
-    abstract fun budgetDao(): BudgetDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun tagsDao(): TagsDao
+    abstract fun miscConfigDao(): MiscConfigDao
+}
+
+val Migration_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """
+            CREATE TABLE MiscConfigEntity(
+            configKey TEXT PRIMARY KEY NOT NULL,
+            configValue TEXT NOT NULL
+            )
+        """.trimIndent()
+        )
+        val cursor = database
+            .query("SELECT IFNULL(amount, 0) as amount FROM BudgetEntity WHERE isCurrent = 1")
+        cursor.moveToFirst()
+        val currentBudget = cursor.getLong(0)
+
+        database.execSQL("INSERT INTO MiscConfigEntity VALUES('${ConfigKeys.BUDGET_AMOUNT}', '$currentBudget')")
+        database.execSQL("DROP TABLE BudgetEntity")
+    }
 }

@@ -36,8 +36,6 @@ class SettingsViewModel @Inject constructor(
     private val monthlyBudget = repo.getCurrentBudget()
         .distinctUntilChanged()
 
-    private val budgetRecommendations = repo.getPreviousBudgets()
-
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
     private val showMonthlyLimitInput = savedStateHandle
@@ -52,7 +50,6 @@ class SettingsViewModel @Inject constructor(
         showAppThemeSelection,
         monthlyBudget,
         showMonthlyLimitInput,
-        budgetRecommendations,
         showSmsPermissionRationale
     ).map { (
                 appTheme,
@@ -60,7 +57,6 @@ class SettingsViewModel @Inject constructor(
                 showAppThemeSelection,
                 monthlyBudget,
                 showMonthlyLimitInput,
-                budgetRecommendations,
                 showSmsPermissionRationale
             ) ->
         SettingsState(
@@ -70,7 +66,7 @@ class SettingsViewModel @Inject constructor(
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
             showBudgetInput = showMonthlyLimitInput,
-            budgetRecommendations = budgetRecommendations,
+            budgetRecommendations = emptyList(),
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())

@@ -1,9 +1,10 @@
 package dev.ridill.mym.settings.data.repository
 
-import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.orZero
-import dev.ridill.mym.dashboard.data.local.BudgetDao
-import dev.ridill.mym.dashboard.data.local.entity.BudgetEntity
+import dev.ridill.mym.settings.data.local.ConfigKeys
+import dev.ridill.mym.settings.data.local.MiscConfigDao
+import dev.ridill.mym.settings.data.local.entity.MiscConfigEntity
+import dev.ridill.mym.settings.domain.modal.BackupInterval
 import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -12,26 +13,35 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class SettingsRepositoryImpl(
-    private val budgetDao: BudgetDao
+    private val dao: MiscConfigDao,
 ) : SettingsRepository {
-    override fun getCurrentBudget(): Flow<Long> = budgetDao.getCurrentBudget()
-        .map { it?.amount.orZero() }
+    override fun getCurrentBudget(): Flow<Long> = dao.getBudgetAmount()
+        .map { it.toLongOrNull().orZero() }
         .distinctUntilChanged()
-
-    override fun getPreviousBudgets(limit: Int): Flow<List<Long>> = budgetDao
-        .getPreviousBudgets(limit)
-        .map { entities ->
-            entities.map { it.amount }
-        }
 
     override suspend fun updateCurrentBudget(value: Long) {
         withContext(Dispatchers.IO) {
-            val entity = BudgetEntity(
-                amount = value,
-                createdTimestamp = DateUtil.now(),
-                isCurrent = true
+            val entity = MiscConfigEntity(
+                configKey = ConfigKeys.BUDGET_AMOUNT,
+                configValue = value.toString()
             )
-            budgetDao.insertAndSetCurrent(entity)
+            dao.insert(entity)
+        }
+    }
+
+    override suspend fun getCurrentBackupInterval(): BackupInterval = withContext(Dispatchers.IO) {
+        BackupInterval.valueOf(
+            dao.getBackupInterval() ?: BackupInterval.MANUAL.name
+        )
+    }
+
+    override suspend fun updateBackupInterval(interval: BackupInterval) {
+        withContext(Dispatchers.IO) {
+            val entity = MiscConfigEntity(
+                configKey = ConfigKeys.BACKUP_INTERVAL,
+                configValue = interval.name
+            )
+            dao.insert(entity)
         }
     }
 }

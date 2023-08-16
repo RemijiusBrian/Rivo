@@ -19,12 +19,12 @@ class DashboardViewModel @Inject constructor(
     private val signInService: GoogleSignInService
 ) : ViewModel() {
 
-    private val monthlyLimit = repo.getCurrentBudget()
+    private val monthlyBudget = repo.getCurrentBudget()
 
     private val spentAmount = repo.getExpenditureForCurrentMonth()
 
     private val balance = combineTuple(
-        monthlyLimit,
+        monthlyBudget,
         spentAmount
     ).map { (limit, exp) ->
         limit - exp
@@ -35,13 +35,13 @@ class DashboardViewModel @Inject constructor(
     private val signedInUsername = MutableStateFlow<String?>(null)
 
     val state = combineTuple(
-        monthlyLimit,
+        monthlyBudget,
         spentAmount,
         balance,
         recentSpends,
         signedInUsername
     ).map { (
-                monthlyLimit,
+                monthlyBudget,
                 spentAmount,
                 balance,
                 recentSpends,
@@ -50,7 +50,7 @@ class DashboardViewModel @Inject constructor(
         DashboardState(
             balance = balance,
             spentAmount = spentAmount,
-            monthlyLimit = monthlyLimit,
+            monthlyBudget = monthlyBudget,
             recentSpends = recentSpends,
             signedInUsername = signedInUsername
         )
