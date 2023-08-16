@@ -18,6 +18,7 @@ import dev.ridill.mym.core.domain.util.tryOrNull
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.settings.domain.modal.BackupInterval
+import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,11 +29,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupSettingsViewModel @Inject constructor(
+    preferencesManager: PreferencesManager,
     private val eventBus: EventBus<BackupEvent>,
     private val signInService: GoogleSignInService,
-    preferencesManager: PreferencesManager,
     private val savedStateHandle: SavedStateHandle,
-    private val backupWorkManager: BackupWorkManager
+    private val backupWorkManager: BackupWorkManager,
+    private val settingsRepo: SettingsRepository
 ) : ViewModel(), BackupSettingsActions {
 
     private val backupAccount = MutableStateFlow<String?>(null)
@@ -116,43 +118,30 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
-        backupWorkManager.getPeriodicBackupWorkInfoFlow()
-            .collectLatest { info ->
-                updateBackupInterval(info)
-                isBackupWorkerRunning.update { info?.state == WorkInfo.State.RUNNING }
+        backupWorkManager.getPeriodicBackupWorkInfoFlow().collectLatest { info ->
+            updateBackupInterval(info)
+            isBackupWorkerRunning.update { info?.state == WorkInfo.State.RUNNING }
 
-                when (info?.state) {
-                    WorkInfo.State.SUCCEEDED -> {
-                        eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.backup_complete)))
-                    }
-
-                    WorkInfo.State.FAILED -> {
-                        eventBus.send(BackupEvent.ShowUiMessage(
-                            info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
-                                ?.let { UiText.DynamicString(it) }
-                                ?: UiText.StringResource(R.string.error_app_data_backup_failed)
-                        ))
-                    }
-
-                    else -> Unit
-                }
+            info?.outputData?.getString(BackupWorkManager.KEY_MESSAGE)?.let { message ->
+                eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(message)))
             }
+        }
     }
 
     private fun updateBackupInterval(info: WorkInfo?) {
-        if (info?.state == WorkInfo.State.CANCELLED) {
-            backupInterval.update { BackupInterval.MANUAL }
-        } else {
-            val indexOfIntervalTag = info?.tags
-                ?.indexOfFirst { it.startsWith(BackupWorkManager.INTERVAL_TAG_PREFIX) }
-                ?: -1
-            val workInterval = BackupInterval.valueOf(
-                info?.tags?.elementAtOrNull(indexOfIntervalTag)
-                    ?.removePrefix(BackupWorkManager.INTERVAL_TAG_PREFIX)
-                    ?: BackupInterval.MANUAL.name
-            )
-            backupInterval.update { workInterval }
-        }
+        val intervalTagIndex = info?.tags
+            ?.indexOfFirst { it.startsWith(BackupWorkManager.INTERVAL_TAG_PREFIX) }
+            ?: -1
+
+        val intervalTag = info?.tags?.elementAtOrNull(intervalTagIndex)
+            ?.removePrefix(BackupWorkManager.INTERVAL_TAG_PREFIX)
+            ?.takeIf { info.state != WorkInfo.State.CANCELLED }
+
+        val interval = BackupInterval.valueOf(
+            intervalTag ?: BackupInterval.MANUAL.name
+        )
+
+        backupInterval.update { interval }
     }
 
     override fun onBackupAccountClick() {
@@ -190,6 +179,7 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupIntervalSelected(interval: BackupInterval) {
         viewModelScope.launch {
             savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
+            settingsRepo.updateBackupInterval(interval)
             if (signInService.getSignedInAccount() == null) return@launch
 
             if (interval == BackupInterval.MANUAL)

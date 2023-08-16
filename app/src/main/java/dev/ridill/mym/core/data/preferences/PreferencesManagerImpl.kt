@@ -27,12 +27,14 @@ class PreferencesManagerImpl(
             val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED] ?: false
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parse(it) }
+            val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
-                lastBackupDateTime = lastBackupDateTime
+                lastBackupDateTime = lastBackupDateTime,
+                needsConfigRestore = needsConfigRestore
             )
         }
 
@@ -68,10 +70,19 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateNeedsConfigRestore(needsRestore: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.NEEDS_CONFIG_RESTORE] = needsRestore
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
+        val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
     }
 }

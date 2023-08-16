@@ -32,7 +32,10 @@ class BackupWorkManager(
     }
 
     fun schedulePeriodicWorker(interval: BackupInterval) {
-        if (interval == BackupInterval.MANUAL) return
+        if (interval == BackupInterval.MANUAL) {
+            cancelPeriodicBackupWork()
+            return
+        }
 
         val workRequest = PeriodicWorkRequestBuilder<GDriveDataBackupWorker>(
             interval.daysInterval,

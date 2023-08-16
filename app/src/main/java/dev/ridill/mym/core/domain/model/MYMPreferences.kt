@@ -7,5 +7,6 @@ data class MYMPreferences(
     val showAppWelcomeFlow: Boolean,
     val appTheme: AppTheme,
     val dynamicColorsEnabled: Boolean,
-    val lastBackupDateTime: LocalDateTime?
+    val lastBackupDateTime: LocalDateTime?,
+    val needsConfigRestore: Boolean
 )

@@ -10,6 +10,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.model.Resource
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +33,12 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
 
-            is Resource.Success -> Result.success()
+            is Resource.Success -> Result.success(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to UiText.StringResource(R.string.backup_complete)
+                        .asString(appContext)
+                )
+            )
         }
     }
 

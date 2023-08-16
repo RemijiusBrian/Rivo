@@ -4,19 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
+import dev.ridill.mym.settings.domain.backup.BackupWorkManager
+import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
-    private val signInService: GoogleSignInService
+    private val signInService: GoogleSignInService,
+    private val preferencesManager: PreferencesManager,
+    private val backupWorkManager: BackupWorkManager,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val monthlyBudget = repo.getCurrentBudget()
@@ -57,9 +65,26 @@ class DashboardViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, DashboardState())
 
     init {
+        getSignedInUserName()
+        collectConfigRestore()
+    }
+
+    private fun getSignedInUserName() {
         signedInUsername.update {
             signInService.getSignedInAccount()?.displayName
         }
+    }
+
+    private fun collectConfigRestore() = viewModelScope.launch {
+        preferencesManager.preferences.map { it.needsConfigRestore }
+            .collectLatest { needsRestore ->
+                if (!needsRestore) return@collectLatest
+
+                val currentBackupInterval = settingsRepository.getCurrentBackupInterval()
+                backupWorkManager.schedulePeriodicWorker(currentBackupInterval)
+
+                preferencesManager.updateNeedsConfigRestore(false)
+            }
     }
 }
 

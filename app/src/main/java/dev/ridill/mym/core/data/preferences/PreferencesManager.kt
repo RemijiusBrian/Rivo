@@ -16,4 +16,5 @@ interface PreferencesManager {
     suspend fun updateAppThem(theme: AppTheme)
     suspend fun updateDynamicColorsEnabled(enabled: Boolean)
     suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime)
+    suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
 }

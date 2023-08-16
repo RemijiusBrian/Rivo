@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.mym.R
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.util.tryOrNull
 import dev.ridill.mym.core.ui.util.UiText
@@ -25,7 +26,8 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: BackupRepository,
-    private val notificationHelper: BackupNotificationHelper
+    private val notificationHelper: BackupNotificationHelper,
+    private val preferencesManager: PreferencesManager
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
@@ -48,7 +50,10 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
                 )
             )
 
-            is Resource.Success -> Result.success()
+            is Resource.Success -> {
+                preferencesManager.updateNeedsConfigRestore(true)
+                Result.success()
+            }
         }
     }
 
