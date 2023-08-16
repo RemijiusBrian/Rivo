@@ -11,16 +11,20 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -44,6 +48,11 @@ fun SetBudgetStop(
     val isInputNotEmpty by remember {
         derivedStateOf { input().isNotEmpty() }
     }
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +67,8 @@ fun SetBudgetStop(
             VerticalSpacer(spacing = SpacingExtraLarge)
             LimitInput(
                 input = input,
-                onValueChange = onInputChange
+                onValueChange = onInputChange,
+                focusRequester = focusRequester
             )
         }
 
@@ -72,7 +82,10 @@ fun SetBudgetStop(
         ) {
             ContinueAction(
                 icon = Icons.Default.Check,
-                onClick = onContinueClick
+                onClick = {
+                    focusRequester.freeFocus()
+                    onContinueClick()
+                }
             )
         }
     }
@@ -82,8 +95,10 @@ fun SetBudgetStop(
 private fun LimitInput(
     input: () -> String,
     onValueChange: (String) -> Unit,
+    focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
+    val contentColor = LocalContentColor.current
     Column(
         modifier = modifier
     ) {
@@ -96,20 +111,21 @@ private fun LimitInput(
             value = input(),
             onValueChange = onValueChange,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
             colors = TextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                focusedTextColor = contentColor,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                unfocusedIndicatorColor = MaterialTheme.colorScheme.secondary,
-                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                focusedPlaceholderColor = MaterialTheme.colorScheme.onPrimaryContainer
+                focusedIndicatorColor = contentColor,
+                unfocusedIndicatorColor = contentColor,
+                unfocusedPlaceholderColor = contentColor,
+                focusedPlaceholderColor = contentColor
             ),
             shape = MaterialTheme.shapes.medium,
             placeholder = { Text(stringResource(R.string.enter_budget)) },
