@@ -11,7 +11,7 @@ import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.remote.MEDIA_PART_KEY
 import dev.ridill.mym.settings.data.toBackupDetails
-import dev.ridill.mym.settings.domain.backup.BACKUP_FILE_NAME
+import dev.ridill.mym.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.mym.settings.domain.backup.BackupService
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
@@ -39,10 +39,7 @@ class BackupRepositoryImpl(
         } catch (t: NoBackupFoundThrowable) {
             Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
         } catch (t: Throwable) {
-            Resource.Error(
-                t.localizedMessage?.let { UiText.DynamicString(it) }
-                    ?: UiText.StringResource(R.string.error_unknown)
-            )
+            Resource.Error(UiText.StringResource(R.string.error_unknown))
         }
     }
 
@@ -76,31 +73,30 @@ class BackupRepositoryImpl(
 
             preferencesManager.updateLastBackupTimestamp(DateUtil.now())
             Resource.Success(Unit)
+        } catch (t: BackupCachingFailedThrowable) {
+            Resource.Error(UiText.StringResource(R.string.error_backup_creation_failed))
         } catch (t: Throwable) {
-            t.printStackTrace()
-            Resource.Error(UiText.StringResource(R.string.error_unknown))
+            Resource.Error(UiText.StringResource(R.string.error_app_data_backup_failed))
         }
     }
 
-    override suspend fun performAppDataRestore(): SimpleResource = withContext(Dispatchers.IO) {
+    override suspend fun performAppDataRestore(
+        details: BackupDetails
+    ): SimpleResource = withContext(Dispatchers.IO) {
         try {
             val token = signInService.getAccessToken()
-            val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
-                ?: throw NoBackupFoundThrowable()
-
-            val response = gDriveApi.downloadFile(token, backupFile.id)
+            val response = gDriveApi.downloadFile(token, details.id)
             val fileBody = response.body()
-                ?: throw Throwable("Body Null")
+                ?: throw BackupDownloadFailedThrowable()
 
             backupService.restoreBackupFile(fileBody.byteStream())
-            DateUtil.parse(
-                backupFile.name.removeSuffix("-$BACKUP_FILE_NAME")
-            )?.let { preferencesManager.updateLastBackupTimestamp(it) }
-
+            details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
             Resource.Success(Unit)
+        } catch (t: BackupDownloadFailedThrowable) {
+            Resource.Error(UiText.StringResource(R.string.error_download_backup_failed))
         } catch (t: Throwable) {
             t.printStackTrace()
-            Resource.Error(UiText.StringResource(R.string.error_unknown))
+            Resource.Error(UiText.StringResource(R.string.error_app_data_restore_failed))
         }
     }
 }
@@ -112,3 +108,4 @@ private val backupParents: List<String>
     get() = listOf(APP_DATA_SPACE)
 
 class NoBackupFoundThrowable : Throwable("No Backups Found")
+class BackupDownloadFailedThrowable : Throwable("Failed to download backup data")

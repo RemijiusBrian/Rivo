@@ -12,6 +12,9 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.google.gson.Gson
+import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.settings.domain.modal.BackupInterval
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
@@ -24,6 +27,8 @@ class BackupWorkManager(
 
     companion object {
         const val INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
+        const val KEY_MESSAGE = "KEY_MESSAGE"
+        const val BACKUP_DETAILS_INPUT = "BACKUP_DETAILS_INPUT"
     }
 
     fun schedulePeriodicWorker(interval: BackupInterval) {
@@ -71,10 +76,16 @@ class BackupWorkManager(
         .getWorkInfoByIdLiveData(getUUIDFromName(IMMEDIATE_G_DRIVE_BACKUP_WORK))
         .asFlow()
 
-    fun runImmediateRestoreWork() {
+    fun runImmediateRestoreWork(details: BackupDetails) {
+        val jsonData = Gson().toJson(details)
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(getUUIDFromName(IMMEDIATE_G_DRIVE_RESTORE_WORK))
+            .setInputData(
+                workDataOf(
+                    BACKUP_DETAILS_INPUT to jsonData
+                )
+            )
             .build()
 
         workManager.enqueueUniqueWork(

@@ -85,6 +85,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
         val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
+        val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
         val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
 
         val snackbarController = rememberSnackbarController()
@@ -146,6 +147,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
         WelcomeFlowScreen(
             snackbarController = snackbarController,
             flowStop = flowStop,
+            availableBackup = availableBackup,
             budgetInput = { budgetInput.value },
             restoreState = restoreState,
             actions = viewModel

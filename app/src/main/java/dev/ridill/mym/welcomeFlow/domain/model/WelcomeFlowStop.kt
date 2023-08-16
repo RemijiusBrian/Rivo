@@ -3,6 +3,6 @@ package dev.ridill.mym.welcomeFlow.domain.model
 enum class WelcomeFlowStop {
     WELCOME,
     PERMISSIONS,
-    RESTORE_DATA,
+    GOOGLE_SIGN_IN,
     SET_BUDGET
 }

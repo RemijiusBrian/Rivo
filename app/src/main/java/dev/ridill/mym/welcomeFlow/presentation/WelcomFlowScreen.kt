@@ -34,9 +34,10 @@ import dev.ridill.mym.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.mym.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
+import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
+import dev.ridill.mym.welcomeFlow.presentation.components.GoogleSignInStop
 import dev.ridill.mym.welcomeFlow.presentation.components.PermissionsRationaleStop
-import dev.ridill.mym.welcomeFlow.presentation.components.RestoreDataStop
 import dev.ridill.mym.welcomeFlow.presentation.components.SetBudgetStop
 import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageStop
 
@@ -46,6 +47,7 @@ fun WelcomeFlowScreen(
     flowStop: WelcomeFlowStop,
     budgetInput: () -> String,
     restoreState: WorkInfo.State?,
+    availableBackup: BackupDetails?,
     actions: WelcomeFlowActions
 ) {
     MYMScaffold(
@@ -74,7 +76,7 @@ fun WelcomeFlowScreen(
                     )
 
                     WelcomeFlowStop.PERMISSIONS -> stringResource(R.string.welcome_flow_stop_permissions_title)
-                    WelcomeFlowStop.RESTORE_DATA -> stringResource(R.string.welcome_flow_stop_data_restore_title)
+                    WelcomeFlowStop.GOOGLE_SIGN_IN -> stringResource(R.string.welcome_flow_stop_google_sign_in_title)
                     WelcomeFlowStop.SET_BUDGET -> stringResource(R.string.welcome_flow_stop_set_budget_title)
                 }
                 LargeTitle(title)
@@ -112,11 +114,13 @@ fun WelcomeFlowScreen(
                         )
                     }
 
-                    WelcomeFlowStop.RESTORE_DATA -> {
-                        RestoreDataStop(
+                    WelcomeFlowStop.GOOGLE_SIGN_IN -> {
+                        GoogleSignInStop(
                             restoreState = restoreState,
-                            onCheckForBackupClick = actions::onCheckForBackupClick,
-                            onSkipClick = actions::onSkipDataRestore
+                            onSignInClick = actions::onGoogleSignInClick,
+                            onSkipClick = actions::onSkipSignInOrRestore,
+                            availableBackup = availableBackup,
+                            onRestoreClick = actions::onRestoreDataClick
                         )
                     }
 

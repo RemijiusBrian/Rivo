@@ -96,6 +96,22 @@ class BackupSettingsViewModel @Inject constructor(
                 isBackupWorkerRunning.update {
                     info?.state == WorkInfo.State.RUNNING
                 }
+
+                when (info?.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.backup_complete)))
+                    }
+
+                    WorkInfo.State.FAILED -> {
+                        eventBus.send(BackupEvent.ShowUiMessage(
+                            info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
+                                ?.let { UiText.DynamicString(it) }
+                                ?: UiText.StringResource(R.string.error_app_data_backup_failed)
+                        ))
+                    }
+
+                    else -> Unit
+                }
             }
     }
 
@@ -111,7 +127,11 @@ class BackupSettingsViewModel @Inject constructor(
                     }
 
                     WorkInfo.State.FAILED -> {
-                        eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_backup_failed)))
+                        eventBus.send(BackupEvent.ShowUiMessage(
+                            info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
+                                ?.let { UiText.DynamicString(it) }
+                                ?: UiText.StringResource(R.string.error_app_data_backup_failed)
+                        ))
                     }
 
                     else -> Unit

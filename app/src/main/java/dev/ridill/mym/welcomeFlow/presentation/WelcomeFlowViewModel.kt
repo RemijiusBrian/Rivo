@@ -8,11 +8,14 @@ import androidx.work.WorkInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
+import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.backup.BackupWorkManager
+import dev.ridill.mym.settings.domain.modal.BackupDetails
+import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import kotlinx.coroutines.flow.collectLatest
@@ -26,12 +29,15 @@ class WelcomeFlowViewModel @Inject constructor(
     private val signInService: GoogleSignInService,
     private val backupWorkManager: BackupWorkManager,
     private val settingsRepository: SettingsRepository,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val backupRepository: BackupRepository
 ) : ViewModel(), WelcomeFlowActions {
     val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
     val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
 
     val restoreState = savedStateHandle.getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
+
+    val availableBackup = savedStateHandle.getStateFlow<BackupDetails?>(AVAILABLE_BACKUP, null)
 
     val events = eventBus.eventFlow
 
@@ -51,7 +57,11 @@ class WelcomeFlowViewModel @Inject constructor(
                 }
 
                 WorkInfo.State.FAILED -> {
-                    eventBus.send(WelcomeFlowEvent.ShowUiMessage(UiText.StringResource(R.string.error_app_data_restore_failed)))
+                    eventBus.send(WelcomeFlowEvent.ShowUiMessage(
+                        info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
+                            ?.let { UiText.DynamicString(it) }
+                            ?: UiText.StringResource(R.string.error_app_data_restore_failed)
+                    ))
                 }
 
                 else -> {}
@@ -71,11 +81,11 @@ class WelcomeFlowViewModel @Inject constructor(
 
     override fun onPermissionResponse() {
         viewModelScope.launch {
-            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.RESTORE_DATA
+            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.GOOGLE_SIGN_IN
         }
     }
 
-    override fun onCheckForBackupClick() {
+    override fun onGoogleSignInClick() {
         viewModelScope.launch {
             val signInIntent = signInService.getSignInIntent()
             eventBus.send(WelcomeFlowEvent.LaunchGoogleSignIn(signInIntent))
@@ -95,16 +105,38 @@ class WelcomeFlowViewModel @Inject constructor(
             )
             return@launch
         }
-
-        tryRestoreDataIfBackupExits()
+        checkForBackup()
     }
 
-    private fun tryRestoreDataIfBackupExits() {
-        backupWorkManager.runImmediateRestoreWork()
+    private suspend fun checkForBackup() {
+        when (val resource = backupRepository.checkForBackup()) {
+            is Resource.Error -> {
+                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+            }
+
+            is Resource.Success -> {
+                if (resource.data != null) {
+                    savedStateHandle[AVAILABLE_BACKUP] = resource.data
+                } else {
+                    savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+                }
+            }
+        }
     }
 
-    override fun onSkipDataRestore() {
+    override fun onRestoreDataClick() {
+        val backupDetails = availableBackup.value
+        if (backupDetails == null) {
+            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+            return
+        }
+        backupWorkManager.runImmediateRestoreWork(backupDetails)
+        savedStateHandle[AVAILABLE_BACKUP] = null
+    }
+
+    override fun onSkipSignInOrRestore() {
         viewModelScope.launch {
+            savedStateHandle[AVAILABLE_BACKUP] = null
             savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
         }
     }
@@ -142,3 +174,4 @@ class WelcomeFlowViewModel @Inject constructor(
 private const val FLOW_STOP = "FLOW_STOP"
 private const val BUDGET_INPUT = "BUDGET_INPUT"
 private const val RESTORE_JOB_STATE = "RESTORE_JOB_STATE"
+private const val AVAILABLE_BACKUP = "AVAILABLE_BACKUP"

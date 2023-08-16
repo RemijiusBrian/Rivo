@@ -54,7 +54,7 @@ class GoogleSignInService(
             account,
             "oauth2:${Scopes.DRIVE_APPFOLDER}"
         )
-        println("AppDebug: Access Token - $token")
-        return@withContext "Bearer $token"
+
+        "Bearer $token"
     }
 }

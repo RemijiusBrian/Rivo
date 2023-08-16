@@ -45,6 +45,8 @@
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
     <string name="error_unknown">An Unknown error occurred</string>
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
+    <string name="error_download_backup_failed">Failed to download backup</string>
+    <string name="error_backup_creation_failed">Failed to create backup</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -58,11 +60,11 @@
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
     <string name="welcome_flow_stop_permissions_title">Some Permissions</string>
-    <string name="welcome_flow_stop_data_restore_title">Restore Your App Data</string>
+    <string name="welcome_flow_stop_google_sign_in_title">Google Sign In</string>
+    <string name="welcome_flow_stop_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
     <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
     <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
-    <string name="sign_in_and_restore_data_message">Sign in to your google account and restore your data from your drive</string>
 
     <string name="part_of_day_morning">Morning</string>
     <string name="part_of_day_noon">Noon</string>
@@ -77,6 +79,8 @@
     <!-- Dialog Content -->
     <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
     <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
+    <string name="backup_found_dialog_title">Found Data Backup</string>
+    <string name="backup_found_dialog_content">You seem to have some data backed up from %s, Would you like to restore it?</string>
 
     <string name="permission_notification">Notifications</string>
     <string name="permission_rationale_notification">{@string/app_name} %s needs notification permission to post notifications</string>
@@ -150,7 +154,6 @@
     <string name="update_failed">Update failed</string>
     <string name="backup_account">Backup Account</string>
     <string name="restore">Restore</string>
-    <string name="check_for_backup">Check For Backup</string>
     <string name="choose_backup_interval">Choose Backup Interval</string>
     <string name="backup_now">Backup Now</string>
     <string name="restoring_app_data">Restoring App Data</string>

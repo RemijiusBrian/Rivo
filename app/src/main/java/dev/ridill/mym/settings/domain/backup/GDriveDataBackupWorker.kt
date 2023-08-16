@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.mym.R
@@ -17,15 +18,20 @@ import kotlin.random.Random
 
 @HiltWorker
 class GDriveDataBackupWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
+    @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: BackupRepository,
     private val notificationHelper: BackupNotificationHelper
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
-        when (repo.performAppDataBackup()) {
-            is Resource.Error -> Result.retry()
+        when (val resource = repo.performAppDataBackup()) {
+            is Resource.Error -> Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
+                )
+            )
+
             is Resource.Success -> Result.success()
         }
     }
