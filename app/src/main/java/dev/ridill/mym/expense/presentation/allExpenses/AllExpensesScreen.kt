@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -67,6 +69,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import dev.ridill.mym.R
@@ -142,7 +145,11 @@ fun AllExpensesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr)
+                )
                 .padding(top = SpacingMedium),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
@@ -174,6 +181,9 @@ fun AllExpensesScreen(
                 onBulkOperationClick = actions::onExpenseBulkOperationClick,
                 onExpenseLongClick = actions::onExpenseLongClick,
                 onExpenseClick = actions::onExpenseClick,
+                listContentPadding = PaddingValues(
+                    bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
@@ -556,6 +566,7 @@ private fun ExpenseList(
     multiSelectionModeActive: Boolean,
     onExpenseLongClick: (Long) -> Unit,
     onExpenseClick: (Long) -> Unit,
+    listContentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val isListEmpty by remember(expenseList) {
@@ -594,9 +605,7 @@ private fun ExpenseList(
                 }
             }
             LazyColumn(
-                contentPadding = PaddingValues(
-                    bottom = SpacingListEnd
-                ),
+                contentPadding = listContentPadding,
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
                 items(items = expenseList, key = { it.id }) { expense ->
