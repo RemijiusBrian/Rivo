@@ -161,6 +161,7 @@ private fun NavGraphBuilder.welcomeFlow(navController: NavHostController) {
 private fun NavGraphBuilder.dashboard(navController: NavHostController) {
     composable(
         route = DashboardDestination.route,
+        enterTransition = { simpleFadeIn() },
         exitTransition = { simpleFadeOut() },
         popEnterTransition = { simpleFadeIn() }
     ) { navBackStackEntry ->
