@@ -66,7 +66,6 @@ class SettingsViewModel @Inject constructor(
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
                 ?.let { TextFormatUtil.currency(it) }.orEmpty(),
             showBudgetInput = showMonthlyLimitInput,
-            budgetRecommendations = emptyList(),
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())

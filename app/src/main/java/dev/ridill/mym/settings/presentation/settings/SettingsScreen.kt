@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +51,6 @@ import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingMedium
-import dev.ridill.mym.expense.presentation.components.BudgetRecommendationsRow
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.mym.settings.presentation.components.SwitchPreference
@@ -164,7 +164,6 @@ fun SettingsScreen(
             BudgetInputDialog(
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
-                recommendations = state.budgetRecommendations,
                 placeholder = state.currentMonthlyBudget
             )
         }
@@ -220,22 +219,31 @@ private fun AppThemeSelectionDialog(
 fun BudgetInputDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
-    recommendations: List<Long>,
     modifier: Modifier = Modifier,
     isInputError: Boolean = false,
     focusRequester: FocusRequester = remember { FocusRequester() },
     placeholder: String = ""
 ) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     var input by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = { onConfirm(input) }) {
+            Button(onClick = {
+                focusRequester.freeFocus()
+                onConfirm(input)
+            }) {
                 Text(stringResource(R.string.action_confirm))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = {
+                focusRequester.freeFocus()
+                onDismiss()
+            }) {
                 Text(stringResource(R.string.action_cancel))
             }
         },
@@ -259,22 +267,6 @@ fun BudgetInputDialog(
                     shape = MaterialTheme.shapes.medium,
                     placeholder = { Text(placeholder) }
                 )
-
-                if (recommendations.isNotEmpty()) {
-                    VerticalSpacer(spacing = SpacingMedium)
-                    Text(
-                        text = stringResource(R.string.some_previous_budgets),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                    BudgetRecommendationsRow(
-                        recommendations = recommendations,
-                        onRecommendationClick = {
-                            input = it.toString()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
             }
         },
         modifier = modifier
