@@ -145,7 +145,7 @@
     <string name="new_tag_created">New tag created</string>
     <string name="tag_deleted">Tag deleted</string>
     <string name="tag_deleted_with_expenses">Tag deleted with expenses</string>
-    <string name="amount_spent_at_merchant">%1$s spent at %2$s</string>
+    <string name="amount_spent_towards_merchant">%1$s spent towards %2$s</string>
     <string name="count_new_expenses">%s New Expenses</string>
     <string name="new_expenses_detected">New Expenses Detected</string>
     <string name="feedback_message">Share your experience and let us know how we can help improve your expense management with MYM</string>
@@ -169,4 +169,5 @@
     <string name="some_previous_budgets">Some Previous Budgets</string>
     <string name="delete_with_expenses">With Expenses</string>
     <string name="total_expenditure">Total Expenditure</string>
+    <string name="generic_merchant">Merchant</string>
 </resources>

@@ -42,7 +42,8 @@ class ExpenseSmsReceiver : BroadcastReceiver() {
                 if (!service.isDebitSms(content)) continue
 
                 val amount = service.extractAmount(content)?.toDoubleOrNull() ?: continue
-                val merchant = service.extractMerchant(content) ?: continue
+                val merchant = service.extractMerchant(content)
+                    ?: context.getString(R.string.generic_merchant)
 
                 val insertedId = expenseRepository.cacheExpense(
                     id = null,
@@ -56,7 +57,7 @@ class ExpenseSmsReceiver : BroadcastReceiver() {
                     id = insertedId.toInt(),
                     title = context.getString(R.string.expense_added),
                     content = context.getString(
-                        R.string.amount_spent_at_merchant,
+                        R.string.amount_spent_towards_merchant,
                         TextFormat.currency(amount),
                         merchant
                     )
