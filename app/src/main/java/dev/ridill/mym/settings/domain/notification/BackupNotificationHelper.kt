@@ -39,7 +39,7 @@ class BackupNotificationHelper(
     fun getForegroundNotification(
         @StringRes titleRes: Int
     ): NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(context.getString(titleRes))
         .setProgress(100, 0, true)
         .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFAULT)
