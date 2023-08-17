@@ -11,7 +11,9 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -363,7 +365,7 @@ private fun TagInfoCard(
                     modifier = Modifier
                         .weight(Float.One)
                 )
-                AnimatedVisibility(visible = isSelected) {
+                if (isSelected) {
                     IconButton(onClick = onDeleteClick) {
                         Icon(
                             imageVector = Icons.Rounded.Close,
@@ -373,7 +375,11 @@ private fun TagInfoCard(
                 }
             }
 
-            AnimatedVisibility(visible = isSelected) {
+            AnimatedVisibility(
+                visible = isSelected,
+                enter = slideInVertically() + fadeIn(),
+                exit = slideOutVertically() + fadeOut()
+            ) {
                 Text(
                     text = stringResource(R.string.amount_worth_spent, amount),
                     style = MaterialTheme.typography.titleMedium,
@@ -389,7 +395,8 @@ private fun TagInfoCard(
                     TextFormat.percent(percent)
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
+                color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT),
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
