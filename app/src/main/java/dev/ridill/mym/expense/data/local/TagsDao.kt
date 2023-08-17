@@ -44,4 +44,13 @@ interface TagsDao : BaseDao<TagEntity> {
         untagExpensesByTag(name)
         deleteTagByName(name)
     }
+
+    @Query("DELETE FROM ExpenseEntity WHERE tagId = :tag")
+    suspend fun deleteExpensesByTag(tag: String)
+
+    @Transaction
+    suspend fun deleteTagWithExpenses(tag: String) {
+        deleteExpensesByTag(tag)
+        deleteTagByName(tag)
+    }
 }

@@ -23,4 +23,5 @@ interface AllExpensesActions {
     fun onDeleteTagClick(tagName: String)
     fun onDeleteTagDismiss()
     fun onDeleteTagConfirm()
+    fun onDeleteTagWithExpensesClick()
 }

@@ -330,6 +330,19 @@ class AllExpensesViewModel @Inject constructor(
         }
     }
 
+    override fun onDeleteTagWithExpensesClick() {
+        val tagName = savedStateHandle.get<String?>(DELETION_TAG_NAME) ?: return
+        viewModelScope.launch {
+            tagsRepo.deleteTagWithExpenses(tagName)
+            savedStateHandle[SELECTED_TAG] = null
+            savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
+            savedStateHandle[DELETION_TAG_NAME] = null
+            eventBus.send(
+                AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_expenses))
+            )
+        }
+    }
+
     sealed class AllExpenseEvent {
         data class ShowUiMessage(val uiText: UiText) : AllExpenseEvent()
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllExpenseEvent()

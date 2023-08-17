@@ -203,8 +203,10 @@ fun AllExpensesScreen(
             ConfirmationDialog(
                 titleRes = R.string.delete_tag_confirmation_title,
                 contentRes = R.string.action_irreversible_message,
+                tertiaryActionRes = R.string.delete_with_expenses,
                 onConfirm = actions::onDeleteTagConfirm,
-                onDismiss = actions::onDeleteTagDismiss
+                onDismiss = actions::onDeleteTagDismiss,
+                onTertiaryActionClick = actions::onDeleteTagWithExpensesClick
             )
         }
 

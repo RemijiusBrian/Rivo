@@ -59,4 +59,8 @@ class TagsRepositoryImpl(
     override suspend fun deleteTagByName(name: String) = withContext(Dispatchers.IO) {
         dao.clearAndDeleteTag(name)
     }
+
+    override suspend fun deleteTagWithExpenses(tag: String) = withContext(Dispatchers.IO) {
+        dao.deleteTagWithExpenses(tag)
+    }
 }

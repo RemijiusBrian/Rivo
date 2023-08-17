@@ -2,8 +2,10 @@ package dev.ridill.mym.core.ui.components
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -57,6 +59,52 @@ fun ConfirmationDialog(
         properties = properties
     )
 }
+
+@Composable
+fun ConfirmationDialog(
+    @StringRes titleRes: Int,
+    @StringRes contentRes: Int,
+    @StringRes tertiaryActionRes: Int,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    onTertiaryActionClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes confirmActionRes: Int = R.string.action_confirm,
+    @StringRes dismissActionRes: Int = R.string.action_cancel,
+    showDismissButton: Boolean = true,
+    properties: DialogProperties = DialogProperties()
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(ButtonsMainAxisSpacing),
+                verticalArrangement = Arrangement.spacedBy(ButtonsCrossAxisSpacing)
+            ) {
+                /* OutlinedButton(onClick = onTertiaryActionClick) {
+                     Text(stringResource(tertiaryActionRes))
+                 }*/
+                Button(onClick = onConfirm) {
+                    Text(stringResource(confirmActionRes))
+                }
+            }
+        },
+        dismissButton = {
+            if (showDismissButton) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(dismissActionRes))
+                }
+            }
+        },
+        title = { Text(stringResource(titleRes)) },
+        text = { Text(stringResource(contentRes)) },
+        modifier = modifier,
+        properties = properties
+    )
+}
+
+private val ButtonsMainAxisSpacing = 8.dp
+private val ButtonsCrossAxisSpacing = 12.dp
 
 @Composable
 fun ConfirmationDialog(
