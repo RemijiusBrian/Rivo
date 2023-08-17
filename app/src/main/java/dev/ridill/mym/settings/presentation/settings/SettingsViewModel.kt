@@ -8,7 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.core.domain.util.TextFormatUtil
+import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
@@ -64,7 +64,7 @@ class SettingsViewModel @Inject constructor(
             dynamicColorsEnabled = dynamicThemeEnabled,
             showAppThemeSelection = showAppThemeSelection,
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
-                ?.let { TextFormatUtil.currency(it) }.orEmpty(),
+                ?.let { TextFormat.currency(it) }.orEmpty(),
             showBudgetInput = showMonthlyLimitInput,
             showSmsPermissionRationale = showSmsPermissionRationale
         )

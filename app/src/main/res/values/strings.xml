@@ -168,4 +168,5 @@
     <string name="backing_up_app_data">Backing up app data</string>
     <string name="some_previous_budgets">Some Previous Budgets</string>
     <string name="delete_with_expenses">With Expenses</string>
+    <string name="total_expenditure">Total Expenditure</string>
 </resources>

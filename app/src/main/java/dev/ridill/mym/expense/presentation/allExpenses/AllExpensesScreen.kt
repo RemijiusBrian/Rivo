@@ -61,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -69,21 +70,25 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
-import dev.ridill.mym.core.domain.util.TextFormatUtil
+import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.ElevationLevel0
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
+import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -93,6 +98,7 @@ import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
 import dev.ridill.mym.expense.presentation.components.NewTagDialog
+import dev.ridill.mym.expense.presentation.components.TagColors
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -174,6 +180,7 @@ fun AllExpensesScreen(
 
             ExpenseList(
                 expenseList = state.expenseList,
+                totalExpenditure = state.totalExpenditure,
                 selectedExpenseIds = state.selectedExpenseIds,
                 selectionState = state.expenseSelectionState,
                 multiSelectionModeActive = state.expenseMultiSelectionModeActive,
@@ -182,6 +189,7 @@ fun AllExpensesScreen(
                 onExpenseLongClick = actions::onExpenseLongClick,
                 onExpenseClick = actions::onExpenseClick,
                 listContentPadding = PaddingValues(
+                    top = SpacingSmall,
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                 ),
                 modifier = Modifier
@@ -254,11 +262,11 @@ private fun TagsInfoList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
             state = lazyListState
         ) {
-            items(items = tags) { item ->
+            items(items = tags, key = { it.tag.name }) { item ->
                 TagInfoCard(
                     name = item.tag.name,
                     color = item.tag.color,
-                    amount = TextFormatUtil.currency(item.expenditure),
+                    amount = TextFormat.currency(item.expenditure),
                     percentOfTotalExpenditure = item.percentOfTotalExpenditure,
                     isSelected = item.tag.name == selectedTagId,
                     onClick = { onTagClick(item.tag.name) },
@@ -378,7 +386,7 @@ private fun TagInfoCard(
                 text = if (percent.isNaN()) stringResource(R.string.no_expenditure_yet)
                 else stringResource(
                     R.string.percent_of_total,
-                    TextFormatUtil.percent(percent)
+                    TextFormat.percent(percent)
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
@@ -561,6 +569,7 @@ private fun DateIndicator(
 @Composable
 private fun ExpenseList(
     expenseList: List<ExpenseListItem>,
+    totalExpenditure: Double,
     selectedExpenseIds: List<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
@@ -585,27 +594,30 @@ private fun ExpenseList(
             modifier = Modifier
                 .matchParentSize()
         ) {
-            AnimatedVisibility(visible = multiSelectionModeActive) {
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    ExpenseBulkOperation.values().forEach { operation ->
-                        IconButton(onClick = { onBulkOperationClick(operation) }) {
-                            Icon(
-                                imageVector = operation.icon,
-                                contentDescription = stringResource(operation.contentDescriptionRes)
-                            )
-                        }
-                    }
-                    TriStateCheckbox(
-                        state = selectionState,
-                        onClick = onSelectionStateChange
+            AnimatedContent(
+                targetState = multiSelectionModeActive,
+                label = "TotalExpenditureOrMultiSelectionAnimatedContent",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingMedium)
+            ) { isMultiSelectionMode ->
+                if (isMultiSelectionMode) {
+                    MultiSelectionModeActions(
+                        onBulkOperationClick = onBulkOperationClick,
+                        selectionState = selectionState,
+                        onSelectionStateChange = onSelectionStateChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                } else {
+                    TotalExpenditureAmount(
+                        expenditure = totalExpenditure,
+                        modifier = Modifier
+                            .fillMaxWidth()
                     )
                 }
             }
+
             LazyColumn(
                 contentPadding = listContentPadding,
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
@@ -621,6 +633,62 @@ private fun ExpenseList(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MultiSelectionModeActions(
+    onBulkOperationClick: (ExpenseBulkOperation) -> Unit,
+    selectionState: ToggleableState,
+    onSelectionStateChange: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        ExpenseBulkOperation.values().forEach { operation ->
+            IconButton(onClick = { onBulkOperationClick(operation) }) {
+                Icon(
+                    imageVector = operation.icon,
+                    contentDescription = stringResource(operation.contentDescriptionRes)
+                )
+            }
+        }
+        TriStateCheckbox(
+            state = selectionState,
+            onClick = onSelectionStateChange
+        )
+    }
+}
+
+@Composable
+private fun TotalExpenditureAmount(
+    expenditure: Double,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.total_expenditure),
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        VerticalNumberSpinnerContent(expenditure) { amount ->
+            Text(
+                text = TextFormat.currency(amount),
+                style = MaterialTheme.typography.headlineMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
@@ -651,4 +719,39 @@ private fun ExpenseCard(
             ),
         tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0
     )
+}
+
+@Preview
+@Composable
+private fun PreviewAllExpensesScreen() {
+    MYMTheme {
+        AllExpensesScreen(
+            snackbarController = rememberSnackbarController(),
+            state = AllExpensesState(),
+            tagNameInput = { "" },
+            tagColorInput = { TagColors.first().toArgb() },
+            actions = object : AllExpensesActions {
+                override fun onMonthSelect(month: Month) {}
+                override fun onYearSelect(year: Int) {}
+                override fun onTagClick(tag: String) {}
+                override fun onNewTagClick() {}
+                override fun onNewTagNameChange(value: String) {}
+                override fun onNewTagColorSelect(color: Color) {}
+                override fun onNewTagInputDismiss() {}
+                override fun onNewTagInputConfirm() {}
+                override fun onExpenseLongClick(id: Long) {}
+                override fun onExpenseClick(id: Long) {}
+                override fun onSelectionStateChange() {}
+                override fun onDismissMultiSelectionMode() {}
+                override fun onExpenseBulkOperationClick(operation: ExpenseBulkOperation) {}
+                override fun onDeleteExpenseDismiss() {}
+                override fun onDeleteExpenseConfirm() {}
+                override fun onDeleteTagClick(tagName: String) {}
+                override fun onDeleteTagDismiss() {}
+                override fun onDeleteTagConfirm() {}
+                override fun onDeleteTagWithExpensesClick() {}
+            },
+            navigateUp = {}
+        )
+    }
 }

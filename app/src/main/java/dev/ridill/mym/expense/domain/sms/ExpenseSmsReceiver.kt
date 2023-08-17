@@ -6,7 +6,7 @@ import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.TextFormatUtil
+import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.di.ApplicationScope
 import dev.ridill.mym.expense.domain.notification.ExpenseNotificationHelper
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
@@ -57,7 +57,7 @@ class ExpenseSmsReceiver : BroadcastReceiver() {
                     title = context.getString(R.string.expense_added),
                     content = context.getString(
                         R.string.amount_spent_at_merchant,
-                        TextFormatUtil.currency(amount),
+                        TextFormat.currency(amount),
                         merchant
                     )
                 )

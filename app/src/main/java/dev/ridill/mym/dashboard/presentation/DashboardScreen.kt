@@ -52,7 +52,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
-import dev.ridill.mym.core.domain.util.TextFormatUtil
+import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
@@ -222,7 +222,7 @@ private fun BalanceAndBudget(
                 .alignBy(LastBaseline)
         ) {
             Text(
-                text = stringResource(R.string.fwd_slash_amount_value, TextFormatUtil.currency(it)),
+                text = stringResource(R.string.fwd_slash_amount_value, TextFormat.currency(it)),
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -257,7 +257,7 @@ private fun Balance(
         )
         VerticalNumberSpinnerContent(number = amount) {
             Text(
-                text = TextFormatUtil.currency(it),
+                text = TextFormat.currency(it),
                 style = MaterialTheme.typography.displayLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -386,7 +386,7 @@ private fun SpentAmount(
                 .alignByBaseline()
         ) {
             Text(
-                text = TextFormatUtil.currency(it),
+                text = TextFormat.currency(it),
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

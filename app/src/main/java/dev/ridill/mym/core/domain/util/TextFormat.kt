@@ -4,7 +4,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-object TextFormatUtil {
+object TextFormat {
     fun currency(
         amount: Double,
         locale: Locale = Locale.getDefault(),

@@ -12,7 +12,7 @@ import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.domain.service.ExpEvalService
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.core.domain.util.TextFormatUtil
+import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.domain.util.orZero
@@ -119,8 +119,8 @@ class AddEditExpenseViewModel @Inject constructor(
 
         val isExpression = evalService.isExpression(amountInput)
         val result = if (isExpression) evalService.evalOrNull(amountInput)
-        else TextFormatUtil.parseNumber(amountInput)
-        savedStateHandle[AMOUNT_INPUT] = TextFormatUtil.number(
+        else TextFormat.parseNumber(amountInput)
+        savedStateHandle[AMOUNT_INPUT] = TextFormat.number(
             value = result.orZero(),
             isGroupingUsed = false
         )
@@ -157,7 +157,7 @@ class AddEditExpenseViewModel @Inject constructor(
             val amountInput = amountInput.value.trim()
             val isExp = evalService.isExpression(amountInput)
             val amount = (if (isExp) evalService.evalOrNull(amountInput)
-            else TextFormatUtil.parseNumber(amountInput)) ?: -1.0
+            else TextFormat.parseNumber(amountInput)) ?: -1.0
             if (amount < Double.Zero) {
                 eventBus.send(
                     AddEditExpenseEvent.ShowUiMessage(

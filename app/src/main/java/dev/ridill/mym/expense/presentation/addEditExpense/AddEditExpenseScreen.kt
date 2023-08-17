@@ -55,7 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.TextFormatUtil
+import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -250,7 +250,7 @@ private fun AmountInput(
         value = amount,
         onValueChange = onAmountChange,
         modifier = modifier,
-        prefix = { Text(TextFormatUtil.currencySymbol()) },
+        prefix = { Text(TextFormat.currencySymbol()) },
         textStyle = MaterialTheme.typography.headlineMedium,
         placeholder = {
             Text(
