@@ -22,6 +22,7 @@ import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupSettingsViewModel @Inject constructor(
-    preferencesManager: PreferencesManager,
+    private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<BackupEvent>,
     private val signInService: GoogleSignInService,
     private val savedStateHandle: SavedStateHandle,
@@ -84,6 +85,7 @@ class BackupSettingsViewModel @Inject constructor(
         getSignedInUser()
         collectImmediateBackupWorkState()
         collectPeriodicBackupWorkInfo()
+        collectPeriodicBackupWorkMessage()
     }
 
     private fun getSignedInUser() {
@@ -121,11 +123,16 @@ class BackupSettingsViewModel @Inject constructor(
         backupWorkManager.getPeriodicBackupWorkInfoFlow().collectLatest { info ->
             updateBackupInterval(info)
             isBackupWorkerRunning.update { info?.state == WorkInfo.State.RUNNING }
-
-            info?.outputData?.getString(BackupWorkManager.KEY_MESSAGE)?.let { message ->
-                eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(message)))
-            }
         }
+    }
+
+    private fun collectPeriodicBackupWorkMessage() = viewModelScope.launch {
+        preferences.map { it.periodicBackupWorkMessage }
+            .filterNotNull()
+            .collectLatest { message ->
+                eventBus.send(BackupEvent.ShowUiMessage(message))
+                preferencesManager.updatePeriodicBackupWorkMessage(null)
+            }
     }
 
     private fun updateBackupInterval(info: WorkInfo?) {

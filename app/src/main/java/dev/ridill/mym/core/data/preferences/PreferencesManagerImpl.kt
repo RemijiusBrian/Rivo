@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.mym.core.domain.model.MYMPreferences
 import dev.ridill.mym.core.domain.util.DateUtil
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -28,13 +29,17 @@ class PreferencesManagerImpl(
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parse(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
+            val periodicBackupWorkMessage = preferences[Keys.PERIODIC_BACKUP_WORK_MESSAGE]
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { UiText.DynamicString(it) }
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
-                needsConfigRestore = needsConfigRestore
+                needsConfigRestore = needsConfigRestore,
+                periodicBackupWorkMessage = periodicBackupWorkMessage
             )
         }
 
@@ -78,11 +83,20 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updatePeriodicBackupWorkMessage(message: String?) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.PERIODIC_BACKUP_WORK_MESSAGE] = message.orEmpty()
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
+        val PERIODIC_BACKUP_WORK_MESSAGE = stringPreferencesKey("PERIODIC_BACKUP_WORK_MESSAGE")
     }
 }

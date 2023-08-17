@@ -17,4 +17,5 @@ interface PreferencesManager {
     suspend fun updateDynamicColorsEnabled(enabled: Boolean)
     suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime)
     suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
+    suspend fun updatePeriodicBackupWorkMessage(message: String?)
 }

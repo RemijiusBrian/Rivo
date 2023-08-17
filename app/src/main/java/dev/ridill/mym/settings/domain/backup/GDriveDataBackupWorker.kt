@@ -9,6 +9,7 @@ import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.mym.R
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.notification.BackupNotificationHelper
@@ -22,23 +23,31 @@ class GDriveDataBackupWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: BackupRepository,
-    private val notificationHelper: BackupNotificationHelper
+    private val notificationHelper: BackupNotificationHelper,
+    private val preferencesManager: PreferencesManager
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
         when (val resource = repo.performAppDataBackup()) {
-            is Resource.Error -> Result.failure(
-                workDataOf(
-                    BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
+            is Resource.Error -> {
+                val message = resource.message?.asString(appContext)
+                preferencesManager.updatePeriodicBackupWorkMessage(message)
+                Result.failure(
+                    workDataOf(
+                        BackupWorkManager.KEY_MESSAGE to message
+                    )
                 )
-            )
+            }
 
-            is Resource.Success -> Result.success(
-                workDataOf(
-                    BackupWorkManager.KEY_MESSAGE to UiText.StringResource(R.string.backup_complete)
-                        .asString(appContext)
+            is Resource.Success -> {
+                val message = UiText.StringResource(R.string.backup_complete).asString(appContext)
+                preferencesManager.updatePeriodicBackupWorkMessage(message)
+                Result.success(
+                    workDataOf(
+                        BackupWorkManager.KEY_MESSAGE to message
+                    )
                 )
-            )
+            }
         }
     }
 
