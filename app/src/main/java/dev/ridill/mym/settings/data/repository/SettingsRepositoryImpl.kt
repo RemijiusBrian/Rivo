@@ -16,7 +16,7 @@ class SettingsRepositoryImpl(
     private val dao: MiscConfigDao,
 ) : SettingsRepository {
     override fun getCurrentBudget(): Flow<Long> = dao.getBudgetAmount()
-        .map { it.toLongOrNull().orZero() }
+        .map { it.orZero() }
         .distinctUntilChanged()
 
     override suspend fun updateCurrentBudget(value: Long) {
