@@ -1,5 +1,7 @@
 package dev.ridill.mym.core.ui.components
 
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
@@ -7,7 +9,10 @@ import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,7 +27,16 @@ import kotlinx.coroutines.launch
 fun MYMSnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    snackbar: @Composable (SnackbarData) -> Unit = { MYMSnackbar(it) }
+    snackbar: @Composable (SnackbarData) -> Unit = { snackbarData ->
+        MYMSnackbar(
+            snackbarData = snackbarData,
+            onSwipeDismiss = { dismissValue ->
+                if (dismissValue == DismissValue.DismissedToEnd) {
+                    snackbarData.dismiss()
+                }
+            }
+        )
+    }
 ) = SnackbarHost(
     hostState = hostState,
     modifier = modifier,
@@ -32,6 +46,7 @@ fun MYMSnackbarHost(
 @Composable
 fun MYMSnackbar(
     snackbarData: SnackbarData,
+    onSwipeDismiss: (DismissValue) -> Unit,
     modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
@@ -39,22 +54,36 @@ fun MYMSnackbar(
     contentColor: Color = SnackbarDefaults.contentColor,
     actionColor: Color = SnackbarDefaults.actionColor,
     actionContentColor: Color = SnackbarDefaults.actionContentColor,
-    dismissActionContentColor: Color = SnackbarDefaults.dismissActionContentColor,
+    dismissActionContentColor: Color = SnackbarDefaults.dismissActionContentColor
 ) {
     val visuals = snackbarData.visuals as MYMSnackbarVisuals
     val isError = visuals.isError
-    Snackbar(
-        snackbarData = snackbarData,
-        modifier = modifier,
-        actionOnNewLine = actionOnNewLine,
-        shape = shape,
-        containerColor = if (isError) MaterialTheme.colorScheme.errorContainer
-        else containerColor,
-        contentColor = if (isError) MaterialTheme.colorScheme.onErrorContainer
-        else contentColor,
-        actionColor = actionColor,
-        actionContentColor = actionContentColor,
-        dismissActionContentColor = dismissActionContentColor
+    val dismissState = rememberDismissState(
+        confirmValueChange = {
+            onSwipeDismiss(it)
+            true
+        }
+    )
+
+    SwipeToDismiss(
+        state = dismissState,
+        background = {},
+        dismissContent = {
+            Snackbar(
+                snackbarData = snackbarData,
+                actionOnNewLine = actionOnNewLine,
+                shape = shape,
+                containerColor = if (isError) MaterialTheme.colorScheme.errorContainer
+                else containerColor,
+                contentColor = if (isError) MaterialTheme.colorScheme.onErrorContainer
+                else contentColor,
+                actionColor = actionColor,
+                actionContentColor = actionContentColor,
+                dismissActionContentColor = dismissActionContentColor
+            )
+        },
+        directions = setOf(DismissDirection.StartToEnd),
+        modifier = modifier
     )
 }
 
@@ -86,7 +115,8 @@ class SnackbarController(
         actionLabel: String? = null,
         withDismissAction: Boolean = false,
         duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short
-        else SnackbarDuration.Indefinite
+        else SnackbarDuration.Indefinite,
+        onSnackbarResult: ((SnackbarResult) -> Unit)? = null
     ) {
         cancelCurrentJob()
         snackbarJob = coroutineScope.launch {
@@ -98,7 +128,8 @@ class SnackbarController(
                 withDismissAction = withDismissAction
             )
 
-            snackbarHostState.showSnackbar(visuals)
+            val snackbarResult = snackbarHostState.showSnackbar(visuals)
+            onSnackbarResult?.invoke(snackbarResult)
         }
     }
 }
