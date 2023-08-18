@@ -96,6 +96,7 @@ class AllExpensesViewModel @Inject constructor(
         .getStateFlow(TAG_NAME_INPUT, "")
     val tagColorInput = savedStateHandle
         .getStateFlow<Int?>(TAG_COLOR_INPUT, null)
+    private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     val state = combineTuple(
         selectedDate,
@@ -109,7 +110,8 @@ class AllExpensesViewModel @Inject constructor(
         expenseMultiSelectionModeActive,
         showDeleteExpenseConfirmation,
         showDeleteTagConfirmation,
-        showNewTagInput
+        showNewTagInput,
+        newTagError
     ).map { (
                 selectedDate,
                 yearsList,
@@ -122,7 +124,8 @@ class AllExpensesViewModel @Inject constructor(
                 expenseMultiSelectionModeActive,
                 showDeleteExpenseConfirmation,
                 showDeleteTagConfirmation,
-                showNewTagInput
+                showNewTagInput,
+                newTagError
             ) ->
         AllExpensesState(
             selectedDate = selectedDate,
@@ -136,7 +139,8 @@ class AllExpensesViewModel @Inject constructor(
             expenseMultiSelectionModeActive = expenseMultiSelectionModeActive,
             showDeleteExpenseConfirmation = showDeleteExpenseConfirmation,
             showDeleteTagConfirmation = showDeleteTagConfirmation,
-            showNewTagInput = showNewTagInput
+            showNewTagInput = showNewTagInput,
+            newTagError = newTagError
         )
     }.asStateFlow(viewModelScope, AllExpensesState())
 
@@ -166,11 +170,13 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
+        savedStateHandle[TAG_COLOR_INPUT] = TagColors.first().toArgb()
         savedStateHandle[SHOW_NEW_TAG_INPUT] = true
     }
 
     override fun onNewTagNameChange(value: String) {
         savedStateHandle[TAG_NAME_INPUT] = value
+        savedStateHandle[NEW_TAG_ERROR] = null
     }
 
     override fun onNewTagColorSelect(color: Color) {
@@ -184,18 +190,20 @@ class AllExpensesViewModel @Inject constructor(
     override fun onNewTagInputConfirm() {
         viewModelScope.launch {
             val name = tagNameInput.value.trim()
-            val color = tagColorInput.value?.let { Color(it) }
-                ?: TagColors.first()
-
             if (name.isEmpty()) {
-                clearAndHideTagInput()
-                eventBus.send(
-                    AllExpenseEvent.ShowUiMessage(
-                        UiText.StringResource(
-                            R.string.error_invalid_tag_name,
-                            true
-                        )
-                    )
+                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
+                    R.string.error_invalid_tag_name,
+                    isErrorText = true
+                )
+                return@launch
+            }
+
+            val color = tagColorInput.value?.let { Color(it) }
+
+            if (color == null) {
+                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
+                    R.string.error_invalid_tag_color,
+                    true
                 )
                 return@launch
             }
@@ -359,3 +367,4 @@ private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_NAME_INPUT = "TAG_NAME_INPUT"
 private const val TAG_COLOR_INPUT = "TAG_COLOR_INPUT"
 private const val DELETION_TAG_NAME = "DELETION_TAG_NAME"
+private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"

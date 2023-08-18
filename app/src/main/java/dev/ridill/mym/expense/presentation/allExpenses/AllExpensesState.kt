@@ -3,6 +3,7 @@ package dev.ridill.mym.expense.presentation.allExpenses
 import androidx.compose.ui.state.ToggleableState
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import java.time.LocalDate
@@ -19,5 +20,6 @@ data class AllExpensesState(
     val expenseMultiSelectionModeActive: Boolean = false,
     val showDeleteExpenseConfirmation: Boolean = false,
     val showDeleteTagConfirmation: Boolean = false,
-    val showNewTagInput: Boolean = false
+    val showNewTagInput: Boolean = false,
+    val newTagError: UiText? = null
 )

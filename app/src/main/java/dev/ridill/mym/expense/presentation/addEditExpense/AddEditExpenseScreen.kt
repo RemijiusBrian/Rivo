@@ -210,7 +210,8 @@ fun AddEditExpenseScreen(
                 selectedColorCode = tagColorInput(),
                 onColorSelect = actions::onNewTagColorSelect,
                 onDismiss = actions::onNewTagInputDismiss,
-                onConfirm = actions::onNewTagInputConfirm
+                onConfirm = actions::onNewTagInputConfirm,
+                errorMessage = state.newTagError
             )
         }
 

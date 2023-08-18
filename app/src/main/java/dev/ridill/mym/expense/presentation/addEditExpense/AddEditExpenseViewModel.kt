@@ -62,6 +62,7 @@ class AddEditExpenseViewModel @Inject constructor(
         .getStateFlow(TAG_NAME_INPUT, "")
     val tagColorInput = savedStateHandle
         .getStateFlow<Int?>(TAG_COLOR_INPUT, null)
+    private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
 
@@ -72,6 +73,7 @@ class AddEditExpenseViewModel @Inject constructor(
         expenseTimestamp,
         showDeleteConfirmation,
         showNewTagInput,
+        newTagError,
         showDateTimePicker
     ).map { (
                 amountRecommendations,
@@ -80,6 +82,7 @@ class AddEditExpenseViewModel @Inject constructor(
                 expenseTimestamp,
                 showDeleteConfirmation,
                 showNewTagInput,
+                newTagError,
                 showDateTimePicker
             ) ->
         AddEditExpenseState(
@@ -89,6 +92,7 @@ class AddEditExpenseViewModel @Inject constructor(
             expenseTimestamp = expenseTimestamp,
             showDeleteConfirmation = showDeleteConfirmation,
             showNewTagInput = showNewTagInput,
+            newTagError = newTagError,
             showDateTimePicker = showDateTimePicker
         )
     }.asStateFlow(viewModelScope, AddEditExpenseState())
@@ -212,11 +216,14 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
+        savedStateHandle[TAG_COLOR_INPUT] = TagColors.first().toArgb()
         savedStateHandle[SHOW_NEW_TAG_INPUT] = true
     }
 
     override fun onNewTagNameChange(value: String) {
         savedStateHandle[TAG_NAME_INPUT] = value
+        savedStateHandle[NEW_TAG_ERROR] = null
+
     }
 
     override fun onNewTagColorSelect(color: Color) {
@@ -231,17 +238,19 @@ class AddEditExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             val name = tagNameInput.value.trim()
             val color = tagColorInput.value?.let { Color(it) }
-                ?: TagColors.first()
 
             if (name.isEmpty()) {
-                clearAndHideTagInput()
-                eventBus.send(
-                    AddEditExpenseEvent.ShowUiMessage(
-                        UiText.StringResource(
-                            R.string.error_invalid_tag_name,
-                            true
-                        )
-                    )
+                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
+                    R.string.error_invalid_tag_name,
+                    true
+                )
+                return@launch
+            }
+
+            if (color == null) {
+                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
+                    R.string.error_invalid_tag_color,
+                    true
                 )
                 return@launch
             }
@@ -282,6 +291,7 @@ private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_NAME_INPUT = "TAG_NAME_INPUT"
 private const val TAG_COLOR_INPUT = "TAG_COLOR_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
+private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 
 const val RESULT_EXPENSE_ADDED = "RESULT_EXPENSE_ADDED"
 const val RESULT_EXPENSE_UPDATED = "RESULT_EXPENSE_UPDATED"

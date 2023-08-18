@@ -26,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
+import dev.ridill.mym.core.ui.util.UiText
 
 @Composable
 fun NewTagChip(
@@ -74,8 +76,13 @@ fun NewTagDialog(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     tagColors: List<Color> = TagColors,
+    errorMessage: UiText?,
     focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -105,7 +112,9 @@ fun NewTagDialog(
                         capitalization = KeyboardCapitalization.Words,
                         imeAction = ImeAction.Done
                     ),
-                    label = { Text(stringResource(R.string.tag_name)) }
+                    label = { Text(stringResource(R.string.tag_name)) },
+                    supportingText = { errorMessage?.let { Text(it.asString()) } },
+                    isError = errorMessage != null
                 )
 
                 LazyRow(
