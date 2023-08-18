@@ -10,5 +10,5 @@ data class MYMPreferences(
     val dynamicColorsEnabled: Boolean,
     val lastBackupDateTime: LocalDateTime?,
     val needsConfigRestore: Boolean,
-    val periodicBackupWorkMessage: UiText?
+    val backupWorkerMessage: UiText?
 )

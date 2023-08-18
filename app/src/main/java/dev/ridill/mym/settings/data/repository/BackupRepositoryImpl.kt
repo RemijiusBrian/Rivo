@@ -7,6 +7,7 @@ import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.model.SimpleResource
 import dev.ridill.mym.core.domain.service.GoogleSignInService
 import dev.ridill.mym.core.domain.util.DateUtil
+import dev.ridill.mym.core.domain.util.logE
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.data.remote.GDriveApi
 import dev.ridill.mym.settings.data.remote.MEDIA_PART_KEY
@@ -37,19 +38,16 @@ class BackupRepositoryImpl(
             val backupDetails = backupFile.toBackupDetails()
             Resource.Success(backupDetails)
         } catch (t: NoBackupFoundThrowable) {
+            logE(t)
             Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
         } catch (t: Throwable) {
+            logE(t)
             Resource.Error(UiText.StringResource(R.string.error_unknown))
         }
     }
 
     override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
         try {
-            val token = signInService.getAccessToken()
-            gDriveApi.getFilesInAppDataFolder(token).files.forEach { file ->
-                gDriveApi.deleteFile(token, file.id)
-            }
-
             val backupFile = backupService.buildBackupFile()
             val metadataMap = mapOf(
                 "name" to backupFile.name,
@@ -65,6 +63,7 @@ class BackupRepositoryImpl(
                 fileBody
             )
 
+            val token = signInService.getAccessToken()
             gDriveApi.uploadFile(
                 token = token,
                 metadata = metadataPart,
@@ -72,11 +71,22 @@ class BackupRepositoryImpl(
             )
 
             preferencesManager.updateLastBackupTimestamp(DateUtil.now())
+            gDriveApi.getOtherFilesInDrive(token).files
+                .drop(1)
+                .forEach { file ->
+                    gDriveApi.deleteFile(token, file.id)
+                }
+
             Resource.Success(Unit)
         } catch (t: BackupCachingFailedThrowable) {
+            logE(t)
             Resource.Error(UiText.StringResource(R.string.error_backup_creation_failed))
         } catch (t: Throwable) {
-            Resource.Error(UiText.StringResource(R.string.error_app_data_backup_failed))
+            logE(t)
+            Resource.Error(
+                t.localizedMessage?.let { UiText.DynamicString(it) }
+                    ?: UiText.StringResource(R.string.error_app_data_backup_failed)
+            )
         }
     }
 
@@ -93,9 +103,10 @@ class BackupRepositoryImpl(
             details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
             Resource.Success(Unit)
         } catch (t: BackupDownloadFailedThrowable) {
+            logE(t)
             Resource.Error(UiText.StringResource(R.string.error_download_backup_failed))
         } catch (t: Throwable) {
-            t.printStackTrace()
+            logE(t)
             Resource.Error(UiText.StringResource(R.string.error_app_data_restore_failed))
         }
     }

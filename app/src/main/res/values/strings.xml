@@ -98,8 +98,6 @@
     <string name="preference_current_budget_summary">Your budget is set to %s</string>
     <string name="preference_auto_add_expenses">Auto Add Expenses</string>
     <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
-    <string name="preference_feedback">Feedback</string>
-    <string name="preference_feedback_summary">Provide feedback to the developer</string>
     <string name="preference_source_code">Source Code</string>
     <string name="preference_version">Version</string>
     <string name="preference_backup">Backup</string>
@@ -148,7 +146,6 @@
     <string name="amount_spent_towards_merchant">%1$s spent towards %2$s</string>
     <string name="count_new_expenses">%s New Expenses</string>
     <string name="new_expenses_detected">New Expenses Detected</string>
-    <string name="feedback_message">Share your experience and let us know how we can help improve your expense management with MYM</string>
     <string name="no_expenditure_yet">No Expenditure Yet</string>
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>
@@ -164,7 +161,7 @@
     <string name="last_backup">Last Backup</string>
     <string name="date_label">Date: %s</string>
     <string name="time_label">Time: %s</string>
-    <string name="backup_complete">Data backed up to you google drive</string>
+    <string name="backup_complete">Data backed up to your google drive</string>
     <string name="backing_up_app_data">Backing up app data</string>
     <string name="some_previous_budgets">Some Previous Budgets</string>
     <string name="delete_with_expenses">With Expenses</string>

@@ -31,7 +31,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         when (val resource = repo.performAppDataBackup()) {
             is Resource.Error -> {
                 val message = resource.message?.asString(appContext)
-                preferencesManager.updatePeriodicBackupWorkMessage(message)
+                preferencesManager.updateBackupWorkerMessage(message)
                 Result.failure(
                     workDataOf(
                         BackupWorkManager.KEY_MESSAGE to message
@@ -41,7 +41,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
 
             is Resource.Success -> {
                 val message = UiText.StringResource(R.string.backup_complete).asString(appContext)
-                preferencesManager.updatePeriodicBackupWorkMessage(message)
+                preferencesManager.updateBackupWorkerMessage(message)
                 Result.success(
                     workDataOf(
                         BackupWorkManager.KEY_MESSAGE to message

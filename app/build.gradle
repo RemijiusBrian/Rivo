@@ -179,6 +179,9 @@ dependencies {
 
     // Google Cloud Services
     implementation("com.google.android.gms:play-services-auth:20.6.0")
+
+    // Timber Logging
+    implementation("com.jakewharton.timber:timber:5.0.1")
 }
 
 kapt {

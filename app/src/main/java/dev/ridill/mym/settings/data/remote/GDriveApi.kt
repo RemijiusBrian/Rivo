@@ -27,8 +27,8 @@ interface GDriveApi {
         @Part file: MultipartBody.Part
     ): GDriveFileDto
 
-    @GET("drive/v3/files?orderBy=recency&q=trashed=false&spaces=appDataFolder")
-    suspend fun getFilesInAppDataFolder(
+    @GET("drive/v3/files?orderBy=createdTime desc&q=trashed=false&spaces=appDataFolder")
+    suspend fun getOtherFilesInDrive(
         @Header(AUTH_HEADER_KEY) token: String
     ): GDriveFilesListResponse
 
@@ -48,7 +48,7 @@ interface GDriveApi {
     suspend fun deleteFile(
         @Header(AUTH_HEADER_KEY) token: String,
         @Path("fileId") fileId: String
-    )
+    ): Response<Void>
 }
 
 private const val AUTH_HEADER_KEY = "Authorization"

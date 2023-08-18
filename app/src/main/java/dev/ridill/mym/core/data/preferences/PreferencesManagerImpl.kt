@@ -29,7 +29,7 @@ class PreferencesManagerImpl(
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parse(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
-            val periodicBackupWorkMessage = preferences[Keys.PERIODIC_BACKUP_WORK_MESSAGE]
+            val backupWorkerMessage = preferences[Keys.BACKUP_WORKER_MESSAGE]
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { UiText.DynamicString(it) }
 
@@ -39,7 +39,7 @@ class PreferencesManagerImpl(
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
-                periodicBackupWorkMessage = periodicBackupWorkMessage
+                backupWorkerMessage = backupWorkerMessage
             )
         }
 
@@ -83,10 +83,10 @@ class PreferencesManagerImpl(
         }
     }
 
-    override suspend fun updatePeriodicBackupWorkMessage(message: String?) {
+    override suspend fun updateBackupWorkerMessage(message: String?) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.PERIODIC_BACKUP_WORK_MESSAGE] = message.orEmpty()
+                preferences[Keys.BACKUP_WORKER_MESSAGE] = message.orEmpty()
             }
         }
     }
@@ -97,6 +97,6 @@ class PreferencesManagerImpl(
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
-        val PERIODIC_BACKUP_WORK_MESSAGE = stringPreferencesKey("PERIODIC_BACKUP_WORK_MESSAGE")
+        val BACKUP_WORKER_MESSAGE = stringPreferencesKey("BACKUP_WORKER_MESSAGE")
     }
 }
