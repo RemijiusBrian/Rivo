@@ -67,7 +67,6 @@ import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
-import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -130,7 +129,7 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(SpacingLarge)
+            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
             Greeting(
                 username = state.signedInUsername,
