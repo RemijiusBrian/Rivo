@@ -750,7 +750,7 @@ private fun DeleteTagDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(stringResource(R.string.delete_tag))
+                    Text(stringResource(R.string.action_delete))
                 }
                 OutlinedButton(
                     onClick = onDeleteTagWithExpenses,
