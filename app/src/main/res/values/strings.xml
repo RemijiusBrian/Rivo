@@ -165,7 +165,8 @@
     <string name="backup_complete">Data backed up to your google drive</string>
     <string name="backing_up_app_data">Backing up app data</string>
     <string name="some_previous_budgets">Some Previous Budgets</string>
-    <string name="delete_with_expenses">With Expenses</string>
+    <string name="delete_tag_with_expenses">Delete With Expenses</string>
     <string name="total_expenditure">Total Expenditure</string>
     <string name="generic_merchant">Merchant</string>
+    <string name="delete_tag">Delete Tag</string>
 </resources>

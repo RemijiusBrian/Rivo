@@ -38,6 +38,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedFilterChip
@@ -46,8 +48,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TriStateCheckbox
@@ -91,6 +95,7 @@ import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.ElevationLevel0
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.MYMTheme
+import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -210,13 +215,10 @@ fun AllExpensesScreen(
         }
 
         if (state.showDeleteTagConfirmation) {
-            ConfirmationDialog(
-                titleRes = R.string.delete_tag_confirmation_title,
-                contentRes = R.string.action_irreversible_message,
-                tertiaryActionRes = R.string.delete_with_expenses,
-                onConfirm = actions::onDeleteTagConfirm,
-                onDismiss = actions::onDeleteTagDismiss,
-                onTertiaryActionClick = actions::onDeleteTagWithExpensesClick
+            DeleteTagDialog(
+                onDeleteTag = actions::onDeleteTagConfirm,
+                onDeleteTagWithExpenses = actions::onDeleteTagWithExpensesClick,
+                onDismiss = actions::onDeleteTagDismiss
             )
         }
 
@@ -726,6 +728,48 @@ private fun ExpenseCard(
                 onLongClickLabel = stringResource(R.string.cd_long_press_to_select_expense)
             ),
         tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0
+    )
+}
+
+@Composable
+private fun DeleteTagDialog(
+    onDeleteTag: () -> Unit,
+    onDeleteTagWithExpenses: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+            ) {
+                Button(
+                    onClick = onDeleteTag,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.delete_tag))
+                }
+                OutlinedButton(
+                    onClick = onDeleteTagWithExpenses,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.delete_tag_with_expenses))
+                }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        },
+        title = { Text(stringResource(R.string.delete_tag_confirmation_title)) },
+        text = { Text(stringResource(R.string.action_irreversible_message)) }
     )
 }
 
