@@ -18,6 +18,7 @@ import dev.ridill.mym.core.data.db.Migration_1_2
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.data.preferences.PreferencesManagerImpl
 import dev.ridill.mym.core.domain.service.ExpEvalService
+import dev.ridill.mym.core.domain.service.ReceiverService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
@@ -60,6 +61,11 @@ object AppModule {
     @ApplicationScope
     @Provides
     fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob())
+
+    @Provides
+    fun provideReceiverService(
+        @ApplicationContext context: Context
+    ): ReceiverService = ReceiverService(context)
 }
 
 @Qualifier
