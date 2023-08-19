@@ -7,8 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlin.system.exitProcess
@@ -57,9 +55,3 @@ fun Context.restartApplication() {
     startActivity(intent)
     exitProcess(0)
 }
-
-fun Color.contentColor(
-    onLight: Color = Color.Black,
-    onDark: Color = Color.White
-): Color = if (luminance() >= 0.4f) onLight
-else onDark

@@ -1,6 +1,7 @@
 package dev.ridill.mym.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 val md_theme_light_primary = Color(0xFF006B5B)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
@@ -70,3 +71,9 @@ object ContentAlpha {
     const val PERCENT_90 = 0.90f
     const val SUB_CONTENT = 0.72f
 }
+
+fun Color.contentColor(
+    onLight: Color = Color.Black,
+    onDark: Color = Color.White
+): Color = if (luminance() >= 0.4f) onLight
+else onDark
