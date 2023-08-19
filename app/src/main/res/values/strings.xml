@@ -15,7 +15,7 @@
     <string name="notification_channel_group_name_expenses">Expenses</string>
     <string name="notification_channel_name_auto_add_expenses">Auto Add Expenses</string>
     <string name="notification_channel_group_name_others">Others</string>
-    <string name="notification_channel_name_backups">Backups</string>
+    <string name="notification_channel_name_backups">Data Backups</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_budget">Set Monthly Budget</string>

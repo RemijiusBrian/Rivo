@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.notification.NotificationHelper
+import dev.ridill.mym.core.domain.util.Empty
 
 class BackupNotificationHelper(
     private val context: Context
@@ -23,6 +24,7 @@ class BackupNotificationHelper(
         val group = NotificationChannelGroupCompat
             .Builder(NotificationHelper.Groups.OTHERS)
             .setName(context.getString(R.string.notification_channel_group_name_others))
+            .setDescription(String.Empty)
             .build()
         notificationManager.createNotificationChannelGroup(group)
     }
