@@ -56,10 +56,9 @@ class ExpenseNotificationHelper(
         val notification = buildBaseNotification()
             .setContentTitle(title)
             .apply {
-                if (!content.isNullOrEmpty()) setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(content)
-                )
+                if (!content.isNullOrEmpty()) {
+                    setContentText(content)
+                }
             }
             .setAutoCancel(true)
             .setContentIntent(buildContentIntent(id))
@@ -113,7 +112,7 @@ class ExpenseNotificationHelper(
         )
 
         return NotificationCompat.Action.Builder(
-            R.drawable.ic_launcher_foreground,
+            R.drawable.ic_notification,
             context.getString(R.string.action_delete),
             pendingIntent
         ).build()
@@ -122,4 +121,4 @@ class ExpenseNotificationHelper(
 
 private const val CHANNEL_ID = "dev.ridill.mym.CHANNEL_AUTO_ADD_EXPENSE_NOTIFICATIONS"
 private const val SUMMARY_GROUP = "dev.ridill.mym.AUTO_ADDED_EXPENSES"
-private const val SUMMARY_ID = 1
+private const val SUMMARY_ID = Int.MAX_VALUE - 1
