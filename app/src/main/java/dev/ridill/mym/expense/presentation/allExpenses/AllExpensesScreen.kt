@@ -39,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -380,7 +381,7 @@ private fun TagInfoCard(
                     if (isSelected) {
                         IconButton(onClick = onDeleteClick) {
                             Icon(
-                                imageVector = Icons.Rounded.Close,
+                                imageVector = Icons.Rounded.DeleteOutline,
                                 contentDescription = stringResource(R.string.cd_delete_tag)
                             )
                         }
