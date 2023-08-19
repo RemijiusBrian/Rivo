@@ -55,7 +55,7 @@ class ExpenseSmsReceiver : BroadcastReceiver() {
 
                 notificationHelper.postNotification(
                     id = insertedId.toInt(),
-                    title = context.getString(R.string.expense_added),
+                    title = context.getString(R.string.new_expenses_detected),
                     content = context.getString(
                         R.string.amount_spent_towards_merchant,
                         TextFormat.currency(amount),

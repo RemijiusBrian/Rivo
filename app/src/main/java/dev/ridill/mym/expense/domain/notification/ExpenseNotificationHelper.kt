@@ -66,14 +66,14 @@ class ExpenseNotificationHelper(
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
             .build()
 
-        val summaryNotification = buildBaseNotification()
-            .setGroupSummary(true)
-            .setAutoCancel(true)
-            .build()
+        /* val summaryNotification = buildBaseNotification()
+             .setGroupSummary(true)
+             .setAutoCancel(true)
+             .build()*/
 
         with(notificationManager) {
             notify(id, notification)
-            notify(SUMMARY_ID, summaryNotification)
+//            notify(SUMMARY_ID, summaryNotification)
         }
     }
 
@@ -121,4 +121,4 @@ class ExpenseNotificationHelper(
 
 private const val CHANNEL_ID = "dev.ridill.mym.CHANNEL_AUTO_ADD_EXPENSE_NOTIFICATIONS"
 private const val SUMMARY_GROUP = "dev.ridill.mym.AUTO_ADDED_EXPENSES"
-private const val SUMMARY_ID = Int.MAX_VALUE - 1
+//private const val SUMMARY_ID = Int.MAX_VALUE - 1
