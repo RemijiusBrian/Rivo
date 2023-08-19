@@ -3,6 +3,7 @@ package dev.ridill.mym.expense.presentation.allExpenses
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -46,6 +47,7 @@ import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -67,6 +69,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -89,6 +92,7 @@ import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.theme.ContentAlpha
@@ -186,6 +190,7 @@ fun AllExpensesScreen(
             )
 
             ExpenseList(
+                selectedTag = state.selectedTag,
                 expenseList = state.expenseList,
                 totalExpenditure = state.totalExpenditure,
                 selectedExpenseIds = state.selectedExpenseIds,
@@ -350,56 +355,71 @@ private fun TagInfoCard(
         Column(
             modifier = Modifier
                 .padding(SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier
+                    .weight(Float.One),
+                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
             ) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleLarge
-                        .copy(
-                            fontSize = titleTextSize,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .weight(Float.One)
-                )
-                if (isSelected) {
-                    IconButton(onClick = onDeleteClick) {
-                        Icon(
-                            imageVector = Icons.Rounded.Close,
-                            contentDescription = stringResource(R.string.cd_delete_tag)
-                        )
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleLarge
+                            .copy(
+                                fontSize = titleTextSize,
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(Float.One)
+                    )
+                    if (isSelected) {
+                        IconButton(onClick = onDeleteClick) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.cd_delete_tag)
+                            )
+                        }
                     }
                 }
-            }
 
-            AnimatedVisibility(
-                visible = isSelected,
-                enter = slideInVertically() + fadeIn(),
-                exit = slideOutVertically() + fadeOut()
-            ) {
-                Text(
-                    text = stringResource(R.string.amount_worth_spent, amount),
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                AnimatedVisibility(
+                    visible = isSelected,
+                    enter = slideInVertically() + fadeIn(),
+                    exit = slideOutVertically() + fadeOut()
+                ) {
+                    Text(
+                        text = stringResource(R.string.amount_worth_spent, amount),
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
 
             Text(
                 text = if (percent.isNaN()) stringResource(R.string.no_expenditure_yet)
                 else stringResource(
-                    R.string.percent_of_total,
+                    R.string.percent_of_expenditure,
                     TextFormat.percent(percent)
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT),
                 overflow = TextOverflow.Ellipsis
+            )
+
+            VerticalSpacer(spacing = SpacingExtraSmall)
+
+            LinearProgressIndicator(
+                progress = percent,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                color = color,
+                strokeCap = StrokeCap.Round
             )
         }
     }
@@ -578,6 +598,7 @@ private fun DateIndicator(
 
 @Composable
 private fun ExpenseList(
+    selectedTag: String?,
     expenseList: List<ExpenseListItem>,
     totalExpenditure: Double,
     selectedExpenseIds: List<Long>,
@@ -626,6 +647,19 @@ private fun ExpenseList(
                             .fillMaxWidth()
                     )
                 }
+            }
+
+            Crossfade(
+                targetState = selectedTag ?: stringResource(R.string.all_expenses),
+                label = "SelectedTag",
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
+            ) { tag ->
+                Text(
+                    text = tag,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
 
             LazyColumn(

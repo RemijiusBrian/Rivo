@@ -133,7 +133,7 @@
     <string name="enter_budget">Enter Budget</string>
     <string name="tag_your_expense">Tag your expense</string>
     <string name="new_tag_chip_label">New</string>
-    <string name="percent_of_total">%s Percent of total</string>
+    <string name="percent_of_expenditure">%s Percent of expenditure</string>
     <string name="amount_worth_spent">%s worth spent</string>
     <string name="count_selected">%s Selected</string>
     <string name="click_tag_to_assign_to_selected_expenses">Click on a tag to assign it to the selected expenses</string>
@@ -168,4 +168,5 @@
     <string name="delete_tag_with_expenses">Delete Tag and Expenses</string>
     <string name="total_expenditure">Total Expenditure</string>
     <string name="generic_merchant">Merchant</string>
+    <string name="all_expenses">All Expenses</string>
 </resources>
