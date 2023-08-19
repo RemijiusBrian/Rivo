@@ -66,7 +66,7 @@ import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
-import dev.ridill.mym.core.ui.util.contentColor
+import dev.ridill.mym.core.ui.theme.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.expense.presentation.components.NewTagChip
