@@ -10,7 +10,7 @@ interface SettingsActions {
     fun onMonthlyBudgetPreferenceClick()
     fun onMonthlyBudgetInputDismiss()
     fun onMonthlyBudgetInputConfirm(value: String)
-    fun onAutoAddExpensePreferenceClick()
+    fun onToggleAutoAddExpense(enabled: Boolean)
     fun onSmsPermissionRationaleDismiss()
     fun onSmsPermissionRationaleAgree()
 }

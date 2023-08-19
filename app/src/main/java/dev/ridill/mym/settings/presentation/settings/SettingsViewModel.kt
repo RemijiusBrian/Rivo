@@ -36,9 +36,12 @@ class SettingsViewModel @Inject constructor(
     private val monthlyBudget = repo.getCurrentBudget()
         .distinctUntilChanged()
 
+    private val autoAddExpenseEnabled = preferences.map { it.autoAddExpenseEnabled }
+        .distinctUntilChanged()
+
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
-    private val showMonthlyLimitInput = savedStateHandle
+    private val showMonthlyBudgetInput = savedStateHandle
         .getStateFlow(SHOW_MONTHLY_LIMIT_INPUT, false)
 
     private val showSmsPermissionRationale = savedStateHandle
@@ -49,14 +52,16 @@ class SettingsViewModel @Inject constructor(
         dynamicColorsEnabled,
         showAppThemeSelection,
         monthlyBudget,
-        showMonthlyLimitInput,
+        showMonthlyBudgetInput,
+        autoAddExpenseEnabled,
         showSmsPermissionRationale
     ).map { (
                 appTheme,
                 dynamicThemeEnabled,
                 showAppThemeSelection,
                 monthlyBudget,
-                showMonthlyLimitInput,
+                showMonthlyBudgetInput,
+                autoAddExpenseEnabled,
                 showSmsPermissionRationale
             ) ->
         SettingsState(
@@ -65,7 +70,8 @@ class SettingsViewModel @Inject constructor(
             showAppThemeSelection = showAppThemeSelection,
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
                 ?.let { TextFormat.currency(it) }.orEmpty(),
-            showBudgetInput = showMonthlyLimitInput,
+            showBudgetInput = showMonthlyBudgetInput,
+            autoAddExpenseEnabled = autoAddExpenseEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())
@@ -126,8 +132,20 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    override fun onAutoAddExpensePreferenceClick() {
-        savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = true
+    override fun onToggleAutoAddExpense(enabled: Boolean) {
+        viewModelScope.launch {
+            savedStateHandle[TEMP_AUTO_ADD_EXPENSE_STATE] = enabled
+            eventBus.send(SettingsEvent.RequestSMSPermission)
+        }
+    }
+
+    fun onSmsPermissionResult(granted: Boolean) = viewModelScope.launch {
+        if (granted) {
+            val enabled = savedStateHandle.get<Boolean?>(TEMP_AUTO_ADD_EXPENSE_STATE) == true
+            preferencesManager.updateAutoAddExpenseEnabled(enabled)
+            savedStateHandle[TEMP_AUTO_ADD_EXPENSE_STATE] = null
+        }
+        savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = !granted
     }
 
     override fun onSmsPermissionRationaleDismiss() {
@@ -137,16 +155,17 @@ class SettingsViewModel @Inject constructor(
     override fun onSmsPermissionRationaleAgree() {
         viewModelScope.launch {
             savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
-            eventBus.send(SettingsEvent.NavigateToAppPermissionSettings)
+            eventBus.send(SettingsEvent.RequestSMSPermission)
         }
     }
 
     sealed class SettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
-        object NavigateToAppPermissionSettings : SettingsEvent()
+        object RequestSMSPermission : SettingsEvent()
     }
 }
 
 private const val SHOW_APP_THEME_SELECTION = "SHOW_APP_THEME_SELECTION"
 private const val SHOW_MONTHLY_LIMIT_INPUT = "SHOW_MONTHLY_LIMIT_INPUT"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
+private const val TEMP_AUTO_ADD_EXPENSE_STATE = "TOGGLED_AUTO_ADD_EXPENSE_STATE"

@@ -24,6 +24,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsLauncher
 import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsState
+import dev.ridill.mym.core.ui.components.rememberPermissionState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
@@ -337,6 +338,11 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 
+        val smsPermissionState = rememberPermissionState(
+            permission = Manifest.permission.RECEIVE_SMS,
+            onPermissionResult = viewModel::onSmsPermissionResult
+        )
+
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
@@ -350,8 +356,12 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                         )
                     }
 
-                    SettingsViewModel.SettingsEvent.NavigateToAppPermissionSettings -> {
-                        context.launchAppSettings()
+                    SettingsViewModel.SettingsEvent.RequestSMSPermission -> {
+                        if (smsPermissionState.isPermanentlyDenied) {
+                            context.launchAppSettings()
+                        } else {
+                            smsPermissionState.launchRequest()
+                        }
                     }
                 }
             }

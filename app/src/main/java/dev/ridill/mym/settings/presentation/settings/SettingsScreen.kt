@@ -122,10 +122,11 @@ fun SettingsScreen(
                 onClick = actions::onMonthlyBudgetPreferenceClick
             )
 
-            SimpleSettingsPreference(
+            SwitchPreference(
                 titleRes = R.string.preference_auto_add_expenses,
                 summary = stringResource(R.string.preference_auto_add_expense_summary),
-                onClick = actions::onAutoAddExpensePreferenceClick
+                value = state.autoAddExpenseEnabled,
+                onValueChange = actions::onToggleAutoAddExpense
             )
 
             SimpleSettingsPreference(

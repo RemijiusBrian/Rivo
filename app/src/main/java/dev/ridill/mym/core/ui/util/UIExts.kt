@@ -4,10 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlin.system.exitProcess
 
 fun Context.findActivity(): Activity {
@@ -18,6 +21,15 @@ fun Context.findActivity(): Activity {
     }
     throw IllegalStateException("no activity")
 }
+
+fun Context.isPermissionGranted(
+    permissionString: String
+): Boolean = ContextCompat.checkSelfPermission(this, permissionString) ==
+        PackageManager.PERMISSION_GRANTED
+
+fun Activity.shouldShowPermissionRationale(
+    permission: String
+): Boolean = ActivityCompat.shouldShowRequestPermissionRationale(this, permission)
 
 fun Context.launchAppNotificationSettings() {
     val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {

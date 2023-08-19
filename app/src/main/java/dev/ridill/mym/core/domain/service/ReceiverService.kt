@@ -8,6 +8,7 @@ import dev.ridill.mym.expense.domain.sms.ExpenseSmsReceiver
 class ReceiverService(
     private val context: Context
 ) {
+
     fun toggleSmsReceiver(enable: Boolean) {
         val receiver = ComponentName(context, ExpenseSmsReceiver::class.java)
         val newState = if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED

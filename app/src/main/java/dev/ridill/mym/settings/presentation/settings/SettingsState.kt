@@ -8,5 +8,6 @@ data class SettingsState(
     val showAppThemeSelection: Boolean = false,
     val currentMonthlyBudget: String = "",
     val showBudgetInput: Boolean = false,
+    val autoAddExpenseEnabled: Boolean = false,
     val showSmsPermissionRationale: Boolean = false
 )

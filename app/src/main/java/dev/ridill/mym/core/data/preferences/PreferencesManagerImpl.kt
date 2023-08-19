@@ -32,6 +32,7 @@ class PreferencesManagerImpl(
             val backupWorkerMessage = preferences[Keys.BACKUP_WORKER_MESSAGE]
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { UiText.DynamicString(it) }
+            val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -39,7 +40,8 @@ class PreferencesManagerImpl(
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
-                backupWorkerMessage = backupWorkerMessage
+                backupWorkerMessage = backupWorkerMessage,
+                autoAddExpenseEnabled = autoAddExpenseEnabled
             )
         }
 
@@ -91,6 +93,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateAutoAddExpenseEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] = enabled
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -98,5 +108,6 @@ class PreferencesManagerImpl(
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
         val BACKUP_WORKER_MESSAGE = stringPreferencesKey("BACKUP_WORKER_MESSAGE")
+        val AUTO_ADD_EXPENSE_ENABLED = booleanPreferencesKey("AUTO_ADD_EXPENSE_ENABLED")
     }
 }

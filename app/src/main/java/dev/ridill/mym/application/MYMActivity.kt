@@ -1,5 +1,6 @@
 package dev.ridill.mym.application
 
+import android.Manifest
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -14,12 +15,19 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.mym.core.ui.navigation.MYMNavHost
 import dev.ridill.mym.core.ui.theme.MYMTheme
+import dev.ridill.mym.core.ui.util.isPermissionGranted
 import dev.ridill.mym.settings.domain.modal.AppTheme
 
 @AndroidEntryPoint
 class MYMActivity : ComponentActivity() {
 
     private val viewModel: MYMViewModel by viewModels()
+
+    override fun onStart() {
+        super.onStart()
+        val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
+        viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

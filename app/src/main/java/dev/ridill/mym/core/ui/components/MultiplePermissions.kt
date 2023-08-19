@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import dev.ridill.mym.core.ui.util.isPermissionGranted
 
 data class MultiplePermissionsState(
     private val permissions: List<String>,
@@ -14,7 +15,7 @@ data class MultiplePermissionsState(
     private val launcher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
 ) {
     val isAllPermissionsGranted: Boolean
-        get() = permissions.all { isPermissionGranted(context, it) }
+        get() = permissions.all { context.isPermissionGranted(it) }
 
     fun launchRequest() = launcher.launch(permissions.toTypedArray())
 }

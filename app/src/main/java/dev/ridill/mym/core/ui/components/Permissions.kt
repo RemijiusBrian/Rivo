@@ -1,57 +1,106 @@
 package dev.ridill.mym.core.ui.components
 
+import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import dev.ridill.mym.core.ui.util.findActivity
+import dev.ridill.mym.core.ui.util.isPermissionGranted
+import dev.ridill.mym.core.ui.util.shouldShowPermissionRationale
 
-data class PermissionsState(
-    private val permissionString: String,
+data class PermissionState(
+    private val permission: String,
     private val context: Context,
-    private val launcher: ManagedActivityResultLauncher<String, Boolean>
+    private val activity: Activity
 ) {
+    var status: PermissionStatus by mutableStateOf(getPermissionStatus())
+
+    var launcher: ActivityResultLauncher<String>? = null
+
     val isGranted: Boolean
-        get() = isPermissionGranted(context, permissionString)
+        get() = status.isGranted
 
     val shouldShowRationale: Boolean
-        get() = context.findActivity()
-            .shouldShowRequestPermissionRationale(permissionString)
+        get() = status.shouldShowRationale
 
     val isPermanentlyDenied: Boolean
-        get() = !isGranted && !shouldShowRationale
+        get() = status.isPermanentlyDenied
 
-    fun launchRequest() = launcher.launch(permissionString)
+    fun launchRequest() = launcher?.launch(permission)
+
+    fun refreshPermissionStatus() {
+        status = getPermissionStatus()
+    }
+
+    private fun getPermissionStatus(): PermissionStatus {
+        val hasPermission = context.isPermissionGranted(permission)
+        return if (hasPermission) {
+            PermissionStatus.Granted
+        } else {
+            PermissionStatus.Denied(
+                activity.shouldShowPermissionRationale(permission)
+            )
+        }
+    }
 }
 
+sealed interface PermissionStatus {
+    object Granted : PermissionStatus
+    data class Denied(
+        val shouldShowRationale: Boolean
+    ) : PermissionStatus
+}
+
+private val PermissionStatus.isGranted: Boolean
+    get() = this == PermissionStatus.Granted
+
+private val PermissionStatus.shouldShowRationale: Boolean
+    get() = when (this) {
+        PermissionStatus.Granted -> false
+        is PermissionStatus.Denied -> shouldShowRationale
+    }
+
+private val PermissionStatus.isPermanentlyDenied: Boolean
+    get() = !isGranted && !shouldShowRationale
+
 @Composable
-fun rememberPermissionsState(
-    permissionString: String,
-    context: Context = LocalContext.current,
-    launcher: ManagedActivityResultLauncher<String, Boolean> = rememberPermissionLauncher(),
-): PermissionsState = remember(context, launcher) {
-    PermissionsState(
-        permissionString = permissionString,
-        context = context,
-        launcher = launcher
+fun rememberPermissionState(
+    permission: String,
+    onPermissionResult: (Boolean) -> Unit = {}
+): PermissionState {
+    val context = LocalContext.current
+    val permissionState = remember(permission) {
+        PermissionState(permission, context, context.findActivity())
+    }
+
+    OnLifecycleResumeEffect {
+        if (permissionState.status != PermissionStatus.Granted) {
+            permissionState.refreshPermissionStatus()
+        }
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+            permissionState.refreshPermissionStatus()
+            onPermissionResult(it)
+        }
     )
+
+    DisposableEffect(permissionState, launcher) {
+        permissionState.launcher = launcher
+        onDispose {
+            permissionState.launcher = null
+        }
+    }
+
+    return permissionState
 }
-
-@Composable
-fun rememberPermissionLauncher(
-    onResult: (Boolean) -> Unit = {}
-): ManagedActivityResultLauncher<String, Boolean> = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.RequestPermission(),
-    onResult = onResult
-)
-
-fun isPermissionGranted(
-    context: Context,
-    permissionString: String
-): Boolean = ContextCompat.checkSelfPermission(context, permissionString) ==
-        PackageManager.PERMISSION_GRANTED
