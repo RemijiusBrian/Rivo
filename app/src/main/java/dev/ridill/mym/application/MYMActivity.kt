@@ -23,8 +23,8 @@ class MYMActivity : ComponentActivity() {
 
     private val viewModel: MYMViewModel by viewModels()
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
         viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
     }
