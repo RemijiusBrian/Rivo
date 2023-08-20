@@ -50,4 +50,8 @@ class MYMViewModel @Inject constructor(
     fun onSmsPermissionCheck(granted: Boolean) = viewModelScope.launch {
         preferencesManager.updateAutoAddExpenseEnabled(granted)
     }
+
+    fun onNotificationPermissionCheck(granted: Boolean) {
+        receiverService.toggleDeleteExpenseReceiver(granted)
+    }
 }

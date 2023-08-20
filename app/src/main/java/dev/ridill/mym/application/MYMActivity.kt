@@ -13,6 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.navigation.MYMNavHost
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.util.isPermissionGranted
@@ -25,8 +26,7 @@ class MYMActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
-        viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
+        checkAppPermissions()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,6 +60,17 @@ class MYMActivity : ComponentActivity() {
                     showWelcomeFlow = showWelcomeFlow
                 )
             }
+        }
+    }
+
+    private fun checkAppPermissions() {
+        val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
+        viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
+
+        if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
+            val isNotificationPermissionGranted =
+                isPermissionGranted(Manifest.permission.POST_NOTIFICATIONS)
+            viewModel.onNotificationPermissionCheck(isNotificationPermissionGranted)
         }
     }
 }
