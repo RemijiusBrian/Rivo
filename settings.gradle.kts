@@ -10,9 +10,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://jitpack.io" }
+        maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots/") }
+        maven { setUrl("https://jitpack.io") }
     }
 }
 rootProject.name = "MYM"
-include ':app'
+include(":app")
