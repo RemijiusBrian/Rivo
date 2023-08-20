@@ -12,10 +12,10 @@
     <string name="destination_all_expenses">All Expenses</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_group_name_expenses">Expenses</string>
-    <string name="notification_channel_name_auto_add_expenses">Expense added from SMS</string>
-    <string name="notification_channel_group_name_others">Others</string>
-    <string name="notification_channel_name_backups">Data backup</string>
+    <string name="notification_channel_group_expenses_name">Expenses</string>
+    <string name="notification_channel_auto_add_expenses_name">Expense added from SMS</string>
+    <string name="notification_channel_group_others_name">Others</string>
+    <string name="notification_channel_backups_name">Data backup</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_budget">Set Monthly Budget</string>

@@ -29,7 +29,7 @@ class ExpenseNotificationHelper(
 
     override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat.Builder(NotificationHelper.Groups.EXPENSES)
-            .setName(context.getString(R.string.notification_channel_group_name_expenses))
+            .setName(context.getString(R.string.notification_channel_group_expenses_name))
             .build()
         notificationManager.createNotificationChannelGroup(group)
     }
@@ -37,7 +37,7 @@ class ExpenseNotificationHelper(
     override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setName(context.getString(R.string.notification_channel_name_auto_add_expenses))
+            .setName(context.getString(R.string.notification_channel_auto_add_expenses_name))
             .setGroup(NotificationHelper.Groups.EXPENSES)
             .build()
         notificationManager.createNotificationChannel(channel)
