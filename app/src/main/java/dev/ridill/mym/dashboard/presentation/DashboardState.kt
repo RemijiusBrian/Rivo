@@ -8,5 +8,6 @@ data class DashboardState(
     val spentAmount: Double = Double.Zero,
     val monthlyBudget: Long = Long.Zero,
     val recentSpends: List<ExpenseListItem> = emptyList(),
-    val signedInUsername: String? = null
+    val signedInUsername: String? = null,
+    val destinationsWithNews: Set<String> = emptySet()
 )

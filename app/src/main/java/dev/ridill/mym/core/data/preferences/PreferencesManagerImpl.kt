@@ -5,8 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import dev.ridill.mym.core.domain.model.MYMPreferences
 import dev.ridill.mym.core.domain.util.DateUtil
+import dev.ridill.mym.core.ui.navigation.destinations.SettingsGraph
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +35,7 @@ class PreferencesManagerImpl(
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { UiText.DynamicString(it) }
             val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
+            val destinationsWithNews = preferences[Keys.DESTINATIONS_WITH_NEWS].orEmpty()
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -41,7 +44,8 @@ class PreferencesManagerImpl(
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
                 backupWorkerMessage = backupWorkerMessage,
-                autoAddExpenseEnabled = autoAddExpenseEnabled
+                autoAddExpenseEnabled = autoAddExpenseEnabled,
+                destinationsWithNews = destinationsWithNews
             )
         }
 
@@ -101,6 +105,21 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun toggleSettingsNews(hasNews: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.DESTINATIONS_WITH_NEWS] = preferences[Keys.DESTINATIONS_WITH_NEWS]
+                    ?.toMutableSet()
+                    ?.apply {
+                        if (hasNews) add(SettingsGraph.route)
+                        else remove(SettingsGraph.route)
+                    }
+                    ?.toSet()
+                    .orEmpty()
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -109,5 +128,6 @@ class PreferencesManagerImpl(
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
         val BACKUP_WORKER_MESSAGE = stringPreferencesKey("BACKUP_WORKER_MESSAGE")
         val AUTO_ADD_EXPENSE_ENABLED = booleanPreferencesKey("AUTO_ADD_EXPENSE_ENABLED")
+        val DESTINATIONS_WITH_NEWS = stringSetPreferencesKey("DESTINATIONS_WITH_NEWS")
     }
 }

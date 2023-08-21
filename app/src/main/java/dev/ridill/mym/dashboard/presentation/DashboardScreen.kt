@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -93,19 +95,32 @@ fun DashboardScreen(
             BottomAppBar(
                 actions = {
                     BottomNavDestination.bottomNavDestinations.forEach { destination ->
+                        val hasNews by remember {
+                            derivedStateOf {
+                                destination.route in state.destinationsWithNews
+                            }
+                        }
                         PlainTooltipBox(tooltip = { Text(stringResource(destination.labelRes)) }) {
-                            IconButton(
-                                onClick = { navigateToBottomNavDestination(destination) },
-                                colors = IconButtonDefaults.iconButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier
-                                    .tooltipAnchor()
+                            BadgedBox(
+                                badge = {
+                                    if (hasNews) {
+                                        Badge()
+                                    }
+                                }
                             ) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(destination.iconRes),
-                                    contentDescription = stringResource(destination.labelRes)
-                                )
+                                IconButton(
+                                    onClick = { navigateToBottomNavDestination(destination) },
+                                    colors = IconButtonDefaults.iconButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier
+                                        .tooltipAnchor()
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(destination.iconRes),
+                                        contentDescription = stringResource(destination.labelRes)
+                                    )
+                                }
                             }
                         }
                     }
