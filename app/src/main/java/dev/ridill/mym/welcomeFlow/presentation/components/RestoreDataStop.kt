@@ -47,7 +47,7 @@ fun RestoreDataStop(
     ) {
         Text(
             text = stringResource(
-                R.string.backup_found_dialog_content,
+                R.string.welcome_flow_stop_restore_data_message,
                 availableBackup?.getParsedDateTime()
                     ?.format(DateUtil.Formatters.localizedDateMedium)
                     .orEmpty()
