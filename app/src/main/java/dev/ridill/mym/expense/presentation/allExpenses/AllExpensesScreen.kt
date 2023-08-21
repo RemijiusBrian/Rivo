@@ -12,9 +12,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -71,6 +69,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -79,11 +79,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.TextFormat
@@ -321,7 +321,10 @@ private fun TagInfoCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val transition = updateTransition(targetState = isSelected, label = "IsSelectedTransition")
+    val transition = updateTransition(
+        targetState = isSelected,
+        label = "IsSelectedTransition"
+    )
     val percent by animateFloatAsState(
         targetValue = percentOfTotalExpenditure,
         label = "AnimatedPercentOfTotal"
@@ -330,17 +333,10 @@ private fun TagInfoCard(
         label = "TagInfoCardWidthFactor",
         targetValueByState = { if (it) 2f else 1f }
     )
-    val textStyleAnimFactor by transition.animateFloat(
-        label = "TextStyleAnimationFactor",
-        targetValueByState = { if (it) 1f else 0f }
+    val textScale by transition.animateFloat(
+        label = "TextScale",
+        targetValueByState = { if (it) 1.5f else 1f }
     )
-    val selectedTextSize = MaterialTheme.typography.headlineMedium.fontSize
-    val unselectedTextSize = MaterialTheme.typography.titleLarge.fontSize
-    val titleTextSize by remember(textStyleAnimFactor) {
-        derivedStateOf {
-            lerp(unselectedTextSize, selectedTextSize, textStyleAnimFactor)
-        }
-    }
     val contentColor = remember(color) { color.contentColor() }
 
     Card(
@@ -364,19 +360,25 @@ private fun TagInfoCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
                     Text(
                         text = name,
                         style = MaterialTheme.typography.titleLarge
                             .copy(
-                                fontSize = titleTextSize,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                textMotion = TextMotion.Animated
                             ),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(Float.One)
+                            .graphicsLayer {
+                                scaleX = textScale
+                                scaleY = textScale
+                                transformOrigin = TransformOrigin(0f, 0f)
+                            }
                     )
                     if (isSelected) {
                         IconButton(onClick = onDeleteClick) {
@@ -390,8 +392,8 @@ private fun TagInfoCard(
 
                 AnimatedVisibility(
                     visible = isSelected,
-                    enter = slideInVertically() + fadeIn(),
-                    exit = slideOutVertically() + fadeOut()
+                    enter = fadeIn(),
+                    exit = fadeOut()
                 ) {
                     Text(
                         text = stringResource(R.string.amount_worth_spent, amount),
