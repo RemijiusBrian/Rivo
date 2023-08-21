@@ -169,4 +169,5 @@
     <string name="generic_merchant">Merchant</string>
     <string name="all_expenses">All Expenses</string>
     <string name="settings">Settings</string>
+    <string name="tags">Tags</string>
 </resources>

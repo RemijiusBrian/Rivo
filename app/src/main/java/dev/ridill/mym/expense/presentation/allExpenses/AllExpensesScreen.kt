@@ -90,6 +90,7 @@ import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
+import dev.ridill.mym.core.ui.components.ListLabel
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.SpacerExtraSmall
@@ -264,6 +265,11 @@ private fun TagsInfoList(
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
+        ListLabel(
+            text = stringResource(R.string.tags),
+            modifier = Modifier
+                .padding(horizontal = SpacingMedium)
+        )
         LazyRow(
             modifier = modifier,
             contentPadding = PaddingValues(
@@ -658,11 +664,7 @@ private fun ExpenseList(
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             ) { tag ->
-                Text(
-                    text = tag,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
+                ListLabel(text = tag)
             }
 
             LazyColumn(
