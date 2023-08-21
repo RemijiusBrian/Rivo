@@ -60,9 +60,10 @@
 
     <!-- Texts -->
     <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
-    <string name="welcome_flow_stop_permissions_title">Some Permissions</string>
     <string name="welcome_flow_stop_google_sign_in_title">Google Sign In</string>
     <string name="welcome_flow_stop_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
+    <string name="welcome_flow_stop_restore_data_title">Backup Found</string>
+    <string name="welcome_flow_stop_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
     <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
     <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
@@ -80,11 +81,9 @@
     <!-- Dialog Content -->
     <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
     <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
-    <string name="backup_found_dialog_title">Found Data Backup</string>
-    <string name="backup_found_dialog_content">You seem to have some data backed up from %s, Would you like to restore it?</string>
 
     <string name="permission_notification">Notifications</string>
-    <string name="permission_rationale_notification">{@string/app_name} %s needs notification permission to post notifications</string>
+    <string name="permission_rationale_notification">%s needs notification permission to post notifications</string>
     <string name="permission_sms">Receive SMS Messages</string>
     <string name="permission_rationale_sms_for_expense">%s needs SMS read permission to try and add expenses automatically from your SMS messages</string>
 

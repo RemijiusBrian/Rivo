@@ -52,6 +52,7 @@ class WelcomeFlowViewModel @Inject constructor(
 
             when (state) {
                 WorkInfo.State.SUCCEEDED -> {
+                    savedStateHandle[AVAILABLE_BACKUP] = null
                     preferencesManager.concludeWelcomeFlow()
                     eventBus.send(WelcomeFlowEvent.RestartApplication)
                 }
@@ -70,7 +71,7 @@ class WelcomeFlowViewModel @Inject constructor(
     }
 
     override fun onWelcomeMessageContinue() {
-        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.PERMISSIONS
+        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.GOOGLE_SIGN_IN
     }
 
     override fun onPermissionsContinue() {
@@ -90,6 +91,10 @@ class WelcomeFlowViewModel @Inject constructor(
             val signInIntent = signInService.getSignInIntent()
             eventBus.send(WelcomeFlowEvent.LaunchGoogleSignIn(signInIntent))
         }
+    }
+
+    override fun onSkipGoogleSignInClick() {
+        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
     }
 
     fun onSignInResult(intent: Intent?) = viewModelScope.launch {
@@ -117,6 +122,7 @@ class WelcomeFlowViewModel @Inject constructor(
             is Resource.Success -> {
                 if (resource.data != null) {
                     savedStateHandle[AVAILABLE_BACKUP] = resource.data
+                    savedStateHandle[FLOW_STOP] = WelcomeFlowStop.RESTORE_DATA
                 } else {
                     savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
                 }
@@ -131,10 +137,9 @@ class WelcomeFlowViewModel @Inject constructor(
             return
         }
         backupWorkManager.runImmediateRestoreWork(backupDetails)
-        savedStateHandle[AVAILABLE_BACKUP] = null
     }
 
-    override fun onSkipSignInOrRestore() {
+    override fun onSkipDataRestore() {
         viewModelScope.launch {
             savedStateHandle[AVAILABLE_BACKUP] = null
             savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
