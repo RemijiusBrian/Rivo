@@ -34,7 +34,7 @@ android {
         }
 
         buildConfigField("String", "GITHUB_REPO_URL", props.getProperty("githubRepoUrl"))
-        buildConfigField("String", "GOOGLE_APIS_BASE_URL", props.getProperty("googleApisBaseUrl"))
+        buildConfigField("String", "GOOGLE_APIS_BASE_URL", "\"https://www.googleapis.com/\"")
     }
 
     buildTypes {
