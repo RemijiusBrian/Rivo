@@ -93,3 +93,23 @@ fun slideOutHorizontallyWithFadeOut(
 ) + simpleFadeOut(
     animationSpec = tween(durationMillis = duration)
 )
+
+fun slideInVerticallyWithFadeIn(
+    duration: Int = AnimationConstants.DefaultDurationMillis,
+    initialOffsetY: (fullWidth: Int) -> Int = { it }
+): EnterTransition = slideInVertically(
+    animationSpec = tween(durationMillis = duration),
+    initialOffsetY = initialOffsetY
+) + simpleFadeIn(
+    animationSpec = tween(durationMillis = duration)
+)
+
+fun slideOutVerticallyWithFadeOut(
+    duration: Int = AnimationConstants.DefaultDurationMillis,
+    targetOffsetY: (fullWidth: Int) -> Int = { it }
+): ExitTransition = slideOutVertically(
+    animationSpec = tween(durationMillis = duration),
+    targetOffsetY = targetOffsetY
+) + simpleFadeOut(
+    animationSpec = tween(durationMillis = duration)
+)

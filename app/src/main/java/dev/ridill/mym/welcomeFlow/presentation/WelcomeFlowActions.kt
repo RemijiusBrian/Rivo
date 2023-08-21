@@ -5,8 +5,9 @@ interface WelcomeFlowActions {
     fun onPermissionsContinue()
     fun onPermissionResponse()
     fun onGoogleSignInClick()
+    fun onSkipGoogleSignInClick()
     fun onRestoreDataClick()
-    fun onSkipSignInOrRestore()
+    fun onSkipDataRestore()
     fun onBudgetInputChange(value: String)
     fun onSetBudgetContinue()
 }

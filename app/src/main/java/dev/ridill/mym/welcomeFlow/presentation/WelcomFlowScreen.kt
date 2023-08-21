@@ -1,10 +1,7 @@
 package dev.ridill.mym.welcomeFlow.presentation
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.AnimationConstants
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -31,13 +28,15 @@ import dev.ridill.mym.core.ui.components.LargeTitle
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.mym.core.ui.components.slideInVerticallyWithFadeIn
 import dev.ridill.mym.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.mym.core.ui.components.slideOutVerticallyWithFadeOut
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
 import dev.ridill.mym.welcomeFlow.presentation.components.GoogleSignInStop
-import dev.ridill.mym.welcomeFlow.presentation.components.PermissionsRationaleStop
+import dev.ridill.mym.welcomeFlow.presentation.components.RestoreDataStop
 import dev.ridill.mym.welcomeFlow.presentation.components.SetBudgetStop
 import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessageStop
 
@@ -61,13 +60,26 @@ fun WelcomeFlowScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Crossfade(
+            AnimatedContent(
                 targetState = flowStop,
                 label = "WelcomeFlowTitle",
-                animationSpec = tween(AnimationConstants.DefaultDurationMillis),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(SpacingLarge)
+                    .padding(SpacingLarge),
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        slideInHorizontallyWithFadeIn { it }
+                            .togetherWith(
+                                slideOutVerticallyWithFadeOut { -it }
+                            )
+                    } else {
+                        slideInVerticallyWithFadeIn { -it }
+                            .togetherWith(
+                                slideOutHorizontallyWithFadeOut { it }
+                            )
+                    }
+                        .using(SizeTransform(false))
+                }
             ) { stop ->
                 val title = when (stop) {
                     WelcomeFlowStop.WELCOME -> stringResource(
@@ -75,8 +87,8 @@ fun WelcomeFlowScreen(
                         stringResource(R.string.app_name)
                     )
 
-                    WelcomeFlowStop.PERMISSIONS -> stringResource(R.string.welcome_flow_stop_permissions_title)
                     WelcomeFlowStop.GOOGLE_SIGN_IN -> stringResource(R.string.welcome_flow_stop_google_sign_in_title)
+                    WelcomeFlowStop.RESTORE_DATA -> stringResource(R.string.welcome_flow_stop_restore_data_title)
                     WelcomeFlowStop.SET_BUDGET -> stringResource(R.string.welcome_flow_stop_set_budget_title)
                 }
                 LargeTitle(title)
@@ -108,17 +120,17 @@ fun WelcomeFlowScreen(
                         )
                     }
 
-                    WelcomeFlowStop.PERMISSIONS -> {
-                        PermissionsRationaleStop(
-                            onContinueClick = actions::onPermissionsContinue
+                    WelcomeFlowStop.GOOGLE_SIGN_IN -> {
+                        GoogleSignInStop(
+                            onSignInClick = actions::onGoogleSignInClick,
+                            onSkipClick = actions::onSkipGoogleSignInClick,
                         )
                     }
 
-                    WelcomeFlowStop.GOOGLE_SIGN_IN -> {
-                        GoogleSignInStop(
+                    WelcomeFlowStop.RESTORE_DATA -> {
+                        RestoreDataStop(
                             restoreState = restoreState,
-                            onSignInClick = actions::onGoogleSignInClick,
-                            onSkipClick = actions::onSkipSignInOrRestore,
+                            onSkipClick = actions::onSkipDataRestore,
                             availableBackup = availableBackup,
                             onRestoreClick = actions::onRestoreDataClick
                         )
