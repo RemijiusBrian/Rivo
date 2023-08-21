@@ -85,7 +85,7 @@
     <string name="permission_notification">Notifications</string>
     <string name="permission_rationale_notification">%s needs notification permission to post notifications</string>
     <string name="permission_sms">Receive SMS Messages</string>
-    <string name="permission_rationale_sms_for_expense">%s needs SMS read permission to try and add expenses automatically from your SMS messages</string>
+    <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add expenses automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
 
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>
@@ -168,4 +168,5 @@
     <string name="total_expenditure">Total Expenditure</string>
     <string name="generic_merchant">Merchant</string>
     <string name="all_expenses">All Expenses</string>
+    <string name="settings">Settings</string>
 </resources>

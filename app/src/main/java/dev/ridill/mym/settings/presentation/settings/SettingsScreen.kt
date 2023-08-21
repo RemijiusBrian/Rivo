@@ -173,10 +173,10 @@ fun SettingsScreen(
             PermissionRationaleDialog(
                 icon = Icons.Rounded.Message,
                 rationaleText = stringResource(
-                    R.string.permission_rationale_sms_for_expense, stringResource(R.string.app_name)
+                    R.string.permission_rationale_read_sms, stringResource(R.string.app_name)
                 ),
                 onDismiss = actions::onSmsPermissionRationaleDismiss,
-                onAgree = actions::onSmsPermissionRationaleAgree
+                onSettingsClick = actions::onSmsPermissionRationaleSettingsClick
             )
         }
     }

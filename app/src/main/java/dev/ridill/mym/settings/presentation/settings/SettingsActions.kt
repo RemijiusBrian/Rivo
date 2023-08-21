@@ -12,5 +12,5 @@ interface SettingsActions {
     fun onMonthlyBudgetInputConfirm(value: String)
     fun onToggleAutoAddExpense(enabled: Boolean)
     fun onSmsPermissionRationaleDismiss()
-    fun onSmsPermissionRationaleAgree()
+    fun onSmsPermissionRationaleSettingsClick()
 }

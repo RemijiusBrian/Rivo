@@ -357,11 +357,11 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
                     }
 
                     SettingsViewModel.SettingsEvent.RequestSMSPermission -> {
-                        if (smsPermissionState.isPermanentlyDenied) {
-                            context.launchAppSettings()
-                        } else {
-                            smsPermissionState.launchRequest()
-                        }
+                        smsPermissionState.launchRequest()
+                    }
+
+                    SettingsViewModel.SettingsEvent.LaunchAppSettings -> {
+                        context.launchAppSettings()
                     }
                 }
             }

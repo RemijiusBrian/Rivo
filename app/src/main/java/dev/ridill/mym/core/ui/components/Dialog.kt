@@ -24,6 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.theme.SpacingLarge
+import dev.ridill.mym.core.ui.theme.SpacingMedium
 
 @Composable
 fun ConfirmationDialog(
@@ -96,7 +98,7 @@ fun PermissionRationaleDialog(
     icon: ImageVector,
     rationaleText: String,
     onDismiss: () -> Unit,
-    onAgree: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
@@ -118,7 +120,7 @@ fun PermissionRationaleDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.primary)
-                        .padding(RationaleSpacing),
+                        .padding(SpacingLarge),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -131,12 +133,12 @@ fun PermissionRationaleDialog(
                 }
                 Column(
                     modifier = Modifier
-                        .padding(RationaleSpacing)
+                        .padding(RationaleContentPadding)
                         .fillMaxWidth()
                 ) {
                     Text(rationaleText)
 
-                    VerticalSpacer(RationaleSpacing)
+                    VerticalSpacer(SpacingMedium)
 
                     Row(
                         modifier = Modifier
@@ -145,8 +147,8 @@ fun PermissionRationaleDialog(
                         TextButton(onClick = onDismiss) {
                             Text(stringResource(R.string.action_not_now))
                         }
-                        TextButton(onClick = onAgree) {
-                            Text(stringResource(R.string.action_continue))
+                        TextButton(onClick = onSettingsClick) {
+                            Text(stringResource(R.string.settings))
                         }
                     }
                 }
@@ -155,5 +157,5 @@ fun PermissionRationaleDialog(
     }
 }
 
-private val RationaleSpacing = 24.dp
+private val RationaleContentPadding = 24.dp
 private val PermissionIconSize = 40.dp

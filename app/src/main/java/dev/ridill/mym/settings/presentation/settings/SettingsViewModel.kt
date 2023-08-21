@@ -152,16 +152,17 @@ class SettingsViewModel @Inject constructor(
         savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
     }
 
-    override fun onSmsPermissionRationaleAgree() {
+    override fun onSmsPermissionRationaleSettingsClick() {
         viewModelScope.launch {
             savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = false
-            eventBus.send(SettingsEvent.RequestSMSPermission)
+            eventBus.send(SettingsEvent.LaunchAppSettings)
         }
     }
 
     sealed class SettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
         object RequestSMSPermission : SettingsEvent()
+        object LaunchAppSettings : SettingsEvent()
     }
 }
 

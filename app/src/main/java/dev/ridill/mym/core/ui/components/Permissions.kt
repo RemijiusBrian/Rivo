@@ -31,9 +31,6 @@ data class PermissionState(
     val shouldShowRationale: Boolean
         get() = status.shouldShowRationale
 
-    val isPermanentlyDenied: Boolean
-        get() = status.isPermanentlyDenied
-
     fun launchRequest() = launcher?.launch(permission)
 
     fun refreshPermissionStatus() {
@@ -67,9 +64,6 @@ private val PermissionStatus.shouldShowRationale: Boolean
         PermissionStatus.Granted -> false
         is PermissionStatus.Denied -> shouldShowRationale
     }
-
-private val PermissionStatus.isPermanentlyDenied: Boolean
-    get() = !isGranted && !shouldShowRationale
 
 @Composable
 fun rememberPermissionState(
