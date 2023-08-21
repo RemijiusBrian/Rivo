@@ -94,7 +94,7 @@
     <string name="preference_notifications">Notifications</string>
     <string name="preference_notification_summary">Manage your notification preferences</string>
     <string name="preference_budget">Monthly Budget</string>
-    <string name="preference_set_budget_summary">Click to update your budget</string>
+    <string name="preference_set_budget_summary">Tap to update your budget</string>
     <string name="preference_current_budget_summary">Your budget is set to %s</string>
     <string name="preference_auto_add_expenses">Auto Add Expenses</string>
     <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
