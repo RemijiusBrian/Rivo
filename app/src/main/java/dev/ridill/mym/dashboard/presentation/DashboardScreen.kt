@@ -56,17 +56,16 @@ import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
-import dev.ridill.mym.core.ui.components.HorizontalSpacer
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.SpacerExtraSmall
+import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
-import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.MYMTheme
-import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -214,7 +213,7 @@ private fun BalanceAndBudget(
             modifier = Modifier
                 .alignBy(LastBaseline)
         )
-        HorizontalSpacer(spacing = SpacingSmall)
+        SpacerSmall()
         VerticalNumberSpinnerContent(
             number = monthlyLimit,
             modifier = Modifier
@@ -227,7 +226,7 @@ private fun BalanceAndBudget(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        HorizontalSpacer(spacing = SpacingExtraSmall)
+        SpacerExtraSmall()
         Text(
             text = stringResource(R.string.budget),
             style = MaterialTheme.typography.labelSmall,
@@ -296,7 +295,7 @@ private fun SpendsOverview(
                     .padding(horizontal = SpacingMedium)
             )
 
-            VerticalSpacer(spacing = SpacingSmall)
+            SpacerSmall()
 
             SpentAmount(
                 amount = spentAmount,
@@ -305,7 +304,7 @@ private fun SpendsOverview(
                     .padding(horizontal = SpacingMedium)
             )
 
-            VerticalSpacer(spacing = SpacingSmall)
+            SpacerSmall()
 
             Divider(
                 modifier = Modifier
@@ -393,7 +392,7 @@ private fun SpentAmount(
             )
         }
 
-        HorizontalSpacer(spacing = SpacingSmall)
+        SpacerSmall()
 
         Text(
             text = stringResource(R.string.spent_this_month),

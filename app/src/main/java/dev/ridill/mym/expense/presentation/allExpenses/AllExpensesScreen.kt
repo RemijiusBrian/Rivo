@@ -92,8 +92,8 @@ import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.SpacerExtraSmall
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
-import dev.ridill.mym.core.ui.components.VerticalSpacer
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
 import dev.ridill.mym.core.ui.theme.ContentAlpha
@@ -415,7 +415,7 @@ private fun TagInfoCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            VerticalSpacer(spacing = SpacingExtraSmall)
+            SpacerExtraSmall()
 
             LinearProgressIndicator(
                 progress = percent,

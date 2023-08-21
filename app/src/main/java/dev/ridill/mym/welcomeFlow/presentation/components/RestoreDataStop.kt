@@ -23,10 +23,10 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Empty
 import dev.ridill.mym.core.domain.util.One
-import dev.ridill.mym.core.ui.components.VerticalSpacer
+import dev.ridill.mym.core.ui.components.Spacer
+import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.SpacingLarge
-import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 
 @Composable
@@ -55,7 +55,7 @@ fun RestoreDataStop(
             style = MaterialTheme.typography.headlineSmall
         )
 
-        VerticalSpacer(weight = Float.One)
+        Spacer(weight = Float.One)
 
         Crossfade(
             targetState = restoreState,
@@ -75,7 +75,7 @@ fun RestoreDataStop(
             )
         }
 
-        VerticalSpacer(spacing = SpacingSmall)
+        SpacerSmall()
 
         if (restoreState == WorkInfo.State.RUNNING) {
             Text(

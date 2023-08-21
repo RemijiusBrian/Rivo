@@ -15,7 +15,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.common.SignInButton
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
-import dev.ridill.mym.core.ui.components.VerticalSpacer
+import dev.ridill.mym.core.ui.components.Spacer
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 
 @Composable
@@ -34,7 +34,7 @@ fun GoogleSignInStop(
             style = MaterialTheme.typography.headlineSmall
         )
 
-        VerticalSpacer(weight = Float.One)
+        Spacer(weight = Float.One)
 
         Column(
             modifier = Modifier

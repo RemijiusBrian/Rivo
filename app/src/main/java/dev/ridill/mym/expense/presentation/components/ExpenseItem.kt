@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.ui.components.HorizontalSpacer
+import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.components.icons.Tags
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.expense.domain.model.ExpenseTag
@@ -129,7 +129,7 @@ private fun TagIndicator(
             modifier = Modifier
                 .size(TagIconSize)
         )
-        HorizontalSpacer(spacing = SpacingSmall)
+        SpacerSmall()
         Text(
             text = name,
             maxLines = 1,

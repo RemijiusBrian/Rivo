@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.theme.SpacingLarge
-import dev.ridill.mym.core.ui.theme.SpacingMedium
 
 @Composable
 fun ConfirmationDialog(
@@ -138,7 +137,7 @@ fun PermissionRationaleDialog(
                 ) {
                     Text(rationaleText)
 
-                    VerticalSpacer(SpacingMedium)
+                    SpacerMedium()
 
                     Row(
                         modifier = Modifier

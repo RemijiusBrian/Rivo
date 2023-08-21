@@ -46,11 +46,10 @@ import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
-import dev.ridill.mym.core.ui.components.VerticalSpacer
+import dev.ridill.mym.core.ui.components.SpacerMedium
 import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
 import dev.ridill.mym.core.ui.theme.MYMTheme
-import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.mym.settings.presentation.components.SwitchPreference
@@ -252,7 +251,7 @@ fun BudgetInputDialog(
         text = {
             Column {
                 Text(stringResource(R.string.monthly_budget_input_dialog_content))
-                VerticalSpacer(spacing = SpacingMedium)
+                SpacerMedium()
                 OutlinedTextField(
                     value = input,
                     onValueChange = { input = it },

@@ -14,8 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.components.LottieAnim
-import dev.ridill.mym.core.ui.components.VerticalSpacer
-import dev.ridill.mym.core.ui.theme.SpacingExtraLarge
+import dev.ridill.mym.core.ui.components.SpacerExtraLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.welcomeFlow.presentation.ContinueAction
 
@@ -36,7 +35,7 @@ fun WelcomeMessageStop(
                 .fillMaxWidth()
                 .height(WelcomeAnimHeight)
         )
-        VerticalSpacer(spacing = SpacingExtraLarge)
+        SpacerExtraLarge()
         ContinueAction(
             icon = Icons.Default.KeyboardArrowRight,
             onClick = onContinueClick,

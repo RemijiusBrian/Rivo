@@ -30,12 +30,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.mym.R
-import dev.ridill.mym.core.ui.components.VerticalSpacer
+import dev.ridill.mym.core.ui.components.SpacerExtraLarge
+import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
-import dev.ridill.mym.core.ui.theme.SpacingExtraLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
-import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.welcomeFlow.presentation.ContinueAction
 
 @Composable
@@ -64,7 +63,7 @@ fun SetBudgetStop(
                 .padding(SpacingMedium)
                 .verticalScroll(rememberScrollState())
         ) {
-            VerticalSpacer(spacing = SpacingExtraLarge)
+            SpacerExtraLarge()
             LimitInput(
                 input = input,
                 onValueChange = onInputChange,
@@ -106,7 +105,7 @@ private fun LimitInput(
             text = stringResource(R.string.welcome_flow_stop_set_budget_message),
             style = MaterialTheme.typography.titleMedium
         )
-        VerticalSpacer(spacing = SpacingSmall)
+        SpacerSmall()
         TextField(
             value = input(),
             onValueChange = onValueChange,
