@@ -42,32 +42,25 @@ class DashboardViewModel @Inject constructor(
 
     private val signedInUsername = MutableStateFlow<String?>(null)
 
-    private val destinationsWithNews = preferencesManager.preferences
-        .map { it.destinationsWithNews }
-        .distinctUntilChanged()
-
     val state = combineTuple(
         monthlyBudget,
         spentAmount,
         balance,
         recentSpends,
-        signedInUsername,
-        destinationsWithNews
+        signedInUsername
     ).map { (
                 monthlyBudget,
                 spentAmount,
                 balance,
                 recentSpends,
-                signedInUsername,
-                destinationsWithNews
+                signedInUsername
             ) ->
         DashboardState(
             balance = balance,
             spentAmount = spentAmount,
             monthlyBudget = monthlyBudget,
             recentSpends = recentSpends,
-            signedInUsername = signedInUsername,
-            destinationsWithNews = destinationsWithNews
+            signedInUsername = signedInUsername
         )
     }.asStateFlow(viewModelScope, DashboardState())
 

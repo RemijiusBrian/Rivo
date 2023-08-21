@@ -158,7 +158,6 @@ class WelcomeFlowViewModel @Inject constructor(
             }
             settingsRepository.updateCurrentBudget(budgetValue)
             preferencesManager.concludeWelcomeFlow()
-            preferencesManager.toggleSettingsNews(true)
             eventBus.send(WelcomeFlowEvent.WelcomeFlowConcluded)
         }
     }

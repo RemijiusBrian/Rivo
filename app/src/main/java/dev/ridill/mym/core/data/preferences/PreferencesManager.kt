@@ -19,5 +19,4 @@ interface PreferencesManager {
     suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
     suspend fun updateBackupWorkerMessage(message: String?)
     suspend fun updateAutoAddExpenseEnabled(enabled: Boolean)
-    suspend fun toggleSettingsNews(hasNews: Boolean)
 }
