@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrightnessMedium
-import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
@@ -61,7 +60,6 @@ fun SettingsScreen(
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
-    viewSourceCodeInBrowser: () -> Unit,
     navigateToBackupSettings: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -137,12 +135,6 @@ fun SettingsScreen(
             Divider(
                 modifier = Modifier
                     .padding(vertical = 12.dp)
-            )
-
-            SimpleSettingsPreference(
-                titleRes = R.string.preference_source_code,
-                leadingIcon = Icons.Rounded.Code,
-                onClick = viewSourceCodeInBrowser
             )
 
             SimpleSettingsPreference(

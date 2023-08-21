@@ -19,7 +19,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsLauncher
@@ -39,7 +38,6 @@ import dev.ridill.mym.core.ui.navigation.destinations.SettingsGraph
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowDestination
 import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
 import dev.ridill.mym.core.ui.util.launchAppSettings
-import dev.ridill.mym.core.ui.util.launchUrlExternally
 import dev.ridill.mym.core.ui.util.restartApplication
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.dashboard.presentation.DashboardScreen
@@ -373,9 +371,6 @@ private fun NavGraphBuilder.settings(navController: NavHostController) {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,
-            viewSourceCodeInBrowser = {
-                context.launchUrlExternally(BuildConfig.GITHUB_REPO_URL)
-            },
             navigateToBackupSettings = { navController.navigate(BackupSettingsDestination.route) }
         )
     }
