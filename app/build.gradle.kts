@@ -1,7 +1,5 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import java.io.FileInputStream
 import java.util.Locale
-import java.util.Properties
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
@@ -12,10 +10,6 @@ plugins {
     alias(libs.plugins.com.google.dagger.hilt.android)
     alias(libs.plugins.com.google.gms.google.services)
 }
-
-val propsFile = rootProject.file("local.properties")
-val props = Properties()
-props.load(FileInputStream(propsFile))
 
 android {
     namespace = "dev.ridill.mym"
@@ -33,7 +27,6 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "GITHUB_REPO_URL", props.getProperty("githubRepoUrl"))
         buildConfigField("String", "GOOGLE_APIS_BASE_URL", "\"https://www.googleapis.com/\"")
     }
 
