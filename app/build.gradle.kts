@@ -41,17 +41,17 @@ android {
         }
     }
 
-    flavorDimensions += "scope"
+    flavorDimensions += "env"
     productFlavors {
         create("internal") {
-            dimension = "scope"
+            dimension = "env"
             applicationIdSuffix = ".internal"
             versionCode = 6
             versionName = "1.2.3"
         }
 
         create("production") {
-            dimension = "scope"
+            dimension = "env"
             versionCode = 1
             versionName = "0.0.1"
         }
