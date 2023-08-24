@@ -3,13 +3,13 @@ package dev.ridill.mym.core.ui.navigation.destinations
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
-import dev.ridill.mym.core.ui.components.simpleFadeIn
-import dev.ridill.mym.core.ui.components.simpleFadeOut
 
 sealed interface ScreenSpec : NavDestination {
     val arguments: List<NamedNavArgument>
@@ -19,16 +19,16 @@ sealed interface ScreenSpec : NavDestination {
         get() = emptyList()
 
     val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-        get() = { simpleFadeIn() }
+        get() = { fadeIn() }
 
     val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-        get() = { simpleFadeOut() }
+        get() = { fadeOut() }
 
     val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-        get() = { simpleFadeIn() }
+        get() = { fadeIn() }
 
     val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-        get() = { simpleFadeOut() }
+        get() = { fadeOut() }
 
     @Composable
     fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry)

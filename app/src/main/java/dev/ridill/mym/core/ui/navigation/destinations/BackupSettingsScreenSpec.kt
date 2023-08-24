@@ -2,6 +2,9 @@ package dev.ridill.mym.core.ui.navigation.destinations
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +15,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
+import dev.ridill.mym.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.mym.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
 
@@ -19,6 +24,12 @@ object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
 
     override val labelRes: Int = R.string.destination_backup_settings
+
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutHorizontallyWithFadeOut { it } }
+
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInHorizontallyWithFadeIn { it } }
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {

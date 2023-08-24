@@ -1,5 +1,10 @@
 package dev.ridill.mym.core.ui.navigation.destinations
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +44,12 @@ object AddEditExpenseScreenSpec : ScreenSpec {
     override val deepLinks: List<NavDeepLink> = listOf(
         navDeepLink { uriPattern = "$DEEP_LINK_URI/expense/{$ARG_EXPENSE_ID}" }
     )
+
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInVertically { it } }
+
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutVertically { it } }
 
     fun routeWithArg(expenseId: Long? = null): String =
         route.replace("{$ARG_EXPENSE_ID}", (expenseId ?: ARG_INVALID_ID_LONG).toString())

@@ -1,6 +1,9 @@
 package dev.ridill.mym.core.ui.navigation.destinations
 
 import android.Manifest
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +15,8 @@ import androidx.navigation.NavHostController
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.components.rememberPermissionState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
+import dev.ridill.mym.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.mym.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.mym.core.ui.util.launchAppNotificationSettings
 import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.settings.presentation.settings.SettingsScreen
@@ -22,6 +27,12 @@ object SettingsScreenSpec : ScreenSpec {
     override val route: String = "settings"
 
     override val labelRes: Int = R.string.destination_settings
+
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutHorizontallyWithFadeOut { -it } }
+
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInHorizontallyWithFadeIn { -it } }
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
