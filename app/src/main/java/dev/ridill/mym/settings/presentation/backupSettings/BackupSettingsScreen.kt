@@ -35,7 +35,7 @@ import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.icons.Google
-import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsDestination
+import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsDestinationSpec
 import dev.ridill.mym.core.ui.theme.SpacingExtraSmall
 import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -58,7 +58,7 @@ fun BackupSettingsScreen(
         snackbarController = snackbarController,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(BackupSettingsDestination.labelRes)) },
+                title = { Text(stringResource(BackupSettingsDestinationSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) }
             )
         },

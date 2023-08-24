@@ -16,7 +16,7 @@ import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.domain.util.orZero
-import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestination
+import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseDestinationSpec
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
@@ -36,9 +36,9 @@ class AddEditExpenseViewModel @Inject constructor(
     private val evalService: ExpEvalService
 ) : ViewModel(), AddEditExpenseActions {
 
-    private val expenseIdArg = AddEditExpenseDestination
+    private val expenseIdArg = AddEditExpenseDestinationSpec
         .getExpenseIdFromSavedStateHandle(savedStateHandle)
-    private val isEditMode = AddEditExpenseDestination.isEditMode(expenseIdArg)
+    private val isEditMode = AddEditExpenseDestinationSpec.isEditMode(expenseIdArg)
     private val currentExpenseId: Long
         get() = expenseIdArg.takeIf { it >= MYMDatabase.DEFAULT_ID_LONG }
             ?: MYMDatabase.DEFAULT_ID_LONG

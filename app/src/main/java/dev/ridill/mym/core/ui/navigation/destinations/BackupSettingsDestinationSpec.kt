@@ -1,0 +1,60 @@
+package dev.ridill.mym.core.ui.navigation.destinations
+
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
+import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.rememberSnackbarController
+import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsScreen
+import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
+
+object BackupSettingsDestinationSpec : ChildDestinationSpec {
+    override val route: String = "backup_settings"
+
+    override val labelRes: Int = R.string.destination_backup_settings
+
+    @Composable
+    override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
+        val viewModel: BackupSettingsViewModel = hiltViewModel(navBackStackEntry)
+        val state by viewModel.state.collectAsStateWithLifecycle()
+
+        val snackbarController = rememberSnackbarController()
+        val context = LocalContext.current
+
+        val googleSignInLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = viewModel::onSignInResult
+        )
+
+        LaunchedEffect(viewModel, snackbarController, context) {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is BackupSettingsViewModel.BackupEvent.ShowUiMessage -> {
+                        snackbarController.showSnackbar(
+                            event.uiText.asString(context),
+                            event.uiText.isErrorText
+                        )
+                    }
+
+                    is BackupSettingsViewModel.BackupEvent.LaunchGoogleSignIn -> {
+                        googleSignInLauncher.launch(event.intent)
+                    }
+                }
+            }
+        }
+
+        BackupSettingsScreen(
+            snackbarController = snackbarController,
+            state = state,
+            actions = viewModel,
+            navigateUp = navController::navigateUp
+        )
+    }
+}

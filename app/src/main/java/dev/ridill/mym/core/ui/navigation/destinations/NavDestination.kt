@@ -1,21 +1,23 @@
 package dev.ridill.mym.core.ui.navigation.destinations
 
 import androidx.annotation.StringRes
-import androidx.navigation.NamedNavArgument
-import androidx.navigation.NavDeepLink
 
 sealed interface NavDestination {
+    companion object {
+        val allDestinations: List<NavDestination>
+            get() = listOf(
+                WelcomeFlowDestinationSpec,
+                DashboardDestinationSpec,
+                AddEditExpenseDestinationSpec,
+                SettingsGraphSpec,
+                AllExpensesDestinationSpec
+            )
+    }
 
     val route: String
 
     @get:StringRes
     val labelRes: Int
-
-    val arguments: List<NamedNavArgument>
-        get() = emptyList()
-
-    val deepLinks: List<NavDeepLink>
-        get() = emptyList()
 }
 
 const val DEEP_LINK_URI = "https://www.mym.com"

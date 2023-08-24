@@ -47,7 +47,7 @@ import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.SpacerMedium
 import dev.ridill.mym.core.ui.components.icons.Message
-import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestination
+import dev.ridill.mym.core.ui.navigation.destinations.SettingsDestinationSpec
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
@@ -69,7 +69,7 @@ fun SettingsScreen(
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(SettingsDestination.labelRes)) },
+                title = { Text(stringResource(SettingsDestinationSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 scrollBehavior = topAppBarScrollBehavior
             )

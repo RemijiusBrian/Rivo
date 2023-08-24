@@ -96,7 +96,7 @@ import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.SpacerExtraSmall
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
-import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestination
+import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesDestinationSpec
 import dev.ridill.mym.core.ui.theme.ContentAlpha
 import dev.ridill.mym.core.ui.theme.ElevationLevel0
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
@@ -140,7 +140,7 @@ fun AllExpensesScreen(
                     Text(
                         text = if (state.expenseMultiSelectionModeActive)
                             stringResource(R.string.count_selected, state.selectedExpenseIds.size)
-                        else stringResource(AllExpensesDestination.labelRes)
+                        else stringResource(AllExpensesDestinationSpec.labelRes)
                     )
                 },
                 navigationIcon = {
