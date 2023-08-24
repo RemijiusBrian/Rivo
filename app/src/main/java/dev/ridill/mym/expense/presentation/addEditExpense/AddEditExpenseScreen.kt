@@ -69,7 +69,7 @@ import dev.ridill.mym.core.ui.theme.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.expense.presentation.components.NewTagChip
-import dev.ridill.mym.expense.presentation.components.NewTagDialog
+import dev.ridill.mym.expense.presentation.components.NewTagSheet
 
 @Composable
 fun AddEditExpenseScreen(
@@ -203,7 +203,7 @@ fun AddEditExpenseScreen(
         }
 
         if (state.showNewTagInput) {
-            NewTagDialog(
+            NewTagSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onNewTagNameChange,
                 selectedColorCode = tagColorInput(),

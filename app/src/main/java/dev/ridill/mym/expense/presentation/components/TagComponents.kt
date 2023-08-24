@@ -5,9 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -16,23 +14,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -42,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.ValueInputSheet
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
@@ -67,7 +58,7 @@ fun NewTagChip(
 }
 
 @Composable
-fun NewTagDialog(
+fun NewTagSheet(
     nameInput: () -> String,
     onNameChange: (String) -> Unit,
     selectedColorCode: Int?,
@@ -77,61 +68,36 @@ fun NewTagDialog(
     modifier: Modifier = Modifier,
     tagColors: List<Color> = TagColors,
     errorMessage: UiText?,
-    focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text(stringResource(R.string.action_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_cancel))
-            }
-        },
-        title = { Text(stringResource(R.string.new_tag)) },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+    ValueInputSheet(
+        titleRes = R.string.new_tag,
+        inputValue = nameInput,
+        onValueChange = onNameChange,
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            capitalization = KeyboardCapitalization.Words,
+            imeAction = ImeAction.Done
+        ),
+        label = stringResource(R.string.tag_name),
+        errorMessage = errorMessage,
+        contentAfterTextField = {
+            LazyRow(
+                contentPadding = PaddingValues(
+                    start = SpacingMedium,
+                    end = SpacingListEnd
+                ),
+                horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
-                OutlinedTextField(
-                    value = nameInput(),
-                    onValueChange = onNameChange,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
-                    ),
-                    label = { Text(stringResource(R.string.tag_name)) },
-                    supportingText = { errorMessage?.let { Text(it.asString()) } },
-                    isError = errorMessage != null
-                )
-
-                LazyRow(
-                    contentPadding = PaddingValues(
-                        end = SpacingListEnd
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
-                ) {
-                    items(items = tagColors, key = { it.toArgb() }) { color ->
-                        ColorSelector(
-                            color = color,
-                            selected = color.toArgb() == selectedColorCode,
-                            onClick = { onColorSelect(color) },
-                            modifier = Modifier
-                                .animateItemPlacement()
-                        )
-                    }
+                items(items = tagColors, key = { it.toArgb() }) { color ->
+                    ColorSelector(
+                        color = color,
+                        selected = color.toArgb() == selectedColorCode,
+                        onClick = { onColorSelect(color) },
+                        modifier = Modifier
+                            .animateItemPlacement()
+                    )
                 }
             }
         },
@@ -191,4 +157,6 @@ val TagColors: List<Color>
         Color(0xFF6C3A4F),
         Color(0xFF4B443A),
         Color(0xFF232427)
-    ).map { it.copy(alpha = 0.64f) }
+    ).map { it.copy(alpha = TAG_COLOR_ALPHA) }
+
+private const val TAG_COLOR_ALPHA = 0.64f

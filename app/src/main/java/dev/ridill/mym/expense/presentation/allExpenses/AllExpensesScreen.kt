@@ -110,7 +110,7 @@ import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
-import dev.ridill.mym.expense.presentation.components.NewTagDialog
+import dev.ridill.mym.expense.presentation.components.NewTagSheet
 import dev.ridill.mym.expense.presentation.components.TagColors
 import java.time.LocalDate
 import java.time.Month
@@ -230,7 +230,7 @@ fun AllExpensesScreen(
         }
 
         if (state.showNewTagInput) {
-            NewTagDialog(
+            NewTagSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onNewTagNameChange,
                 selectedColorCode = tagColorInput(),

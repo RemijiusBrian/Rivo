@@ -14,24 +14,18 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -45,10 +39,11 @@ import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
-import dev.ridill.mym.core.ui.components.SpacerMedium
+import dev.ridill.mym.core.ui.components.ValueInputSheet
 import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.mym.core.ui.theme.MYMTheme
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.mym.settings.presentation.components.SwitchPreference
@@ -153,10 +148,11 @@ fun SettingsScreen(
         }
 
         if (state.showBudgetInput) {
-            BudgetInputDialog(
+            BudgetInputSheet(
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
-                placeholder = state.currentMonthlyBudget
+                placeholder = state.currentMonthlyBudget,
+                errorMessage = state.budgetInputError
             )
         }
 
@@ -208,60 +204,27 @@ private fun AppThemeSelectionDialog(
 }
 
 @Composable
-fun BudgetInputDialog(
+fun BudgetInputSheet(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    isInputError: Boolean = false,
-    focusRequester: FocusRequester = remember { FocusRequester() },
+    errorMessage: UiText? = null,
     placeholder: String = ""
 ) {
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
     var input by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = {
-                focusRequester.freeFocus()
-                onConfirm(input)
-            }) {
-                Text(stringResource(R.string.action_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                focusRequester.freeFocus()
-                onDismiss()
-            }) {
-                Text(stringResource(R.string.action_cancel))
-            }
-        },
-        title = { Text(stringResource(R.string.monthly_budget_input_dialog_title)) },
-        text = {
-            Column {
-                Text(stringResource(R.string.monthly_budget_input_dialog_content))
-                SpacerMedium()
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = { input = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    singleLine = true,
-                    isError = isInputError,
-                    shape = MaterialTheme.shapes.medium,
-                    placeholder = { Text(placeholder) }
-                )
-            }
-        },
-        modifier = modifier
+    ValueInputSheet(
+        titleRes = R.string.monthly_budget_input_title,
+        inputValue = { input },
+        onValueChange = { input = it },
+        onDismiss = onDismiss,
+        onConfirm = { onConfirm(input) },
+        placeholder = placeholder,
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        errorMessage = errorMessage
     )
 }
 

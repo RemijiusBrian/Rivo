@@ -42,7 +42,9 @@ class SettingsViewModel @Inject constructor(
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
     private val showMonthlyBudgetInput = savedStateHandle
-        .getStateFlow(SHOW_MONTHLY_LIMIT_INPUT, false)
+        .getStateFlow(SHOW_MONTHLY_BUDGET_INPUT, false)
+    private val budgetInputError = savedStateHandle
+        .getStateFlow<UiText?>(BUDGET_INPUT_ERROR, null)
 
     private val showSmsPermissionRationale = savedStateHandle
         .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
@@ -52,6 +54,7 @@ class SettingsViewModel @Inject constructor(
         dynamicColorsEnabled,
         showAppThemeSelection,
         monthlyBudget,
+        budgetInputError,
         showMonthlyBudgetInput,
         autoAddExpenseEnabled,
         showSmsPermissionRationale
@@ -60,6 +63,7 @@ class SettingsViewModel @Inject constructor(
                 dynamicThemeEnabled,
                 showAppThemeSelection,
                 monthlyBudget,
+                budgetInputError,
                 showMonthlyBudgetInput,
                 autoAddExpenseEnabled,
                 showSmsPermissionRationale
@@ -71,6 +75,7 @@ class SettingsViewModel @Inject constructor(
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
                 ?.let { TextFormat.currency(it) }.orEmpty(),
             showBudgetInput = showMonthlyBudgetInput,
+            budgetInputError = budgetInputError,
             autoAddExpenseEnabled = autoAddExpenseEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
@@ -100,30 +105,25 @@ class SettingsViewModel @Inject constructor(
     }
 
     override fun onMonthlyBudgetPreferenceClick() {
-        savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = true
+        savedStateHandle[SHOW_MONTHLY_BUDGET_INPUT] = true
     }
 
     override fun onMonthlyBudgetInputDismiss() {
-        savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
+        savedStateHandle[SHOW_MONTHLY_BUDGET_INPUT] = false
     }
 
     override fun onMonthlyBudgetInputConfirm(value: String) {
         viewModelScope.launch {
             val longValue = value.toLongOrNull() ?: -1L
             if (longValue <= -1L) {
-                savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
-                eventBus.send(
-                    SettingsEvent.ShowUiMessage(
-                        UiText.StringResource(
-                            R.string.error_invalid_amount,
-                            true
-                        )
-                    )
+                savedStateHandle[BUDGET_INPUT_ERROR] = UiText.StringResource(
+                    R.string.error_invalid_amount,
+                    true
                 )
                 return@launch
             }
             repo.updateCurrentBudget(longValue)
-            savedStateHandle[SHOW_MONTHLY_LIMIT_INPUT] = false
+            savedStateHandle[SHOW_MONTHLY_BUDGET_INPUT] = false
             eventBus.send(
                 SettingsEvent.ShowUiMessage(
                     UiText.StringResource(R.string.budget_updated)
@@ -167,6 +167,7 @@ class SettingsViewModel @Inject constructor(
 }
 
 private const val SHOW_APP_THEME_SELECTION = "SHOW_APP_THEME_SELECTION"
-private const val SHOW_MONTHLY_LIMIT_INPUT = "SHOW_MONTHLY_LIMIT_INPUT"
+private const val SHOW_MONTHLY_BUDGET_INPUT = "SHOW_MONTHLY_BUDGET_INPUT"
+private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
 private const val TEMP_AUTO_ADD_EXPENSE_STATE = "TOGGLED_AUTO_ADD_EXPENSE_STATE"
