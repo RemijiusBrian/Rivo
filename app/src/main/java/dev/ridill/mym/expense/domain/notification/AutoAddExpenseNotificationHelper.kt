@@ -16,7 +16,7 @@ import dev.ridill.mym.core.domain.notification.NotificationHelper
 import dev.ridill.mym.core.ui.navigation.destinations.ARG_EXPENSE_ID
 
 @SuppressLint("MissingPermission")
-class ExpenseNotificationHelper(
+class AutoAddExpenseNotificationHelper(
     private val context: Context
 ) : NotificationHelper {
 

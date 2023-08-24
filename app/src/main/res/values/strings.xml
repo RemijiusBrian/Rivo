@@ -144,8 +144,7 @@
     <string name="tag_deleted">Tag deleted</string>
     <string name="tag_deleted_with_expenses">Tag deleted with expenses</string>
     <string name="amount_spent_towards_merchant">%1$s spent towards %2$s</string>
-    <string name="count_new_expenses">%s New Expenses</string>
-    <string name="new_expenses_detected">New Expenses Detected</string>
+    <string name="new_expense_detected">New Expense Detected</string>
     <string name="no_expenditure_yet">No Expenditure Yet</string>
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>

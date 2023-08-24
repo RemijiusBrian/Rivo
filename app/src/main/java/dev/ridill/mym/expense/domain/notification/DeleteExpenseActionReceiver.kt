@@ -23,7 +23,7 @@ class DeleteExpenseActionReceiver : BroadcastReceiver() {
     lateinit var repo: ExpenseRepository
 
     @Inject
-    lateinit var notificationHelper: ExpenseNotificationHelper
+    lateinit var notificationHelper: AutoAddExpenseNotificationHelper
 
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getLongExtra(ARG_EXPENSE_ID, -1L)
