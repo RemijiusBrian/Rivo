@@ -12,12 +12,13 @@ import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.repository.ExpenseRepositoryImpl
 import dev.ridill.mym.expense.data.repository.TagsRepositoryImpl
-import dev.ridill.mym.expense.domain.notification.ExpenseNotificationHelper
+import dev.ridill.mym.expense.domain.notification.AutoAddExpenseNotificationHelper
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
 import dev.ridill.mym.expense.domain.sms.ExpenseSmsService
 import dev.ridill.mym.expense.presentation.addEditExpense.AddEditExpenseViewModel
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesViewModel
+import kotlinx.coroutines.CoroutineScope
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -43,10 +44,20 @@ object ExpenseModule {
     fun provideAllExpenseEventBus(): EventBus<AllExpensesViewModel.AllExpenseEvent> = EventBus()
 
     @Provides
-    fun provideExpenseSmsService(): ExpenseSmsService = ExpenseSmsService()
+    fun provideExpenseSmsService(
+        expenseRepository: ExpenseRepository,
+        notificationHelper: AutoAddExpenseNotificationHelper,
+        @ApplicationScope applicationScope: CoroutineScope,
+        @ApplicationContext context: Context
+    ): ExpenseSmsService = ExpenseSmsService(
+        repo = expenseRepository,
+        notificationHelper = notificationHelper,
+        applicationScope = applicationScope,
+        context = context
+    )
 
     @Provides
     fun provideExpenseNotificationHelper(
         @ApplicationContext context: Context
-    ): ExpenseNotificationHelper = ExpenseNotificationHelper(context)
+    ): AutoAddExpenseNotificationHelper = AutoAddExpenseNotificationHelper(context)
 }
