@@ -152,16 +152,23 @@ dependencies {
     kapt(libs.androidx.hilt.compiler)
 
     implementation(libs.androidx.datastore.preferences)
+
     implementation(libs.com.airbnb.android.lottie.compose)
     implementation(libs.com.github.zhuinden.flow.combinetuple.kt)
+
     implementation(platform(libs.com.google.firebase.bom))
     implementation(libs.com.google.firebase.analytics.ktx)
-    implementation(libs.com.notkamui.keval)
+
+    implementation(libs.com.google.android.gms.play.services.auth)
+
+    implementation(libs.com.google.mlkit.entityextraction)
+
     implementation(libs.com.squareup.retrofit2.retrofit)
     implementation(libs.com.squareup.retrofit2.converter.gson)
     implementation(libs.com.squareup.okhhtp3.logging.interceptor)
-    implementation(libs.com.google.android.gms.play.services.auth)
+
     implementation(libs.com.jakewharton.timber)
+    implementation(libs.com.notkamui.keval)
 }
 
 kapt {
