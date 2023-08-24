@@ -78,10 +78,6 @@
     <string name="delete_tag_confirmation_title">Delete Tag?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
-    <!-- Dialog Content -->
-    <string name="monthly_budget_input_dialog_title">Monthly Budget</string>
-    <string name="monthly_budget_input_dialog_content">Enter your budget for each month</string>
-
     <string name="permission_notification">Notifications</string>
     <string name="permission_rationale_notification">%s needs notification permission to post notifications</string>
     <string name="permission_sms">Receive SMS Messages</string>
@@ -115,6 +111,8 @@
     <string name="backup_interval_daily">Daily</string>
     <string name="backup_interval_weekly">Weekly</string>
     <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>
+
+    <string name="monthly_budget_input_title">Set Monthly Budget</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
