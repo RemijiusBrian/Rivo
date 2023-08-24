@@ -7,10 +7,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import dev.ridill.mym.core.ui.navigation.destinations.ScreenSpec
 import dev.ridill.mym.core.ui.navigation.destinations.DashboardScreenSpec
 import dev.ridill.mym.core.ui.navigation.destinations.NavDestination
 import dev.ridill.mym.core.ui.navigation.destinations.NavGraphSpec
+import dev.ridill.mym.core.ui.navigation.destinations.ScreenSpec
 import dev.ridill.mym.core.ui.navigation.destinations.WelcomeFlowScreenSpec
 
 @Composable
@@ -30,45 +30,45 @@ fun MYMNavHost(
         }
         NavDestination.allDestinations.forEach { destination ->
             when (destination) {
-                is NavGraphSpec -> addNavGraph(destination, navController)
-                is ScreenSpec -> addChildDestination(destination, navController)
+                is NavGraphSpec -> addGraphSpec(destination, navController)
+                is ScreenSpec -> addScreenSpec(destination, navController)
             }
         }
     }
 }
 
-private fun NavGraphBuilder.addChildDestination(
-    destination: ScreenSpec,
+private fun NavGraphBuilder.addScreenSpec(
+    screenSpec: ScreenSpec,
     navController: NavHostController
 ) {
     composable(
-        route = destination.route,
-        arguments = destination.arguments,
-        deepLinks = destination.deepLinks,
-        enterTransition = destination.enterTransition,
-        exitTransition = destination.exitTransition,
-        popEnterTransition = destination.popEnterTransition,
-        popExitTransition = destination.popExitTransition
+        route = screenSpec.route,
+        arguments = screenSpec.arguments,
+        deepLinks = screenSpec.deepLinks,
+        enterTransition = screenSpec.enterTransition,
+        exitTransition = screenSpec.exitTransition,
+        popEnterTransition = screenSpec.popEnterTransition,
+        popExitTransition = screenSpec.popExitTransition
     ) { navBackStackEntry ->
-        destination.Content(navController = navController, navBackStackEntry = navBackStackEntry)
+        screenSpec.Content(navController = navController, navBackStackEntry = navBackStackEntry)
     }
 }
 
-private fun NavGraphBuilder.addNavGraph(
-    graph: NavGraphSpec,
+private fun NavGraphBuilder.addGraphSpec(
+    navGraphSpec: NavGraphSpec,
     navController: NavHostController
 ) {
-    require(graph.children.isNotEmpty()) {
+    require(navGraphSpec.children.isNotEmpty()) {
         "NavGraph must contain at least 1 child destination"
     }
     navigation(
-        startDestination = graph.startDestination.route,
-        route = graph.route
+        startDestination = navGraphSpec.startDestination.route,
+        route = navGraphSpec.route
     ) {
-        graph.children.forEach { destination ->
+        navGraphSpec.children.forEach { destination ->
             when (destination) {
-                is ScreenSpec -> addChildDestination(destination, navController)
-                is NavGraphSpec -> addNavGraph(destination, navController)
+                is ScreenSpec -> addScreenSpec(destination, navController)
+                is NavGraphSpec -> addGraphSpec(destination, navController)
             }
         }
     }
