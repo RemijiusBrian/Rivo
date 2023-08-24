@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import dev.ridill.mym.core.ui.components.simpleFadeIn
 import dev.ridill.mym.core.ui.components.simpleFadeOut
 
-sealed interface ChildDestinationSpec : NavDestination {
+sealed interface ScreenSpec : NavDestination {
     val arguments: List<NamedNavArgument>
         get() = emptyList()
 

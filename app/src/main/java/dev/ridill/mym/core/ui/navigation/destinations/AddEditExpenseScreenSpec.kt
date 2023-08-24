@@ -23,7 +23,7 @@ import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 
-object AddEditExpenseDestinationSpec : ChildDestinationSpec {
+object AddEditExpenseScreenSpec : ScreenSpec {
     override val route: String = "add_edit_expense/{$ARG_EXPENSE_ID}"
 
     override val labelRes: Int = R.string.destination_dashboard

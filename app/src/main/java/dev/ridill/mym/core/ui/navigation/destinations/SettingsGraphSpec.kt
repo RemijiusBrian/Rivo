@@ -11,7 +11,7 @@ object SettingsGraphSpec : NavGraphSpec, BottomNavDestination {
     override val labelRes: Int = R.string.destination_settings
 
     override val children: List<NavDestination> = listOf(
-        SettingsDestinationSpec,
-        BackupSettingsDestinationSpec
+        SettingsScreenSpec,
+        BackupSettingsScreenSpec
     )
 }

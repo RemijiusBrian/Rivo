@@ -21,7 +21,7 @@ import dev.ridill.mym.core.ui.util.restartApplication
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
 
-object WelcomeFlowDestinationSpec : ChildDestinationSpec {
+object WelcomeFlowScreenSpec : ScreenSpec {
     override val route: String = "welcome_flow"
     override val labelRes: Int = R.string.destination_welcome_flow
 
@@ -71,7 +71,7 @@ object WelcomeFlowDestinationSpec : ChildDestinationSpec {
                     }
 
                     WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
-                        navController.navigate(DashboardDestinationSpec.route) {
+                        navController.navigate(DashboardScreenSpec.route) {
                             popUpTo(route) {
                                 inclusive = true
                             }

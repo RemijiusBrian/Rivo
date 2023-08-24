@@ -17,7 +17,7 @@ import dev.ridill.mym.core.ui.util.launchAppSettings
 import dev.ridill.mym.settings.presentation.settings.SettingsScreen
 import dev.ridill.mym.settings.presentation.settings.SettingsViewModel
 
-object SettingsDestinationSpec : ChildDestinationSpec {
+object SettingsScreenSpec : ScreenSpec {
 
     override val route: String = "settings"
 
@@ -63,7 +63,7 @@ object SettingsDestinationSpec : ChildDestinationSpec {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,
-            navigateToBackupSettings = { navController.navigate(BackupSettingsDestinationSpec.route) }
+            navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) }
         )
     }
 }

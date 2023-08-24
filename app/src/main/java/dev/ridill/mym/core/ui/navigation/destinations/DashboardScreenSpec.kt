@@ -17,7 +17,7 @@ import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
 import dev.ridill.mym.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 
-object DashboardDestinationSpec : ChildDestinationSpec {
+object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
 
     override val labelRes: Int = R.string.destination_dashboard
@@ -50,7 +50,7 @@ object DashboardDestinationSpec : ChildDestinationSpec {
             snackbarController = snackbarController,
             state = state,
             navigateToAddEditExpense = {
-                navController.navigate(AddEditExpenseDestinationSpec.routeWithArg(it))
+                navController.navigate(AddEditExpenseScreenSpec.routeWithArg(it))
             },
             navigateToBottomNavDestination = {
                 navController.navigate(it.route)

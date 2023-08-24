@@ -15,7 +15,7 @@ import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.mym.settings.presentation.backupSettings.BackupSettingsViewModel
 
-object BackupSettingsDestinationSpec : ChildDestinationSpec {
+object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
 
     override val labelRes: Int = R.string.destination_backup_settings

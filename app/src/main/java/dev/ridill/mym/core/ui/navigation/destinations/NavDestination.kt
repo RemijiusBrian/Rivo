@@ -6,11 +6,11 @@ sealed interface NavDestination {
     companion object {
         val allDestinations: List<NavDestination>
             get() = listOf(
-                WelcomeFlowDestinationSpec,
-                DashboardDestinationSpec,
-                AddEditExpenseDestinationSpec,
+                WelcomeFlowScreenSpec,
+                DashboardScreenSpec,
+                AddEditExpenseScreenSpec,
                 SettingsGraphSpec,
-                AllExpensesDestinationSpec
+                AllExpensesScreenSpec
             )
     }
 
