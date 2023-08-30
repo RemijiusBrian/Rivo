@@ -5,7 +5,7 @@ org-jetbrains-kotlin-android = "1.8.22"
 google-services = "4.3.15"
 
 core-ktx = "1.10.1"
-kotlin-bom = "1.9.0"
+kotlin-bom = "1.9.10"
 activity-compose = "1.7.2"
 junit = "4.13.2"
 androidx-junit = "1.1.5"
@@ -28,7 +28,7 @@ datastore-preferences = "1.0.0"
 androidx-work = "2.8.1"
 androidx-hilt-work = "1.0.0"
 
-firebase-bom = "32.2.2"
+firebase-bom = "32.2.3"
 
 play-services-auth = "20.6.0"
 
