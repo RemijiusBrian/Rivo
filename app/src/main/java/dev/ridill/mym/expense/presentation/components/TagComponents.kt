@@ -70,11 +70,12 @@ fun NewTagSheet(
     errorMessage: UiText?,
 ) {
     ValueInputSheet(
-        titleRes = R.string.new_tag,
+        titleRes = R.string.new_tag_input_title,
         inputValue = nameInput,
         onValueChange = onNameChange,
         onDismiss = onDismiss,
         onConfirm = onConfirm,
+        text = stringResource(R.string.new_tag_input_text),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             capitalization = KeyboardCapitalization.Words,

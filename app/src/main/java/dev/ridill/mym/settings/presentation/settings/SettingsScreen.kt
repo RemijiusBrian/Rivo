@@ -220,6 +220,7 @@ fun BudgetInputSheet(
         onConfirm = { onConfirm(input) },
         placeholder = placeholder,
         modifier = modifier,
+        text = stringResource(R.string.monthly_budget_input_text),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done

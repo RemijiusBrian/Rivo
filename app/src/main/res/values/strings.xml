@@ -112,7 +112,11 @@
     <string name="backup_interval_weekly">Weekly</string>
     <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>
 
-    <string name="monthly_budget_input_title">Set Monthly Budget</string>
+    <string name="monthly_budget_input_title">Monthly Budget</string>
+    <string name="monthly_budget_input_text">Set a monthly budget to keep your expenses within</string>
+
+    <string name="new_tag_input_title">New Tag</string>
+    <string name="new_tag_input_text">Create a tag to help organize your expenses</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -137,7 +141,6 @@
     <string name="tag_assigned_to_expenses">Tag assigned to expenses</string>
     <string name="expenses_untagged">Expenses Untagged</string>
     <string name="expenses_deleted">Expenses Deleted</string>
-    <string name="new_tag">New Tag</string>
     <string name="new_tag_created">New tag created</string>
     <string name="tag_deleted">Tag deleted</string>
     <string name="tag_deleted_with_expenses">Tag deleted with expenses</string>

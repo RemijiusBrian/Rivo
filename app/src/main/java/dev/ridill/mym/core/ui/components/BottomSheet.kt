@@ -32,6 +32,7 @@ fun ValueInputSheet(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
+    text: String? = null,
     focusRequester: FocusRequester = remember { FocusRequester() },
     errorMessage: UiText? = null,
     singleLine: Boolean = true,
@@ -62,6 +63,16 @@ fun ValueInputSheet(
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             )
+
+            text?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(horizontal = SpacingMedium)
+                )
+            }
+
             OutlinedTextField(
                 value = inputValue(),
                 onValueChange = onValueChange,
