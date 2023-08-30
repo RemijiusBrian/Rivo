@@ -13,7 +13,7 @@ data class BackupSettingsState(
     val lastBackupDateTime: LocalDateTime? = null
 ) {
     val lastBackupDateFormatted: String?
-        get() = lastBackupDateTime?.format(DateUtil.Formatters.localizedDateLong)
+        get() = lastBackupDateTime?.let { DateUtil.Formatters.prettyDateAgo(it.toLocalDate()) }
 
     val lastBackupTimeFormatted: String?
         get() = lastBackupDateTime?.format(DateUtil.Formatters.localizedTimeShort)

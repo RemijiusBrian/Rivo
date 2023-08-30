@@ -3,12 +3,14 @@ package dev.ridill.mym.core.domain.util
 import androidx.annotation.StringRes
 import dev.ridill.mym.R
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 
 object DateUtil {
     fun now(): LocalDateTime = LocalDateTime.now()
@@ -66,6 +68,34 @@ object DateUtil {
                 .appendPattern(" EEE")
                 .toFormatter()
 
+        fun prettyDateAgo(
+            date: LocalDate,
+            monthsWindow: Long = DEFAULT_MONTH_WINDOW
+        ): String {
+            val currentDate = now()
+            if (date.isAfter(currentDate.toLocalDate())) return String.Empty
+
+            val daysDiff = ChronoUnit.DAYS.between(date, currentDate)
+            if (daysDiff < 1L)
+                return "Today"
+
+            if (daysDiff == 1L)
+                return "Yesterday"
+
+            val weeksDiff = ChronoUnit.WEEKS.between(date, currentDate)
+            if (weeksDiff < 1L)
+                return "$daysDiff ago"
+
+            val monthsDiff = ChronoUnit.MONTHS.between(date, currentDate)
+            if (monthsDiff < 1L)
+                return "$weeksDiff ago"
+
+            if (monthsDiff < monthsWindow)
+                return "$monthsDiff ago"
+
+            return date.format(localizedDateLong)
+        }
+
         private val ordinalsMap: Map<Long, String>
             get() {
                 val mutableMap = mutableMapOf(
@@ -93,3 +123,5 @@ enum class PartOfDay(
     AFTERNOON(R.string.part_of_day_afternoon),
     EVENING(R.string.part_of_day_evening)
 }
+
+private const val DEFAULT_MONTH_WINDOW = 3L
