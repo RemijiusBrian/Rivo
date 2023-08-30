@@ -2,7 +2,6 @@ package dev.ridill.mym.application
 
 import android.Manifest
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -35,10 +34,10 @@ class MYMActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.setFlags(
+        /*window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
-        )
+        )*/
         splashScreen.apply {
             setKeepOnScreenCondition { viewModel.showSplashScreen.value }
         }
