@@ -2,12 +2,13 @@ package dev.ridill.mym.expense.presentation.allExpenses
 
 import androidx.compose.ui.graphics.Color
 import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 import java.time.Month
 
 interface AllExpensesActions {
     fun onMonthSelect(month: Month)
     fun onYearSelect(year: Int)
-    fun onTagClick(tag: String)
+    fun onTagClick(tag: ExpenseTag)
     fun onNewTagClick()
     fun onNewTagNameChange(value: String)
     fun onNewTagColorSelect(color: Color)
@@ -20,7 +21,8 @@ interface AllExpensesActions {
     fun onExpenseBulkOperationClick(operation: ExpenseBulkOperation)
     fun onDeleteExpenseDismiss()
     fun onDeleteExpenseConfirm()
-    fun onDeleteTagClick(tagName: String)
+    fun onEditTagClick(tag: ExpenseTag)
+    fun onDeleteTagClick(tagId: Long)
     fun onDeleteTagDismiss()
     fun onDeleteTagConfirm()
     fun onDeleteTagWithExpensesClick()

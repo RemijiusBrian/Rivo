@@ -12,6 +12,7 @@ val Float.Companion.One: Float get() = 1f
 inline fun Float.ifNaN(value: () -> Float): Float = if (isNaN()) value() else this
 
 val Int.Companion.Zero: Int get() = 0
+val Int.Companion.One: Int get() = 1
 fun Int?.orZero(): Int = this ?: Int.Zero
 fun Int.toByteArray(): ByteArray = ByteBuffer.allocate(Int.SIZE_BYTES).putInt(this).array()
 fun ByteArray.toInt(): Int = ByteBuffer.wrap(this).int

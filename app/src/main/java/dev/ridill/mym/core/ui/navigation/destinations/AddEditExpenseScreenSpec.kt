@@ -68,8 +68,7 @@ object AddEditExpenseScreenSpec : ScreenSpec {
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagNameInput = viewModel.tagNameInput.collectAsStateWithLifecycle()
-        val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
+        val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
@@ -115,8 +114,8 @@ object AddEditExpenseScreenSpec : ScreenSpec {
             amountInput = { amount.value },
             noteInput = { note.value },
             isEditMode = isEditMode,
-            tagNameInput = { tagNameInput.value },
-            tagColorInput = { tagColorInput.value },
+            tagNameInput = { tagInput.value?.name.orEmpty() },
+            tagColorInput = { tagInput.value?.colorCode },
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp

@@ -25,8 +25,7 @@ object AllExpensesScreenSpec : ScreenSpec, BottomNavDestination {
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
         val viewModel: AllExpensesViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagNameInput = viewModel.tagNameInput.collectAsStateWithLifecycle()
-        val tagColorInput = viewModel.tagColorInput.collectAsStateWithLifecycle()
+        val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -53,8 +52,8 @@ object AllExpensesScreenSpec : ScreenSpec, BottomNavDestination {
         AllExpensesScreen(
             snackbarController = snackbarController,
             state = state,
-            tagNameInput = { tagNameInput.value },
-            tagColorInput = { tagColorInput.value },
+            tagNameInput = { tagInput.value?.name.orEmpty() },
+            tagColorInput = { tagInput.value?.colorCode },
             actions = viewModel,
             navigateUp = navController::navigateUp
         )

@@ -10,7 +10,7 @@ fun ExpenseEntity.toExpense(): Expense = Expense(
     id = id,
     amount = amount.toString(),
     note = note,
-    createdTimestamp = dateTime,
+    createdTimestamp = timestamp,
     tagId = tagId
 )
 
@@ -18,6 +18,6 @@ fun ExpenseWithTagRelation.toRecentSpend(): ExpenseListItem = ExpenseListItem(
     id = expenseEntity.id,
     note = expenseEntity.note,
     amount = TextFormat.currency(expenseEntity.amount),
-    date = expenseEntity.dateTime.toLocalDate(),
+    date = expenseEntity.timestamp.toLocalDate(),
     tag = tagEntity?.toExpenseTag()
 )

@@ -33,6 +33,7 @@
     <string name="cd_untag_expenses">Untag Expenses</string>
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
+    <string name="cd_edit_tag">Edit Tag</string>
     <string name="cd_delete_tag">Delete Tag</string>
     <string name="cd_show_years_list">Show Years List</string>
 
@@ -40,7 +41,6 @@
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_expense_note">Please enter a valid Note</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
-    <string name="error_invalid_tag_color">Invalid tag color</string>
     <string name="error_app_data_backup_failed">Failed to backup App Data</string>
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
@@ -141,7 +141,7 @@
     <string name="tag_assigned_to_expenses">Tag assigned to expenses</string>
     <string name="expenses_untagged">Expenses Untagged</string>
     <string name="expenses_deleted">Expenses Deleted</string>
-    <string name="new_tag_created">New tag created</string>
+    <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
     <string name="tag_deleted_with_expenses">Tag deleted with expenses</string>
     <string name="amount_spent_towards_merchant">%1$s spent towards %2$s</string>

@@ -35,32 +35,36 @@ class TagsRepositoryImpl(
             entities.map { it.toTagWithExpenditure(totalExpenditure) }
         }
 
-    override suspend fun assignTagToExpenses(tagName: String, ids: List<Long>) =
+    override suspend fun assignTagToExpenses(tagId: Long, ids: List<Long>) =
         withContext(Dispatchers.IO) {
-            dao.assignTagToExpensesWithIds(tagName, ids)
+            dao.assignTagToExpensesWithIds(tagId, ids)
         }
 
     override suspend fun untagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
         dao.untagExpenses(ids)
     }
 
-    override suspend fun saveTag(name: String, color: Color, timestamp: LocalDateTime) {
-        withContext(Dispatchers.IO) {
-            val entity = TagEntity(
-                name = name,
-                colorCode = color.toArgb(),
-                dateCreated = timestamp
-            )
+    override suspend fun saveTag(
+        id: Long,
+        name: String,
+        color: Color,
+        timestamp: LocalDateTime
+    ): Long = withContext(Dispatchers.IO) {
+        val entity = TagEntity(
+            id = id,
+            name = name,
+            colorCode = color.toArgb(),
+            createdTimestamp = timestamp
+        )
 
-            dao.insert(entity)
-        }
+        dao.insert(entity).first()
     }
 
-    override suspend fun deleteTagByName(name: String) = withContext(Dispatchers.IO) {
-        dao.clearAndDeleteTag(name)
+    override suspend fun deleteTagById(id: Long) = withContext(Dispatchers.IO) {
+        dao.clearAndDeleteTag(id)
     }
 
-    override suspend fun deleteTagWithExpenses(tag: String) = withContext(Dispatchers.IO) {
-        dao.deleteTagWithExpenses(tag)
+    override suspend fun deleteTagWithExpenses(tagId: Long) = withContext(Dispatchers.IO) {
+        dao.deleteTagWithExpenses(tagId)
     }
 }

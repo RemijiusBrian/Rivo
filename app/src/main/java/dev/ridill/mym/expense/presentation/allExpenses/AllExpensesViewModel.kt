@@ -15,9 +15,9 @@ import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
-import dev.ridill.mym.expense.presentation.components.TagColors
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -53,13 +53,13 @@ class AllExpensesViewModel @Inject constructor(
         )
     }
 
-    private val selectedTag = savedStateHandle.getStateFlow<String?>(SELECTED_TAG, null)
+    private val selectedTag = savedStateHandle.getStateFlow<ExpenseTag?>(SELECTED_TAG, null)
 
     private val expenseList = combineTuple(
         selectedDate,
         selectedTag
     ).flatMapLatest { (date, tag) ->
-        expenseRepo.getExpenseForDateByTag(date, tag)
+        expenseRepo.getExpenseForDateByTag(date, tag?.id)
     }.onEach { list ->
         val ids = list.map { it.id }
         savedStateHandle[SELECTED_EXPENSE_IDS] = selectedExpenseIds.value
@@ -91,11 +91,8 @@ class AllExpensesViewModel @Inject constructor(
         .getStateFlow(SHOW_DELETE_TAG_CONFIRMATION, false)
 
     private val showNewTagInput = savedStateHandle
-        .getStateFlow(SHOW_NEW_TAG_INPUT, false)
-    val tagNameInput = savedStateHandle
-        .getStateFlow(TAG_NAME_INPUT, "")
-    val tagColorInput = savedStateHandle
-        .getStateFlow<Int?>(TAG_COLOR_INPUT, null)
+        .getStateFlow(SHOW_TAG_INPUT, false)
+    val tagInput = savedStateHandle.getStateFlow<ExpenseTag?>(TAG_INPUT, null)
     private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     val state = combineTuple(
@@ -156,10 +153,10 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
     }
 
-    override fun onTagClick(tag: String) {
+    override fun onTagClick(tag: ExpenseTag) {
         if (expenseMultiSelectionModeActive.value) viewModelScope.launch {
             val selectedIds = selectedExpenseIds.value
-            tagsRepo.assignTagToExpenses(tag, selectedIds)
+            tagsRepo.assignTagToExpenses(tag.id, selectedIds)
             dismissMultiSelectionMode()
             savedStateHandle[SELECTED_TAG] = tag
             eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_expenses)))
@@ -170,17 +167,19 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
-        savedStateHandle[TAG_COLOR_INPUT] = TagColors.first().toArgb()
-        savedStateHandle[SHOW_NEW_TAG_INPUT] = true
+        savedStateHandle[TAG_INPUT] = ExpenseTag.NEW
+        savedStateHandle[SHOW_TAG_INPUT] = true
     }
 
     override fun onNewTagNameChange(value: String) {
-        savedStateHandle[TAG_NAME_INPUT] = value
+        savedStateHandle[TAG_INPUT] = tagInput.value
+            ?.copy(name = value)
         savedStateHandle[NEW_TAG_ERROR] = null
     }
 
     override fun onNewTagColorSelect(color: Color) {
-        savedStateHandle[TAG_COLOR_INPUT] = color.toArgb()
+        savedStateHandle[TAG_INPUT] = tagInput.value
+            ?.copy(colorCode = color.toArgb())
     }
 
     override fun onNewTagInputDismiss() {
@@ -188,8 +187,9 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onNewTagInputConfirm() {
+        val tagInput = tagInput.value ?: return
         viewModelScope.launch {
-            val name = tagNameInput.value.trim()
+            val name = tagInput.name.trim()
             if (name.isEmpty()) {
                 savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
                     R.string.error_invalid_tag_name,
@@ -198,32 +198,26 @@ class AllExpensesViewModel @Inject constructor(
                 return@launch
             }
 
-            val color = tagColorInput.value?.let { Color(it) }
+            val color = tagInput.color
 
-            if (color == null) {
-                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
-                    R.string.error_invalid_tag_color,
-                    true
-                )
-                return@launch
-            }
-
-            tagsRepo.saveTag(
+            val insertedId = tagsRepo.saveTag(
                 name = name,
-                color = color
+                color = color,
+                id = tagInput.id,
+                timestamp = tagInput.createdTimestamp
             )
-
+            savedStateHandle[SELECTED_TAG] = tagInput
+                .copy(id = insertedId)
             clearAndHideTagInput()
             eventBus.send(
-                AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.new_tag_created))
+                AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
         }
     }
 
     private fun clearAndHideTagInput() {
-        savedStateHandle[SHOW_NEW_TAG_INPUT] = false
-        savedStateHandle[TAG_NAME_INPUT] = ""
-        savedStateHandle[TAG_COLOR_INPUT] = null
+        savedStateHandle[SHOW_TAG_INPUT] = false
+        savedStateHandle[TAG_INPUT] = null
     }
 
     override fun onExpenseLongClick(id: Long) {
@@ -315,23 +309,28 @@ class AllExpensesViewModel @Inject constructor(
         expenseRepo.deleteExpenses(ids)
     }
 
-    override fun onDeleteTagClick(tagName: String) {
-        savedStateHandle[DELETION_TAG_NAME] = tagName
+    override fun onEditTagClick(tag: ExpenseTag) {
+        savedStateHandle[TAG_INPUT] = tag
+        savedStateHandle[SHOW_TAG_INPUT] = true
+    }
+
+    override fun onDeleteTagClick(tagId: Long) {
+        savedStateHandle[DELETION_TAG_ID] = tagId
         savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = true
     }
 
     override fun onDeleteTagDismiss() {
         savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-        savedStateHandle[DELETION_TAG_NAME] = null
+        savedStateHandle[DELETION_TAG_ID] = null
     }
 
     override fun onDeleteTagConfirm() {
-        val tagName = savedStateHandle.get<String?>(DELETION_TAG_NAME) ?: return
+        val tagId = savedStateHandle.get<Long?>(DELETION_TAG_ID) ?: return
         viewModelScope.launch {
-            tagsRepo.deleteTagByName(tagName)
+            tagsRepo.deleteTagById(tagId)
             savedStateHandle[SELECTED_TAG] = null
             savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            savedStateHandle[DELETION_TAG_NAME] = null
+            savedStateHandle[DELETION_TAG_ID] = null
             eventBus.send(
                 AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted))
             )
@@ -339,12 +338,12 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onDeleteTagWithExpensesClick() {
-        val tagName = savedStateHandle.get<String?>(DELETION_TAG_NAME) ?: return
+        val tagId = savedStateHandle.get<Long?>(DELETION_TAG_ID) ?: return
         viewModelScope.launch {
-            tagsRepo.deleteTagWithExpenses(tagName)
+            tagsRepo.deleteTagWithExpenses(tagId)
             savedStateHandle[SELECTED_TAG] = null
             savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            savedStateHandle[DELETION_TAG_NAME] = null
+            savedStateHandle[DELETION_TAG_ID] = null
             eventBus.send(
                 AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_expenses))
             )
@@ -358,13 +357,12 @@ class AllExpensesViewModel @Inject constructor(
 }
 
 private const val SELECTED_DATE = "SELECTED_DATE"
-private const val SELECTED_TAG = "SELECTED_TAG_NAME"
+private const val SELECTED_TAG = "SELECTED_TAG"
 private const val SELECTED_EXPENSE_IDS = "SELECTED_EXPENSE_IDS"
 private const val EXPENSE_MULTI_SELECTION_MODE_ACTIVE = "EXPENSE_MULTI_SELECTION_MODE_ACTIVE"
 private const val SHOW_DELETE_EXPENSE_CONFIRMATION = "SHOW_DELETE_EXPENSE_CONFIRMATION"
 private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
-private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
-private const val TAG_NAME_INPUT = "TAG_NAME_INPUT"
-private const val TAG_COLOR_INPUT = "TAG_COLOR_INPUT"
-private const val DELETION_TAG_NAME = "DELETION_TAG_NAME"
+private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
+private const val TAG_INPUT = "TAG_INPUT"
+private const val DELETION_TAG_ID = "DELETION_TAG_ID"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"

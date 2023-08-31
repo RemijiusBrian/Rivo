@@ -8,7 +8,7 @@ interface AddEditExpenseActions {
     fun onNoteInputFocused()
     fun onNoteChange(value: String)
     fun onRecommendedAmountClick(amount: Long)
-    fun onTagClick(tagId: String)
+    fun onTagClick(tagId: Long)
     fun onExpenseTimestampClick()
     fun onExpenseTimestampSelectionDismiss()
     fun onExpenseTimestampSelectionConfirm(dateTime: LocalDateTime)

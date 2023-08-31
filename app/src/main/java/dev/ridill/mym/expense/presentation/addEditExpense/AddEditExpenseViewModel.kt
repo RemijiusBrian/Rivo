@@ -19,9 +19,9 @@ import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseScreenSpec
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
-import dev.ridill.mym.expense.presentation.components.TagColors
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -47,7 +47,7 @@ class AddEditExpenseViewModel @Inject constructor(
     val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")
 
     private val tagsList = tagsRepo.getAllTags()
-    private val selectedTagId = savedStateHandle.getStateFlow<String?>(SELECTED_TAG_ID, null)
+    private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
 
     private val expenseTimestamp = savedStateHandle.getStateFlow(EXPENSE_TIMESTAMP, DateUtil.now())
 
@@ -58,10 +58,8 @@ class AddEditExpenseViewModel @Inject constructor(
 
     private val showNewTagInput = savedStateHandle
         .getStateFlow(SHOW_NEW_TAG_INPUT, false)
-    val tagNameInput = savedStateHandle
-        .getStateFlow(TAG_NAME_INPUT, "")
-    val tagColorInput = savedStateHandle
-        .getStateFlow<Int?>(TAG_COLOR_INPUT, null)
+    val tagInput = savedStateHandle
+        .getStateFlow<ExpenseTag?>(TAG_INPUT, null)
     private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
@@ -138,7 +136,7 @@ class AddEditExpenseViewModel @Inject constructor(
         savedStateHandle[AMOUNT_INPUT] = amount.toString()
     }
 
-    override fun onTagClick(tagId: String) {
+    override fun onTagClick(tagId: Long) {
         savedStateHandle[SELECTED_TAG_ID] = tagId
             .takeIf { selectedTagId.value != it }
     }
@@ -216,18 +214,20 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
-        savedStateHandle[TAG_COLOR_INPUT] = TagColors.first().toArgb()
+        savedStateHandle[TAG_INPUT] = ExpenseTag.NEW
         savedStateHandle[SHOW_NEW_TAG_INPUT] = true
     }
 
     override fun onNewTagNameChange(value: String) {
-        savedStateHandle[TAG_NAME_INPUT] = value
+        savedStateHandle[TAG_INPUT] = tagInput.value
+            ?.copy(name = value)
         savedStateHandle[NEW_TAG_ERROR] = null
 
     }
 
     override fun onNewTagColorSelect(color: Color) {
-        savedStateHandle[TAG_COLOR_INPUT] = color.toArgb()
+        savedStateHandle[TAG_INPUT] = tagInput.value
+            ?.copy(colorCode = color.toArgb())
     }
 
     override fun onNewTagInputDismiss() {
@@ -235,9 +235,10 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 
     override fun onNewTagInputConfirm() {
+        val tagInput = tagInput.value ?: return
         viewModelScope.launch {
-            val name = tagNameInput.value.trim()
-            val color = tagColorInput.value?.let { Color(it) }
+            val name = tagInput.name.trim()
+            val color = tagInput.color
 
             if (name.isEmpty()) {
                 savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
@@ -247,15 +248,8 @@ class AddEditExpenseViewModel @Inject constructor(
                 return@launch
             }
 
-            if (color == null) {
-                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
-                    R.string.error_invalid_tag_color,
-                    true
-                )
-                return@launch
-            }
-
             tagsRepo.saveTag(
+                id = tagInput.id,
                 name = name,
                 color = color
             )
@@ -263,15 +257,14 @@ class AddEditExpenseViewModel @Inject constructor(
             clearAndHideTagInput()
             savedStateHandle[SELECTED_TAG_ID] = name
             eventBus.send(
-                AddEditExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.new_tag_created))
+                AddEditExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
         }
     }
 
     private fun clearAndHideTagInput() {
         savedStateHandle[SHOW_NEW_TAG_INPUT] = false
-        savedStateHandle[TAG_NAME_INPUT] = ""
-        savedStateHandle[TAG_COLOR_INPUT] = null
+        savedStateHandle[TAG_INPUT] = null
     }
 
     sealed class AddEditExpenseEvent {
@@ -288,8 +281,7 @@ private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
 private const val EXPENSE_TIMESTAMP = "EXPENSE_TIMESTAMP"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
-private const val TAG_NAME_INPUT = "TAG_NAME_INPUT"
-private const val TAG_COLOR_INPUT = "TAG_COLOR_INPUT"
+private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 

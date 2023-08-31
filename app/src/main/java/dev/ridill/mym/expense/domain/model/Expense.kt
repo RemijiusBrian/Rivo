@@ -9,7 +9,7 @@ data class Expense(
     val amount: String,
     val note: String,
     val createdTimestamp: LocalDateTime,
-    val tagId: String?
+    val tagId: Long?
 ) {
     companion object {
         val DEFAULT = Expense(

@@ -11,6 +11,6 @@ data class ExpenseWithTagRelation(
     @Relation(
         entity = TagEntity::class,
         parentColumn = "tagId",
-        entityColumn = "name"
+        entityColumn = "id"
     ) val tagEntity: TagEntity?
 )

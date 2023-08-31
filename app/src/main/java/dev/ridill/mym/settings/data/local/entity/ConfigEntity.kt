@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class MiscConfigEntity(
+class ConfigEntity(
     @PrimaryKey(autoGenerate = false)
     val configKey: String,
     val configValue: String
