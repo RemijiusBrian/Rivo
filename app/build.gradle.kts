@@ -28,6 +28,12 @@ android {
         }
 
         buildConfigField("String", "GOOGLE_APIS_BASE_URL", "\"https://www.googleapis.com/\"")
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += "room.schemaLocation" to "$projectDir/schemas"
+            }
+        }
     }
 
     buildTypes {
@@ -52,12 +58,16 @@ android {
             applicationIdSuffix = ".internal"
             versionCode = 7
             versionName = "1.2.4"
+
+            buildConfigField("int", "DB_VERSION", "3")
         }
 
         create("production") {
             dimension = "env"
             versionCode = 1
             versionName = "0.0.1"
+
+            buildConfigField("int", "DB_VERSION", "1")
         }
     }
 

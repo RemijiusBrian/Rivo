@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import dev.ridill.mym.BuildConfig
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
@@ -19,8 +20,7 @@ import dev.ridill.mym.settings.data.local.entity.ConfigEntity
         TagEntity::class,
         ConfigEntity::class
     ],
-    version = 3,
-    exportSchema = false
+    version = BuildConfig.DB_VERSION
 )
 @TypeConverters(DateTimeConverter::class)
 abstract class MYMDatabase : RoomDatabase() {
