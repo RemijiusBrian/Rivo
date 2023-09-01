@@ -62,7 +62,6 @@ import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.SpacerLarge
-import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.theme.contentColor
@@ -189,7 +188,6 @@ fun AddEditExpenseScreen(
                 onNewTagClick = actions::onNewTagClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = SpacingListEnd)
             )
         }
 
