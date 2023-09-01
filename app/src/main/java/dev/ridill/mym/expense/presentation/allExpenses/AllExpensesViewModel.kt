@@ -140,10 +140,10 @@ class AllExpensesViewModel @Inject constructor(
     val events = eventBus.eventFlow
 
     init {
-        observeExpenseList()
+        refreshSelectedIdsListOnExpenseListChange()
     }
 
-    private fun observeExpenseList() = viewModelScope.launch {
+    private fun refreshSelectedIdsListOnExpenseListChange() = viewModelScope.launch {
         expenseList.collectLatest { list ->
             val ids = list.map { it.id }
             savedStateHandle[SELECTED_EXPENSE_IDS] = selectedExpenseIds.value
