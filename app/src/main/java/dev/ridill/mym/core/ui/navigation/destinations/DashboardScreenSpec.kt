@@ -49,6 +49,9 @@ object DashboardScreenSpec : ScreenSpec {
         DashboardScreen(
             snackbarController = snackbarController,
             state = state,
+            navigateToAllExpenses = {
+                navController.navigate(AllExpensesScreenSpec.route)
+            },
             navigateToAddEditExpense = {
                 navController.navigate(AddEditExpenseScreenSpec.routeWithArg(it))
             },

@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -59,10 +60,12 @@ import dev.ridill.mym.core.ui.components.FadedVisibility
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.SnackbarController
+import dev.ridill.mym.core.ui.components.Spacer
 import dev.ridill.mym.core.ui.components.SpacerExtraSmall
 import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
+import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesScreenSpec
 import dev.ridill.mym.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.mym.core.ui.theme.ElevationLevel1
 import dev.ridill.mym.core.ui.theme.MYMTheme
@@ -79,6 +82,7 @@ import java.time.LocalDate
 fun DashboardScreen(
     state: DashboardState,
     snackbarController: SnackbarController,
+    navigateToAllExpenses: () -> Unit,
     navigateToAddEditExpense: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
@@ -152,6 +156,7 @@ fun DashboardScreen(
                     .fillMaxWidth()
                     .weight(Float.One)
                     .padding(horizontal = SpacingSmall),
+                onAllExpensesClick = navigateToAllExpenses,
                 listState = recentSpendsListState,
                 onNavigateUpClick = {
                     coroutineScope.launch {
@@ -270,6 +275,7 @@ private fun SpendsOverview(
     spentAmount: Double,
     recentSpends: List<ExpenseListItem>,
     onTransactionClick: (ExpenseListItem) -> Unit,
+    onAllExpensesClick: () -> Unit,
     listState: LazyListState,
     onNavigateUpClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -297,8 +303,9 @@ private fun SpendsOverview(
 
             SpacerSmall()
 
-            SpentAmount(
+            SpentAmountAndAllExpenses(
                 amount = spentAmount,
+                onAllExpensesClick = onAllExpensesClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -370,8 +377,9 @@ private fun SpendsOverview(
 }
 
 @Composable
-private fun SpentAmount(
+private fun SpentAmountAndAllExpenses(
     amount: Double,
+    onAllExpensesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
@@ -404,6 +412,16 @@ private fun SpentAmount(
             ),
             fontWeight = FontWeight.Normal
         )
+
+        Spacer(weight = Float.One)
+
+        TextButton(
+            onClick = onAllExpensesClick,
+            modifier = Modifier
+                .alignByBaseline()
+        ) {
+            Text(text = "${stringResource(AllExpensesScreenSpec.labelRes)} >")
+        }
     }
 }
 
@@ -439,6 +457,7 @@ private fun PreviewDashboardScreen() {
                 spentAmount = 500.0,
                 monthlyBudget = 5_000L
             ),
+            navigateToAllExpenses = {},
             navigateToAddEditExpense = {},
             snackbarController = rememberSnackbarController(),
             navigateToBottomNavDestination = {}

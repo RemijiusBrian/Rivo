@@ -14,8 +14,7 @@ import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesScreen
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesViewModel
 
-object AllExpensesScreenSpec : ScreenSpec, BottomNavDestination {
-    override val iconRes: Int = R.drawable.ic_all_expenses
+object AllExpensesScreenSpec : ScreenSpec {
 
     override val route: String = "all_expenses"
 
