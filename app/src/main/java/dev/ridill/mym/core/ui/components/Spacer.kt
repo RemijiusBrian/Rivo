@@ -38,7 +38,6 @@ fun ColumnScope.Spacer(
     weight: Float
 ) = Spacer(modifier = Modifier.weight(weight))
 
-
 @Composable
 fun VerticalSpacer(
     spacing: Dp
@@ -62,6 +61,11 @@ fun RowScope.SpacerExtraLarge() = HorizontalSpacer(SpacingExtraLarge)
 
 @Composable
 fun RowScope.Spacer(spacing: Dp) = HorizontalSpacer(spacing)
+
+@Composable
+fun RowScope.Spacer(
+    weight: Float
+) = Spacer(modifier = Modifier.weight(weight))
 
 @Composable
 fun HorizontalSpacer(

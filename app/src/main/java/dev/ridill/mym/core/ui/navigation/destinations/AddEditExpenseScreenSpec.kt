@@ -20,6 +20,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.navigateUpWithResult
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.mym.expense.presentation.addEditExpense.AddEditExpenseScreen
@@ -79,24 +80,24 @@ object AddEditExpenseScreenSpec : ScreenSpec {
             viewModel.events.collect { event ->
                 when (event) {
                     AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseAdded -> {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set(DASHBOARD_ACTION_RESULT, RESULT_EXPENSE_ADDED)
-                        navController.popBackStack()
+                        navController.navigateUpWithResult(
+                            DASHBOARD_ACTION_RESULT,
+                            RESULT_EXPENSE_ADDED
+                        )
                     }
 
                     AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseDeleted -> {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set(DASHBOARD_ACTION_RESULT, RESULT_EXPENSE_DELETED)
-                        navController.popBackStack()
+                        navController.navigateUpWithResult(
+                            DASHBOARD_ACTION_RESULT,
+                            RESULT_EXPENSE_DELETED
+                        )
                     }
 
                     AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseUpdated -> {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set(DASHBOARD_ACTION_RESULT, RESULT_EXPENSE_UPDATED)
-                        navController.popBackStack()
+                        navController.navigateUpWithResult(
+                            DASHBOARD_ACTION_RESULT,
+                            RESULT_EXPENSE_UPDATED
+                        )
                     }
 
                     is AddEditExpenseViewModel.AddEditExpenseEvent.ShowUiMessage -> {

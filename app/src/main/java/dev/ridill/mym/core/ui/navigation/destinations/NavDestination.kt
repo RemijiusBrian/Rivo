@@ -9,8 +9,8 @@ sealed interface NavDestination {
                 WelcomeFlowScreenSpec,
                 DashboardScreenSpec,
                 AddEditExpenseScreenSpec,
-                SettingsGraphSpec,
-                AllExpensesScreenSpec
+                AllExpensesScreenSpec,
+                SettingsGraphSpec
             )
     }
 
