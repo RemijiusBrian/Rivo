@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class AddEditExpenseState(
     val amountRecommendations: List<Long> = emptyList(),
     val tagsList: List<ExpenseTag> = emptyList(),
-    val selectedTagId: String? = null,
+    val selectedTagId: Long? = null,
     val expenseTimestamp: LocalDateTime = DateUtil.now(),
     val showDeleteConfirmation: Boolean = false,
     val showNewTagInput: Boolean = false,

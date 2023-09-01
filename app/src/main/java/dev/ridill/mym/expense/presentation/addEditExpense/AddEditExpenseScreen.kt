@@ -62,7 +62,6 @@ import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.SpacerLarge
-import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.theme.contentColor
@@ -184,12 +183,11 @@ fun AddEditExpenseScreen(
 
             TagsList(
                 tagsList = state.tagsList,
-                selectedTag = state.selectedTagId,
+                selectedTagId = state.selectedTagId,
                 onTagClick = actions::onTagClick,
                 onNewTagClick = actions::onNewTagClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = SpacingListEnd)
             )
         }
 
@@ -331,8 +329,8 @@ private fun ExpenseDate(
 @Composable
 fun TagsList(
     tagsList: List<ExpenseTag>,
-    selectedTag: String?,
-    onTagClick: (String) -> Unit,
+    selectedTagId: Long?,
+    onTagClick: (Long) -> Unit,
     onNewTagClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -347,8 +345,8 @@ fun TagsList(
         ) {
             tagsList.forEach { tag ->
                 FilterChip(
-                    selected = tag.name == selectedTag,
-                    onClick = { onTagClick(tag.name) },
+                    selected = tag.id == selectedTagId,
+                    onClick = { onTagClick(tag.id) },
                     label = {
                         Text(
                             text = tag.name,

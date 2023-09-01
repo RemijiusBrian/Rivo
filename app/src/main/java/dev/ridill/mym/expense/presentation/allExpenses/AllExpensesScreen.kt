@@ -35,13 +35,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowLeft
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -108,6 +109,7 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.theme.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
 import dev.ridill.mym.expense.presentation.components.NewTagSheet
@@ -174,9 +176,9 @@ fun AllExpensesScreen(
         ) {
             TagsInfoList(
                 tags = state.tagsWithExpenditures,
-                selectedTagId = state.selectedTag,
+                selectedTagId = state.selectedTag?.id,
                 onTagClick = actions::onTagClick,
-                onTagDeleteClick = actions::onDeleteTagClick,
+                onTagEditClick = actions::onEditTagClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.expenseMultiSelectionModeActive,
                 modifier = Modifier
@@ -192,7 +194,7 @@ fun AllExpensesScreen(
             )
 
             ExpenseList(
-                selectedTag = state.selectedTag,
+                selectedTagName = state.selectedTag?.name,
                 expenseList = state.expenseList,
                 totalExpenditure = state.totalExpenditure,
                 selectedExpenseIds = state.selectedExpenseIds,
@@ -246,9 +248,9 @@ fun AllExpensesScreen(
 @Composable
 private fun TagsInfoList(
     tags: List<TagWithExpenditure>,
-    selectedTagId: String?,
-    onTagClick: (String) -> Unit,
-    onTagDeleteClick: (String) -> Unit,
+    selectedTagId: Long?,
+    onTagClick: (ExpenseTag) -> Unit,
+    onTagEditClick: (ExpenseTag) -> Unit,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -279,15 +281,15 @@ private fun TagsInfoList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
             state = lazyListState
         ) {
-            items(items = tags, key = { it.tag.name }) { item ->
+            items(items = tags, key = { it.tag.id }) { item ->
                 TagInfoCard(
                     name = item.tag.name,
                     color = item.tag.color,
                     amount = TextFormat.currency(item.expenditure),
                     percentOfTotalExpenditure = item.percentOfTotalExpenditure,
-                    isSelected = item.tag.name == selectedTagId,
-                    onClick = { onTagClick(item.tag.name) },
-                    onDeleteClick = { onTagDeleteClick(item.tag.name) },
+                    isSelected = item.tag.id == selectedTagId,
+                    onClick = { onTagClick(item.tag) },
+                    onEditClick = { onTagEditClick(item.tag) },
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
@@ -324,7 +326,7 @@ private fun TagInfoCard(
     percentOfTotalExpenditure: Float,
     isSelected: Boolean,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val transition = updateTransition(
@@ -341,7 +343,7 @@ private fun TagInfoCard(
     )
     val textScale by transition.animateFloat(
         label = "TextScale",
-        targetValueByState = { if (it) 1.5f else 1f }
+        targetValueByState = { if (it) 1f else 0.8f }
     )
     val contentColor = remember(color) { color.contentColor() }
 
@@ -380,17 +382,18 @@ private fun TagInfoCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
+                            .weight(Float.One)
                             .graphicsLayer {
                                 scaleX = textScale
                                 scaleY = textScale
                                 transformOrigin = TransformOrigin(0f, 0f)
-                            }
+                            },
                     )
                     if (isSelected) {
-                        IconButton(onClick = onDeleteClick) {
+                        IconButton(onClick = onEditClick) {
                             Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = stringResource(R.string.cd_delete_tag)
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = stringResource(R.string.cd_edit_tag)
                             )
                         }
                     }
@@ -416,7 +419,8 @@ private fun TagInfoCard(
                     R.string.percent_of_expenditure,
                     TextFormat.percent(percent)
                 ),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall
+                    .copy(textMotion = TextMotion.Animated),
                 color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT),
                 overflow = TextOverflow.Ellipsis
             )
@@ -607,7 +611,7 @@ private fun DateIndicator(
 
 @Composable
 private fun ExpenseList(
-    selectedTag: String?,
+    selectedTagName: String?,
     expenseList: List<ExpenseListItem>,
     totalExpenditure: Double,
     selectedExpenseIds: List<Long>,
@@ -658,8 +662,16 @@ private fun ExpenseList(
                 }
             }
 
+            Divider(
+                modifier = Modifier
+                    .padding(
+                        vertical = SpacingSmall,
+                        horizontal = SpacingMedium
+                    )
+            )
+
             Crossfade(
-                targetState = selectedTag ?: stringResource(R.string.all_expenses),
+                targetState = selectedTagName ?: stringResource(R.string.all_expenses),
                 label = "SelectedTag",
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
@@ -824,7 +836,7 @@ private fun PreviewAllExpensesScreen() {
             actions = object : AllExpensesActions {
                 override fun onMonthSelect(month: Month) {}
                 override fun onYearSelect(year: Int) {}
-                override fun onTagClick(tag: String) {}
+                override fun onTagClick(tag: ExpenseTag) {}
                 override fun onNewTagClick() {}
                 override fun onNewTagNameChange(value: String) {}
                 override fun onNewTagColorSelect(color: Color) {}
@@ -837,7 +849,8 @@ private fun PreviewAllExpensesScreen() {
                 override fun onExpenseBulkOperationClick(operation: ExpenseBulkOperation) {}
                 override fun onDeleteExpenseDismiss() {}
                 override fun onDeleteExpenseConfirm() {}
-                override fun onDeleteTagClick(tagName: String) {}
+                override fun onEditTagClick(tag: ExpenseTag) {}
+                override fun onDeleteTagClick(tagId: Long) {}
                 override fun onDeleteTagDismiss() {}
                 override fun onDeleteTagConfirm() {}
                 override fun onDeleteTagWithExpensesClick() {}

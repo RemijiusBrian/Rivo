@@ -41,13 +41,13 @@ class ExpenseRepositoryImpl(
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        tagId: String?
+        tagId: Long?
     ): Long = withContext(Dispatchers.IO) {
         val entity = ExpenseEntity(
             id = id ?: Long.Zero,
             note = note,
             amount = amount,
-            dateTime = dateTime,
+            timestamp = dateTime,
             tagId = tagId
         )
         dao.insert(entity).first()
@@ -77,7 +77,7 @@ class ExpenseRepositoryImpl(
 
     override fun getExpenseForDateByTag(
         date: LocalDate,
-        tagId: String?
+        tagId: Long?
     ): Flow<List<ExpenseListItem>> = dao.getExpenseForMonthByTag(
         monthAndYear = date.format(DateUtil.Formatters.MM_yyyy_dbFormat),
         tagId = tagId

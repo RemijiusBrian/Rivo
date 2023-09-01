@@ -15,9 +15,15 @@ interface TagsRepository {
         totalExpenditure: Double
     ): Flow<List<TagWithExpenditure>>
 
-    suspend fun assignTagToExpenses(tagName: String, ids: List<Long>)
+    suspend fun assignTagToExpenses(tagId: Long, ids: List<Long>)
     suspend fun untagExpenses(ids: List<Long>)
-    suspend fun saveTag(name: String, color: Color, timestamp: LocalDateTime = DateUtil.now())
-    suspend fun deleteTagByName(name: String)
-    suspend fun deleteTagWithExpenses(tag: String)
+    suspend fun saveTag(
+        id: Long,
+        name: String,
+        color: Color,
+        timestamp: LocalDateTime = DateUtil.now()
+    ): Long
+
+    suspend fun deleteTagById(id: Long)
+    suspend fun deleteTagWithExpenses(tagId: Long)
 }

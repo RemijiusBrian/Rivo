@@ -16,7 +16,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         """
         SELECT IFNULL(SUM(amount), 0.0)
         FROM ExpenseEntity
-        WHERE strftime('%m-%Y', datetime) = :monthAndYear
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear
     """
     )
     fun getExpenditureForMonth(monthAndYear: String): Flow<Double>
@@ -33,10 +33,10 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     suspend fun getExpenseById(id: Long): ExpenseEntity?
 
     @Transaction
-    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', datetime) = :monthAndYear ORDER BY datetime(dateTime) DESC, id DESC")
+    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', timestamp) = :monthAndYear ORDER BY datetime(timestamp) DESC, id DESC")
     fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTagRelation>>
 
-    @Query("SELECT DISTINCT(strftime('%Y', datetime)) as year FROM ExpenseEntity ORDER BY year DESC")
+    @Query("SELECT DISTINCT(strftime('%Y', timestamp)) as year FROM ExpenseEntity ORDER BY year DESC")
     fun getDistinctYears(): Flow<List<Int>>
 
     @Transaction
@@ -44,13 +44,13 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         """
         SELECT *
         FROM ExpenseEntity
-        WHERE strftime('%m-%Y', datetime) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId)
-        ORDER BY datetime(dateTime) DESC, id DESC
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId)
+        ORDER BY datetime(timestamp) DESC, id DESC
     """
     )
     fun getExpenseForMonthByTag(
         monthAndYear: String,
-        tagId: String?
+        tagId: Long?
     ): Flow<List<ExpenseWithTagRelation>>
 
     @Query("DELETE FROM ExpenseEntity WHERE id = :id")

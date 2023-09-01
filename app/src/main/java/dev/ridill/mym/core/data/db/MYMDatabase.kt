@@ -9,17 +9,17 @@ import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.entity.TagEntity
+import dev.ridill.mym.settings.data.local.ConfigDao
 import dev.ridill.mym.settings.data.local.ConfigKeys
-import dev.ridill.mym.settings.data.local.MiscConfigDao
-import dev.ridill.mym.settings.data.local.entity.MiscConfigEntity
+import dev.ridill.mym.settings.data.local.entity.ConfigEntity
 
 @Database(
     entities = [
         ExpenseEntity::class,
         TagEntity::class,
-        MiscConfigEntity::class
+        ConfigEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(DateTimeConverter::class)
@@ -32,7 +32,7 @@ abstract class MYMDatabase : RoomDatabase() {
     // Dao Methods
     abstract fun expenseDao(): ExpenseDao
     abstract fun tagsDao(): TagsDao
-    abstract fun miscConfigDao(): MiscConfigDao
+    abstract fun configDao(): ConfigDao
 }
 
 val Migration_1_2 = object : Migration(1, 2) {

@@ -17,8 +17,8 @@ interface TagsDao : BaseDao<TagEntity> {
     @Transaction
     @Query(
         """
-        SELECT tag.name as name, tag.colorCode as colorCode, tag.dateCreated as createdTimestamp,
-            (SELECT IFNULL(SUM(subExp.amount), 0.0) FROM ExpenseEntity subExp WHERE subExp.tagId = tag.name AND strftime('%m-%Y', subExp.dateTime) = :monthAndYear) as amount
+        SELECT tag.id as id, tag.name as name, tag.colorCode as colorCode, tag.createdTimestamp as createdTimestamp,
+            (SELECT IFNULL(SUM(subExp.amount), 0.0) FROM ExpenseEntity subExp WHERE subExp.tagId = tag.name AND strftime('%m-%Y', subExp.timestamp) = :monthAndYear) as amount
         FROM TagEntity tag
         ORDER BY tag.name ASC 
     """
@@ -27,30 +27,30 @@ interface TagsDao : BaseDao<TagEntity> {
         monthAndYear: String
     ): Flow<List<TagWithExpenditureRelation>>
 
-    @Query("UPDATE ExpenseEntity SET tagId = :tag WHERE id IN (:ids)")
-    suspend fun assignTagToExpensesWithIds(tag: String, ids: List<Long>)
+    @Query("UPDATE ExpenseEntity SET tagId = :tagId WHERE id IN (:ids)")
+    suspend fun assignTagToExpensesWithIds(tagId: Long, ids: List<Long>)
 
     @Query("UPDATE ExpenseEntity SET tagId = NULL WHERE id IN (:ids)")
     suspend fun untagExpenses(ids: List<Long>)
 
-    @Query("UPDATE ExpenseEntity SET tagId = NULL WHERE tagId = :name")
-    suspend fun untagExpensesByTag(name: String)
-
-    @Query("DELETE FROM TagEntity WHERE name = :name")
-    suspend fun deleteTagByName(name: String)
-
     @Transaction
-    suspend fun clearAndDeleteTag(name: String) {
-        untagExpensesByTag(name)
-        deleteTagByName(name)
+    suspend fun untagExpensesAndDeleteTag(id: Long) {
+        untagExpensesByTag(id)
+        deleteTagById(id)
     }
 
-    @Query("DELETE FROM ExpenseEntity WHERE tagId = :tag")
-    suspend fun deleteExpensesByTag(tag: String)
-
     @Transaction
-    suspend fun deleteTagWithExpenses(tag: String) {
-        deleteExpensesByTag(tag)
-        deleteTagByName(tag)
+    suspend fun deleteTagWithExpenses(id: Long) {
+        deleteExpensesByTag(id)
+        deleteTagById(id)
     }
+
+    @Query("UPDATE ExpenseEntity SET tagId = NULL WHERE tagId = :id")
+    suspend fun untagExpensesByTag(id: Long)
+
+    @Query("DELETE FROM TagEntity WHERE name = :id")
+    suspend fun deleteTagById(id: Long)
+
+    @Query("DELETE FROM ExpenseEntity WHERE tagId = :id")
+    suspend fun deleteExpensesByTag(id: Long)
 }

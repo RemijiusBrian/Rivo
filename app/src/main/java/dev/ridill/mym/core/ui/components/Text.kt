@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import dev.ridill.mym.core.domain.util.One
 
 @Composable
 fun LargeTitle(
@@ -28,13 +29,17 @@ fun LargeTitle(
 fun ListLabel(
     text: String,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.labelMedium,
+    style: TextStyle = MaterialTheme.typography.labelLarge,
     fontWeight: FontWeight = FontWeight.SemiBold,
+    maxLines: Int = Int.One,
+    overflow: TextOverflow = TextOverflow.Ellipsis
 ) {
     Text(
         text = text,
         modifier = modifier,
         style = style,
-        fontWeight = fontWeight
+        fontWeight = fontWeight,
+        maxLines = maxLines,
+        overflow = overflow
     )
 }

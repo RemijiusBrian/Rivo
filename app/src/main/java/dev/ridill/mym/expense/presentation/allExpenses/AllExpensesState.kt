@@ -5,6 +5,7 @@ import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
+import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import java.time.LocalDate
 
@@ -13,7 +14,7 @@ data class AllExpensesState(
     val yearsList: List<Int> = emptyList(),
     val totalExpenditure: Double = Double.Zero,
     val tagsWithExpenditures: List<TagWithExpenditure> = emptyList(),
-    val selectedTag: String? = null,
+    val selectedTag: ExpenseTag? = null,
     val expenseList: List<ExpenseListItem> = emptyList(),
     val selectedExpenseIds: List<Long> = emptyList(),
     val expenseSelectionState: ToggleableState = ToggleableState.Off,

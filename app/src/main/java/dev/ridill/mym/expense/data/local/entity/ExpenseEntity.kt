@@ -11,7 +11,7 @@ import java.time.LocalDateTime
     foreignKeys = [
         ForeignKey(
             entity = TagEntity::class,
-            parentColumns = ["name"],
+            parentColumns = ["id"],
             childColumns = ["tagId"]
         )
     ],
@@ -22,6 +22,6 @@ data class ExpenseEntity(
     val id: Long = MYMDatabase.DEFAULT_ID_LONG,
     val note: String,
     val amount: Double,
-    val dateTime: LocalDateTime,
-    val tagId: String?
+    val timestamp: LocalDateTime,
+    val tagId: Long?
 )
