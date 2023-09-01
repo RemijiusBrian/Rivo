@@ -40,8 +40,7 @@ class AddEditExpenseViewModel @Inject constructor(
         .getExpenseIdFromSavedStateHandle(savedStateHandle)
     private val isEditMode = AddEditExpenseScreenSpec.isEditMode(expenseIdArg)
     private val currentExpenseId: Long
-        get() = expenseIdArg.takeIf { it >= MYMDatabase.DEFAULT_ID_LONG }
-            ?: MYMDatabase.DEFAULT_ID_LONG
+        get() = expenseIdArg.coerceAtLeast(MYMDatabase.DEFAULT_ID_LONG)
 
     val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
     val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")

@@ -18,10 +18,10 @@ import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.Month
 import javax.inject.Inject
@@ -60,10 +60,6 @@ class AllExpensesViewModel @Inject constructor(
         selectedTag
     ).flatMapLatest { (date, tag) ->
         expenseRepo.getExpenseForDateByTag(date, tag?.id)
-    }.onEach { list ->
-        val ids = list.map { it.id }
-        savedStateHandle[SELECTED_EXPENSE_IDS] = selectedExpenseIds.value
-            .filter { it in ids }
     }.asStateFlow(viewModelScope, emptyList())
 
     private val selectedExpenseIds = savedStateHandle
@@ -142,6 +138,18 @@ class AllExpensesViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, AllExpensesState())
 
     val events = eventBus.eventFlow
+
+    init {
+        observeExpenseList()
+    }
+
+    private fun observeExpenseList() = viewModelScope.launch {
+        expenseList.collectLatest { list ->
+            val ids = list.map { it.id }
+            savedStateHandle[SELECTED_EXPENSE_IDS] = selectedExpenseIds.value
+                .filter { it in ids }
+        }
+    }
 
     override fun onMonthSelect(month: Month) {
         dismissMultiSelectionMode()
