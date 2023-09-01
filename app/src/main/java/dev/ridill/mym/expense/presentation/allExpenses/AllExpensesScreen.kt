@@ -40,6 +40,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -80,6 +81,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -377,7 +379,8 @@ private fun TagInfoCard(
                         style = MaterialTheme.typography.titleLarge
                             .copy(
                                 fontWeight = FontWeight.SemiBold,
-                                textMotion = TextMotion.Animated
+                                textMotion = TextMotion.Animated,
+                                lineBreak = LineBreak.Heading
                             ),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -393,17 +396,15 @@ private fun TagInfoCard(
                         IconButton(onClick = onEditClick) {
                             Icon(
                                 imageVector = Icons.Outlined.Edit,
-                                contentDescription = stringResource(R.string.cd_edit_tag)
+                                contentDescription = stringResource(R.string.cd_edit_tag),
+                                modifier = Modifier
+                                    .size(ButtonDefaults.IconSize)
                             )
                         }
                     }
                 }
 
-                AnimatedVisibility(
-                    visible = isSelected,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
+                if (isSelected) {
                     Text(
                         text = stringResource(R.string.amount_worth_spent, amount),
                         style = MaterialTheme.typography.titleMedium,
@@ -419,8 +420,9 @@ private fun TagInfoCard(
                     R.string.percent_of_expenditure,
                     TextFormat.percent(percent)
                 ),
-                style = MaterialTheme.typography.bodySmall
-                    .copy(textMotion = TextMotion.Animated),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    textMotion = TextMotion.Animated
+                ),
                 color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT),
                 overflow = TextOverflow.Ellipsis
             )
