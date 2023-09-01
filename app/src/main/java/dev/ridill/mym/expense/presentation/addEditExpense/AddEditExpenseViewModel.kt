@@ -248,14 +248,14 @@ class AddEditExpenseViewModel @Inject constructor(
                 return@launch
             }
 
-            tagsRepo.saveTag(
+            val insertedId = tagsRepo.saveTag(
                 id = tagInput.id,
                 name = name,
                 color = color
             )
 
             clearAndHideTagInput()
-            savedStateHandle[SELECTED_TAG_ID] = name
+            savedStateHandle[SELECTED_TAG_ID] = insertedId
             eventBus.send(
                 AddEditExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
