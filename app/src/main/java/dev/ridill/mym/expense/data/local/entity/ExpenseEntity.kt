@@ -12,8 +12,7 @@ import java.time.LocalDateTime
         ForeignKey(
             entity = TagEntity::class,
             parentColumns = ["id"],
-            childColumns = ["tagId"],
-            onDelete = ForeignKey.SET_NULL
+            childColumns = ["tagId"]
         )
     ],
     indices = [Index("tagId")]
