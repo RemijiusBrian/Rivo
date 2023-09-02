@@ -1,5 +1,6 @@
 package dev.ridill.mym.settings.presentation.settings
 
+import android.icu.util.Currency
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,7 +58,6 @@ import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.mym.settings.presentation.components.SwitchPreference
-import java.util.Currency
 
 @Composable
 fun SettingsScreen(

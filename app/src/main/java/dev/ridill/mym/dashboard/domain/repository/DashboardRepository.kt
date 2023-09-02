@@ -1,8 +1,8 @@
 package dev.ridill.mym.dashboard.domain.repository
 
+import android.icu.util.Currency
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import kotlinx.coroutines.flow.Flow
-import java.util.Currency
 
 interface DashboardRepository {
     fun getCurrencyPreference(): Flow<Currency>

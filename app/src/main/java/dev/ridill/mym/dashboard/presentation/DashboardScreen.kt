@@ -1,5 +1,6 @@
 package dev.ridill.mym.dashboard.presentation
 
+import android.icu.util.Currency
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,7 +78,6 @@ import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.util.Currency
 
 @Composable
 fun DashboardScreen(

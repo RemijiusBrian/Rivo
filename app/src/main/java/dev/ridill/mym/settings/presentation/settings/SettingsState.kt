@@ -1,9 +1,9 @@
 package dev.ridill.mym.settings.presentation.settings
 
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.CurrencyUtil
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
-import java.util.Currency
 
 data class SettingsState(
     val appTheme: AppTheme = AppTheme.SYSTEM_DEFAULT,

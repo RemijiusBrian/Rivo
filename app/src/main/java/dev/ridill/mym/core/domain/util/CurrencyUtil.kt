@@ -1,6 +1,6 @@
 package dev.ridill.mym.core.domain.util
 
-import java.util.Currency
+import android.icu.util.Currency
 import java.util.Locale
 
 object CurrencyUtil {

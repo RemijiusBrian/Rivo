@@ -1,9 +1,9 @@
 package dev.ridill.mym.dashboard.presentation
 
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.CurrencyUtil
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
-import java.util.Currency
 
 data class DashboardState(
     val currency: Currency = CurrencyUtil.default,

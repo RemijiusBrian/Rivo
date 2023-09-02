@@ -1,18 +1,18 @@
 package dev.ridill.mym.core.ui.util
 
+import android.icu.text.NumberFormat
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.CurrencyUtil
 import dev.ridill.mym.core.domain.util.tryOrNull
-import java.text.NumberFormat
-import java.util.Currency
 import java.util.Locale
 
 object TextFormat {
     fun currency(
         amount: Double,
         locale: Locale = Locale.getDefault(),
-        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
-        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
-        currency: Currency = CurrencyUtil.default
+        currency: Currency = CurrencyUtil.default,
+        maxFractionDigits: Int = currency.defaultFractionDigits,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
     ): String = NumberFormat.getCurrencyInstance(locale)
         .apply {
             maximumFractionDigits = maxFractionDigits
@@ -24,9 +24,9 @@ object TextFormat {
     fun currency(
         amount: Long,
         locale: Locale = Locale.getDefault(),
-        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
-        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
-        currency: Currency = CurrencyUtil.default
+        currency: Currency = CurrencyUtil.default,
+        maxFractionDigits: Int = currency.defaultFractionDigits,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
     ): String = NumberFormat.getCurrencyInstance(locale)
         .apply {
             maximumFractionDigits = maxFractionDigits

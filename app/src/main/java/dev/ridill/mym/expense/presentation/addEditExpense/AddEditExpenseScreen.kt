@@ -1,5 +1,6 @@
 package dev.ridill.mym.expense.presentation.addEditExpense
 
+import android.icu.util.Currency
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -68,7 +69,6 @@ import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.expense.presentation.components.NewTagChip
 import dev.ridill.mym.expense.presentation.components.NewTagSheet
-import java.util.Currency
 
 @Composable
 fun AddEditExpenseScreen(

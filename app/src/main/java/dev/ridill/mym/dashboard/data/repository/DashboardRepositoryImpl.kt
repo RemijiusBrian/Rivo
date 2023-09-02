@@ -1,5 +1,6 @@
 package dev.ridill.mym.dashboard.data.repository
 
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
 import dev.ridill.mym.expense.data.local.ExpenseDao
@@ -10,7 +11,6 @@ import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import java.util.Currency
 
 class DashboardRepositoryImpl(
     private val expenseDao: ExpenseDao,

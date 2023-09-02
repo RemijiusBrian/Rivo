@@ -1,5 +1,6 @@
 package dev.ridill.mym.settings.data.repository
 
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.CurrencyUtil
 import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.settings.data.local.ConfigDao
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.util.Currency
 
 class SettingsRepositoryImpl(
     private val dao: ConfigDao

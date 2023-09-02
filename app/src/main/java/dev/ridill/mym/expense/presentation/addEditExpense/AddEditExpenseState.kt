@@ -1,11 +1,11 @@
 package dev.ridill.mym.expense.presentation.addEditExpense
 
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.CurrencyUtil
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import java.time.LocalDateTime
-import java.util.Currency
 
 data class AddEditExpenseState(
     val currency: Currency = CurrencyUtil.default,
