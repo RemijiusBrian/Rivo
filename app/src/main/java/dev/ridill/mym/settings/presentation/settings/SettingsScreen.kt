@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
+import dev.ridill.mym.core.domain.util.Empty
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -285,7 +286,7 @@ private fun CurrencySelectionSheet(
             onActiveChange = {},
             trailingIcon = {
                 if (!isSearchQueryEmpty) {
-                    IconButton(onClick = { onSearchQueryChange("") }) {
+                    IconButton(onClick = { onSearchQueryChange(String.Empty) }) {
                         Icon(
                             imageVector = Icons.Rounded.Clear,
                             contentDescription = stringResource(R.string.cd_clear)
