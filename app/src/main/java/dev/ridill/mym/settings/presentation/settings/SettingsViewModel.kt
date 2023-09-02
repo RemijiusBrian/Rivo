@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.CurrencyUtil
+import dev.ridill.mym.core.domain.util.Empty
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
@@ -165,19 +166,24 @@ class SettingsViewModel @Inject constructor(
     }
 
     override fun onCurrencySelectionDismiss() {
-        savedStateHandle[SHOW_CURRENCY_SELECTION] = false
+        clearAndDismissCurrencySelection()
     }
 
-    override fun onCurrencySelectionConfirm(value: String) {
+    override fun onCurrencySelectionConfirm(currencyCode: String) {
         viewModelScope.launch {
-            repo.updateCurrencyCode(value)
-            savedStateHandle[SHOW_CURRENCY_SELECTION] = false
+            repo.updateCurrencyCode(currencyCode)
+            clearAndDismissCurrencySelection()
             eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.currency_updated)))
         }
     }
 
     override fun onCurrencySearchQueryChange(value: String) {
         savedStateHandle[CURRENCY_SEARCH_QUERY] = value
+    }
+
+    private fun clearAndDismissCurrencySelection() {
+        savedStateHandle[SHOW_CURRENCY_SELECTION] = false
+        savedStateHandle[CURRENCY_SEARCH_QUERY] = String.Empty
     }
 
     override fun onToggleAutoAddExpense(enabled: Boolean) {

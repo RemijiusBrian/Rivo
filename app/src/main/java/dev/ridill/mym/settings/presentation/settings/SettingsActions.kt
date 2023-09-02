@@ -12,7 +12,7 @@ interface SettingsActions {
     fun onMonthlyBudgetInputConfirm(value: String)
     fun onCurrencyPreferenceClick()
     fun onCurrencySelectionDismiss()
-    fun onCurrencySelectionConfirm(value: String)
+    fun onCurrencySelectionConfirm(currencyCode: String)
     fun onCurrencySearchQueryChange(value: String)
     fun onToggleAutoAddExpense(enabled: Boolean)
     fun onSmsPermissionRationaleDismiss()
