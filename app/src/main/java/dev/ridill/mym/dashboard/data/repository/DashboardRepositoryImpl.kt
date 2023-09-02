@@ -10,11 +10,16 @@ import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import java.util.Currency
 
 class DashboardRepositoryImpl(
     private val expenseDao: ExpenseDao,
     private val settingsRepository: SettingsRepository
 ) : DashboardRepository {
+    override fun getCurrencyPreference(): Flow<Currency> = settingsRepository
+        .getCurrencyPreference()
+        .distinctUntilChanged()
+
     override fun getCurrentBudget(): Flow<Long> = settingsRepository.getCurrentBudget()
         .distinctUntilChanged()
 

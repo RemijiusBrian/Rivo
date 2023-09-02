@@ -12,16 +12,17 @@ import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.domain.service.ExpEvalService
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.core.ui.navigation.destinations.AddEditExpenseScreenSpec
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
+import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -32,15 +33,17 @@ class AddEditExpenseViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val expenseRepo: ExpenseRepository,
     private val tagsRepo: TagsRepository,
+    settingsRepo: SettingsRepository,
     private val eventBus: EventBus<AddEditExpenseEvent>,
     private val evalService: ExpEvalService
 ) : ViewModel(), AddEditExpenseActions {
-
     private val expenseIdArg = AddEditExpenseScreenSpec
         .getExpenseIdFromSavedStateHandle(savedStateHandle)
     private val isEditMode = AddEditExpenseScreenSpec.isEditMode(expenseIdArg)
     private val currentExpenseId: Long
         get() = expenseIdArg.coerceAtLeast(MYMDatabase.DEFAULT_ID_LONG)
+
+    private val currency = settingsRepo.getCurrencyPreference()
 
     val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
     val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")
@@ -64,6 +67,7 @@ class AddEditExpenseViewModel @Inject constructor(
     private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
 
     val state = combineTuple(
+        currency,
         amountRecommendations,
         tagsList,
         selectedTagId,
@@ -73,6 +77,7 @@ class AddEditExpenseViewModel @Inject constructor(
         newTagError,
         showDateTimePicker
     ).map { (
+                currency,
                 amountRecommendations,
                 tagsList,
                 selectedTagId,
@@ -83,6 +88,7 @@ class AddEditExpenseViewModel @Inject constructor(
                 showDateTimePicker
             ) ->
         AddEditExpenseState(
+            currency = currency,
             amountRecommendations = amountRecommendations,
             tagsList = tagsList,
             selectedTagId = selectedTagId,

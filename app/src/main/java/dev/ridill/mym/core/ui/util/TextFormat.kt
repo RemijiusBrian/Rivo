@@ -1,5 +1,7 @@
-package dev.ridill.mym.core.domain.util
+package dev.ridill.mym.core.ui.util
 
+import dev.ridill.mym.core.domain.util.CurrencyUtil
+import dev.ridill.mym.core.domain.util.tryOrNull
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
@@ -9,12 +11,13 @@ object TextFormat {
         amount: Double,
         locale: Locale = Locale.getDefault(),
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
-        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
-    ): String = NumberFormat
-        .getCurrencyInstance(locale)
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
+        currency: Currency = CurrencyUtil.default
+    ): String = NumberFormat.getCurrencyInstance(locale)
         .apply {
             maximumFractionDigits = maxFractionDigits
             minimumFractionDigits = minFractionDigits
+            setCurrency(currency)
         }
         .format(amount)
 
@@ -22,18 +25,15 @@ object TextFormat {
         amount: Long,
         locale: Locale = Locale.getDefault(),
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
-        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
-    ): String = NumberFormat
-        .getCurrencyInstance(locale)
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
+        currency: Currency = CurrencyUtil.default
+    ): String = NumberFormat.getCurrencyInstance(locale)
         .apply {
             maximumFractionDigits = maxFractionDigits
             minimumFractionDigits = minFractionDigits
+            setCurrency(currency)
         }
         .format(amount)
-
-    fun currencySymbol(
-        locale: Locale = Locale.getDefault()
-    ): String = Currency.getInstance(locale).symbol
 
     fun percent(
         value: Float,
@@ -47,8 +47,7 @@ object TextFormat {
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
         isGroupingUsed: Boolean = true
-    ): String = NumberFormat
-        .getNumberInstance(locale)
+    ): String = NumberFormat.getNumberInstance(locale)
         .apply {
             maximumFractionDigits = maxFractionDigits
             minimumFractionDigits = minFractionDigits

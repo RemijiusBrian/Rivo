@@ -55,7 +55,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -69,6 +68,7 @@ import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.expense.presentation.components.NewTagChip
 import dev.ridill.mym.expense.presentation.components.NewTagSheet
+import java.util.Currency
 
 @Composable
 fun AddEditExpenseScreen(
@@ -148,6 +148,7 @@ fun AddEditExpenseScreen(
             SpacerLarge()
 
             AmountInput(
+                currency = state.currency,
                 amount = amountInput,
                 onAmountChange = actions::onAmountChange,
                 modifier = Modifier
@@ -240,6 +241,7 @@ fun AddEditExpenseScreen(
 
 @Composable
 private fun AmountInput(
+    currency: Currency,
     amount: () -> String,
     onAmountChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -248,7 +250,7 @@ private fun AmountInput(
         value = amount,
         onValueChange = onAmountChange,
         modifier = modifier,
-        prefix = { Text(TextFormat.currencySymbol()) },
+        prefix = { Text(currency.symbol) },
         textStyle = MaterialTheme.typography.headlineMedium,
         placeholder = {
             Text(

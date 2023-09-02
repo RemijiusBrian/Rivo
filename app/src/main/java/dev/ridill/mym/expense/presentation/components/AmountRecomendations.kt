@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.ridill.mym.core.domain.util.TextFormat
+import dev.ridill.mym.core.ui.util.TextFormat
 
 @Composable
 fun AmountRecommendationsRow(
