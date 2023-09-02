@@ -36,6 +36,7 @@
     <string name="cd_edit_tag">Edit Tag</string>
     <string name="cd_delete_tag">Delete Tag</string>
     <string name="cd_show_years_list">Show Years List</string>
+    <string name="cd_clear">Clear</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -92,6 +93,7 @@
     <string name="preference_budget">Monthly Budget</string>
     <string name="preference_set_budget_summary">Tap to update your budget</string>
     <string name="preference_current_budget_summary">Your budget is set to %s</string>
+    <string name="preference_currency">Currency</string>
     <string name="preference_auto_add_expenses">Auto Add Expenses</string>
     <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
     <string name="preference_source_code">Source Code</string>
@@ -170,4 +172,6 @@
     <string name="all_expenses">All Expenses</string>
     <string name="settings">Settings</string>
     <string name="tags">Tags</string>
+    <string name="currency_updated">Currency preference updated</string>
+    <string name="search_currency">Search Currency</string>
 </resources>

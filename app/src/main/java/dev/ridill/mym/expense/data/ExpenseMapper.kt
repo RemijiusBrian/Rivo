@@ -1,6 +1,6 @@
 package dev.ridill.mym.expense.data
 
-import dev.ridill.mym.core.domain.util.TextFormat
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.domain.model.Expense

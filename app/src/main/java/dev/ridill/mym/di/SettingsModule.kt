@@ -39,7 +39,7 @@ object SettingsModule {
 
     @Provides
     fun provideSettingsRepository(
-        configDao: ConfigDao
+        configDao: ConfigDao,
     ): SettingsRepository = SettingsRepositoryImpl(
         dao = configDao
     )

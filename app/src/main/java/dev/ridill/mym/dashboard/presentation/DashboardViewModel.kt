@@ -27,6 +27,8 @@ class DashboardViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
+    private val currency = repo.getCurrencyPreference()
+
     private val monthlyBudget = repo.getCurrentBudget()
 
     private val spentAmount = repo.getExpenditureForCurrentMonth()
@@ -43,12 +45,14 @@ class DashboardViewModel @Inject constructor(
     private val signedInUsername = MutableStateFlow<String?>(null)
 
     val state = combineTuple(
+        currency,
         monthlyBudget,
         spentAmount,
         balance,
         recentSpends,
         signedInUsername
     ).map { (
+                currency,
                 monthlyBudget,
                 spentAmount,
                 balance,
@@ -56,6 +60,7 @@ class DashboardViewModel @Inject constructor(
                 signedInUsername
             ) ->
         DashboardState(
+            currency = currency,
             balance = balance,
             spentAmount = spentAmount,
             monthlyBudget = monthlyBudget,

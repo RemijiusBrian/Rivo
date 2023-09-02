@@ -11,7 +11,7 @@ import com.google.mlkit.nl.entityextraction.EntityExtractor
 import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.domain.util.TextFormat
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.core.domain.util.WhiteSpace
 import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.core.domain.util.tryOrNull

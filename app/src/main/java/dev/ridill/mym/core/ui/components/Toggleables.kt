@@ -22,6 +22,21 @@ fun LabelledRadioButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     shape: CornerBasedShape = MaterialTheme.shapes.small,
+) = LabelledRadioButton(
+    label = stringResource(labelRes),
+    selected = selected,
+    onClick = onClick,
+    modifier = modifier,
+    shape = shape
+)
+
+@Composable
+fun LabelledRadioButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: CornerBasedShape = MaterialTheme.shapes.small,
 ) {
     Row(
         modifier = Modifier
@@ -42,7 +57,7 @@ fun LabelledRadioButton(
         )
         SpacerSmall()
         Text(
-            text = stringResource(labelRes),
+            text = label,
             style = MaterialTheme.typography.labelLarge
         )
     }

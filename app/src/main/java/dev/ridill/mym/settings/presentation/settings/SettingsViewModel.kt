@@ -7,13 +7,15 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
+import dev.ridill.mym.core.domain.util.CurrencyUtil
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.domain.util.asStateFlow
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -41,10 +43,27 @@ class SettingsViewModel @Inject constructor(
 
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
+
     private val showMonthlyBudgetInput = savedStateHandle
         .getStateFlow(SHOW_MONTHLY_BUDGET_INPUT, false)
     private val budgetInputError = savedStateHandle
         .getStateFlow<UiText?>(BUDGET_INPUT_ERROR, null)
+
+    private val currencyCode = repo.getCurrencyPreference()
+    private val showCurrencySelection = savedStateHandle
+        .getStateFlow(SHOW_CURRENCY_SELECTION, false)
+    val currencySearchQuery = savedStateHandle
+        .getStateFlow(CURRENCY_SEARCH_QUERY, "")
+
+    private val currencyList = currencySearchQuery
+        .debounce(250L)
+        .map { query ->
+            CurrencyUtil.currencyList.filter { currency ->
+                query.isEmpty()
+                        || currency.displayName.contains(query, true)
+                        || currency.currencyCode.contains(query, true)
+            }
+        }
 
     private val showSmsPermissionRationale = savedStateHandle
         .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
@@ -56,26 +75,35 @@ class SettingsViewModel @Inject constructor(
         monthlyBudget,
         budgetInputError,
         showMonthlyBudgetInput,
+        currencyCode,
+        showCurrencySelection,
+        currencyList,
         autoAddExpenseEnabled,
         showSmsPermissionRationale
     ).map { (
                 appTheme,
-                dynamicThemeEnabled,
+                dynamicColorsEnabled,
                 showAppThemeSelection,
                 monthlyBudget,
                 budgetInputError,
                 showMonthlyBudgetInput,
+                currencyCode,
+                showCurrencySelection,
+                currencyList,
                 autoAddExpenseEnabled,
                 showSmsPermissionRationale
             ) ->
         SettingsState(
             appTheme = appTheme,
-            dynamicColorsEnabled = dynamicThemeEnabled,
+            dynamicColorsEnabled = dynamicColorsEnabled,
             showAppThemeSelection = showAppThemeSelection,
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
                 ?.let { TextFormat.currency(it) }.orEmpty(),
             showBudgetInput = showMonthlyBudgetInput,
             budgetInputError = budgetInputError,
+            currentCurrency = currencyCode,
+            showCurrencySelection = showCurrencySelection,
+            currencyList = currencyList,
             autoAddExpenseEnabled = autoAddExpenseEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
@@ -132,6 +160,26 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    override fun onCurrencyPreferenceClick() {
+        savedStateHandle[SHOW_CURRENCY_SELECTION] = true
+    }
+
+    override fun onCurrencySelectionDismiss() {
+        savedStateHandle[SHOW_CURRENCY_SELECTION] = false
+    }
+
+    override fun onCurrencySelectionConfirm(value: String) {
+        viewModelScope.launch {
+            repo.updateCurrencyCode(value)
+            savedStateHandle[SHOW_CURRENCY_SELECTION] = false
+            eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.currency_updated)))
+        }
+    }
+
+    override fun onCurrencySearchQueryChange(value: String) {
+        savedStateHandle[CURRENCY_SEARCH_QUERY] = value
+    }
+
     override fun onToggleAutoAddExpense(enabled: Boolean) {
         viewModelScope.launch {
             savedStateHandle[TEMP_AUTO_ADD_EXPENSE_STATE] = enabled
@@ -168,6 +216,8 @@ class SettingsViewModel @Inject constructor(
 
 private const val SHOW_APP_THEME_SELECTION = "SHOW_APP_THEME_SELECTION"
 private const val SHOW_MONTHLY_BUDGET_INPUT = "SHOW_MONTHLY_BUDGET_INPUT"
+private const val SHOW_CURRENCY_SELECTION = "SHOW_CURRENCY_SELECTION"
+private const val CURRENCY_SEARCH_QUERY = "CURRENCY_SEARCH_QUERY"
 private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
 private const val TEMP_AUTO_ADD_EXPENSE_STATE = "TOGGLED_AUTO_ADD_EXPENSE_STATE"

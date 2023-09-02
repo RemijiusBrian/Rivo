@@ -1,5 +1,6 @@
 package dev.ridill.mym.dashboard.data.repository
 
+import android.icu.util.Currency
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
 import dev.ridill.mym.expense.data.local.ExpenseDao
@@ -15,6 +16,10 @@ class DashboardRepositoryImpl(
     private val expenseDao: ExpenseDao,
     private val settingsRepository: SettingsRepository
 ) : DashboardRepository {
+    override fun getCurrencyPreference(): Flow<Currency> = settingsRepository
+        .getCurrencyPreference()
+        .distinctUntilChanged()
+
     override fun getCurrentBudget(): Flow<Long> = settingsRepository.getCurrentBudget()
         .distinctUntilChanged()
 

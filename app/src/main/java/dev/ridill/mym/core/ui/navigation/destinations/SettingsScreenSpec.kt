@@ -38,6 +38,7 @@ object SettingsScreenSpec : ScreenSpec {
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val currencySearchQueryState = viewModel.currencySearchQuery.collectAsStateWithLifecycle()
 
         val smsPermissionState = rememberPermissionState(
             permission = Manifest.permission.RECEIVE_SMS,
@@ -71,6 +72,7 @@ object SettingsScreenSpec : ScreenSpec {
         SettingsScreen(
             snackbarController = snackbarController,
             state = state,
+            currencySearchQuery = { currencySearchQueryState.value },
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,

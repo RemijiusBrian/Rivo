@@ -1,5 +1,6 @@
 package dev.ridill.mym.dashboard.presentation
 
+import android.icu.util.Currency
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,7 +54,6 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.domain.util.PartOfDay
-import dev.ridill.mym.core.domain.util.TextFormat
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
@@ -72,6 +72,7 @@ import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
@@ -141,6 +142,7 @@ fun DashboardScreen(
                     .padding(top = SpacingMedium)
             )
             BalanceAndBudget(
+                currency = state.currency,
                 balance = state.balance,
                 monthlyLimit = state.monthlyBudget,
                 modifier = Modifier
@@ -149,6 +151,7 @@ fun DashboardScreen(
             )
 
             SpendsOverview(
+                currency = state.currency,
                 spentAmount = state.spentAmount,
                 recentSpends = state.recentSpends,
                 onTransactionClick = { navigateToAddEditExpense(it.id) },
@@ -205,6 +208,7 @@ private fun Greeting(
 
 @Composable
 private fun BalanceAndBudget(
+    currency: Currency,
     balance: Double,
     monthlyLimit: Long,
     modifier: Modifier = Modifier
@@ -214,6 +218,7 @@ private fun BalanceAndBudget(
         verticalAlignment = Alignment.Bottom
     ) {
         Balance(
+            currency = currency,
             amount = balance,
             modifier = Modifier
                 .alignBy(LastBaseline)
@@ -225,7 +230,10 @@ private fun BalanceAndBudget(
                 .alignBy(LastBaseline)
         ) {
             Text(
-                text = stringResource(R.string.fwd_slash_amount_value, TextFormat.currency(it)),
+                text = stringResource(
+                    R.string.fwd_slash_amount_value,
+                    TextFormat.currency(amount = it, currency = currency)
+                ),
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -245,6 +253,7 @@ private fun BalanceAndBudget(
 
 @Composable
 private fun Balance(
+    currency: Currency,
     amount: Double,
     modifier: Modifier = Modifier
 ) {
@@ -260,7 +269,7 @@ private fun Balance(
         )
         VerticalNumberSpinnerContent(number = amount) {
             Text(
-                text = TextFormat.currency(it),
+                text = TextFormat.currency(amount = it, currency = currency),
                 style = MaterialTheme.typography.displayLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -272,6 +281,7 @@ private fun Balance(
 
 @Composable
 private fun SpendsOverview(
+    currency: Currency,
     spentAmount: Double,
     recentSpends: List<ExpenseListItem>,
     onTransactionClick: (ExpenseListItem) -> Unit,
@@ -304,6 +314,7 @@ private fun SpendsOverview(
             SpacerSmall()
 
             SpentAmountAndAllExpenses(
+                currency = currency,
                 amount = spentAmount,
                 onAllExpensesClick = onAllExpensesClick,
                 modifier = Modifier
@@ -378,6 +389,7 @@ private fun SpendsOverview(
 
 @Composable
 private fun SpentAmountAndAllExpenses(
+    currency: Currency,
     amount: Double,
     onAllExpensesClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -392,7 +404,7 @@ private fun SpentAmountAndAllExpenses(
                 .alignByBaseline()
         ) {
             Text(
-                text = TextFormat.currency(it),
+                text = TextFormat.currency(amount = it, currency = currency),
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

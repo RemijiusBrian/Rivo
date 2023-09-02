@@ -1,26 +1,36 @@
 package dev.ridill.mym.settings.presentation.settings
 
+import android.icu.util.Currency
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrightnessMedium
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
+import dev.ridill.mym.core.domain.util.Empty
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
@@ -42,6 +53,7 @@ import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.ValueInputSheet
 import dev.ridill.mym.core.ui.components.icons.Message
 import dev.ridill.mym.core.ui.navigation.destinations.SettingsScreenSpec
+import dev.ridill.mym.core.ui.theme.ElevationLevel0
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
@@ -52,6 +64,7 @@ import dev.ridill.mym.settings.presentation.components.SwitchPreference
 fun SettingsScreen(
     snackbarController: SnackbarController,
     state: SettingsState,
+    currencySearchQuery: () -> String,
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
@@ -114,6 +127,12 @@ fun SettingsScreen(
                 onClick = actions::onMonthlyBudgetPreferenceClick
             )
 
+            SimpleSettingsPreference(
+                titleRes = R.string.preference_currency,
+                summary = state.currentCurrency.currencyCode,
+                onClick = actions::onCurrencyPreferenceClick
+            )
+
             SwitchPreference(
                 titleRes = R.string.preference_auto_add_expenses,
                 summary = stringResource(R.string.preference_auto_add_expense_summary),
@@ -153,6 +172,17 @@ fun SettingsScreen(
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
                 placeholder = state.currentMonthlyBudget,
                 errorMessage = state.budgetInputError
+            )
+        }
+
+        if (state.showCurrencySelection) {
+            CurrencySelectionSheet(
+                currentCurrency = state.currentCurrency,
+                onDismiss = actions::onCurrencySelectionDismiss,
+                onConfirm = { actions.onCurrencySelectionConfirm(it.currencyCode) },
+                searchQuery = currencySearchQuery,
+                onSearchQueryChange = actions::onCurrencySearchQueryChange,
+                currencyList = state.currencyList
             )
         }
 
@@ -227,6 +257,60 @@ fun BudgetInputSheet(
         ),
         errorMessage = errorMessage
     )
+}
+
+@Composable
+private fun CurrencySelectionSheet(
+    currentCurrency: Currency,
+    searchQuery: () -> String,
+    onSearchQueryChange: (String) -> Unit,
+    currencyList: List<Currency>,
+    onDismiss: () -> Unit,
+    onConfirm: (Currency) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isSearchQueryEmpty by remember {
+        derivedStateOf { searchQuery().isEmpty() }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        modifier = modifier
+    ) {
+        SearchBar(
+            query = searchQuery(),
+            onQueryChange = onSearchQueryChange,
+            onSearch = {},
+            active = true,
+            onActiveChange = {},
+            trailingIcon = {
+                if (!isSearchQueryEmpty) {
+                    IconButton(onClick = { onSearchQueryChange(String.Empty) }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Clear,
+                            contentDescription = stringResource(R.string.cd_clear)
+                        )
+                    }
+                }
+            },
+            placeholder = { Text(stringResource(R.string.search_currency)) },
+            tonalElevation = ElevationLevel0
+        ) {
+            LazyColumn {
+                items(items = currencyList, key = { it.currencyCode }) { currency ->
+                    LabelledRadioButton(
+                        label = "${currency.displayName} (${currency.currencyCode})",
+                        selected = currency.currencyCode == currentCurrency.currencyCode,
+                        onClick = { onConfirm(currency) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateItemPlacement()
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
