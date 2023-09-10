@@ -40,8 +40,8 @@ class TagsRepositoryImpl(
             dao.assignTagToExpensesWithIds(tagId, ids)
         }
 
-    override suspend fun untagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
-        dao.untagExpenses(ids)
+    override suspend fun deTagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
+        dao.deTagExpenses(ids)
     }
 
     override suspend fun saveTag(

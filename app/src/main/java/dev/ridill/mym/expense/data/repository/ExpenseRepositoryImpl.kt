@@ -1,17 +1,19 @@
 package dev.ridill.mym.expense.data.repository
 
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
 import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
 import dev.ridill.mym.expense.data.toExpense
-import dev.ridill.mym.expense.data.toRecentSpend
+import dev.ridill.mym.expense.data.toExpenseListItem
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -19,7 +21,8 @@ import java.time.LocalDateTime
 import kotlin.math.roundToLong
 
 class ExpenseRepositoryImpl(
-    private val dao: ExpenseDao
+    private val dao: ExpenseDao,
+    private val preferencesManager: PreferencesManager
 ) : ExpenseRepository {
     override suspend fun getExpenseById(id: Long): Expense? = withContext(Dispatchers.IO) {
         dao.getExpenseById(id)?.toExpense()
@@ -77,9 +80,23 @@ class ExpenseRepositoryImpl(
 
     override fun getExpenseForDateByTag(
         date: LocalDate,
-        tagId: Long?
+        tagId: Long?,
+        showExcluded: Boolean
     ): Flow<List<ExpenseListItem>> = dao.getExpenseForMonthByTag(
         monthAndYear = date.format(DateUtil.Formatters.MM_yyyy_dbFormat),
-        tagId = tagId
-    ).map { entities -> entities.map(ExpenseWithTagRelation::toRecentSpend) }
+        tagId = tagId,
+        showExcluded = showExcluded
+    ).map { entities -> entities.map(ExpenseWithTagRelation::toExpenseListItem) }
+
+    override fun getShowExcludedExpenses(): Flow<Boolean> =
+        preferencesManager.preferences.map { it.showExcludedExpenses }
+            .distinctUntilChanged()
+
+    override suspend fun toggleShowExcludedExpenses(show: Boolean) =
+        preferencesManager.updateShowExcludedExpenses(show)
+
+    override suspend fun toggleExpenseExclusionByIds(ids: List<Long>, excluded: Boolean) =
+        withContext(Dispatchers.IO) {
+            dao.toggleExclusionByIds(ids, excluded)
+        }
 }

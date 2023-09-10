@@ -11,13 +11,15 @@ fun ExpenseEntity.toExpense(): Expense = Expense(
     amount = amount.toString(),
     note = note,
     createdTimestamp = timestamp,
-    tagId = tagId
+    tagId = tagId,
+    excluded = isExcludedFromExpenditure
 )
 
-fun ExpenseWithTagRelation.toRecentSpend(): ExpenseListItem = ExpenseListItem(
+fun ExpenseWithTagRelation.toExpenseListItem(): ExpenseListItem = ExpenseListItem(
     id = expenseEntity.id,
     note = expenseEntity.note,
     amount = TextFormat.currency(expenseEntity.amount),
     date = expenseEntity.timestamp.toLocalDate(),
-    tag = tagEntity?.toExpenseTag()
+    tag = tagEntity?.toExpenseTag(),
+    excluded = expenseEntity.isExcludedFromExpenditure
 )

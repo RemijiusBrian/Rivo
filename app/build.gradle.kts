@@ -59,7 +59,7 @@ android {
             versionCode = 8
             versionName = "1.2.5"
 
-            buildConfigField("int", "DB_VERSION", "3")
+            buildConfigField("int", "DB_VERSION", "4")
         }
 
         create("production") {

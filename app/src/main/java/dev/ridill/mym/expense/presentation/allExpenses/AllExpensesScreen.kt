@@ -38,12 +38,16 @@ import androidx.compose.material.icons.filled.ArrowLeft
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -64,6 +68,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,7 +94,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
-import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
@@ -109,8 +113,9 @@ import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.theme.contentColor
-import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
+import dev.ridill.mym.expense.domain.model.ExpenseOption
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
@@ -203,13 +208,16 @@ fun AllExpensesScreen(
                 selectionState = state.expenseSelectionState,
                 multiSelectionModeActive = state.expenseMultiSelectionModeActive,
                 onSelectionStateChange = actions::onSelectionStateChange,
-                onBulkOperationClick = actions::onExpenseBulkOperationClick,
+                onExpenseOptionClick = actions::onExpenseOptionClick,
                 onExpenseLongClick = actions::onExpenseLongClick,
                 onExpenseClick = actions::onExpenseClick,
                 listContentPadding = PaddingValues(
                     top = SpacingSmall,
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                 ),
+                showExcludedExpenses = state.showExcludedExpenses,
+                onToggleShowExcludedExpenses = actions::onToggleShowExcludedExpenses,
+                onDeleteSelectedExpenses = actions::onDeleteSelectedExpensesClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
@@ -619,11 +627,14 @@ private fun ExpenseList(
     selectedExpenseIds: List<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
-    onBulkOperationClick: (ExpenseBulkOperation) -> Unit,
+    onExpenseOptionClick: (ExpenseOption) -> Unit,
     multiSelectionModeActive: Boolean,
     onExpenseLongClick: (Long) -> Unit,
     onExpenseClick: (Long) -> Unit,
     listContentPadding: PaddingValues,
+    showExcludedExpenses: Boolean,
+    onToggleShowExcludedExpenses: (Boolean) -> Unit,
+    onDeleteSelectedExpenses: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isListEmpty by remember(expenseList) {
@@ -640,28 +651,16 @@ private fun ExpenseList(
             modifier = Modifier
                 .matchParentSize()
         ) {
-            AnimatedContent(
-                targetState = multiSelectionModeActive,
-                label = "TotalExpenditureOrMultiSelectionAnimatedContent",
+            AnimatedVisibility(
+                visible = !multiSelectionModeActive,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
-            ) { isMultiSelectionMode ->
-                if (isMultiSelectionMode) {
-                    MultiSelectionModeActions(
-                        onBulkOperationClick = onBulkOperationClick,
-                        selectionState = selectionState,
-                        onSelectionStateChange = onSelectionStateChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                } else {
-                    TotalExpenditureAmount(
-                        expenditure = totalExpenditure,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
+            ) {
+                TotalExpenditureAmount(
+                    expenditure = totalExpenditure,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
 
             Divider(
@@ -672,14 +671,18 @@ private fun ExpenseList(
                     )
             )
 
-            Crossfade(
-                targetState = selectedTagName ?: stringResource(R.string.all_expenses),
-                label = "SelectedTag",
+            ExpenseListHeader(
+                selectedTagName = selectedTagName,
+                showExcludedExpenses = showExcludedExpenses,
+                onToggleShowExcludedExpenses = onToggleShowExcludedExpenses,
+                multiSelectionModeActive = multiSelectionModeActive,
+                multiSelectionState = selectionState,
+                onSelectionStateChange = onSelectionStateChange,
+                onDeleteClick = onDeleteSelectedExpenses,
+                onExpenseOptionClick = onExpenseOptionClick,
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-            ) { tag ->
-                ListLabel(text = tag)
-            }
+                    .fillMaxWidth()
+            )
 
             LazyColumn(
                 contentPadding = listContentPadding,
@@ -692,7 +695,8 @@ private fun ExpenseList(
                         date = expense.date,
                         selected = expense.id in selectedExpenseIds,
                         onLongClick = { onExpenseLongClick(expense.id) },
-                        onClick = { onExpenseClick(expense.id) }
+                        onClick = { onExpenseClick(expense.id) },
+                        showExcludedIndicator = expense.excluded
                     )
                 }
             }
@@ -701,29 +705,118 @@ private fun ExpenseList(
 }
 
 @Composable
-private fun MultiSelectionModeActions(
-    onBulkOperationClick: (ExpenseBulkOperation) -> Unit,
-    selectionState: ToggleableState,
+private fun ExpenseListHeader(
+    selectedTagName: String?,
+    showExcludedExpenses: Boolean,
+    onToggleShowExcludedExpenses: (Boolean) -> Unit,
+    multiSelectionModeActive: Boolean,
+    multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onExpenseOptionClick: (ExpenseOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Crossfade(
+            targetState = selectedTagName ?: stringResource(R.string.all_expenses),
+            label = "SelectedTagNameAnimatedLabel",
+            modifier = Modifier
+                .padding(horizontal = SpacingMedium)
+        ) { tag ->
+            ListLabel(text = tag)
+        }
+
+        ExpenseListOptions(
+            showExcludedExpenses = showExcludedExpenses,
+            onToggleShowExcludedExpenses = onToggleShowExcludedExpenses,
+            multiSelectionModeActive = multiSelectionModeActive,
+            onExpenseOptionClick = onExpenseOptionClick,
+            selectionState = multiSelectionState,
+            onSelectionStateChange = onSelectionStateChange,
+            onDeleteClick = onDeleteClick
+        )
+    }
+}
+
+@Composable
+private fun ExpenseListOptions(
+    showExcludedExpenses: Boolean,
+    onToggleShowExcludedExpenses: (Boolean) -> Unit,
+    multiSelectionModeActive: Boolean,
+    onExpenseOptionClick: (ExpenseOption) -> Unit,
+    selectionState: ToggleableState,
+    onSelectionStateChange: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var menuExpanded by rememberSaveable { mutableStateOf(false) }
+
     Row(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        ExpenseBulkOperation.values().forEach { operation ->
-            IconButton(onClick = { onBulkOperationClick(operation) }) {
-                Icon(
-                    imageVector = operation.icon,
-                    contentDescription = stringResource(operation.contentDescriptionRes)
+        AnimatedVisibility(visible = multiSelectionModeActive) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+            ) {
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteForever,
+                        contentDescription = stringResource(R.string.cd_delete)
+                    )
+                }
+                TriStateCheckbox(
+                    state = selectionState,
+                    onClick = onSelectionStateChange
                 )
             }
         }
-        TriStateCheckbox(
-            state = selectionState,
-            onClick = onSelectionStateChange
-        )
+
+        Box {
+            IconButton(onClick = { menuExpanded = !menuExpanded }) {
+                Icon(
+                    imageVector = Icons.Rounded.MoreVert,
+                    contentDescription = stringResource(R.string.cd_options)
+                )
+            }
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                if (multiSelectionModeActive) {
+                    ExpenseOption.values().forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(option.labelRes)) },
+                            onClick = {
+                                menuExpanded = false
+                                onExpenseOptionClick(option)
+                            }
+                        )
+                    }
+                } else {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = stringResource(
+                                    id = if (showExcludedExpenses) R.string.hide_excluded_expenses
+                                    else R.string.show_excluded_expenses
+                                )
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onToggleShowExcludedExpenses(!showExcludedExpenses)
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -764,6 +857,7 @@ private fun ExpenseCard(
     selected: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
+    showExcludedIndicator: Boolean,
     modifier: Modifier = Modifier
 ) {
     ExpenseListItem(
@@ -780,7 +874,10 @@ private fun ExpenseCard(
                 onLongClick = onLongClick,
                 onLongClickLabel = stringResource(R.string.cd_long_press_to_select_expense)
             ),
-        tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0
+        tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
+        overlineContent = if (showExcludedIndicator) {
+            { Text(stringResource(R.string.excluded_expense)) }
+        } else null
     )
 }
 
@@ -844,11 +941,12 @@ private fun PreviewAllExpensesScreen() {
                 override fun onNewTagColorSelect(color: Color) {}
                 override fun onNewTagInputDismiss() {}
                 override fun onNewTagInputConfirm() {}
+                override fun onToggleShowExcludedExpenses(value: Boolean) {}
                 override fun onExpenseLongClick(id: Long) {}
                 override fun onExpenseClick(id: Long) {}
                 override fun onSelectionStateChange() {}
                 override fun onDismissMultiSelectionMode() {}
-                override fun onExpenseBulkOperationClick(operation: ExpenseBulkOperation) {}
+                override fun onExpenseOptionClick(option: ExpenseOption) {}
                 override fun onDeleteExpenseDismiss() {}
                 override fun onDeleteExpenseConfirm() {}
                 override fun onEditTagClick(tag: ExpenseTag) {}
@@ -856,6 +954,7 @@ private fun PreviewAllExpensesScreen() {
                 override fun onDeleteTagDismiss() {}
                 override fun onDeleteTagConfirm() {}
                 override fun onDeleteTagWithExpensesClick() {}
+                override fun onDeleteSelectedExpensesClick() {}
             },
             navigateUp = {}
         )

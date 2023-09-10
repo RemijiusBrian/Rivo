@@ -16,7 +16,7 @@ interface TagsRepository {
     ): Flow<List<TagWithExpenditure>>
 
     suspend fun assignTagToExpenses(tagId: Long, ids: List<Long>)
-    suspend fun untagExpenses(ids: List<Long>)
+    suspend fun deTagExpenses(ids: List<Long>)
     suspend fun saveTag(
         id: Long,
         name: String,

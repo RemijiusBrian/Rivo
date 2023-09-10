@@ -11,5 +11,6 @@ data class MYMPreferences(
     val lastBackupDateTime: LocalDateTime?,
     val needsConfigRestore: Boolean,
     val backupWorkerMessage: UiText?,
-    val autoAddExpenseEnabled: Boolean
+    val autoAddExpenseEnabled: Boolean,
+    val showExcludedExpenses: Boolean
 )

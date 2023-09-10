@@ -9,7 +9,8 @@ data class Expense(
     val amount: String,
     val note: String,
     val createdTimestamp: LocalDateTime,
-    val tagId: Long?
+    val tagId: Long?,
+    val excluded: Boolean
 ) {
     companion object {
         val DEFAULT = Expense(
@@ -17,7 +18,8 @@ data class Expense(
             amount = "",
             note = "",
             createdTimestamp = DateUtil.now(),
-            tagId = null
+            tagId = null,
+            excluded = false
         )
     }
 }
