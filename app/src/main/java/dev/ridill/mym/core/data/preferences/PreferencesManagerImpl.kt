@@ -33,7 +33,7 @@ class PreferencesManagerImpl(
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { UiText.DynamicString(it) }
             val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
-            val showExcludedExpenses = preferences[Keys.SHOW_EXCLUDED_EXPENSES] ?: false
+            val showExcludedExpenses = preferences[Keys.SHOW_EXCLUDED_EXPENSES] ?: true
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
