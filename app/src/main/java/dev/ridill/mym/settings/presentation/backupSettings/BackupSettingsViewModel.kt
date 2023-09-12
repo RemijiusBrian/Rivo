@@ -22,7 +22,6 @@ import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,7 +29,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupSettingsViewModel @Inject constructor(
-    private val preferencesManager: PreferencesManager,
+    preferencesManager: PreferencesManager,
     private val eventBus: EventBus<BackupEvent>,
     private val signInService: GoogleSignInService,
     private val savedStateHandle: SavedStateHandle,
@@ -85,7 +84,6 @@ class BackupSettingsViewModel @Inject constructor(
         getSignedInUser()
         collectImmediateBackupWorkState()
         collectPeriodicBackupWorkInfo()
-        collectPeriodicBackupWorkMessage()
     }
 
     private fun getSignedInUser() {
@@ -95,12 +93,14 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     private fun collectImmediateBackupWorkState() = viewModelScope.launch {
-        backupWorkManager.getImmediateBackupWorkInfoFlow()
-            .collect { info ->
-                isBackupWorkerRunning.update {
-                    info?.state == WorkInfo.State.RUNNING
-                }
+        backupWorkManager.getImmediateBackupWorkInfoFlow().collectLatest { info ->
+            isBackupWorkerRunning.update {
+                info?.state == WorkInfo.State.RUNNING
             }
+            info?.outputData?.getString(BackupWorkManager.KEY_MESSAGE)?.let {
+                eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(it)))
+            }
+        }
     }
 
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
@@ -108,15 +108,6 @@ class BackupSettingsViewModel @Inject constructor(
             updateBackupInterval(info)
             isBackupWorkerRunning.update { info?.state == WorkInfo.State.RUNNING }
         }
-    }
-
-    private fun collectPeriodicBackupWorkMessage() = viewModelScope.launch {
-        preferences.map { it.backupWorkerMessage }
-            .filterNotNull()
-            .collectLatest { message ->
-                eventBus.send(BackupEvent.ShowUiMessage(message))
-                preferencesManager.updateBackupWorkerMessage(null)
-            }
     }
 
     private fun updateBackupInterval(info: WorkInfo?) {

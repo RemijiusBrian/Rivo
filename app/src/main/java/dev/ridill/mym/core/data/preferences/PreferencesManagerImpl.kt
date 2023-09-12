@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.mym.core.domain.model.MYMPreferences
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,9 +28,6 @@ class PreferencesManagerImpl(
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parse(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
-            val backupWorkerMessage = preferences[Keys.BACKUP_WORKER_MESSAGE]
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { UiText.DynamicString(it) }
             val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
 
             MYMPreferences(
@@ -40,7 +36,6 @@ class PreferencesManagerImpl(
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
-                backupWorkerMessage = backupWorkerMessage,
                 autoAddExpenseEnabled = autoAddExpenseEnabled
             )
         }
@@ -85,14 +80,6 @@ class PreferencesManagerImpl(
         }
     }
 
-    override suspend fun updateBackupWorkerMessage(message: String?) {
-        withContext(Dispatchers.IO) {
-            dataStore.edit { preferences ->
-                preferences[Keys.BACKUP_WORKER_MESSAGE] = message.orEmpty()
-            }
-        }
-    }
-
     override suspend fun updateAutoAddExpenseEnabled(enabled: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
@@ -107,7 +94,6 @@ class PreferencesManagerImpl(
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
-        val BACKUP_WORKER_MESSAGE = stringPreferencesKey("BACKUP_WORKER_MESSAGE")
         val AUTO_ADD_EXPENSE_ENABLED = booleanPreferencesKey("AUTO_ADD_EXPENSE_ENABLED")
     }
 }
