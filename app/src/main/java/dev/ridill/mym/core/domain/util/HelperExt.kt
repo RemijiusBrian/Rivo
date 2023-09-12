@@ -3,6 +3,7 @@ package dev.ridill.mym.core.domain.util
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.nio.ByteBuffer
+import java.util.UUID
 
 val Double.Companion.Zero: Double get() = 0.0
 fun Double?.orZero(): Double = this ?: Double.Zero
@@ -24,3 +25,4 @@ val Dp.Companion.Zero: Dp get() = 0.dp
 
 val String.Companion.Empty: String get() = ""
 val String.Companion.WhiteSpace: String get() = " "
+fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())

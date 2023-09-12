@@ -9,18 +9,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddToDrive
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -31,8 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.components.BackArrowButton
-import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
+import dev.ridill.mym.core.ui.components.RadioOptionListDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.icons.Google
 import dev.ridill.mym.core.ui.navigation.destinations.BackupSettingsScreenSpec
@@ -108,10 +105,12 @@ fun BackupSettingsScreen(
         }
 
         if (state.isAccountAdded && state.showBackupIntervalSelection) {
-            BackupIntervalSelection(
-                currentInterval = state.interval,
+            RadioOptionListDialog(
+                titleRes = R.string.choose_backup_interval,
+                options = BackupInterval.values(),
+                currentOption = state.interval,
                 onDismiss = actions::onBackupIntervalSelectionDismiss,
-                onConfirm = actions::onBackupIntervalSelected
+                onOptionSelect = actions::onBackupIntervalSelected
             )
         }
     }
@@ -136,40 +135,6 @@ private fun BackupInfoText(
         summaryTextStyle = MaterialTheme.typography.bodyLarge,
         modifier = modifier,
         verticalAlignment = Alignment.Top
-    )
-}
-
-@Composable
-private fun BackupIntervalSelection(
-    currentInterval: BackupInterval,
-    onDismiss: () -> Unit,
-    onConfirm: (BackupInterval) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_cancel))
-            }
-        },
-        title = { Text(stringResource(R.string.choose_backup_interval)) },
-        text = {
-            Column(
-                modifier = Modifier
-                    .selectableGroup()
-            ) {
-                BackupInterval.values().forEach { interval ->
-                    LabelledRadioButton(
-                        labelRes = interval.labelRes,
-                        selected = interval == currentInterval,
-                        onClick = { onConfirm(interval) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-            }
-        }
     )
 }
 
