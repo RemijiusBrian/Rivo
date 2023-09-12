@@ -112,11 +112,11 @@ class BackupSettingsViewModel @Inject constructor(
 
     private fun updateBackupInterval(info: WorkInfo?) {
         val intervalTagIndex = info?.tags
-            ?.indexOfFirst { it.startsWith(BackupWorkManager.INTERVAL_TAG_PREFIX) }
+            ?.indexOfFirst { it.startsWith(BackupWorkManager.WORK_INTERVAL_TAG_PREFIX) }
             ?: -1
 
         val intervalTag = info?.tags?.elementAtOrNull(intervalTagIndex)
-            ?.removePrefix(BackupWorkManager.INTERVAL_TAG_PREFIX)
+            ?.removePrefix(BackupWorkManager.WORK_INTERVAL_TAG_PREFIX)
             ?.takeIf { info.state != WorkInfo.State.CANCELLED }
 
         val interval = BackupInterval.valueOf(
