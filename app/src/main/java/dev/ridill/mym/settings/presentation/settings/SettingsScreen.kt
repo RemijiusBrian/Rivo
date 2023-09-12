@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +23,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -49,6 +46,7 @@ import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.LabelledRadioButton
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.PermissionRationaleDialog
+import dev.ridill.mym.core.ui.components.RadioOptionListDialog
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.ValueInputSheet
 import dev.ridill.mym.core.ui.components.icons.Message
@@ -159,10 +157,12 @@ fun SettingsScreen(
         }
 
         if (state.showAppThemeSelection) {
-            AppThemeSelectionDialog(
-                currentTheme = state.appTheme,
+            RadioOptionListDialog(
+                titleRes = R.string.choose_theme,
+                options = AppTheme.values(),
+                currentOption = state.appTheme,
                 onDismiss = actions::onAppThemeSelectionDismiss,
-                onConfirm = actions::onAppThemeSelectionConfirm
+                onOptionSelect = actions::onAppThemeSelectionConfirm
             )
         }
 
@@ -197,40 +197,6 @@ fun SettingsScreen(
             )
         }
     }
-}
-
-@Composable
-private fun AppThemeSelectionDialog(
-    currentTheme: AppTheme,
-    onDismiss: () -> Unit,
-    onConfirm: (AppTheme) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_cancel))
-            }
-        },
-        title = { Text(stringResource(R.string.choose_theme)) },
-        text = {
-            Column(
-                modifier = Modifier
-                    .selectableGroup()
-            ) {
-                AppTheme.values().forEach { theme ->
-                    LabelledRadioButton(
-                        labelRes = theme.labelRes,
-                        selected = theme == currentTheme,
-                        onClick = { onConfirm(theme) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-            }
-        }
-    )
 }
 
 @Composable

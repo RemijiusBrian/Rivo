@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.ridill.mym.R
 import dev.ridill.mym.core.ui.theme.SpacingLarge
+import dev.ridill.mym.settings.domain.modal.BaseRadioOption
 
 @Composable
 fun ConfirmationDialog(
@@ -54,39 +56,6 @@ fun ConfirmationDialog(
         },
         title = { Text(stringResource(titleRes)) },
         text = { Text(stringResource(contentRes)) },
-        modifier = modifier,
-        properties = properties
-    )
-}
-
-@Composable
-fun ConfirmationDialog(
-    @StringRes titleRes: Int,
-    content: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-    @StringRes confirmActionRes: Int = R.string.action_confirm,
-    @StringRes dismissActionRes: Int = R.string.action_cancel,
-    showDismissButton: Boolean = true,
-    properties: DialogProperties = DialogProperties()
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text(stringResource(confirmActionRes))
-            }
-        },
-        dismissButton = {
-            if (showDismissButton) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(dismissActionRes))
-                }
-            }
-        },
-        title = { Text(stringResource(titleRes)) },
-        text = { Text(content) },
         modifier = modifier,
         properties = properties
     )
@@ -158,3 +127,42 @@ fun PermissionRationaleDialog(
 
 private val RationaleContentPadding = 24.dp
 private val PermissionIconSize = 40.dp
+
+@Composable
+fun <T : BaseRadioOption> RadioOptionListDialog(
+    @StringRes titleRes: Int,
+    options: Array<T>,
+    currentOption: T?,
+    onDismiss: () -> Unit,
+    onOptionSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes dismissActionRes: Int = R.string.action_cancel
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(dismissActionRes))
+            }
+        },
+        title = { Text(stringResource(titleRes)) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .selectableGroup()
+            ) {
+                options.forEach { option ->
+                    LabelledRadioButton(
+                        labelRes = option.labelRes,
+                        selected = option == currentOption,
+                        onClick = { onOptionSelect(option) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
