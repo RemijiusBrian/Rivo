@@ -1,5 +1,6 @@
 package dev.ridill.mym.core.data.db
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -20,7 +21,10 @@ import dev.ridill.mym.settings.data.local.entity.ConfigEntity
         TagEntity::class,
         ConfigEntity::class
     ],
-    version = BuildConfig.DB_VERSION
+    version = BuildConfig.DB_VERSION,
+    autoMigrations = [
+        AutoMigration(from = 3, to = 4)
+    ]
 )
 @TypeConverters(DateTimeConverter::class)
 abstract class MYMDatabase : RoomDatabase() {
