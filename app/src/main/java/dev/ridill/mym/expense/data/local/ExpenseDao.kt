@@ -38,7 +38,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         SELECT *
         FROM ExpenseEntity
         WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:showExcluded = 1 OR isExcludedFromExpenditure = 0)
-        ORDER BY datetime(timestamp) DESC, id DESC
+        ORDER BY isExcludedFromExpenditure ASC, datetime(timestamp) DESC, id DESC
         """
     )
     fun getExpensesForMonth(

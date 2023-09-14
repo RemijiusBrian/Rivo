@@ -57,6 +57,7 @@ import dev.ridill.mym.core.domain.util.PartOfDay
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
 import dev.ridill.mym.core.ui.components.FadedVisibility
+import dev.ridill.mym.core.ui.components.ListLabel
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.mym.core.ui.components.SnackbarController
@@ -283,7 +284,7 @@ private fun Balance(
 private fun SpendsOverview(
     currency: Currency,
     spentAmount: Double,
-    recentSpends: List<ExpenseListItem>,
+    recentSpends: Map<Boolean, List<ExpenseListItem>>,
     onTransactionClick: (ExpenseListItem) -> Unit,
     onAllExpensesClick: () -> Unit,
     listState: LazyListState,
@@ -352,17 +353,28 @@ private fun SpendsOverview(
                     verticalArrangement = Arrangement.spacedBy(SpacingSmall),
                     state = listState
                 ) {
-                    items(items = recentSpends, key = { it.id }) { transaction ->
-                        RecentSpend(
-                            note = transaction.note,
-                            amount = transaction.amount,
-                            date = transaction.date,
-                            onClick = { onTransactionClick(transaction) },
-                            tag = transaction.tag,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItemPlacement()
-                        )
+                    recentSpends.forEach { (excluded, spends) ->
+                        if (spends.isNotEmpty() && excluded) {
+                            stickyHeader(key = "ExcludedHeader") {
+                                ListLabel(
+                                    text = stringResource(R.string.excluded),
+                                    modifier = Modifier
+                                        .animateItemPlacement()
+                                )
+                            }
+                        }
+                        items(items = spends, key = { it.id }) { transaction ->
+                            RecentSpend(
+                                note = transaction.note,
+                                amount = transaction.amount,
+                                date = transaction.date,
+                                onClick = { onTransactionClick(transaction) },
+                                tag = transaction.tag,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItemPlacement()
+                            )
+                        }
                     }
                 }
 

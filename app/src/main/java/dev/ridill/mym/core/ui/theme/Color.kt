@@ -69,6 +69,7 @@ val seed = Color(0xFF72988E)
 
 object ContentAlpha {
     const val PERCENT_90 = 0.90f
+    const val PERCENT_16 = 0.16f
     const val SUB_CONTENT = 0.72f
 }
 

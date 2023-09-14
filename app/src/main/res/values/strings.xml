@@ -184,4 +184,5 @@
     <string name="expenses_excluded_from_expenditure">Expenses excluded from expenditure</string>
     <string name="expenses_included_in_expenditure">Expenses excluded in expenditure</string>
     <string name="exclude_from_expenditure_ques">Exclude From Expenditure?</string>
+    <string name="excluded">Excluded</string>
 </resources>

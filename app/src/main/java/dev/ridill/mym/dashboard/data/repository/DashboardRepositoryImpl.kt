@@ -27,12 +27,14 @@ class DashboardRepositoryImpl(
         expenseDao.getExpenditureForMonth(currentDateDbFormat())
             .distinctUntilChanged()
 
-    override fun getRecentSpends(): Flow<List<ExpenseListItem>> = expenseDao
+    override fun getRecentSpends(): Flow<Map<Boolean, List<ExpenseListItem>>> = expenseDao
         .getExpensesForMonth(
             monthAndYear = currentDateDbFormat(),
-            showExcluded = false
+            showExcluded = true
         ).map { entities ->
-            entities.map(ExpenseWithTagRelation::toExpenseListItem)
+            entities
+                .groupBy { it.expenseEntity.isExcludedFromExpenditure }
+                .mapValues { it.value.map(ExpenseWithTagRelation::toExpenseListItem) }
         }
 
     private fun currentDateDbFormat(): String =
