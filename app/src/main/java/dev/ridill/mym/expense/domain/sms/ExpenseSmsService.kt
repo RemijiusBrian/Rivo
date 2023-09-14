@@ -11,10 +11,10 @@ import com.google.mlkit.nl.entityextraction.EntityExtractor
 import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
-import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.core.domain.util.WhiteSpace
 import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.core.domain.util.tryOrNull
+import dev.ridill.mym.core.ui.util.TextFormat
 import dev.ridill.mym.expense.domain.notification.AutoAddExpenseNotificationHelper
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.CoroutineScope
@@ -54,7 +54,8 @@ class ExpenseSmsService(
                     amount = amount,
                     note = merchant,
                     dateTime = DateUtil.now(),
-                    tagId = null
+                    tagId = null,
+                    excluded = false // Expense added as Not-Excluded by default when detected from SMS
                 )
 
                 notificationHelper.postNotification(

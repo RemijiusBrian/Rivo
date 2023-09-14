@@ -44,14 +44,16 @@ class ExpenseRepositoryImpl(
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        tagId: Long?
+        tagId: Long?,
+        excluded: Boolean
     ): Long = withContext(Dispatchers.IO) {
         val entity = ExpenseEntity(
             id = id ?: Long.Zero,
             note = note,
             amount = amount,
             timestamp = dateTime,
-            tagId = tagId
+            tagId = tagId,
+            isExcludedFromExpenditure = excluded
         )
         dao.insert(entity).first()
     }

@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -177,9 +178,16 @@ fun AddEditExpenseScreen(
 
             ExpenseDate(
                 date = state.expenseDateFormatted,
+                onDateClick = actions::onExpenseTimestampClick,
                 modifier = Modifier
-                    .align(Alignment.End),
-                onDateClick = actions::onExpenseTimestampClick
+                    .align(Alignment.End)
+            )
+
+            ExclusionToggle(
+                excluded = state.isExpenseExcluded,
+                onToggle = actions::onExpenseExclusionToggle,
+                modifier = Modifier
+                    .align(Alignment.End)
             )
 
             TagsList(
@@ -325,6 +333,28 @@ private fun ExpenseDate(
                 contentDescription = stringResource(R.string.cd_expense_date)
             )
         }
+    }
+}
+
+@Composable
+private fun ExclusionToggle(
+    excluded: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+    ) {
+        Text(
+            text = stringResource(R.string.exclude_from_expenditure_ques),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Switch(
+            checked = excluded,
+            onCheckedChange = onToggle
+        )
     }
 }
 

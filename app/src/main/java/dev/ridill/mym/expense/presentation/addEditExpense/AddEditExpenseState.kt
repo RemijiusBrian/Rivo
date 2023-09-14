@@ -13,6 +13,7 @@ data class AddEditExpenseState(
     val tagsList: List<ExpenseTag> = emptyList(),
     val selectedTagId: Long? = null,
     val expenseTimestamp: LocalDateTime = DateUtil.now(),
+    val isExpenseExcluded: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
     val showNewTagInput: Boolean = false,
     val newTagError: UiText? = null,
