@@ -696,7 +696,7 @@ private fun ExpenseList(
                         selected = expense.id in selectedExpenseIds,
                         onLongClick = { onExpenseLongClick(expense.id) },
                         onClick = { onExpenseClick(expense.id) },
-                        showExcludedIndicator = expense.excluded
+                        excluded = expense.excluded
                     )
                 }
             }
@@ -857,7 +857,7 @@ private fun ExpenseCard(
     selected: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
-    showExcludedIndicator: Boolean,
+    excluded: Boolean,
     modifier: Modifier = Modifier
 ) {
     ExpenseListItem(
@@ -872,12 +872,10 @@ private fun ExpenseCard(
                 onClick = onClick,
                 onClickLabel = stringResource(R.string.cd_expense_selection_change),
                 onLongClick = onLongClick,
-                onLongClickLabel = stringResource(R.string.cd_long_press_to_select_expense)
+                onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
             ),
         tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
-        overlineContent = if (showExcludedIndicator) {
-            { Text(stringResource(R.string.excluded_expense)) }
-        } else null
+        excluded = excluded
     )
 }
 

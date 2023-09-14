@@ -10,12 +10,12 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 
-val Icons.Outlined.Tags: ImageVector
+val Icons.Rounded.Tags: ImageVector
     get() {
         if (_tags != null) {
             return _tags!!
         }
-        _tags = materialIcon("Outlined.Tags") {
+        _tags = materialIcon("Rounded.Tags") {
             path(
                 fill = SolidColor(Color.Black),
                 fillAlpha = 1.0f,
