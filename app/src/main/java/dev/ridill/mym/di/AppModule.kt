@@ -13,6 +13,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dev.ridill.mym.core.data.db.MIGRATION_3_4
 import dev.ridill.mym.core.data.db.MYMDatabase
 import dev.ridill.mym.core.data.db.Migration_1_2
 import dev.ridill.mym.core.data.preferences.PreferencesManager
@@ -37,7 +38,10 @@ object AppModule {
             klass = MYMDatabase::class.java,
             name = MYMDatabase.NAME
         )
-        .addMigrations(Migration_1_2)
+        .addMigrations(
+            Migration_1_2,
+            MIGRATION_3_4
+        )
         .fallbackToDestructiveMigration()
         .build()
 

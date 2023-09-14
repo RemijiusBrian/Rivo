@@ -1,6 +1,5 @@
 package dev.ridill.mym.core.data.db
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -21,10 +20,7 @@ import dev.ridill.mym.settings.data.local.entity.ConfigEntity
         TagEntity::class,
         ConfigEntity::class
     ],
-    version = BuildConfig.DB_VERSION,
-    autoMigrations = [
-        AutoMigration(from = 3, to = 4)
-    ]
+    version = BuildConfig.DB_VERSION
 )
 @TypeConverters(DateTimeConverter::class)
 abstract class MYMDatabase : RoomDatabase() {
@@ -56,5 +52,16 @@ val Migration_1_2 = object : Migration(1, 2) {
 
         database.execSQL("INSERT INTO MiscConfigEntity VALUES('${ConfigKeys.BUDGET_AMOUNT}', '$currentBudget')")
         database.execSQL("DROP TABLE BudgetEntity")
+    }
+}
+
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """
+            ALTER TABLE ExpenseEntity
+            ADD COLUMN isExcludedFromExpenditure INTEGER NOT NULL DEFAULT 0
+        """.trimIndent()
+        )
     }
 }
