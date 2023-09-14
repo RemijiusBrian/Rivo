@@ -53,6 +53,8 @@ class AddEditExpenseViewModel @Inject constructor(
 
     private val expenseTimestamp = savedStateHandle.getStateFlow(EXPENSE_TIMESTAMP, DateUtil.now())
 
+    private val isExpenseExcluded = savedStateHandle.getStateFlow(IS_EXPENSE_EXCLUDED, false)
+
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
 
@@ -72,6 +74,7 @@ class AddEditExpenseViewModel @Inject constructor(
         tagsList,
         selectedTagId,
         expenseTimestamp,
+        isExpenseExcluded,
         showDeleteConfirmation,
         showNewTagInput,
         newTagError,
@@ -82,6 +85,7 @@ class AddEditExpenseViewModel @Inject constructor(
                 tagsList,
                 selectedTagId,
                 expenseTimestamp,
+                isExpenseExcluded,
                 showDeleteConfirmation,
                 showNewTagInput,
                 newTagError,
@@ -93,6 +97,7 @@ class AddEditExpenseViewModel @Inject constructor(
             tagsList = tagsList,
             selectedTagId = selectedTagId,
             expenseTimestamp = expenseTimestamp,
+            isExpenseExcluded = isExpenseExcluded,
             showDeleteConfirmation = showDeleteConfirmation,
             showNewTagInput = showNewTagInput,
             newTagError = newTagError,
@@ -113,6 +118,7 @@ class AddEditExpenseViewModel @Inject constructor(
         savedStateHandle[NOTE_INPUT] = expense.note
         savedStateHandle[EXPENSE_TIMESTAMP] = expense.createdTimestamp
         savedStateHandle[SELECTED_TAG_ID] = expense.tagId
+        savedStateHandle[IS_EXPENSE_EXCLUDED] = expense.excluded
     }
 
     override fun onAmountChange(value: String) {
@@ -159,6 +165,10 @@ class AddEditExpenseViewModel @Inject constructor(
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
+    override fun onExpenseExclusionToggle(excluded: Boolean) {
+        savedStateHandle[IS_EXPENSE_EXCLUDED] = excluded
+    }
+
     override fun onSaveClick() {
         viewModelScope.launch {
             val amountInput = amountInput.value.trim()
@@ -189,12 +199,14 @@ class AddEditExpenseViewModel @Inject constructor(
                 return@launch
             }
             val tagId = selectedTagId.value
+            val excluded = isExpenseExcluded.value
             expenseRepo.cacheExpense(
                 id = currentExpenseId,
                 amount = amount,
                 note = note,
                 tagId = tagId,
-                dateTime = expenseTimestamp.value
+                dateTime = expenseTimestamp.value,
+                excluded = excluded
             )
             val event = if (isEditMode) AddEditExpenseEvent.ExpenseUpdated
             else AddEditExpenseEvent.ExpenseAdded
@@ -284,6 +296,7 @@ private const val AMOUNT_INPUT = "AMOUNT_INPUT"
 private const val NOTE_INPUT = "NOTE_INPUT"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
 private const val EXPENSE_TIMESTAMP = "EXPENSE_TIMESTAMP"
+private const val IS_EXPENSE_EXCLUDED = "IS_EXPENSE_EXCLUDED"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"

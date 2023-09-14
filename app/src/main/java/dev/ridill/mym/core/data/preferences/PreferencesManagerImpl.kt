@@ -29,6 +29,7 @@ class PreferencesManagerImpl(
                 ?.let { DateUtil.parse(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
             val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
+            val showExcludedExpenses = preferences[Keys.SHOW_EXCLUDED_EXPENSES] ?: true
 
             MYMPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -36,7 +37,8 @@ class PreferencesManagerImpl(
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
-                autoAddExpenseEnabled = autoAddExpenseEnabled
+                autoAddExpenseEnabled = autoAddExpenseEnabled,
+                showExcludedExpenses = showExcludedExpenses
             )
         }
 
@@ -88,6 +90,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateShowExcludedExpenses(show: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.SHOW_EXCLUDED_EXPENSES] = show
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -95,5 +105,6 @@ class PreferencesManagerImpl(
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
         val AUTO_ADD_EXPENSE_ENABLED = booleanPreferencesKey("AUTO_ADD_EXPENSE_ENABLED")
+        val SHOW_EXCLUDED_EXPENSES = booleanPreferencesKey("SHOW_EXCLUDED_EXPENSES")
     }
 }

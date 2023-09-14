@@ -7,5 +7,6 @@ data class ExpenseListItem(
     val note: String,
     val amount: String,
     val date: LocalDate,
-    val tag: ExpenseTag?
+    val tag: ExpenseTag?,
+    val excluded: Boolean
 )

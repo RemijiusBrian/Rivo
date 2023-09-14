@@ -6,8 +6,10 @@ import java.util.Locale
 object CurrencyUtil {
     val default: Currency get() = Currency.getInstance(Locale.getDefault())
     val currencyList: List<Currency>
-        get() = Currency.getAvailableCurrencies()
-            .toList()
+        get() = Locale.getAvailableLocales().mapNotNull {
+            tryOrNull { Currency.getInstance(it) }
+        }
+            .distinctBy { it.currencyCode }
 
     fun currencyForCode(code: String): Currency = Currency.getInstance(code)
 }

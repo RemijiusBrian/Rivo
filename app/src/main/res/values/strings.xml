@@ -28,15 +28,16 @@
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
     <string name="cd_expense_selection_change">Select or Unselect Expense</string>
-    <string name="cd_long_press_to_select_expense">Long Press To Select Expense</string>
+    <string name="cd_long_press_to_toggle_selection">Long Press To Toggle Selection</string>
     <string name="cd_clear_expense_selection">Clear Expense Selection</string>
-    <string name="cd_untag_expenses">Untag Expenses</string>
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
     <string name="cd_edit_tag">Edit Tag</string>
     <string name="cd_delete_tag">Delete Tag</string>
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_clear">Clear</string>
+    <string name="cd_options">Options</string>
+    <string name="cd_excluded_expense">Excluded Expense</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -56,6 +57,7 @@
     <string name="action_continue">Continue</string>
     <string name="action_not_now">Not Now</string>
     <string name="action_delete">Delete</string>
+    <string name="action_mark_excluded">Mark Excluded</string>
     <string name="action_ok">OK</string>
     <string name="action_skip">Skip</string>
 
@@ -141,7 +143,7 @@
     <string name="count_selected">%s Selected</string>
     <string name="click_tag_to_assign_to_selected_expenses">Click on a tag to assign it to the selected expenses</string>
     <string name="tag_assigned_to_expenses">Tag assigned to expenses</string>
-    <string name="expenses_untagged">Expenses Untagged</string>
+    <string name="expenses_de_tagged">Expenses De-Tagged</string>
     <string name="expenses_deleted">Expenses Deleted</string>
     <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
@@ -174,4 +176,13 @@
     <string name="tags">Tags</string>
     <string name="currency_updated">Currency preference updated</string>
     <string name="search_currency">Search Currency</string>
+    <string name="hide_excluded_expenses">Hide Excluded</string>
+    <string name="show_excluded_expenses">Show Excluded</string>
+    <string name="expense_option_de_tag">Remove Tag</string>
+    <string name="expense_option_mark_excluded">Exclude from expenditure</string>
+    <string name="expense_option_mark_included">Include in expenditure</string>
+    <string name="expenses_excluded_from_expenditure">Expenses excluded from expenditure</string>
+    <string name="expenses_included_in_expenditure">Expenses excluded in expenditure</string>
+    <string name="exclude_from_expenditure_ques">Exclude From Expenditure?</string>
+    <string name="excluded">Excluded</string>
 </resources>

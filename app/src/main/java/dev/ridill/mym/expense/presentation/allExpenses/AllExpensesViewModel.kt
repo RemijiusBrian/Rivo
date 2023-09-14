@@ -14,7 +14,7 @@ import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.asStateFlow
 import dev.ridill.mym.core.ui.util.UiText
-import dev.ridill.mym.expense.domain.model.ExpenseBulkOperation
+import dev.ridill.mym.expense.domain.model.ExpenseOption
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.repository.ExpenseRepository
 import dev.ridill.mym.expense.domain.repository.TagsRepository
@@ -55,11 +55,18 @@ class AllExpensesViewModel @Inject constructor(
 
     private val selectedTag = savedStateHandle.getStateFlow<ExpenseTag?>(SELECTED_TAG, null)
 
+    private val showExcludedExpenses = expenseRepo.getShowExcludedExpenses()
+
     private val expenseList = combineTuple(
         selectedDate,
-        selectedTag
-    ).flatMapLatest { (date, tag) ->
-        expenseRepo.getExpenseForDateByTag(date, tag?.id)
+        selectedTag,
+        showExcludedExpenses
+    ).flatMapLatest { (date, tag, showExcluded) ->
+        expenseRepo.getExpenseForDateByTag(
+            date = date,
+            tagId = tag?.id,
+            showExcluded = showExcluded
+        )
     }.asStateFlow(viewModelScope, emptyList())
 
     private val selectedExpenseIds = savedStateHandle
@@ -104,7 +111,8 @@ class AllExpensesViewModel @Inject constructor(
         showDeleteExpenseConfirmation,
         showDeleteTagConfirmation,
         showNewTagInput,
-        newTagError
+        newTagError,
+        showExcludedExpenses
     ).map { (
                 selectedDate,
                 yearsList,
@@ -118,7 +126,8 @@ class AllExpensesViewModel @Inject constructor(
                 showDeleteExpenseConfirmation,
                 showDeleteTagConfirmation,
                 showNewTagInput,
-                newTagError
+                newTagError,
+                showExcludedExpenses
             ) ->
         AllExpensesState(
             selectedDate = selectedDate,
@@ -133,7 +142,8 @@ class AllExpensesViewModel @Inject constructor(
             showDeleteExpenseConfirmation = showDeleteExpenseConfirmation,
             showDeleteTagConfirmation = showDeleteTagConfirmation,
             showNewTagInput = showNewTagInput,
-            newTagError = newTagError
+            newTagError = newTagError,
+            showExcludedExpenses = showExcludedExpenses
         )
     }.asStateFlow(viewModelScope, AllExpensesState())
 
@@ -228,6 +238,12 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[TAG_INPUT] = null
     }
 
+    override fun onToggleShowExcludedExpenses(value: Boolean) {
+        viewModelScope.launch {
+            expenseRepo.toggleShowExcludedExpenses(value)
+        }
+    }
+
     override fun onExpenseLongClick(id: Long) {
         viewModelScope.launch {
             if (expenseMultiSelectionModeActive.value) dismissMultiSelectionMode()
@@ -279,24 +295,49 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[EXPENSE_MULTI_SELECTION_MODE_ACTIVE] = true
     }
 
-    override fun onExpenseBulkOperationClick(operation: ExpenseBulkOperation) {
+    override fun onExpenseOptionClick(option: ExpenseOption) {
+        val selectedExpenseIds = selectedExpenseIds.value.ifEmpty { return }
         viewModelScope.launch {
-            when (operation) {
-                ExpenseBulkOperation.UNTAG -> {
-                    untagExpenses(selectedExpenseIds.value)
+            when (option) {
+                ExpenseOption.DE_TAG -> {
+                    deTagExpenses(selectedExpenseIds)
                 }
 
-                ExpenseBulkOperation.DELETE -> {
-                    savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = true
+                ExpenseOption.MARK_AS_EXCLUDED -> {
+                    toggleExpenseExclusion(selectedExpenseIds, true)
+                }
+
+                ExpenseOption.MARK_AS_INCLUDED -> {
+                    toggleExpenseExclusion(selectedExpenseIds, false)
                 }
             }
         }
     }
 
-    private suspend fun untagExpenses(ids: List<Long>) {
-        tagsRepo.untagExpenses(ids)
+    private suspend fun deTagExpenses(ids: List<Long>) {
+        tagsRepo.deTagExpenses(ids)
         dismissMultiSelectionMode()
-        eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.expenses_untagged)))
+        eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.expenses_de_tagged)))
+    }
+
+    private suspend fun toggleExpenseExclusion(ids: List<Long>, excluded: Boolean) {
+        expenseRepo.toggleExpenseExclusionByIds(
+            ids = ids,
+            excluded = excluded
+        )
+        dismissMultiSelectionMode()
+        eventBus.send(
+            AllExpenseEvent.ShowUiMessage(
+                UiText.StringResource(
+                    if (excluded) R.string.expenses_excluded_from_expenditure
+                    else R.string.expenses_included_in_expenditure
+                )
+            )
+        )
+    }
+
+    override fun onDeleteSelectedExpensesClick() {
+        savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = true
     }
 
     override fun onDeleteExpenseDismiss() {
@@ -304,8 +345,12 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onDeleteExpenseConfirm() {
+        val selectedIds = selectedExpenseIds.value
+        if (selectedIds.isEmpty()) {
+            savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = false
+            return
+        }
         viewModelScope.launch {
-            val selectedIds = selectedExpenseIds.value
             deleteExpenses(selectedIds)
             savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = false
             dismissMultiSelectionMode()

@@ -18,4 +18,5 @@ interface PreferencesManager {
     suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime)
     suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
     suspend fun updateAutoAddExpenseEnabled(enabled: Boolean)
+    suspend fun updateShowExcludedExpenses(show: Boolean)
 }

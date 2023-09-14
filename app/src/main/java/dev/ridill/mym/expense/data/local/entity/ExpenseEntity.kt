@@ -23,5 +23,6 @@ data class ExpenseEntity(
     val note: String,
     val amount: Double,
     val timestamp: LocalDateTime,
-    val tagId: Long?
+    val tagId: Long?,
+    val isExcludedFromExpenditure: Boolean = false
 )

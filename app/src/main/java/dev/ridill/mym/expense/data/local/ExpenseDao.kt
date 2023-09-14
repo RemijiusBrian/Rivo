@@ -16,7 +16,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         """
         SELECT IFNULL(SUM(amount), 0.0)
         FROM ExpenseEntity
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND isExcludedFromExpenditure = 0
     """
     )
     fun getExpenditureForMonth(monthAndYear: String): Flow<Double>
@@ -33,8 +33,18 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     suspend fun getExpenseById(id: Long): ExpenseEntity?
 
     @Transaction
-    @Query("SELECT * FROM ExpenseEntity WHERE strftime('%m-%Y', timestamp) = :monthAndYear ORDER BY datetime(timestamp) DESC, id DESC")
-    fun getExpensesForMonth(monthAndYear: String): Flow<List<ExpenseWithTagRelation>>
+    @Query(
+        """
+        SELECT *
+        FROM ExpenseEntity
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:showExcluded = 1 OR isExcludedFromExpenditure = 0)
+        ORDER BY isExcludedFromExpenditure ASC, datetime(timestamp) DESC, id DESC
+        """
+    )
+    fun getExpensesForMonth(
+        monthAndYear: String,
+        showExcluded: Boolean
+    ): Flow<List<ExpenseWithTagRelation>>
 
     @Query("SELECT DISTINCT(strftime('%Y', timestamp)) as year FROM ExpenseEntity ORDER BY year DESC")
     fun getDistinctYears(): Flow<List<Int>>
@@ -44,14 +54,18 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         """
         SELECT *
         FROM ExpenseEntity
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId)
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId) AND (:showExcluded = 1 OR isExcludedFromExpenditure = 0)
         ORDER BY datetime(timestamp) DESC, id DESC
     """
     )
     fun getExpenseForMonthByTag(
         monthAndYear: String,
-        tagId: Long?
+        tagId: Long?,
+        showExcluded: Boolean
     ): Flow<List<ExpenseWithTagRelation>>
+
+    @Query("UPDATE ExpenseEntity SET isExcludedFromExpenditure = :exclude WHERE id IN (:ids)")
+    suspend fun toggleExclusionByIds(ids: List<Long>, exclude: Boolean)
 
     @Query("DELETE FROM ExpenseEntity WHERE id = :id")
     suspend fun deleteExpenseById(id: Long)

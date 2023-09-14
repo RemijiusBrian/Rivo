@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
@@ -22,11 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.components.icons.Tags
@@ -44,15 +47,24 @@ fun ExpenseListItem(
     overlineContent: @Composable (() -> Unit)? = null,
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation
+    shadowElevation: Dp = ListItemDefaults.Elevation,
+    excluded: Boolean = false
 ) {
     ListItem(
         headlineContent = {
-            Text(
-                text = note,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (excluded) {
+                    ExcludedIndicator()
+                    SpacerSmall()
+                }
+                Text(
+                    text = note,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
         leadingContent = {
             TransactionDate(
@@ -66,9 +78,7 @@ fun ExpenseListItem(
                 fontWeight = FontWeight.Bold
             )
         },
-        supportingContent = {
-            tag?.let { TagIndicator(it.name, it.color) }
-        },
+        supportingContent = { tag?.let { TagIndicator(it.name, it.color) } },
         overlineContent = overlineContent,
         modifier = modifier,
         colors = colors,
@@ -123,11 +133,11 @@ private fun TagIndicator(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Outlined.Tags,
+            imageVector = Icons.Rounded.Tags,
             contentDescription = null,
             tint = color,
             modifier = Modifier
-                .size(TagIconSize)
+                .size(IndicatorSize)
         )
         SpacerSmall()
         Text(
@@ -138,4 +148,12 @@ private fun TagIndicator(
     }
 }
 
-private val TagIconSize = 12.dp
+@Composable
+private fun ExcludedIndicator() = Icon(
+    imageVector = Icons.Rounded.VisibilityOff,
+    contentDescription = stringResource(R.string.cd_excluded_expense),
+    modifier = Modifier
+        .size(IndicatorSize)
+)
+
+private val IndicatorSize = 12.dp

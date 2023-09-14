@@ -12,6 +12,7 @@ interface AddEditExpenseActions {
     fun onExpenseTimestampClick()
     fun onExpenseTimestampSelectionDismiss()
     fun onExpenseTimestampSelectionConfirm(dateTime: LocalDateTime)
+    fun onExpenseExclusionToggle(excluded: Boolean)
     fun onSaveClick()
     fun onDeleteClick()
     fun onDeleteDismiss()

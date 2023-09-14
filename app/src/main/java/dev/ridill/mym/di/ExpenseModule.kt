@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.expense.data.local.ExpenseDao
 import dev.ridill.mym.expense.data.local.TagsDao
@@ -31,7 +32,13 @@ object ExpenseModule {
     fun provideTagsDao(db: MYMDatabase): TagsDao = db.tagsDao()
 
     @Provides
-    fun provideExpenseRepository(dao: ExpenseDao): ExpenseRepository = ExpenseRepositoryImpl(dao)
+    fun provideExpenseRepository(
+        dao: ExpenseDao,
+        preferencesManager: PreferencesManager
+    ): ExpenseRepository = ExpenseRepositoryImpl(
+        dao = dao,
+        preferencesManager = preferencesManager
+    )
 
     @Provides
     fun provideTagsRepository(dao: TagsDao): TagsRepository = TagsRepositoryImpl(dao)

@@ -63,17 +63,18 @@ class AutoAddExpenseNotificationHelper(
             .setAutoCancel(true)
             .setContentIntent(buildContentIntent(id))
             .addAction(buildDeleteAction(id))
+            .addAction(buildMarkExcludedAction(id))
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
             .build()
 
-        /* val summaryNotification = buildBaseNotification()
-             .setGroupSummary(true)
-             .setAutoCancel(true)
-             .build()*/
+        val summaryNotification = buildBaseNotification()
+            .setGroupSummary(true)
+            .setAutoCancel(true)
+            .build()
 
         with(notificationManager) {
             notify(id, notification)
-//            notify(SUMMARY_ID, summaryNotification)
+            notify(SUMMARY_ID, summaryNotification)
         }
     }
 
@@ -117,8 +118,23 @@ class AutoAddExpenseNotificationHelper(
             pendingIntent
         ).build()
     }
+
+    private fun buildMarkExcludedAction(id: Int): NotificationCompat.Action {
+        val intent = Intent(context, MarkExcludedActionReceiver::class.java).apply {
+            putExtra(ARG_EXPENSE_ID, id.toLong())
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, id, intent, NotificationHelper.Utils.pendingIntentFlags
+        )
+
+        return NotificationCompat.Action.Builder(
+            R.drawable.ic_notification,
+            context.getString(R.string.action_mark_excluded),
+            pendingIntent
+        ).build()
+    }
 }
 
 private const val CHANNEL_ID = "dev.ridill.mym.CHANNEL_AUTO_ADD_EXPENSE_NOTIFICATIONS"
 private const val SUMMARY_GROUP = "dev.ridill.mym.AUTO_ADDED_EXPENSES"
-//private const val SUMMARY_ID = Int.MAX_VALUE - 1
+private const val SUMMARY_ID = Int.MAX_VALUE - 1
