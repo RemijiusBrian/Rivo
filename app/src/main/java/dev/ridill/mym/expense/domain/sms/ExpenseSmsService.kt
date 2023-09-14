@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDateTime
 
 class ExpenseSmsService(
     private val repo: ExpenseRepository,
@@ -34,17 +35,20 @@ class ExpenseSmsService(
         action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION
 
     fun saveExpenseFromSMSData(data: Intent) = applicationScope.launch(Dispatchers.Default) {
-        val messages = getSmsFromIntent(data)
         getEntityExtractor().use { extractor ->
+            val dateTimeNow = DateUtil.now()
             extractor.downloadModelIfNeeded().await()
             if (!extractor.isModelDownloaded.await()) return@launch
 
+            val messages = getSmsFromIntent(data)
             for (message in messages) {
                 val content = message.messageBody
                 if (!isDebitSms(content)) continue
 
                 val expenseDetails = extractExpenseDetails(extractor, content)
                     ?: continue
+                if (expenseDetails.paymentDateTime.isAfter(dateTimeNow)) continue
+
                 val amount = expenseDetails.amount
                 val merchant = expenseDetails.merchant
                     ?: context.getString(R.string.generic_merchant)
@@ -55,7 +59,7 @@ class ExpenseSmsService(
                     note = merchant,
                     dateTime = DateUtil.now(),
                     tagId = null,
-                    excluded = false // Expense added as Not-Excluded by default when detected from SMS
+                    excluded = false // Expense added as Included in Expenditure by default when detected from SMS
                 )
 
                 notificationHelper.postNotification(
@@ -97,26 +101,34 @@ class ExpenseSmsService(
     ): ExpenseDetailsFromSMS? = tryOrNull {
         val params = EntityExtractionParams.Builder(content)
             .setEntityTypesFilter(
-                setOf(Entity.TYPE_MONEY)
+                setOf(Entity.TYPE_MONEY, Entity.TYPE_DATE_TIME)
             )
             .build()
 
-        val moneyEntity = extractor.annotate(params).await()
+        val entities = extractor.annotate(params).await()
             .firstOrNull()
             ?.entities
+        val moneyEntity = entities
             ?.find { it.type == Entity.TYPE_MONEY }
             ?.asMoneyEntity()
             ?: return@tryOrNull null
-
         val integer = moneyEntity.integerPart.orZero()
         val fraction = ("0.${moneyEntity.fractionalPart.orZero()}").toDouble()
         val amount = integer + fraction
+
+        val paymentDateTime = entities
+            .find { it.type == Entity.TYPE_DATE_TIME }
+            ?.asDateTimeEntity()
+            ?.timestampMillis
+            ?.let { DateUtil.fromMillis(it) }
+            ?: return@tryOrNull null
 
         val merchant = extractMerchant(content)
 
         ExpenseDetailsFromSMS(
             amount = amount,
-            merchant = merchant
+            merchant = merchant,
+            paymentDateTime = paymentDateTime
         )
     }
 }
@@ -126,5 +138,6 @@ private const val MERCHANT_PATTERN =
 
 data class ExpenseDetailsFromSMS(
     val amount: Double,
-    val merchant: String?
+    val merchant: String?,
+    val paymentDateTime: LocalDateTime,
 )

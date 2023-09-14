@@ -26,6 +26,13 @@ object DateUtil {
         else -> PartOfDay.EVENING
     }
 
+    fun fromMillis(
+        millis: Long,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): LocalDateTime = Instant.ofEpochMilli(millis)
+        .atZone(zoneId)
+        .toLocalDateTime()
+
     fun toMillis(
         dateTime: LocalDateTime,
         zoneId: ZoneId = ZoneId.systemDefault()
