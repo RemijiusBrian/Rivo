@@ -96,7 +96,7 @@ fun BackupSettingsScreen(
 
             AnimatedVisibility(visible = state.isAccountAdded) {
                 PreviousBackupDetails(
-                    lastBackupDate = state.lastBackupDateFormatted,
+                    lastBackupDate = state.lastBackupDateFormatted?.asString(),
                     lastBackupTime = state.lastBackupTimeFormatted,
                     onBackupNowClick = actions::onBackupNowClick,
                     isBackupRunning = state.isBackupRunning

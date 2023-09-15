@@ -1,6 +1,7 @@
 package dev.ridill.mym.settings.presentation.backupSettings
 
 import dev.ridill.mym.core.domain.util.DateUtil
+import dev.ridill.mym.core.ui.util.UiText
 import dev.ridill.mym.settings.domain.modal.BackupInterval
 import java.time.LocalDateTime
 
@@ -12,7 +13,7 @@ data class BackupSettingsState(
     val isBackupRunning: Boolean = false,
     val lastBackupDateTime: LocalDateTime? = null
 ) {
-    val lastBackupDateFormatted: String?
+    val lastBackupDateFormatted: UiText?
         get() = lastBackupDateTime?.let { DateUtil.Formatters.prettyDateAgo(it.toLocalDate()) }
 
     val lastBackupTimeFormatted: String?
