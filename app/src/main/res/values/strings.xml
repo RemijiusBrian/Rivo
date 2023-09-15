@@ -122,15 +122,15 @@
     <string name="new_tag_input_title">New Tag</string>
     <string name="new_tag_input_text">Create a tag to help organize your expenses</string>
 
-    <plurals name="days_past">
-        <item quantity="zero">Today</item>
+    <string name="today">Today</string>
+    <plurals name="days_past" formatted="true">
         <item quantity="one">Yesterday</item>
-        <item quantity="other">%d days ago</item>
+        <item quantity="other">%s days ago</item>
     </plurals>
 
     <plurals name="weeks_past">
         <item quantity="one">Last week</item>
-        <item quantity="other">%d weeks ago</item>
+        <item quantity="other">%s weeks ago</item>
     </plurals>
 
     <string name="app_greeting">Good %s,</string>

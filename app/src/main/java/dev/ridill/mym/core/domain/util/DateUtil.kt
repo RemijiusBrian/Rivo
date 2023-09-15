@@ -85,15 +85,17 @@ object DateUtil {
             val daysDiff = ChronoUnit.DAYS.between(date, currentDate)
                 .coerceAtLeast(Long.Zero)
                 .toInt()
+            if (daysDiff < 1)
+                return UiText.StringResource(R.string.today)
 
             val weeksDiff = ChronoUnit.WEEKS.between(date, currentDate)
                 .toInt()
             if (weeksDiff < 1L)
-                return UiText.PluralResource(R.plurals.days_past, daysDiff)
+                return UiText.PluralResource(R.plurals.days_past, daysDiff, daysDiff.toString())
 
             val monthsDiff = ChronoUnit.MONTHS.between(date, currentDate)
             if (monthsDiff < 1L)
-                return UiText.PluralResource(R.plurals.weeks_past, weeksDiff)
+                return UiText.PluralResource(R.plurals.weeks_past, weeksDiff, weeksDiff.toString())
 
             return UiText.DynamicString(date.format(localizedDateLong))
         }
