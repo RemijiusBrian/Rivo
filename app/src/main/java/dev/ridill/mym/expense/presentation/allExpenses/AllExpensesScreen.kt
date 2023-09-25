@@ -92,6 +92,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
+import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
 import dev.ridill.mym.core.ui.components.EmptyListIndicator
@@ -307,6 +308,7 @@ private fun TagsInfoList(
                     name = item.tag.name,
                     color = item.tag.color,
                     amount = TextFormat.currency(item.expenditure),
+                    isExcluded = item.tag.excluded,
                     percentOfTotalExpenditure = item.percentOfTotalExpenditure,
                     isSelected = item.tag.id == selectedTagId,
                     onClick = { onTagClick(item.tag) },
@@ -344,6 +346,7 @@ private fun TagInfoCard(
     name: String,
     color: Color,
     amount: String,
+    isExcluded: Boolean,
     percentOfTotalExpenditure: Float,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -355,7 +358,7 @@ private fun TagInfoCard(
         label = "IsSelectedTransition"
     )
     val percent by animateFloatAsState(
-        targetValue = percentOfTotalExpenditure,
+        targetValue = if (isExcluded) Float.Zero else percentOfTotalExpenditure,
         label = "AnimatedPercentOfTotal"
     )
     val widthFactor by transition.animateFloat(
@@ -434,7 +437,8 @@ private fun TagInfoCard(
             }
 
             Text(
-                text = if (percent.isNaN()) stringResource(R.string.no_expenditure_yet)
+                text = if (isExcluded) stringResource(R.string.excluded)
+                else if (percent.isNaN()) stringResource(R.string.no_expenditure_yet)
                 else stringResource(
                     R.string.percent_of_expenditure,
                     TextFormat.percent(percent)
