@@ -72,7 +72,7 @@ android {
     }
 
     applicationVariants.configureEach {
-        val artifactName = "MYM-${name}-code${versionCode}-v${versionName}"
+        val artifactName = "Rivo-${name}-code${versionCode}-v${versionName}"
 
         // Rename APKs
         outputs.configureEach {
