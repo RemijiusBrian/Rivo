@@ -21,9 +21,9 @@ import dev.ridill.mym.core.ui.util.isPermissionGranted
 import dev.ridill.mym.settings.domain.modal.AppTheme
 
 @AndroidEntryPoint
-class MYMActivity : ComponentActivity() {
+class RivoActivity : ComponentActivity() {
 
-    private val viewModel: MYMViewModel by viewModels()
+    private val viewModel: RivoViewModel by viewModels()
 
     override fun onResume() {
         super.onResume()
@@ -76,7 +76,7 @@ class MYMActivity : ComponentActivity() {
         val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
         viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
 
-        if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
+        if (BuildUtil.isNotificationRuntimePermissionNeeded() && !viewModel.showWelcomeFlow.value) {
             val isNotificationPermissionGranted =
                 isPermissionGranted(Manifest.permission.POST_NOTIFICATIONS)
             viewModel.onNotificationPermissionCheck(isNotificationPermissionGranted)

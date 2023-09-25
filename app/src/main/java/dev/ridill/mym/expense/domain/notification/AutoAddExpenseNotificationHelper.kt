@@ -11,7 +11,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import dev.ridill.mym.R
-import dev.ridill.mym.application.MYMActivity
+import dev.ridill.mym.application.RivoActivity
 import dev.ridill.mym.core.domain.notification.NotificationHelper
 import dev.ridill.mym.core.ui.navigation.destinations.ARG_EXPENSE_ID
 
@@ -96,7 +96,7 @@ class AutoAddExpenseNotificationHelper(
             Intent.ACTION_VIEW,
             "https://www.mym.com/expense/$id".toUri(),
             context,
-            MYMActivity::class.java
+            RivoActivity::class.java
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)

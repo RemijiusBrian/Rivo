@@ -23,6 +23,6 @@ interface NotificationHelper {
         val pendingIntentFlags: Int
             get() = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 
-        const val TIMEOUT_MILLIS = 2000L
+        const val TIMEOUT_MILLIS = 5_000L
     }
 }

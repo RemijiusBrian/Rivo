@@ -9,7 +9,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
-class MYMApplication : Application(), Configuration.Provider {
+class RivoApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory

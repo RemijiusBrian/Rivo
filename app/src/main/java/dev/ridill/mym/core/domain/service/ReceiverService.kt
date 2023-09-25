@@ -4,31 +4,28 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import dev.ridill.mym.expense.domain.notification.DeleteExpenseActionReceiver
+import dev.ridill.mym.expense.domain.notification.MarkExcludedActionReceiver
 import dev.ridill.mym.expense.domain.sms.ExpenseSmsReceiver
 
 class ReceiverService(
     private val context: Context
 ) {
 
-    fun toggleSmsReceiver(enable: Boolean) {
-        val receiver = ComponentName(context, ExpenseSmsReceiver::class.java)
-        val newState = if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-        else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+    fun toggleSmsReceiver(enable: Boolean) =
+        toggleReceiver(ExpenseSmsReceiver::class.java, enable)
 
-        context.packageManager.setComponentEnabledSetting(
-            receiver,
-            newState,
-            PackageManager.DONT_KILL_APP
-        )
+    fun toggleNotificationActionReceivers(enable: Boolean) {
+        toggleReceiver(DeleteExpenseActionReceiver::class.java, enable)
+        toggleReceiver(MarkExcludedActionReceiver::class.java, enable)
     }
 
-    fun toggleDeleteExpenseReceiver(enable: Boolean) {
-        val receiver = ComponentName(context, DeleteExpenseActionReceiver::class.java)
+    private fun toggleReceiver(receiverClass: Class<*>, enable: Boolean) {
+        val componentName = ComponentName(context, receiverClass)
         val newState = if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
 
         context.packageManager.setComponentEnabledSetting(
-            receiver,
+            componentName,
             newState,
             PackageManager.DONT_KILL_APP
         )

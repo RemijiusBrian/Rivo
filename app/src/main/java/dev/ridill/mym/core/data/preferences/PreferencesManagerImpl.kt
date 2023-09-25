@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import dev.ridill.mym.core.domain.model.MYMPreferences
+import dev.ridill.mym.core.domain.model.RivoPreferences
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ class PreferencesManagerImpl(
     private val dataStore: DataStore<Preferences>
 ) : PreferencesManager {
 
-    override val preferences: Flow<MYMPreferences> = dataStore.data
+    override val preferences: Flow<RivoPreferences> = dataStore.data
         .map { preferences ->
             val showAppWelcomeFlow = preferences[Keys.SHOW_WELCOME_FLOW] ?: true
             val appTheme = AppTheme.valueOf(
@@ -31,7 +31,7 @@ class PreferencesManagerImpl(
             val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
             val showExcludedExpenses = preferences[Keys.SHOW_EXCLUDED_EXPENSES] ?: true
 
-            MYMPreferences(
+            RivoPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
