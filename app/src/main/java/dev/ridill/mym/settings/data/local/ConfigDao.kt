@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ConfigDao : BaseDao<ConfigEntity> {
-    @Query("SELECT IFNULL(configValue, 0) FROM ConfigEntity WHERE configKey = '${ConfigKeys.BUDGET_AMOUNT}'")
+    @Query("SELECT IFNULL(config_value, 0) FROM config_table WHERE config_key = '${ConfigKeys.BUDGET_AMOUNT}'")
     fun getBudgetAmount(): Flow<Long?>
 
-    @Query("SELECT configValue FROM ConfigEntity WHERE configKey = '${ConfigKeys.CURRENCY_CODE}'")
+    @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.CURRENCY_CODE}'")
     fun getCurrencyCode(): Flow<String?>
 
-    @Query("SELECT configValue FROM ConfigEntity WHERE configKey = '${ConfigKeys.BACKUP_INTERVAL}'")
+    @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.BACKUP_INTERVAL}'")
     suspend fun getBackupInterval(): String?
 }

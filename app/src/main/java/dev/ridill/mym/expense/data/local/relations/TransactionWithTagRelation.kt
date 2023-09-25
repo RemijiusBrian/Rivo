@@ -2,11 +2,11 @@ package dev.ridill.mym.expense.data.local.relations
 
 import java.time.LocalDateTime
 
-data class ExpenseWithTagRelation(
-    val expenseId: Long,
-    val expenseNote: String,
-    val expenseAmount: Double,
-    val expenseTimestamp: LocalDateTime,
+data class TransactionWithTagRelation(
+    val transactionId: Long,
+    val transactionNote: String,
+    val transactionAmount: Double,
+    val transactionTimestamp: LocalDateTime,
     val tagId: Long?,
     val tagName: String?,
     val tagColorCode: Int?,

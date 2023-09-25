@@ -6,9 +6,9 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.mym.BuildConfig
-import dev.ridill.mym.expense.data.local.ExpenseDao
+import dev.ridill.mym.expense.data.local.TransactionDao
 import dev.ridill.mym.expense.data.local.TagsDao
-import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
+import dev.ridill.mym.expense.data.local.entity.TransactionEntity
 import dev.ridill.mym.expense.data.local.entity.TagEntity
 import dev.ridill.mym.settings.data.local.ConfigDao
 import dev.ridill.mym.settings.data.local.ConfigKeys
@@ -16,21 +16,21 @@ import dev.ridill.mym.settings.data.local.entity.ConfigEntity
 
 @Database(
     entities = [
-        ExpenseEntity::class,
+        TransactionEntity::class,
         TagEntity::class,
         ConfigEntity::class
     ],
     version = BuildConfig.DB_VERSION
 )
 @TypeConverters(DateTimeConverter::class)
-abstract class MYMDatabase : RoomDatabase() {
+abstract class RivoDatabase : RoomDatabase() {
     companion object {
         const val NAME = "MYM.db"
         const val DEFAULT_ID_LONG = 0L
     }
 
     // Dao Methods
-    abstract fun expenseDao(): ExpenseDao
+    abstract fun transactionDao(): TransactionDao
     abstract fun tagsDao(): TagsDao
     abstract fun configDao(): ConfigDao
 }

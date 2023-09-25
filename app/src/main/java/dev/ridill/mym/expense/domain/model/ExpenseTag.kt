@@ -3,7 +3,7 @@ package dev.ridill.mym.expense.domain.model
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.data.db.RivoDatabase
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.expense.presentation.components.TagColors
 import kotlinx.parcelize.Parcelize
@@ -22,7 +22,7 @@ data class ExpenseTag(
 
     companion object {
         val NEW = ExpenseTag(
-            id = MYMDatabase.DEFAULT_ID_LONG,
+            id = RivoDatabase.DEFAULT_ID_LONG,
             name = "",
             colorCode = TagColors.first().toArgb(),
             createdTimestamp = DateUtil.now(),

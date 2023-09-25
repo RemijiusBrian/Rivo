@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dev.ridill.mym.dashboard.data.repository.DashboardRepositoryImpl
 import dev.ridill.mym.dashboard.domain.repository.DashboardRepository
-import dev.ridill.mym.expense.data.local.ExpenseDao
+import dev.ridill.mym.expense.data.local.TransactionDao
 import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 
 @Module
@@ -14,10 +14,10 @@ import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
 object DashboardModule {
     @Provides
     fun provideDashboardRepository(
-        expenseDao: ExpenseDao,
+        transactionDao: TransactionDao,
         settingsRepository: SettingsRepository
     ): DashboardRepository = DashboardRepositoryImpl(
-        expenseDao = expenseDao,
+        transactionDao = transactionDao,
         settingsRepository = settingsRepository
     )
 }

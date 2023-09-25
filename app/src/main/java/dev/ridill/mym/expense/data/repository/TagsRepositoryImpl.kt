@@ -37,11 +37,11 @@ class TagsRepositoryImpl(
 
     override suspend fun assignTagToExpenses(tagId: Long, ids: List<Long>) =
         withContext(Dispatchers.IO) {
-            dao.assignTagToExpensesWithIds(tagId, ids)
+            dao.assignTagToTransactionsByIds(tagId, ids)
         }
 
     override suspend fun deTagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
-        dao.deTagExpenses(ids)
+        dao.untagTransactionsByIds(ids)
     }
 
     override suspend fun saveTag(
@@ -63,10 +63,10 @@ class TagsRepositoryImpl(
     }
 
     override suspend fun deleteTagById(id: Long) = withContext(Dispatchers.IO) {
-        dao.untagExpensesAndDeleteTag(id)
+        dao.untagTransactionsAndDeleteTag(id)
     }
 
     override suspend fun deleteTagWithExpenses(tagId: Long) = withContext(Dispatchers.IO) {
-        dao.deleteTagWithExpenses(tagId)
+        dao.deleteTagWithTransactions(tagId)
     }
 }

@@ -3,9 +3,9 @@ package dev.ridill.mym.expense.data.repository
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Zero
-import dev.ridill.mym.expense.data.local.ExpenseDao
-import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
-import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
+import dev.ridill.mym.expense.data.local.TransactionDao
+import dev.ridill.mym.expense.data.local.entity.TransactionEntity
+import dev.ridill.mym.expense.data.local.relations.TransactionWithTagRelation
 import dev.ridill.mym.expense.data.toExpense
 import dev.ridill.mym.expense.data.toExpenseListItem
 import dev.ridill.mym.expense.domain.model.Expense
@@ -21,14 +21,14 @@ import java.time.LocalDateTime
 import kotlin.math.roundToLong
 
 class ExpenseRepositoryImpl(
-    private val dao: ExpenseDao,
+    private val dao: TransactionDao,
     private val preferencesManager: PreferencesManager
 ) : ExpenseRepository {
     override suspend fun getExpenseById(id: Long): Expense? = withContext(Dispatchers.IO) {
-        dao.getExpenseById(id)?.toExpense()
+        dao.getTransactionById(id)?.toExpense()
     }
 
-    override fun getAmountRecommendations(): Flow<List<Long>> = dao.getExpenseRange()
+    override fun getAmountRecommendations(): Flow<List<Long>> = dao.getTransactionAmountRange()
         .map { (upperLimit, lowerLimit) ->
             val roundUpper = (upperLimit.roundToLong() / 10) * 10
             val roundLower = (lowerLimit.roundToLong() / 10) * 10
@@ -47,7 +47,7 @@ class ExpenseRepositoryImpl(
         tagId: Long?,
         excluded: Boolean
     ): Long = withContext(Dispatchers.IO) {
-        val entity = ExpenseEntity(
+        val entity = TransactionEntity(
             id = id ?: Long.Zero,
             note = note,
             amount = amount,
@@ -59,14 +59,14 @@ class ExpenseRepositoryImpl(
     }
 
     override suspend fun deleteExpense(id: Long) = withContext(Dispatchers.IO) {
-        dao.deleteExpenseById(id)
+        dao.deleteTransactionById(id)
     }
 
     override suspend fun deleteExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
-        dao.deleteMultipleExpenseById(ids)
+        dao.deleteMultipleTransactionsById(ids)
     }
 
-    override fun getExpenseYearsList(paddingCount: Int): Flow<List<Int>> = dao.getDistinctYears()
+    override fun getExpenseYearsList(paddingCount: Int): Flow<List<Int>> = dao.getYearsFromTransactions()
         .map { years ->
             if (years.size >= paddingCount) years
             else {
@@ -84,11 +84,11 @@ class ExpenseRepositoryImpl(
         date: LocalDate,
         tagId: Long?,
         showExcluded: Boolean
-    ): Flow<List<ExpenseListItem>> = dao.getExpenseForMonthByTag(
+    ): Flow<List<ExpenseListItem>> = dao.getTransactionForMonthByTag(
         monthAndYear = date.format(DateUtil.Formatters.MM_yyyy_dbFormat),
         tagId = tagId,
         showExcluded = showExcluded
-    ).map { entities -> entities.map(ExpenseWithTagRelation::toExpenseListItem) }
+    ).map { entities -> entities.map(TransactionWithTagRelation::toExpenseListItem) }
 
     override fun getShowExcludedExpenses(): Flow<Boolean> =
         preferencesManager.preferences.map { it.showExcludedExpenses }

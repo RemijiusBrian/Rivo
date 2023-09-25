@@ -1,13 +1,13 @@
 package dev.ridill.mym.expense.data
 
 import dev.ridill.mym.core.ui.util.TextFormat
-import dev.ridill.mym.expense.data.local.entity.ExpenseEntity
-import dev.ridill.mym.expense.data.local.relations.ExpenseWithTagRelation
+import dev.ridill.mym.expense.data.local.entity.TransactionEntity
+import dev.ridill.mym.expense.data.local.relations.TransactionWithTagRelation
 import dev.ridill.mym.expense.domain.model.Expense
 import dev.ridill.mym.expense.domain.model.ExpenseListItem
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 
-fun ExpenseEntity.toExpense(): Expense = Expense(
+fun TransactionEntity.toExpense(): Expense = Expense(
     id = id,
     amount = amount.toString(),
     note = note,
@@ -16,11 +16,11 @@ fun ExpenseEntity.toExpense(): Expense = Expense(
     excluded = isExcluded
 )
 
-fun ExpenseWithTagRelation.toExpenseListItem(): ExpenseListItem = ExpenseListItem(
-    id = expenseId,
-    note = expenseNote,
-    amount = TextFormat.currency(expenseAmount),
-    date = expenseTimestamp.toLocalDate(),
+fun TransactionWithTagRelation.toExpenseListItem(): ExpenseListItem = ExpenseListItem(
+    id = transactionId,
+    note = transactionNote,
+    amount = TextFormat.currency(transactionAmount),
+    date = transactionTimestamp.toLocalDate(),
     tag = if (
         tagId != null
         && tagName != null

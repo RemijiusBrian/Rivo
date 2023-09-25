@@ -1,7 +1,7 @@
 package dev.ridill.mym.settings.domain.backup
 
 import android.content.Context
-import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.data.db.RivoDatabase
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.toByteArray
 import dev.ridill.mym.core.domain.util.toInt
@@ -12,11 +12,11 @@ import java.io.InputStream
 
 class BackupService(
     private val context: Context,
-    private val database: MYMDatabase
+    private val database: RivoDatabase
 ) {
     @Throws(BackupCachingFailedThrowable::class)
     suspend fun buildBackupFile(): File = withContext(Dispatchers.IO) {
-        val dbFile = context.getDatabasePath(MYMDatabase.NAME)
+        val dbFile = context.getDatabasePath(RivoDatabase.NAME)
         val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
 

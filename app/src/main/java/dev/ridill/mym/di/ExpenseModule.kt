@@ -6,10 +6,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.data.db.RivoDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.expense.data.local.ExpenseDao
+import dev.ridill.mym.expense.data.local.TransactionDao
 import dev.ridill.mym.expense.data.local.TagsDao
 import dev.ridill.mym.expense.data.repository.ExpenseRepositoryImpl
 import dev.ridill.mym.expense.data.repository.TagsRepositoryImpl
@@ -26,14 +26,14 @@ import kotlinx.coroutines.CoroutineScope
 object ExpenseModule {
 
     @Provides
-    fun provideExpenseDao(db: MYMDatabase): ExpenseDao = db.expenseDao()
+    fun provideExpenseDao(db: RivoDatabase): TransactionDao = db.transactionDao()
 
     @Provides
-    fun provideTagsDao(db: MYMDatabase): TagsDao = db.tagsDao()
+    fun provideTagsDao(db: RivoDatabase): TagsDao = db.tagsDao()
 
     @Provides
     fun provideExpenseRepository(
-        dao: ExpenseDao,
+        dao: TransactionDao,
         preferencesManager: PreferencesManager
     ): ExpenseRepository = ExpenseRepositoryImpl(
         dao = dao,

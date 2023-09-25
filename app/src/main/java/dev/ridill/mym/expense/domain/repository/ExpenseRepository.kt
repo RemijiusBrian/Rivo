@@ -20,7 +20,7 @@ interface ExpenseRepository {
 
     suspend fun deleteExpense(id: Long)
     suspend fun deleteExpenses(ids: List<Long>)
-    fun getExpenseYearsList(paddingCount: Int = DEFAULT_YEAR_PADDING): Flow<List<Int>>
+    fun getExpenseYearsList(paddingCount: Int = DEFAULT_YEAR_LIST_PADDING): Flow<List<Int>>
     fun getTotalExpenditureForDate(date: LocalDate): Flow<Double>
     fun getExpenseForDateByTag(
         date: LocalDate,
@@ -33,4 +33,4 @@ interface ExpenseRepository {
     suspend fun toggleExpenseExclusionByIds(ids: List<Long>, excluded: Boolean)
 }
 
-private const val DEFAULT_YEAR_PADDING = 5
+private const val DEFAULT_YEAR_LIST_PADDING = 5

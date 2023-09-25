@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.mym.R
-import dev.ridill.mym.core.data.db.MYMDatabase
+import dev.ridill.mym.core.data.db.RivoDatabase
 import dev.ridill.mym.core.domain.service.ExpEvalService
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.EventBus
@@ -41,7 +41,7 @@ class AddEditExpenseViewModel @Inject constructor(
         .getExpenseIdFromSavedStateHandle(savedStateHandle)
     private val isEditMode = AddEditExpenseScreenSpec.isEditMode(expenseIdArg)
     private val currentExpenseId: Long
-        get() = expenseIdArg.coerceAtLeast(MYMDatabase.DEFAULT_ID_LONG)
+        get() = expenseIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
     private val currency = settingsRepo.getCurrencyPreference()
 
