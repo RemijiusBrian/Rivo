@@ -57,14 +57,16 @@ class WelcomeFlowViewModel @Inject constructor(
                 }
 
                 WorkInfo.State.FAILED -> {
-                    eventBus.send(WelcomeFlowEvent.ShowUiMessage(
-                        info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
-                            ?.let { UiText.DynamicString(it) }
-                            ?: UiText.StringResource(R.string.error_app_data_restore_failed)
-                    ))
+                    eventBus.send(
+                        WelcomeFlowEvent.ShowUiMessage(
+                            info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
+                                ?.let { UiText.DynamicString(it) }
+                                ?: UiText.StringResource(R.string.error_app_data_restore_failed)
+                        )
+                    )
                 }
 
-                else -> {}
+                else -> Unit
             }
         }
     }
@@ -113,7 +115,6 @@ class WelcomeFlowViewModel @Inject constructor(
             is Resource.Success -> {
                 if (resource.data != null) {
                     savedStateHandle[AVAILABLE_BACKUP] = resource.data
-//                    eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.RESTORE_DATA))
                 } else {
                     eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
                 }
@@ -134,8 +135,8 @@ class WelcomeFlowViewModel @Inject constructor(
 
     override fun onSkipDataRestore() {
         viewModelScope.launch {
-            savedStateHandle[AVAILABLE_BACKUP] = null
             eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+            savedStateHandle[AVAILABLE_BACKUP] = null
         }
     }
 

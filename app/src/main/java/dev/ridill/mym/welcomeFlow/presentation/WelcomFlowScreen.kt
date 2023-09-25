@@ -70,7 +70,11 @@ fun WelcomeFlowScreen(
                     WelcomeFlowPage.GOOGLE_SIGN_IN.ordinal -> {
                         GoogleSignInPage(
                             onSignInClick = actions::onGoogleSignInClick,
-                            onSkipClick = actions::onSkipGoogleSignInClick,
+                            onSkipSignInClick = actions::onSkipGoogleSignInClick,
+                            restoreWorkerState = restoreState,
+                            onRestoreClick = actions::onRestoreDataClick,
+                            onSkipRestoreClick = actions::onSkipDataRestore,
+                            availableBackupDetails = availableBackup
                         )
                     }
 
