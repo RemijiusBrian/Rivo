@@ -21,7 +21,7 @@ data class AllExpensesState(
     val expenseMultiSelectionModeActive: Boolean = false,
     val showDeleteExpenseConfirmation: Boolean = false,
     val showDeleteTagConfirmation: Boolean = false,
-    val showNewTagInput: Boolean = false,
+    val showTagInput: Boolean = false,
     val newTagError: UiText? = null,
     val showExcludedExpenses: Boolean = false
 )

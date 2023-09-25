@@ -25,7 +25,7 @@ interface AllExpensesActions {
     fun onDeleteExpenseDismiss()
     fun onDeleteExpenseConfirm()
     fun onEditTagClick(tag: ExpenseTag)
-    fun onDeleteTagClick(tagId: Long)
+    fun onDeleteTagClick()
     fun onDeleteTagDismiss()
     fun onDeleteTagConfirm()
     fun onDeleteTagWithExpensesClick()

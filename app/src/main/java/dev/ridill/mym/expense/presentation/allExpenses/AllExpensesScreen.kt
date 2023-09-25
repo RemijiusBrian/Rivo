@@ -118,8 +118,8 @@ import dev.ridill.mym.expense.domain.model.ExpenseOption
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import dev.ridill.mym.expense.presentation.components.ExpenseListItem
-import dev.ridill.mym.expense.presentation.components.NewTagSheet
 import dev.ridill.mym.expense.presentation.components.TagColors
+import dev.ridill.mym.expense.presentation.components.TagInputSheet
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -129,6 +129,7 @@ import java.util.Locale
 fun AllExpensesScreen(
     snackbarController: SnackbarController,
     state: AllExpensesState,
+    isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
@@ -138,6 +139,11 @@ fun AllExpensesScreen(
     BackHandler(
         enabled = state.expenseMultiSelectionModeActive,
         onBack = actions::onDismissMultiSelectionMode
+    )
+
+    BackHandler(
+        enabled = state.showTagInput,
+        onBack = actions::onTagInputDismiss
     )
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -235,14 +241,15 @@ fun AllExpensesScreen(
 
         if (state.showDeleteTagConfirmation) {
             DeleteTagDialog(
+                tagName = tagNameInput(),
                 onDeleteTag = actions::onDeleteTagConfirm,
                 onDeleteTagWithExpenses = actions::onDeleteTagWithExpensesClick,
                 onDismiss = actions::onDeleteTagDismiss
             )
         }
 
-        if (state.showNewTagInput) {
-            NewTagSheet(
+        if (state.showTagInput) {
+            TagInputSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onTagInputNameChange,
                 selectedColorCode = tagColorInput,
@@ -251,7 +258,9 @@ fun AllExpensesScreen(
                 onExclusionToggle = actions::onTagInputExclusionChange,
                 onDismiss = actions::onTagInputDismiss,
                 onConfirm = actions::onTagInputConfirm,
-                errorMessage = state.newTagError
+                errorMessage = state.newTagError,
+                isEditMode = isTagInputEditMode,
+                onDeleteClick = actions::onDeleteTagClick
             )
         }
     }
@@ -883,6 +892,7 @@ private fun ExpenseCard(
 
 @Composable
 private fun DeleteTagDialog(
+    tagName: String,
     onDeleteTag: () -> Unit,
     onDeleteTagWithExpenses: () -> Unit,
     onDismiss: () -> Unit
@@ -918,7 +928,7 @@ private fun DeleteTagDialog(
                 }
             }
         },
-        title = { Text(stringResource(R.string.delete_tag_confirmation_title)) },
+        title = { Text(stringResource(R.string.delete_tag_confirmation_title, tagName)) },
         text = { Text(stringResource(R.string.action_irreversible_message)) }
     )
 }
@@ -951,14 +961,15 @@ private fun PreviewAllExpensesScreen() {
                 override fun onDeleteExpenseDismiss() {}
                 override fun onDeleteExpenseConfirm() {}
                 override fun onEditTagClick(tag: ExpenseTag) {}
-                override fun onDeleteTagClick(tagId: Long) {}
+                override fun onDeleteTagClick() {}
                 override fun onDeleteTagDismiss() {}
                 override fun onDeleteTagConfirm() {}
                 override fun onDeleteTagWithExpensesClick() {}
                 override fun onDeleteSelectedExpensesClick() {}
             },
             navigateUp = {},
-            tagExclusionInput = { false }
+            tagExclusionInput = { false },
+            isTagInputEditMode = { false }
         )
     }
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.mym.R
+import dev.ridill.mym.core.data.db.RivoDatabase
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesScreen
 import dev.ridill.mym.expense.presentation.allExpenses.AllExpensesViewModel
@@ -55,7 +56,8 @@ object AllExpensesScreenSpec : ScreenSpec {
             tagColorInput = { tagInput.value?.colorCode },
             tagExclusionInput = { tagInput.value?.excluded },
             actions = viewModel,
-            navigateUp = navController::navigateUp
+            navigateUp = navController::navigateUp,
+            isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG }
         )
     }
 }

@@ -5,7 +5,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,15 +18,21 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
@@ -33,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
+import dev.ridill.mym.core.domain.util.One
 import dev.ridill.mym.core.ui.components.LabelledSwitch
 import dev.ridill.mym.core.ui.components.ValueInputSheet
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
@@ -60,7 +70,7 @@ fun NewTagChip(
 }
 
 @Composable
-fun NewTagSheet(
+fun TagInputSheet(
     nameInput: () -> String,
     onNameChange: (String) -> Unit,
     selectedColorCode: () -> Int?,
@@ -72,14 +82,49 @@ fun NewTagSheet(
     modifier: Modifier = Modifier,
     tagColors: List<Color> = TagColors,
     errorMessage: UiText?,
+    isEditMode: () -> Boolean,
+    onDeleteClick: (() -> Unit)?
 ) {
+    val focusRequester = remember {
+        FocusRequester()
+    }
+
+    LaunchedEffect(Unit, isEditMode()) {
+        if (!isEditMode()) {
+            focusRequester.requestFocus()
+        }
+    }
+
     ValueInputSheet(
-        titleRes = R.string.new_tag_input_title,
+        title = {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
+            ) {
+                Text(
+                    text = stringResource(
+                        id = if (isEditMode()) R.string.edit_tag_input_title
+                        else R.string.new_tag_input_title
+                    ),
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier
+                        .weight(Float.One)
+                )
+
+                if (isEditMode() && onDeleteClick != null) {
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            imageVector = Icons.Outlined.DeleteForever,
+                            contentDescription = stringResource(R.string.cd_delete_tag)
+                        )
+                    }
+                }
+            }
+        },
         inputValue = nameInput,
         onValueChange = onNameChange,
         onDismiss = onDismiss,
-        onConfirm = onConfirm,
-        text = stringResource(R.string.new_tag_input_text),
+        text = if (!isEditMode()) stringResource(R.string.new_tag_input_text) else null,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             capitalization = KeyboardCapitalization.Words,
@@ -87,6 +132,7 @@ fun NewTagSheet(
         ),
         label = stringResource(R.string.tag_name),
         errorMessage = errorMessage,
+        focusRequester = focusRequester,
         contentAfterTextField = {
             LazyRow(
                 contentPadding = PaddingValues(
@@ -115,7 +161,19 @@ fun NewTagSheet(
                     .align(Alignment.End)
             )
         },
-        modifier = modifier
+        modifier = modifier,
+        actionButton = {
+            Column {
+                Button(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SpacingMedium)
+                ) {
+                    Text(stringResource(R.string.action_confirm))
+                }
+            }
+        }
     )
 }
 

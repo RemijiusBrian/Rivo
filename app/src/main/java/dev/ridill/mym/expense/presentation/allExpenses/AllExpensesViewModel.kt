@@ -141,7 +141,7 @@ class AllExpensesViewModel @Inject constructor(
             expenseMultiSelectionModeActive = expenseMultiSelectionModeActive,
             showDeleteExpenseConfirmation = showDeleteExpenseConfirmation,
             showDeleteTagConfirmation = showDeleteTagConfirmation,
-            showNewTagInput = showNewTagInput,
+            showTagInput = showNewTagInput,
             newTagError = newTagError,
             showExcludedExpenses = showExcludedExpenses
         )
@@ -206,7 +206,7 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onTagInputDismiss() {
-        clearAndHideTagInput()
+        hideAndClearTagInput()
     }
 
     override fun onTagInputConfirm() {
@@ -232,14 +232,14 @@ class AllExpensesViewModel @Inject constructor(
             )
             savedStateHandle[SELECTED_TAG] = tagInput
                 .copy(id = insertedId)
-            clearAndHideTagInput()
+            hideAndClearTagInput()
             eventBus.send(
                 AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
         }
     }
 
-    private fun clearAndHideTagInput() {
+    private fun hideAndClearTagInput() {
         savedStateHandle[SHOW_TAG_INPUT] = false
         savedStateHandle[TAG_INPUT] = null
     }
@@ -373,23 +373,23 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[SHOW_TAG_INPUT] = true
     }
 
-    override fun onDeleteTagClick(tagId: Long) {
-        savedStateHandle[DELETION_TAG_ID] = tagId
+    override fun onDeleteTagClick() {
+        savedStateHandle[SHOW_TAG_INPUT] = false
         savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = true
     }
 
     override fun onDeleteTagDismiss() {
         savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-        savedStateHandle[DELETION_TAG_ID] = null
+        hideAndClearTagInput()
     }
 
     override fun onDeleteTagConfirm() {
-        val tagId = savedStateHandle.get<Long?>(DELETION_TAG_ID) ?: return
+        val tagId = tagInput.value?.id ?: return
         viewModelScope.launch {
             tagsRepo.deleteTagById(tagId)
             savedStateHandle[SELECTED_TAG] = null
             savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            savedStateHandle[DELETION_TAG_ID] = null
+            hideAndClearTagInput()
             eventBus.send(
                 AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted))
             )
@@ -397,12 +397,12 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onDeleteTagWithExpensesClick() {
-        val tagId = savedStateHandle.get<Long?>(DELETION_TAG_ID) ?: return
+        val tagId = tagInput.value?.id ?: return
         viewModelScope.launch {
             tagsRepo.deleteTagWithExpenses(tagId)
             savedStateHandle[SELECTED_TAG] = null
             savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            savedStateHandle[DELETION_TAG_ID] = null
+            hideAndClearTagInput()
             eventBus.send(
                 AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_expenses))
             )
@@ -423,5 +423,4 @@ private const val SHOW_DELETE_EXPENSE_CONFIRMATION = "SHOW_DELETE_EXPENSE_CONFIR
 private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
 private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
-private const val DELETION_TAG_ID = "DELETION_TAG_ID"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"

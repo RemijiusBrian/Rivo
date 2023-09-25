@@ -78,7 +78,7 @@
 
     <string name="delete_expense_confirmation_title">Delete Expense?</string>
     <string name="delete_multiple_expense_confirmation_title">Delete Expenses?</string>
-    <string name="delete_tag_confirmation_title">Delete Tag?</string>
+    <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
@@ -120,6 +120,7 @@
     <string name="monthly_budget_input_text">Set a monthly budget to keep your expenses within</string>
 
     <string name="new_tag_input_title">New Tag</string>
+    <string name="edit_tag_input_title">Edit Tag</string>
     <string name="new_tag_input_text">Create a tag to help organize your expenses</string>
 
     <string name="today">Today</string>

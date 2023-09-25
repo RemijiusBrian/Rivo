@@ -72,7 +72,7 @@ import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
 import dev.ridill.mym.expense.presentation.components.ExcludedIndicator
 import dev.ridill.mym.expense.presentation.components.NewTagChip
-import dev.ridill.mym.expense.presentation.components.NewTagSheet
+import dev.ridill.mym.expense.presentation.components.TagInputSheet
 
 @Composable
 fun AddEditExpenseScreen(
@@ -214,7 +214,7 @@ fun AddEditExpenseScreen(
         }
 
         if (state.showNewTagInput) {
-            NewTagSheet(
+            TagInputSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onNewTagNameChange,
                 selectedColorCode = tagColorInput,
@@ -223,7 +223,9 @@ fun AddEditExpenseScreen(
                 onExclusionToggle = actions::onNewTagExclusionChange,
                 onDismiss = actions::onNewTagInputDismiss,
                 onConfirm = actions::onNewTagInputConfirm,
-                errorMessage = state.newTagError
+                errorMessage = state.newTagError,
+                isEditMode = { false },
+                onDeleteClick = null
             )
         }
 
