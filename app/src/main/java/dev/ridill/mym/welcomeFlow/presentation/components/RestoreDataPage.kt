@@ -23,6 +23,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.Empty
 import dev.ridill.mym.core.domain.util.One
+import dev.ridill.mym.core.ui.components.MediumDisplayText
 import dev.ridill.mym.core.ui.components.Spacer
 import dev.ridill.mym.core.ui.components.SpacerSmall
 import dev.ridill.mym.core.ui.theme.ContentAlpha
@@ -30,7 +31,7 @@ import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 
 @Composable
-fun RestoreDataStop(
+fun RestoreDataPage(
     restoreState: WorkInfo.State?,
     onSkipClick: () -> Unit,
     availableBackup: BackupDetails?,
@@ -45,6 +46,8 @@ fun RestoreDataStop(
             .fillMaxSize()
             .padding(SpacingLarge)
     ) {
+        MediumDisplayText(stringResource(R.string.welcome_flow_stop_restore_data_title))
+
         Text(
             text = stringResource(
                 R.string.welcome_flow_stop_restore_data_message,

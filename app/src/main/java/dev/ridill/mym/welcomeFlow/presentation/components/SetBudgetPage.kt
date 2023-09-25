@@ -1,7 +1,6 @@
 package dev.ridill.mym.welcomeFlow.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,36 +8,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.MediumDisplayText
 import dev.ridill.mym.core.ui.components.SpacerExtraLarge
 import dev.ridill.mym.core.ui.components.SpacerSmall
-import dev.ridill.mym.core.ui.components.simpleFadeIn
-import dev.ridill.mym.core.ui.components.simpleFadeOut
+import dev.ridill.mym.core.ui.theme.SpacingLarge
 import dev.ridill.mym.core.ui.theme.SpacingMedium
-import dev.ridill.mym.welcomeFlow.presentation.ContinueAction
 
 @Composable
-fun SetBudgetStop(
+fun SetBudgetPage(
     input: () -> String,
     onInputChange: (String) -> Unit,
     onContinueClick: () -> Unit,
@@ -47,45 +42,38 @@ fun SetBudgetStop(
     val isInputNotEmpty by remember {
         derivedStateOf { input().isNotEmpty() }
     }
-    val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    Box(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxSize()
-            .padding(SpacingMedium)
+            .padding(SpacingLarge)
+            .verticalScroll(rememberScrollState())
     ) {
-        Column(
-            modifier = modifier
-                .matchParentSize()
-                .padding(SpacingMedium)
-                .verticalScroll(rememberScrollState())
-        ) {
-            SpacerExtraLarge()
-            LimitInput(
-                input = input,
-                onValueChange = onInputChange,
-                focusRequester = focusRequester
-            )
-        }
-
+        MediumDisplayText(
+            title = stringResource(R.string.welcome_flow_stop_set_budget_title),
+            modifier = Modifier
+                .padding(vertical = SpacingMedium)
+        )
+        SpacerExtraLarge()
+        LimitInput(
+            input = input,
+            onValueChange = onInputChange
+        )
+        SpacerSmall()
         AnimatedVisibility(
             visible = isInputNotEmpty,
             modifier = Modifier
-                .fillMaxWidth(0.50f)
-                .align(Alignment.BottomEnd),
-            enter = simpleFadeIn(),
-            exit = simpleFadeOut()
+                .align(Alignment.End)
         ) {
-            ContinueAction(
-                icon = Icons.Default.Check,
+            Button(
                 onClick = {
-                    focusRequester.freeFocus()
+                    keyboardController?.hide()
                     onContinueClick()
                 }
-            )
+            ) {
+                Text(stringResource(R.string.start_budgeting))
+            }
         }
     }
 }
@@ -94,7 +82,6 @@ fun SetBudgetStop(
 private fun LimitInput(
     input: () -> String,
     onValueChange: (String) -> Unit,
-    focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
@@ -110,8 +97,7 @@ private fun LimitInput(
             value = input(),
             onValueChange = onValueChange,
             modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
+                .fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,

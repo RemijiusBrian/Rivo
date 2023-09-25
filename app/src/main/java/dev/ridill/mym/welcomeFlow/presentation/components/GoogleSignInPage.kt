@@ -15,11 +15,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.common.SignInButton
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.One
+import dev.ridill.mym.core.ui.components.MediumDisplayText
 import dev.ridill.mym.core.ui.components.Spacer
 import dev.ridill.mym.core.ui.theme.SpacingLarge
+import dev.ridill.mym.core.ui.theme.SpacingMedium
 
 @Composable
-fun GoogleSignInStop(
+fun GoogleSignInPage(
     onSignInClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -29,9 +31,14 @@ fun GoogleSignInStop(
             .fillMaxSize()
             .padding(SpacingLarge)
     ) {
+        MediumDisplayText(
+            title = stringResource(R.string.welcome_flow_stop_google_sign_in_title),
+            modifier = Modifier
+                .padding(vertical = SpacingMedium)
+        )
         Text(
             text = stringResource(R.string.welcome_flow_stop_google_sign_in_message),
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(weight = Float.One)

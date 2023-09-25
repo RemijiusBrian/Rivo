@@ -10,7 +10,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.mym.core.domain.util.One
 
 @Composable
-fun LargeTitle(
+fun MediumDisplayText(
     title: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,

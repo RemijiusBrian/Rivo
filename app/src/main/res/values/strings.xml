@@ -62,13 +62,13 @@
     <string name="action_skip">Skip</string>
 
     <!-- Texts -->
-    <string name="welcome_flow_stop_welcome_title">Welcome to %s</string>
+    <string name="welcome_flow_stop_welcome_title">Welcome to\n%s</string>
     <string name="welcome_flow_stop_google_sign_in_title">Google Sign In</string>
     <string name="welcome_flow_stop_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
     <string name="welcome_flow_stop_restore_data_title">Backup Found</string>
     <string name="welcome_flow_stop_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
     <string name="welcome_flow_stop_set_budget_title">Set your monthly Budget</string>
-    <string name="welcome_flow_stop_set_budget_message">Enter the your budget for each month</string>
+    <string name="welcome_flow_stop_set_budget_message">Enter your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
 
     <string name="part_of_day_morning">Morning</string>
@@ -196,4 +196,5 @@
     <string name="expenses_included_in_expenditure">Expenses excluded in expenditure</string>
     <string name="exclude_from_expenditure_ques">Exclude From Expenditure?</string>
     <string name="excluded">Excluded</string>
+    <string name="start_budgeting">Start Budgeting</string>
 </resources>

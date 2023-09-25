@@ -1,8 +1,7 @@
 package dev.ridill.mym.welcomeFlow.domain.model
 
-enum class WelcomeFlowStop {
+enum class WelcomeFlowPage {
     WELCOME,
     GOOGLE_SIGN_IN,
-    RESTORE_DATA,
     SET_BUDGET
 }

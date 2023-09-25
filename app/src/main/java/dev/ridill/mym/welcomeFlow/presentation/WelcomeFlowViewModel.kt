@@ -17,7 +17,7 @@ import dev.ridill.mym.settings.domain.backup.BackupWorkManager
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.settings.domain.repositoty.BackupRepository
 import dev.ridill.mym.settings.domain.repositoty.SettingsRepository
-import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowStop
+import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowPage
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,7 +32,6 @@ class WelcomeFlowViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val backupRepository: BackupRepository
 ) : ViewModel(), WelcomeFlowActions {
-    val currentFlowStop = savedStateHandle.getStateFlow(FLOW_STOP, WelcomeFlowStop.WELCOME)
     val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
 
     val restoreState = savedStateHandle.getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
@@ -70,19 +69,9 @@ class WelcomeFlowViewModel @Inject constructor(
         }
     }
 
-    override fun onWelcomeMessageContinue() {
-        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.GOOGLE_SIGN_IN
-    }
-
-    override fun onPermissionsContinue() {
-        viewModelScope.launch {
-            eventBus.send(WelcomeFlowEvent.LaunchPermissionRequests)
-        }
-    }
-
     override fun onPermissionResponse() {
         viewModelScope.launch {
-            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.GOOGLE_SIGN_IN
+            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
         }
     }
 
@@ -94,7 +83,9 @@ class WelcomeFlowViewModel @Inject constructor(
     }
 
     override fun onSkipGoogleSignInClick() {
-        savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+        viewModelScope.launch {
+            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+        }
     }
 
     fun onSignInResult(intent: Intent?) = viewModelScope.launch {
@@ -116,33 +107,35 @@ class WelcomeFlowViewModel @Inject constructor(
     private suspend fun checkForBackup() {
         when (val resource = backupRepository.checkForBackup()) {
             is Resource.Error -> {
-                savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+                eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
             }
 
             is Resource.Success -> {
                 if (resource.data != null) {
                     savedStateHandle[AVAILABLE_BACKUP] = resource.data
-                    savedStateHandle[FLOW_STOP] = WelcomeFlowStop.RESTORE_DATA
+//                    eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.RESTORE_DATA))
                 } else {
-                    savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+                    eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
                 }
             }
         }
     }
 
     override fun onRestoreDataClick() {
-        val backupDetails = availableBackup.value
-        if (backupDetails == null) {
-            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
-            return
+        viewModelScope.launch {
+            val backupDetails = availableBackup.value
+            if (backupDetails == null) {
+                eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+                return@launch
+            }
+            backupWorkManager.runImmediateRestoreWork(backupDetails)
         }
-        backupWorkManager.runImmediateRestoreWork(backupDetails)
     }
 
     override fun onSkipDataRestore() {
         viewModelScope.launch {
             savedStateHandle[AVAILABLE_BACKUP] = null
-            savedStateHandle[FLOW_STOP] = WelcomeFlowStop.SET_BUDGET
+            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
         }
     }
 
@@ -168,6 +161,7 @@ class WelcomeFlowViewModel @Inject constructor(
     }
 
     sealed class WelcomeFlowEvent {
+        data class NavigateToPage(val page: WelcomeFlowPage) : WelcomeFlowEvent()
         object WelcomeFlowConcluded : WelcomeFlowEvent()
         data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
         object LaunchPermissionRequests : WelcomeFlowEvent()
@@ -176,7 +170,6 @@ class WelcomeFlowViewModel @Inject constructor(
     }
 }
 
-private const val FLOW_STOP = "FLOW_STOP"
 private const val BUDGET_INPUT = "BUDGET_INPUT"
 private const val RESTORE_JOB_STATE = "RESTORE_JOB_STATE"
 private const val AVAILABLE_BACKUP = "AVAILABLE_BACKUP"
