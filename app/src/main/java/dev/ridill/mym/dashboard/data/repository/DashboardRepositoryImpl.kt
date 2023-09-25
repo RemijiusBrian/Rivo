@@ -35,6 +35,7 @@ class DashboardRepositoryImpl(
             entities
                 .groupBy { it.isExcludedTransaction }
                 .mapValues { it.value.map(TransactionWithTagRelation::toExpenseListItem) }
+                .toSortedMap()
         }
 
     private fun currentDateDbFormat(): String =
