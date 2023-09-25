@@ -66,16 +66,17 @@ class ExpenseRepositoryImpl(
         dao.deleteMultipleTransactionsById(ids)
     }
 
-    override fun getExpenseYearsList(paddingCount: Int): Flow<List<Int>> = dao.getYearsFromTransactions()
-        .map { years ->
-            if (years.size >= paddingCount) years
-            else {
-                val difference = paddingCount - years.size
-                val latestYear = years.lastOrNull() ?: (DateUtil.now().year - 1)
-                val paddingYears = ((latestYear + 1)..(latestYear + difference))
-                years + paddingYears
+    override fun getExpenseYearsList(paddingCount: Int): Flow<List<Int>> =
+        dao.getYearsFromTransactions()
+            .map { years ->
+                if (years.size >= paddingCount) years
+                else {
+                    val difference = paddingCount - years.size
+                    val latestYear = years.lastOrNull() ?: (DateUtil.now().year - 1)
+                    val paddingYears = ((latestYear + 1)..(latestYear + difference))
+                    years + paddingYears
+                }
             }
-        }
 
     override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =
         dao.getExpenditureForMonth(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))

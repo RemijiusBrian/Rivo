@@ -43,11 +43,11 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tag.name as tagName,
         tag.color_code as tagColorCode,
         tag.created_timestamp as tagCreatedTimestamp,
-        (tx.is_excluded OR tag.is_excluded) as isExcludedTransaction
+        (tx.is_excluded = 1 OR tag.is_excluded = 1) as isExcludedTransaction
         FROM transaction_table tx
-        LEFT OUTER JOIN tag_table tag
-        ON tx.tag_id = tag.id
-        WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear AND (:showExcluded = 1 OR isExcludedTransaction)
+        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
+        WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
+            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
         """
     )
@@ -70,11 +70,12 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tag.name as tagName,
         tag.color_code as tagColorCode,
         tag.created_timestamp as tagCreatedTimestamp,
-        (tx.is_excluded OR tag.is_excluded) as isExcludedTransaction
+        (tx.is_excluded = 1 OR tag.is_excluded = 1) as isExcludedTransaction
         FROM transaction_table tx
-        LEFT OUTER JOIN tag_table tag
-        ON tx.tag_id = tag.id
-        WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId) AND (:showExcluded = 1 OR isExcludedTransaction)
+        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
+        WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
+            AND (:tagId IS NULL OR tagId = :tagId)
+            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
     """
     )

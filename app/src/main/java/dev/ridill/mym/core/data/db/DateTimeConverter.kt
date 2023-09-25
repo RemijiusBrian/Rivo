@@ -8,7 +8,7 @@ class DateTimeConverter {
 
     @TypeConverter
     fun fromDateTimeString(value: String?): LocalDateTime? = tryOrNull {
-        LocalDateTime.parse(value)
+        value?.let { LocalDateTime.parse(it) }
     }
 
     @TypeConverter
