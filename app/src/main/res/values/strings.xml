@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MYM</string>
+    <string name="app_name">Rivo</string>
 
     <!-- Destination Labels -->
     <string name="destination_welcome_flow">Welcome Flow</string>
