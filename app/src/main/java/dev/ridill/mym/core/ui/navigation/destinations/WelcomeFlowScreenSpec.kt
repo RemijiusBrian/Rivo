@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,6 +19,7 @@ import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsLauncher
 import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.util.restartApplication
+import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowPage
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.mym.welcomeFlow.presentation.WelcomeFlowViewModel
 
@@ -28,7 +30,9 @@ object WelcomeFlowScreenSpec : ScreenSpec {
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
-        val flowStop by viewModel.currentFlowStop.collectAsStateWithLifecycle()
+        val pagerState = rememberPagerState(
+            pageCount = { WelcomeFlowPage.values().size }
+        )
         val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
         val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
         val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
@@ -59,6 +63,11 @@ object WelcomeFlowScreenSpec : ScreenSpec {
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
+                    is WelcomeFlowViewModel.WelcomeFlowEvent.NavigateToPage -> {
+                        if (!pagerState.isScrollInProgress)
+                            pagerState.animateScrollToPage(event.page.ordinal)
+                    }
+
                     WelcomeFlowViewModel.WelcomeFlowEvent.LaunchPermissionRequests -> {
                         multiplePermissionsState.launchRequest()
                     }
@@ -91,10 +100,10 @@ object WelcomeFlowScreenSpec : ScreenSpec {
 
         WelcomeFlowScreen(
             snackbarController = snackbarController,
-            flowStop = flowStop,
-            availableBackup = availableBackup,
+            pagerState = pagerState,
             budgetInput = { budgetInput.value },
             restoreState = restoreState,
+            availableBackup = availableBackup,
             actions = viewModel
         )
     }
