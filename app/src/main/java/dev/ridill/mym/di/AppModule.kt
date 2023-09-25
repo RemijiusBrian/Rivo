@@ -30,7 +30,7 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun provideMYMDatabase(
+    fun provideRivoDatabase(
         @ApplicationContext context: Context
     ): RivoDatabase = Room
         .databaseBuilder(
@@ -60,7 +60,7 @@ object AppModule {
     ): PreferencesManager = PreferencesManagerImpl(dataStore)
 
     @Provides
-    fun provideEvaluationExpressionService(): ExpEvalService = ExpEvalService()
+    fun provideExpressionEvaluationService(): ExpEvalService = ExpEvalService()
 
     @ApplicationScope
     @Provides

@@ -9,8 +9,8 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.mym.core.data.db.RivoDatabase
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.util.EventBus
-import dev.ridill.mym.expense.data.local.TransactionDao
 import dev.ridill.mym.expense.data.local.TagsDao
+import dev.ridill.mym.expense.data.local.TransactionDao
 import dev.ridill.mym.expense.data.repository.ExpenseRepositoryImpl
 import dev.ridill.mym.expense.data.repository.TagsRepositoryImpl
 import dev.ridill.mym.expense.domain.notification.AutoAddExpenseNotificationHelper
@@ -23,10 +23,10 @@ import kotlinx.coroutines.CoroutineScope
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ExpenseModule {
+object TransactionModule {
 
     @Provides
-    fun provideExpenseDao(db: RivoDatabase): TransactionDao = db.transactionDao()
+    fun provideTransactionDao(db: RivoDatabase): TransactionDao = db.transactionDao()
 
     @Provides
     fun provideTagsDao(db: RivoDatabase): TagsDao = db.tagsDao()
