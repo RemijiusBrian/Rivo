@@ -25,9 +25,9 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -37,6 +37,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +61,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.ui.components.BackArrowButton
 import dev.ridill.mym.core.ui.components.ConfirmationDialog
+import dev.ridill.mym.core.ui.components.LabelledSwitch
 import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.mym.core.ui.components.SnackbarController
@@ -68,6 +71,7 @@ import dev.ridill.mym.core.ui.theme.SpacingSmall
 import dev.ridill.mym.core.ui.theme.contentColor
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.presentation.components.AmountRecommendationsRow
+import dev.ridill.mym.expense.presentation.components.ExcludedIndicator
 import dev.ridill.mym.expense.presentation.components.NewTagChip
 import dev.ridill.mym.expense.presentation.components.NewTagSheet
 
@@ -78,6 +82,7 @@ fun AddEditExpenseScreen(
     noteInput: () -> String,
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
+    tagExclusionInput: () -> Boolean?,
     isEditMode: Boolean,
     state: AddEditExpenseState,
     actions: AddEditExpenseActions,
@@ -183,7 +188,7 @@ fun AddEditExpenseScreen(
                     .align(Alignment.End)
             )
 
-            ExclusionToggle(
+            Exclusion(
                 excluded = state.isExpenseExcluded,
                 onToggle = actions::onExpenseExclusionToggle,
                 modifier = Modifier
@@ -213,8 +218,10 @@ fun AddEditExpenseScreen(
             NewTagSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onNewTagNameChange,
-                selectedColorCode = tagColorInput(),
+                selectedColorCode = tagColorInput,
                 onColorSelect = actions::onNewTagColorSelect,
+                excluded = tagExclusionInput,
+                onExclusionToggle = actions::onNewTagExclusionChange,
                 onDismiss = actions::onNewTagInputDismiss,
                 onConfirm = actions::onNewTagInputConfirm,
                 errorMessage = state.newTagError
@@ -337,21 +344,16 @@ private fun ExpenseDate(
 }
 
 @Composable
-private fun ExclusionToggle(
+private fun Exclusion(
     excluded: Boolean,
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+    Column(
+        modifier = modifier
     ) {
-        Text(
-            text = stringResource(R.string.exclude_from_expenditure_ques),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Switch(
+        LabelledSwitch(
+            labelRes = R.string.exclude_from_expenditure_ques,
             checked = excluded,
             onCheckedChange = onToggle
         )
@@ -366,6 +368,7 @@ fun TagsList(
     onNewTagClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val localContentColor = LocalContentColor.current
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingMedium)
@@ -376,8 +379,15 @@ fun TagsList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
             tagsList.forEach { tag ->
+                val selected = tag.id == selectedTagId
+                val contentColor by remember(selected) {
+                    derivedStateOf {
+                        if (selected) tag.color.contentColor()
+                        else localContentColor
+                    }
+                }
                 FilterChip(
-                    selected = tag.id == selectedTagId,
+                    selected = selected,
                     onClick = { onTagClick(tag.id) },
                     label = {
                         Text(
@@ -390,7 +400,14 @@ fun TagsList(
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = tag.color,
                         selectedLabelColor = tag.color.contentColor()
-                    )
+                    ),
+                    leadingIcon = if (tag.excluded) {
+                        {
+                            ExcludedIndicator(
+                                tint = contentColor
+                            )
+                        }
+                    } else null
                 )
             }
 

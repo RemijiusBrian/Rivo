@@ -37,7 +37,7 @@
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_options">Options</string>
-    <string name="cd_excluded_expense">Excluded Expense</string>
+    <string name="cd_excluded">Excluded</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>

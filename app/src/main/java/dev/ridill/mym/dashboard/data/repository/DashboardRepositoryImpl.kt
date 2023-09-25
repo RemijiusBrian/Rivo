@@ -33,7 +33,7 @@ class DashboardRepositoryImpl(
             showExcluded = true
         ).map { entities ->
             entities
-                .groupBy { it.expenseEntity.isExcludedFromExpenditure }
+                .groupBy { it.isExcludedTransaction }
                 .mapValues { it.value.map(ExpenseWithTagRelation::toExpenseListItem) }
         }
 

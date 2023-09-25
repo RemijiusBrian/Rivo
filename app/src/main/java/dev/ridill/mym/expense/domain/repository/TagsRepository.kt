@@ -1,7 +1,6 @@
 package dev.ridill.mym.expense.domain.repository
 
 import androidx.compose.ui.graphics.Color
-import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.expense.domain.model.ExpenseTag
 import dev.ridill.mym.expense.domain.model.TagWithExpenditure
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +20,8 @@ interface TagsRepository {
         id: Long,
         name: String,
         color: Color,
-        timestamp: LocalDateTime = DateUtil.now()
+        excluded: Boolean,
+        timestamp: LocalDateTime
     ): Long
 
     suspend fun deleteTagById(id: Long)

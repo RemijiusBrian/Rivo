@@ -189,22 +189,27 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[SHOW_TAG_INPUT] = true
     }
 
-    override fun onNewTagNameChange(value: String) {
+    override fun onTagInputNameChange(value: String) {
         savedStateHandle[TAG_INPUT] = tagInput.value
             ?.copy(name = value)
         savedStateHandle[NEW_TAG_ERROR] = null
     }
 
-    override fun onNewTagColorSelect(color: Color) {
+    override fun onTagInputColorSelect(color: Color) {
         savedStateHandle[TAG_INPUT] = tagInput.value
             ?.copy(colorCode = color.toArgb())
     }
 
-    override fun onNewTagInputDismiss() {
+    override fun onTagInputExclusionChange(excluded: Boolean) {
+        savedStateHandle[TAG_INPUT] = tagInput.value
+            ?.copy(excluded = excluded)
+    }
+
+    override fun onTagInputDismiss() {
         clearAndHideTagInput()
     }
 
-    override fun onNewTagInputConfirm() {
+    override fun onTagInputConfirm() {
         val tagInput = tagInput.value ?: return
         viewModelScope.launch {
             val name = tagInput.name.trim()
@@ -222,7 +227,8 @@ class AllExpensesViewModel @Inject constructor(
                 name = name,
                 color = color,
                 id = tagInput.id,
-                timestamp = tagInput.createdTimestamp
+                timestamp = tagInput.createdTimestamp,
+                excluded = tagInput.excluded
             )
             savedStateHandle[SELECTED_TAG] = tagInput
                 .copy(id = insertedId)

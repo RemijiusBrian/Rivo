@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import dev.ridill.mym.R
+import dev.ridill.mym.core.ui.components.LabelledSwitch
 import dev.ridill.mym.core.ui.components.ValueInputSheet
 import dev.ridill.mym.core.ui.theme.SpacingListEnd
 import dev.ridill.mym.core.ui.theme.SpacingMedium
@@ -61,8 +63,10 @@ fun NewTagChip(
 fun NewTagSheet(
     nameInput: () -> String,
     onNameChange: (String) -> Unit,
-    selectedColorCode: Int?,
+    selectedColorCode: () -> Int?,
     onColorSelect: (Color) -> Unit,
+    excluded: () -> Boolean?,
+    onExclusionToggle: (Boolean) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
@@ -94,13 +98,22 @@ fun NewTagSheet(
                 items(items = tagColors, key = { it.toArgb() }) { color ->
                     ColorSelector(
                         color = color,
-                        selected = color.toArgb() == selectedColorCode,
+                        selected = color.toArgb() == selectedColorCode(),
                         onClick = { onColorSelect(color) },
                         modifier = Modifier
                             .animateItemPlacement()
                     )
                 }
             }
+
+            LabelledSwitch(
+                labelRes = R.string.action_mark_excluded,
+                checked = excluded() == true,
+                onCheckedChange = onExclusionToggle,
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
+                    .align(Alignment.End)
+            )
         },
         modifier = modifier
     )

@@ -149,11 +149,16 @@ private fun TagIndicator(
 }
 
 @Composable
-private fun ExcludedIndicator() = Icon(
+fun ExcludedIndicator(
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current
+) = Icon(
     imageVector = Icons.Rounded.VisibilityOff,
-    contentDescription = stringResource(R.string.cd_excluded_expense),
+    contentDescription = stringResource(R.string.cd_excluded),
     modifier = Modifier
         .size(IndicatorSize)
+        .then(modifier),
+    tint = tint
 )
 
 private val IndicatorSize = 12.dp

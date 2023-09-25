@@ -53,6 +53,7 @@ object AllExpensesScreenSpec : ScreenSpec {
             state = state,
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagColorInput = { tagInput.value?.colorCode },
+            tagExclusionInput = { tagInput.value?.excluded },
             actions = viewModel,
             navigateUp = navController::navigateUp
         )

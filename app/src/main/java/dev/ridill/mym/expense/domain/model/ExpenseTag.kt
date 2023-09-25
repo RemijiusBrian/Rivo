@@ -14,7 +14,8 @@ data class ExpenseTag(
     val id: Long,
     val name: String,
     val colorCode: Int,
-    val createdTimestamp: LocalDateTime
+    val createdTimestamp: LocalDateTime,
+    val excluded: Boolean
 ) : Parcelable {
     val color: Color
         get() = Color(colorCode)
@@ -24,7 +25,8 @@ data class ExpenseTag(
             id = MYMDatabase.DEFAULT_ID_LONG,
             name = "",
             colorCode = TagColors.first().toArgb(),
-            createdTimestamp = DateUtil.now()
+            createdTimestamp = DateUtil.now(),
+            excluded = false
         )
     }
 }
