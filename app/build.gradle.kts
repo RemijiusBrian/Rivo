@@ -56,10 +56,10 @@ android {
         create("internal") {
             dimension = "env"
             applicationIdSuffix = ".internal"
-            versionCode = 9
-            versionName = "1.3.0"
+            versionCode = 10
+            versionName = "0.3.1"
 
-            buildConfigField("int", "DB_VERSION", "4")
+            buildConfigField("int", "DB_VERSION", "5")
         }
 
         create("production") {
