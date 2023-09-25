@@ -35,6 +35,10 @@ object AllExpensesScreenSpec : ScreenSpec {
         LaunchedEffect(viewModel, context, snackbarController) {
             viewModel.events.collect { event ->
                 when (event) {
+                    is AllExpensesViewModel.AllExpenseEvent.NavigateToAddEditExpenseScreen -> {
+                        navController.navigate(AddEditExpenseScreenSpec.routeWithArg(event.expenseId))
+                    }
+
                     is AllExpensesViewModel.AllExpenseEvent.ShowUiMessage -> {
                         snackbarController.showSnackbar(
                             event.uiText.asString(context),
@@ -45,6 +49,7 @@ object AllExpensesScreenSpec : ScreenSpec {
                     is AllExpensesViewModel.AllExpenseEvent.ProvideHapticFeedback -> {
                         hapticFeedback.performHapticFeedback(event.type)
                     }
+
                 }
             }
         }

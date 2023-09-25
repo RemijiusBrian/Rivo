@@ -262,13 +262,16 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onExpenseClick(id: Long) {
-        if (!expenseMultiSelectionModeActive.value) return
-        val selectedIds = selectedExpenseIds.value
-        if (id in selectedIds) {
-            savedStateHandle[SELECTED_EXPENSE_IDS] = selectedIds - id
-            if (selectedExpenseIds.value.isEmpty()) dismissMultiSelectionMode()
-        } else {
-            savedStateHandle[SELECTED_EXPENSE_IDS] = selectedIds + id
+        if (expenseMultiSelectionModeActive.value) {
+            val selectedIds = selectedExpenseIds.value
+            if (id in selectedIds) {
+                savedStateHandle[SELECTED_EXPENSE_IDS] = selectedIds - id
+                if (selectedExpenseIds.value.isEmpty()) dismissMultiSelectionMode()
+            } else {
+                savedStateHandle[SELECTED_EXPENSE_IDS] = selectedIds + id
+            }
+        } else viewModelScope.launch {
+            eventBus.send(AllExpenseEvent.NavigateToAddEditExpenseScreen(id))
         }
     }
 
@@ -410,6 +413,7 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     sealed class AllExpenseEvent {
+        data class NavigateToAddEditExpenseScreen(val expenseId: Long) : AllExpenseEvent()
         data class ShowUiMessage(val uiText: UiText) : AllExpenseEvent()
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllExpenseEvent()
     }
