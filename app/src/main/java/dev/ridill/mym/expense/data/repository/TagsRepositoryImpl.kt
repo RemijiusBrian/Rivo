@@ -48,13 +48,15 @@ class TagsRepositoryImpl(
         id: Long,
         name: String,
         color: Color,
+        excluded: Boolean,
         timestamp: LocalDateTime
     ): Long = withContext(Dispatchers.IO) {
         val entity = TagEntity(
             id = id,
             name = name,
             colorCode = color.toArgb(),
-            createdTimestamp = timestamp
+            createdTimestamp = timestamp,
+            isExcluded = excluded
         )
 
         dao.insert(entity).first()

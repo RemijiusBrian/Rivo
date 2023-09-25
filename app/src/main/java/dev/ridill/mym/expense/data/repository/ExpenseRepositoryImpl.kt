@@ -53,7 +53,7 @@ class ExpenseRepositoryImpl(
             amount = amount,
             timestamp = dateTime,
             tagId = tagId,
-            isExcludedFromExpenditure = excluded
+            isExcluded = excluded
         )
         dao.insert(entity).first()
     }

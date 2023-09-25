@@ -247,6 +247,11 @@ class AddEditExpenseViewModel @Inject constructor(
             ?.copy(colorCode = color.toArgb())
     }
 
+    override fun onNewTagExclusionChange(excluded: Boolean) {
+        savedStateHandle[TAG_INPUT] = tagInput.value
+            ?.copy(excluded = excluded)
+    }
+
     override fun onNewTagInputDismiss() {
         clearAndHideTagInput()
     }
@@ -268,7 +273,9 @@ class AddEditExpenseViewModel @Inject constructor(
             val insertedId = tagsRepo.saveTag(
                 id = tagInput.id,
                 name = name,
-                color = color
+                color = color,
+                excluded = tagInput.excluded,
+                timestamp = DateUtil.now()
             )
 
             clearAndHideTagInput()

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "77fcbf04354dc289a511f0830f0931f3",
+    "identityHash": "0e10e4a6d8470efa35feaaf2c4e4a6d6",
     "entities": [
       {
         "tableName": "ExpenseEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `note` TEXT NOT NULL, `amount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `tagId` INTEGER, `isExcludedFromExpenditure` INTEGER NOT NULL, FOREIGN KEY(`tagId`) REFERENCES `TagEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `note` TEXT NOT NULL, `amount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `tagId` INTEGER, `isExcluded` INTEGER NOT NULL, FOREIGN KEY(`tagId`) REFERENCES `TagEntity`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -39,8 +39,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "isExcludedFromExpenditure",
-            "columnName": "isExcludedFromExpenditure",
+            "fieldPath": "isExcluded",
+            "columnName": "isExcluded",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -78,7 +78,7 @@
       },
       {
         "tableName": "TagEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `colorCode` INTEGER NOT NULL, `createdTimestamp` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `colorCode` INTEGER NOT NULL, `createdTimestamp` TEXT NOT NULL, `isExcluded` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -102,6 +102,12 @@
             "fieldPath": "createdTimestamp",
             "columnName": "createdTimestamp",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isExcluded",
+            "columnName": "isExcluded",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -144,7 +150,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '77fcbf04354dc289a511f0830f0931f3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e10e4a6d8470efa35feaaf2c4e4a6d6')"
     ]
   }
 }

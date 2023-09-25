@@ -117,6 +117,7 @@ object AddEditExpenseScreenSpec : ScreenSpec {
             isEditMode = isEditMode,
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagColorInput = { tagInput.value?.colorCode },
+            tagExclusionInput = { tagInput.value?.excluded },
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp

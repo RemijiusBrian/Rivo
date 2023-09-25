@@ -7,5 +7,6 @@ data class TagWithExpenditureRelation(
     val name: String,
     val colorCode: Int,
     val createdTimestamp: LocalDateTime,
+    val isExcluded: Boolean,
     val amount: Double
 )

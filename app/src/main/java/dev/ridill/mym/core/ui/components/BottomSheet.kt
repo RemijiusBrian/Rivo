@@ -3,6 +3,7 @@ package dev.ridill.mym.core.ui.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -41,7 +42,7 @@ fun ValueInputSheet(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     @StringRes actionLabel: Int = R.string.action_confirm,
-    contentAfterTextField: @Composable (() -> Unit)? = null
+    contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -90,7 +91,7 @@ fun ValueInputSheet(
                 singleLine = singleLine
             )
 
-            contentAfterTextField?.invoke()
+            contentAfterTextField?.invoke(this)
 
             Button(
                 onClick = onConfirm,

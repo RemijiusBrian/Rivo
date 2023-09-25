@@ -9,7 +9,8 @@ fun TagEntity.toExpenseTag(): ExpenseTag = ExpenseTag(
     id = id,
     name = name,
     colorCode = colorCode,
-    createdTimestamp = createdTimestamp
+    createdTimestamp = createdTimestamp,
+    excluded = isExcluded
 )
 
 fun TagWithExpenditureRelation.toTagWithExpenditure(
@@ -19,7 +20,8 @@ fun TagWithExpenditureRelation.toTagWithExpenditure(
         id = id,
         name = name,
         colorCode = colorCode,
-        createdTimestamp = createdTimestamp
+        createdTimestamp = createdTimestamp,
+        excluded = isExcluded
     ),
     expenditure = amount,
     percentOfTotalExpenditure = (amount / totalExpenditure).toFloat()

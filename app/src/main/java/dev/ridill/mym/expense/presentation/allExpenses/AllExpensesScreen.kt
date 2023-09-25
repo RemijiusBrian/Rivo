@@ -132,6 +132,7 @@ fun AllExpensesScreen(
     state: AllExpensesState,
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
+    tagExclusionInput: () -> Boolean?,
     actions: AllExpensesActions,
     navigateUp: () -> Unit
 ) {
@@ -244,11 +245,13 @@ fun AllExpensesScreen(
         if (state.showNewTagInput) {
             NewTagSheet(
                 nameInput = tagNameInput,
-                onNameChange = actions::onNewTagNameChange,
-                selectedColorCode = tagColorInput(),
-                onColorSelect = actions::onNewTagColorSelect,
-                onDismiss = actions::onNewTagInputDismiss,
-                onConfirm = actions::onNewTagInputConfirm,
+                onNameChange = actions::onTagInputNameChange,
+                selectedColorCode = tagColorInput,
+                onColorSelect = actions::onTagInputColorSelect,
+                excluded = tagExclusionInput,
+                onExclusionToggle = actions::onTagInputExclusionChange,
+                onDismiss = actions::onTagInputDismiss,
+                onConfirm = actions::onTagInputConfirm,
                 errorMessage = state.newTagError
             )
         }
@@ -935,10 +938,11 @@ private fun PreviewAllExpensesScreen() {
                 override fun onYearSelect(year: Int) {}
                 override fun onTagClick(tag: ExpenseTag) {}
                 override fun onNewTagClick() {}
-                override fun onNewTagNameChange(value: String) {}
-                override fun onNewTagColorSelect(color: Color) {}
-                override fun onNewTagInputDismiss() {}
-                override fun onNewTagInputConfirm() {}
+                override fun onTagInputNameChange(value: String) {}
+                override fun onTagInputColorSelect(color: Color) {}
+                override fun onTagInputExclusionChange(excluded: Boolean) {}
+                override fun onTagInputDismiss() {}
+                override fun onTagInputConfirm() {}
                 override fun onToggleShowExcludedExpenses(value: Boolean) {}
                 override fun onExpenseLongClick(id: Long) {}
                 override fun onExpenseClick(id: Long) {}
@@ -954,7 +958,8 @@ private fun PreviewAllExpensesScreen() {
                 override fun onDeleteTagWithExpensesClick() {}
                 override fun onDeleteSelectedExpensesClick() {}
             },
-            navigateUp = {}
+            navigateUp = {},
+            tagExclusionInput = { false }
         )
     }
 }

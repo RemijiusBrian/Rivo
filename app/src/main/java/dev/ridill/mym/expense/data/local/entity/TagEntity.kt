@@ -11,5 +11,6 @@ data class TagEntity(
     val id: Long = MYMDatabase.DEFAULT_ID_LONG,
     val name: String,
     val colorCode: Int,
-    val createdTimestamp: LocalDateTime
+    val createdTimestamp: LocalDateTime,
+    val isExcluded: Boolean
 )

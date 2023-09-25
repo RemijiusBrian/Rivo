@@ -16,7 +16,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         """
         SELECT IFNULL(SUM(amount), 0.0)
         FROM ExpenseEntity
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND isExcludedFromExpenditure = 0
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND isExcluded = 0
     """
     )
     fun getExpenditureForMonth(monthAndYear: String): Flow<Double>
@@ -35,10 +35,20 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     @Transaction
     @Query(
         """
-        SELECT *
-        FROM ExpenseEntity
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:showExcluded = 1 OR isExcludedFromExpenditure = 0)
-        ORDER BY isExcludedFromExpenditure ASC, datetime(timestamp) DESC, id DESC
+        SELECT exp.id as expenseId,
+        exp.note as expenseNote,
+        exp.amount as expenseAmount,
+        exp.timestamp as expenseTimestamp,
+        tag.id as tagId,
+        tag.name as tagName,
+        tag.colorCode as tagColorCode,
+        tag.createdTimestamp as tagCreatedTimestamp,
+        (exp.isExcluded OR tag.isExcluded) as isExcludedTransaction
+        FROM ExpenseEntity exp
+        LEFT OUTER JOIN TagEntity tag
+        ON exp.tagId = tag.id
+        WHERE strftime('%m-%Y', expenseTimestamp) = :monthAndYear AND (:showExcluded = 1 OR isExcludedTransaction)
+        ORDER BY datetime(expenseTimestamp) DESC, expenseId DESC, isExcludedTransaction ASC
         """
     )
     fun getExpensesForMonth(
@@ -52,10 +62,20 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
     @Transaction
     @Query(
         """
-        SELECT *
-        FROM ExpenseEntity
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId) AND (:showExcluded = 1 OR isExcludedFromExpenditure = 0)
-        ORDER BY datetime(timestamp) DESC, id DESC
+        SELECT exp.id as expenseId,
+        exp.note as expenseNote,
+        exp.amount as expenseAmount,
+        exp.timestamp as expenseTimestamp,
+        tag.id as tagId,
+        tag.name as tagName,
+        tag.colorCode as tagColorCode,
+        tag.createdTimestamp as tagCreatedTimestamp,
+        (exp.isExcluded OR tag.isExcluded) as isExcludedTransaction
+        FROM ExpenseEntity exp
+        LEFT OUTER JOIN TagEntity tag
+        ON exp.tagId = tag.id
+        WHERE strftime('%m-%Y', expenseTimestamp) = :monthAndYear AND (:tagId IS NULL OR tagId = :tagId) AND (:showExcluded = 1 OR isExcludedTransaction)
+        ORDER BY datetime(expenseTimestamp) DESC, expenseId DESC, isExcludedTransaction ASC
     """
     )
     fun getExpenseForMonthByTag(
@@ -64,7 +84,7 @@ interface ExpenseDao : BaseDao<ExpenseEntity> {
         showExcluded: Boolean
     ): Flow<List<ExpenseWithTagRelation>>
 
-    @Query("UPDATE ExpenseEntity SET isExcludedFromExpenditure = :exclude WHERE id IN (:ids)")
+    @Query("UPDATE ExpenseEntity SET isExcluded = :exclude WHERE id IN (:ids)")
     suspend fun toggleExclusionByIds(ids: List<Long>, exclude: Boolean)
 
     @Query("DELETE FROM ExpenseEntity WHERE id = :id")
