@@ -79,10 +79,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
@@ -102,6 +100,7 @@ import dev.ridill.mym.core.ui.components.MYMScaffold
 import dev.ridill.mym.core.ui.components.SnackbarController
 import dev.ridill.mym.core.ui.components.SpacerExtraSmall
 import dev.ridill.mym.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.mym.core.ui.components.icons.CalendarClock
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.navigation.destinations.AllExpensesScreenSpec
 import dev.ridill.mym.core.ui.theme.ContentAlpha
@@ -589,7 +588,7 @@ private fun DateIndicator(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_calendar_clock),
+                imageVector = Icons.Outlined.CalendarClock,
                 contentDescription = null,
                 modifier = Modifier
                     .size(FloatingActionButtonDefaults.LargeIconSize)

@@ -1,6 +1,6 @@
 package dev.ridill.mym.core.ui.navigation.destinations
 
-import androidx.annotation.DrawableRes
+import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed interface BottomNavDestination : NavDestination {
     companion object {
@@ -9,6 +9,5 @@ sealed interface BottomNavDestination : NavDestination {
                 .filterIsInstance<BottomNavDestination>()
     }
 
-    @get:DrawableRes
-    val iconRes: Int
+    val icon: ImageVector
 }
