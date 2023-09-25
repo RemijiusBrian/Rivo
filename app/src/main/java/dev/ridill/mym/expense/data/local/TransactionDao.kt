@@ -23,7 +23,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
 
     @Query(
         """
-        SELECT IFNULL(MAX(amount), 0.0) as upperLimit, IFNULL(MIN(amount), 0.0) as lowerLimit
+        SELECT IFNULL(MAX(amount), 0.0) AS upperLimit, IFNULL(MIN(amount), 0.0) AS lowerLimit
         FROM transaction_table
     """
     )
@@ -35,15 +35,15 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Transaction
     @Query(
         """
-        SELECT tx.id as transactionId,
-        tx.note as transactionNote,
-        tx.amount as transactionAmount,
-        tx.timestamp as transactionTimestamp,
-        tag.id as tagId,
-        tag.name as tagName,
-        tag.color_code as tagColorCode,
-        tag.created_timestamp as tagCreatedTimestamp,
-        (tx.is_excluded = 1 OR tag.is_excluded = 1) as isExcludedTransaction
+        SELECT tx.id AS transactionId,
+        tx.note AS transactionNote,
+        tx.amount AS transactionAmount,
+        tx.timestamp AS transactionTimestamp,
+        tag.id AS tagId,
+        tag.name AS tagName,
+        tag.color_code AS tagColorCode,
+        tag.created_timestamp AS tagCreatedTimestamp,
+        (CASE WHEN (tx.is_excluded = 1 OR tag.is_excluded = 1) THEN 1 ELSE 0 END) AS isExcludedTransaction
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
@@ -56,21 +56,21 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         showExcluded: Boolean
     ): Flow<List<TransactionWithTagRelation>>
 
-    @Query("SELECT DISTINCT(strftime('%Y', timestamp)) as year FROM transaction_table ORDER BY year DESC")
+    @Query("SELECT DISTINCT(strftime('%Y', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
     fun getYearsFromTransactions(): Flow<List<Int>>
 
     @Transaction
     @Query(
         """
-        SELECT tx.id as transactionId,
-        tx.note as transactionNote,
-        tx.amount as transactionAmount,
-        tx.timestamp as transactionTimestamp,
-        tag.id as tagId,
-        tag.name as tagName,
-        tag.color_code as tagColorCode,
-        tag.created_timestamp as tagCreatedTimestamp,
-        (tx.is_excluded = 1 OR tag.is_excluded = 1) as isExcludedTransaction
+        SELECT tx.id AS transactionId,
+        tx.note AS transactionNote,
+        tx.amount AS transactionAmount,
+        tx.timestamp AS transactionTimestamp,
+        tag.id AS tagId,
+        tag.name AS tagName,
+        tag.color_code AS tagColorCode,
+        tag.created_timestamp AS tagCreatedTimestamp,
+        (CASE WHEN (tx.is_excluded = 1 OR tag.is_excluded = 1) THEN 1 ELSE 0 END) AS isExcludedTransaction
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
