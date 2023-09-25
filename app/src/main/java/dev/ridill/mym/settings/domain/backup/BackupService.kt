@@ -115,6 +115,14 @@ class BackupService(
         checkpointDb()
     }
 
+    suspend fun clearLocalCache() = withContext(Dispatchers.IO) {
+        val cacheDir = context.externalCacheDir
+        cacheDir?.listFiles()
+            ?.forEach { file ->
+                file.delete()
+            }
+    }
+
     private fun checkpointDb() {
         val writableDb = database.openHelper.writableDatabase
         writableDb.query("PRAGMA wal_checkpoint(FULL);")

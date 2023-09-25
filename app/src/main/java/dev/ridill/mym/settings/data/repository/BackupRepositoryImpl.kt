@@ -77,6 +77,8 @@ class BackupRepositoryImpl(
                     gDriveApi.deleteFile(token, file.id)
                 }
 
+            backupService.clearLocalCache()
+
             Resource.Success(Unit)
         } catch (t: BackupCachingFailedThrowable) {
             logE(t)
