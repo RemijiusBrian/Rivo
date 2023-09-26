@@ -10,6 +10,7 @@ import dev.ridill.mym.R
 import dev.ridill.mym.core.data.preferences.PreferencesManager
 import dev.ridill.mym.core.domain.model.Resource
 import dev.ridill.mym.core.domain.service.GoogleSignInService
+import dev.ridill.mym.core.domain.util.BuildUtil
 import dev.ridill.mym.core.domain.util.EventBus
 import dev.ridill.mym.core.domain.util.Zero
 import dev.ridill.mym.core.ui.util.UiText
@@ -71,8 +72,23 @@ class WelcomeFlowViewModel @Inject constructor(
         }
     }
 
-    override fun onPermissionResponse() {
+    override fun onGiveNotificationPermissionClick() {
         viewModelScope.launch {
+            if (BuildUtil.isNotificationRuntimePermissionNeeded())
+                eventBus.send(WelcomeFlowEvent.LaunchNotificationPermissionRequest)
+            else
+                eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
+        }
+    }
+
+    override fun onSkipNotificationPermission() {
+        viewModelScope.launch {
+            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
+        }
+    }
+
+    override fun onNotificationPermissionResponse(granted: Boolean) {
+        if (granted) viewModelScope.launch {
             eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
         }
     }
@@ -165,7 +181,7 @@ class WelcomeFlowViewModel @Inject constructor(
         data class NavigateToPage(val page: WelcomeFlowPage) : WelcomeFlowEvent()
         object WelcomeFlowConcluded : WelcomeFlowEvent()
         data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
-        object LaunchPermissionRequests : WelcomeFlowEvent()
+        object LaunchNotificationPermissionRequest : WelcomeFlowEvent()
         data class LaunchGoogleSignIn(val intent: Intent) : WelcomeFlowEvent()
         object RestartApplication : WelcomeFlowEvent()
     }

@@ -1,7 +1,9 @@
 package dev.ridill.mym.welcomeFlow.presentation
 
 interface WelcomeFlowActions {
-    fun onPermissionResponse()
+    fun onGiveNotificationPermissionClick()
+    fun onSkipNotificationPermission()
+    fun onNotificationPermissionResponse(granted: Boolean)
     fun onGoogleSignInClick()
     fun onSkipGoogleSignInClick()
     fun onRestoreDataClick()

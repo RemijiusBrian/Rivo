@@ -34,6 +34,7 @@ import dev.ridill.mym.core.ui.theme.SpacingMedium
 import dev.ridill.mym.settings.domain.modal.BackupDetails
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowPage
 import dev.ridill.mym.welcomeFlow.presentation.components.GoogleSignInPage
+import dev.ridill.mym.welcomeFlow.presentation.components.NotificationPermissionPage
 import dev.ridill.mym.welcomeFlow.presentation.components.SetBudgetPage
 import dev.ridill.mym.welcomeFlow.presentation.components.WelcomeMessagePage
 
@@ -65,6 +66,13 @@ fun WelcomeFlowScreen(
                 when (page) {
                     WelcomeFlowPage.WELCOME.ordinal -> {
                         WelcomeMessagePage()
+                    }
+
+                    WelcomeFlowPage.NOTIFICATION_PERMISSION.ordinal -> {
+                        NotificationPermissionPage(
+                            onGivePermissionClick = actions::onGiveNotificationPermissionClick,
+                            onSkipClick = actions::onSkipNotificationPermission
+                        )
                     }
 
                     WelcomeFlowPage.GOOGLE_SIGN_IN.ordinal -> {
