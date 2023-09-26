@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.presentation.allExpenses
+package dev.ridill.rivo.transactions.presentation.allTransactions
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -103,7 +103,7 @@ import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.navigation.destinations.AllExpensesScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
@@ -114,11 +114,11 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
-import dev.ridill.rivo.transactions.domain.model.ExpenseOption
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionOption
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
-import dev.ridill.rivo.transactions.presentation.components.ExpenseListItem
+import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import dev.ridill.rivo.transactions.presentation.components.TagColors
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import java.time.LocalDate
@@ -127,18 +127,18 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun AllExpensesScreen(
+fun AllTransactionsScreen(
     snackbarController: SnackbarController,
-    state: AllExpensesState,
+    state: AllTransactionsState,
     isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
-    actions: AllExpensesActions,
+    actions: AllTransactionsActions,
     navigateUp: () -> Unit
 ) {
     BackHandler(
-        enabled = state.expenseMultiSelectionModeActive,
+        enabled = state.transactionMultiSelectionModeActive,
         onBack = actions::onDismissMultiSelectionMode
     )
 
@@ -154,17 +154,17 @@ fun AllExpensesScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (state.expenseMultiSelectionModeActive)
-                            stringResource(R.string.count_selected, state.selectedExpenseIds.size)
-                        else stringResource(AllExpensesScreenSpec.labelRes)
+                        text = if (state.transactionMultiSelectionModeActive)
+                            stringResource(R.string.count_selected, state.selectedTransactionIds.size)
+                        else stringResource(AllTransactionsScreenSpec.labelRes)
                     )
                 },
                 navigationIcon = {
-                    if (state.expenseMultiSelectionModeActive) {
+                    if (state.transactionMultiSelectionModeActive) {
                         IconButton(onClick = actions::onDismissMultiSelectionMode) {
                             Icon(
                                 imageVector = Icons.Rounded.Close,
-                                contentDescription = stringResource(R.string.cd_clear_expense_selection)
+                                contentDescription = stringResource(R.string.cd_clear_transaction_selection)
                             )
                         }
                     } else {
@@ -194,7 +194,7 @@ fun AllExpensesScreen(
                 onTagClick = actions::onTagClick,
                 onTagEditClick = actions::onEditTagClick,
                 onNewTagClick = actions::onNewTagClick,
-                tagAssignModeActive = state.expenseMultiSelectionModeActive,
+                tagAssignModeActive = state.transactionMultiSelectionModeActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.20f)
@@ -207,36 +207,36 @@ fun AllExpensesScreen(
                 onYearSelect = actions::onYearSelect
             )
 
-            ExpenseList(
+            TransactionsList(
                 selectedTagName = state.selectedTag?.name,
-                expenseList = state.expenseList,
+                transactionsList = state.transactionList,
                 totalExpenditure = state.totalExpenditure,
-                selectedExpenseIds = state.selectedExpenseIds,
-                selectionState = state.expenseSelectionState,
-                multiSelectionModeActive = state.expenseMultiSelectionModeActive,
+                selectedTransactionIds = state.selectedTransactionIds,
+                selectionState = state.transactionSelectionState,
+                multiSelectionModeActive = state.transactionMultiSelectionModeActive,
                 onSelectionStateChange = actions::onSelectionStateChange,
-                onExpenseOptionClick = actions::onExpenseOptionClick,
-                onExpenseLongClick = actions::onExpenseLongClick,
-                onExpenseClick = actions::onExpenseClick,
+                onTransactionOptionClick = actions::onTransactionOptionClick,
+                onTransactionLongClick = actions::onTransactionLongClick,
+                onTransactionClick = actions::onTransactionClick,
                 listContentPadding = PaddingValues(
                     top = SpacingSmall,
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                 ),
-                showExcludedExpenses = state.showExcludedExpenses,
-                onToggleShowExcludedExpenses = actions::onToggleShowExcludedExpenses,
-                onDeleteSelectedExpenses = actions::onDeleteSelectedExpensesClick,
+                showExcludedTransactions = state.showExcludedTransactions,
+                onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
+                onDeleteSelectedTransactions = actions::onDeleteSelectedTransactionsClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
             )
         }
 
-        if (state.showDeleteExpenseConfirmation) {
+        if (state.showDeleteTransactionConfirmation) {
             ConfirmationDialog(
-                titleRes = R.string.delete_multiple_expense_confirmation_title,
+                titleRes = R.string.delete_multiple_transaction_confirmation_title,
                 contentRes = R.string.action_irreversible_message,
-                onConfirm = actions::onDeleteExpenseConfirm,
-                onDismiss = actions::onDeleteExpenseDismiss
+                onConfirm = actions::onDeleteTransactionConfirm,
+                onDismiss = actions::onDeleteTransactionDismiss
             )
         }
 
@@ -244,7 +244,7 @@ fun AllExpensesScreen(
             DeleteTagDialog(
                 tagName = tagNameInput(),
                 onDeleteTag = actions::onDeleteTagConfirm,
-                onDeleteTagWithExpenses = actions::onDeleteTagWithExpensesClick,
+                onDeleteTagWithTransactions = actions::onDeleteTagWithTransactionsClick,
                 onDismiss = actions::onDeleteTagDismiss
             )
         }
@@ -259,7 +259,7 @@ fun AllExpensesScreen(
                 onExclusionToggle = actions::onTagInputExclusionChange,
                 onDismiss = actions::onTagInputDismiss,
                 onConfirm = actions::onTagInputConfirm,
-                errorMessage = state.newTagError,
+                errorMessage = state.tagInputError,
                 isEditMode = isTagInputEditMode,
                 onDeleteClick = actions::onDeleteTagClick
             )
@@ -271,8 +271,8 @@ fun AllExpensesScreen(
 private fun TagsInfoList(
     tags: List<TagWithExpenditure>,
     selectedTagId: Long?,
-    onTagClick: (ExpenseTag) -> Unit,
-    onTagEditClick: (ExpenseTag) -> Unit,
+    onTagClick: (TransactionTag) -> Unit,
+    onTagEditClick: (TransactionTag) -> Unit,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -330,7 +330,7 @@ private fun TagsInfoList(
         }
         AnimatedVisibility(visible = tagAssignModeActive) {
             Text(
-                text = stringResource(R.string.click_tag_to_assign_to_selected_expenses),
+                text = stringResource(R.string.click_tag_to_assign_to_selected_transactions),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium),
@@ -635,25 +635,25 @@ private fun DateIndicator(
 }
 
 @Composable
-private fun ExpenseList(
+private fun TransactionsList(
     selectedTagName: String?,
-    expenseList: List<ExpenseListItem>,
+    transactionsList: List<TransactionListItem>,
     totalExpenditure: Double,
-    selectedExpenseIds: List<Long>,
+    selectedTransactionIds: List<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
-    onExpenseOptionClick: (ExpenseOption) -> Unit,
+    onTransactionOptionClick: (TransactionOption) -> Unit,
     multiSelectionModeActive: Boolean,
-    onExpenseLongClick: (Long) -> Unit,
-    onExpenseClick: (Long) -> Unit,
+    onTransactionLongClick: (Long) -> Unit,
+    onTransactionClick: (Long) -> Unit,
     listContentPadding: PaddingValues,
-    showExcludedExpenses: Boolean,
-    onToggleShowExcludedExpenses: (Boolean) -> Unit,
-    onDeleteSelectedExpenses: () -> Unit,
+    showExcludedTransactions: Boolean,
+    onToggleShowExcludedTransactions: (Boolean) -> Unit,
+    onDeleteSelectedTransactions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isListEmpty by remember(expenseList) {
-        derivedStateOf { expenseList.isEmpty() }
+    val isListEmpty by remember(transactionsList) {
+        derivedStateOf { transactionsList.isEmpty() }
     }
     Box(
         modifier = modifier,
@@ -686,15 +686,15 @@ private fun ExpenseList(
                     )
             )
 
-            ExpenseListHeader(
+            TransactionListHeader(
                 selectedTagName = selectedTagName,
-                showExcludedExpenses = showExcludedExpenses,
-                onToggleShowExcludedExpenses = onToggleShowExcludedExpenses,
+                showExcludedTransactions = showExcludedTransactions,
+                onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
                 multiSelectionModeActive = multiSelectionModeActive,
                 multiSelectionState = selectionState,
                 onSelectionStateChange = onSelectionStateChange,
-                onDeleteClick = onDeleteSelectedExpenses,
-                onExpenseOptionClick = onExpenseOptionClick,
+                onDeleteClick = onDeleteSelectedTransactions,
+                onTransactionOptionClick = onTransactionOptionClick,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -703,15 +703,15 @@ private fun ExpenseList(
                 contentPadding = listContentPadding,
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
-                items(items = expenseList, key = { it.id }) { expense ->
-                    ExpenseCard(
-                        note = expense.note,
-                        amount = expense.amount,
-                        date = expense.date,
-                        selected = expense.id in selectedExpenseIds,
-                        onLongClick = { onExpenseLongClick(expense.id) },
-                        onClick = { onExpenseClick(expense.id) },
-                        excluded = expense.excluded
+                items(items = transactionsList, key = { it.id }) { transaction ->
+                    TransactionCard(
+                        note = transaction.note,
+                        amount = transaction.amount,
+                        date = transaction.date,
+                        selected = transaction.id in selectedTransactionIds,
+                        onLongClick = { onTransactionLongClick(transaction.id) },
+                        onClick = { onTransactionClick(transaction.id) },
+                        excluded = transaction.excluded
                     )
                 }
             }
@@ -720,15 +720,15 @@ private fun ExpenseList(
 }
 
 @Composable
-private fun ExpenseListHeader(
+private fun TransactionListHeader(
     selectedTagName: String?,
-    showExcludedExpenses: Boolean,
-    onToggleShowExcludedExpenses: (Boolean) -> Unit,
+    showExcludedTransactions: Boolean,
+    onToggleShowExcludedTransactions: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onDeleteClick: () -> Unit,
-    onExpenseOptionClick: (ExpenseOption) -> Unit,
+    onTransactionOptionClick: (TransactionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -737,7 +737,7 @@ private fun ExpenseListHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Crossfade(
-            targetState = selectedTagName ?: stringResource(R.string.all_expenses),
+            targetState = selectedTagName ?: stringResource(R.string.all_transactions),
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
                 .padding(horizontal = SpacingMedium)
@@ -745,11 +745,11 @@ private fun ExpenseListHeader(
             ListLabel(text = tag)
         }
 
-        ExpenseListOptions(
-            showExcludedExpenses = showExcludedExpenses,
-            onToggleShowExcludedExpenses = onToggleShowExcludedExpenses,
+        TransactionListOptions(
+            showExcludedTransactions = showExcludedTransactions,
+            onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
             multiSelectionModeActive = multiSelectionModeActive,
-            onExpenseOptionClick = onExpenseOptionClick,
+            onTransactionOptionClick = onTransactionOptionClick,
             selectionState = multiSelectionState,
             onSelectionStateChange = onSelectionStateChange,
             onDeleteClick = onDeleteClick
@@ -758,11 +758,11 @@ private fun ExpenseListHeader(
 }
 
 @Composable
-private fun ExpenseListOptions(
-    showExcludedExpenses: Boolean,
-    onToggleShowExcludedExpenses: (Boolean) -> Unit,
+private fun TransactionListOptions(
+    showExcludedTransactions: Boolean,
+    onToggleShowExcludedTransactions: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
-    onExpenseOptionClick: (ExpenseOption) -> Unit,
+    onTransactionOptionClick: (TransactionOption) -> Unit,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -805,12 +805,12 @@ private fun ExpenseListOptions(
                 onDismissRequest = { menuExpanded = false }
             ) {
                 if (multiSelectionModeActive) {
-                    ExpenseOption.values().forEach { option ->
+                    TransactionOption.values().forEach { option ->
                         DropdownMenuItem(
                             text = { Text(stringResource(option.labelRes)) },
                             onClick = {
                                 menuExpanded = false
-                                onExpenseOptionClick(option)
+                                onTransactionOptionClick(option)
                             }
                         )
                     }
@@ -819,14 +819,14 @@ private fun ExpenseListOptions(
                         text = {
                             Text(
                                 text = stringResource(
-                                    id = if (showExcludedExpenses) R.string.hide_excluded_expenses
-                                    else R.string.show_excluded_expenses
+                                    id = if (showExcludedTransactions) R.string.hide_excluded_transactions
+                                    else R.string.show_excluded_transactions
                                 )
                             )
                         },
                         onClick = {
                             menuExpanded = false
-                            onToggleShowExcludedExpenses(!showExcludedExpenses)
+                            onToggleShowExcludedTransactions(!showExcludedTransactions)
                         }
                     )
                 }
@@ -865,7 +865,7 @@ private fun TotalExpenditureAmount(
 }
 
 @Composable
-private fun ExpenseCard(
+private fun TransactionCard(
     note: String,
     amount: String,
     date: LocalDate,
@@ -875,7 +875,7 @@ private fun ExpenseCard(
     excluded: Boolean,
     modifier: Modifier = Modifier
 ) {
-    ExpenseListItem(
+    TransactionListItem(
         note = note,
         amount = amount,
         date = date,
@@ -885,7 +885,7 @@ private fun ExpenseCard(
             .combinedClickable(
                 role = Role.Button,
                 onClick = onClick,
-                onClickLabel = stringResource(R.string.cd_expense_selection_change),
+                onClickLabel = stringResource(R.string.cd_transaction_selection_change),
                 onLongClick = onLongClick,
                 onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
             ),
@@ -898,7 +898,7 @@ private fun ExpenseCard(
 private fun DeleteTagDialog(
     tagName: String,
     onDeleteTag: () -> Unit,
-    onDeleteTagWithExpenses: () -> Unit,
+    onDeleteTagWithTransactions: () -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -917,11 +917,11 @@ private fun DeleteTagDialog(
                     Text(stringResource(R.string.action_delete))
                 }
                 OutlinedButton(
-                    onClick = onDeleteTagWithExpenses,
+                    onClick = onDeleteTagWithTransactions,
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(stringResource(R.string.delete_tag_with_expenses))
+                    Text(stringResource(R.string.delete_tag_with_transactions))
                 }
                 TextButton(
                     onClick = onDismiss,
@@ -939,37 +939,37 @@ private fun DeleteTagDialog(
 
 @Preview
 @Composable
-private fun PreviewAllExpensesScreen() {
+private fun PreviewAllTransactionsScreen() {
     RivoTheme {
-        AllExpensesScreen(
+        AllTransactionsScreen(
             snackbarController = rememberSnackbarController(),
-            state = AllExpensesState(),
+            state = AllTransactionsState(),
             tagNameInput = { "" },
             tagColorInput = { TagColors.first().toArgb() },
-            actions = object : AllExpensesActions {
+            actions = object : AllTransactionsActions {
                 override fun onMonthSelect(month: Month) {}
                 override fun onYearSelect(year: Int) {}
-                override fun onTagClick(tag: ExpenseTag) {}
+                override fun onTagClick(tag: TransactionTag) {}
                 override fun onNewTagClick() {}
                 override fun onTagInputNameChange(value: String) {}
                 override fun onTagInputColorSelect(color: Color) {}
                 override fun onTagInputExclusionChange(excluded: Boolean) {}
                 override fun onTagInputDismiss() {}
                 override fun onTagInputConfirm() {}
-                override fun onToggleShowExcludedExpenses(value: Boolean) {}
-                override fun onExpenseLongClick(id: Long) {}
-                override fun onExpenseClick(id: Long) {}
+                override fun onToggleShowExcludedTransactions(value: Boolean) {}
+                override fun onTransactionLongClick(id: Long) {}
+                override fun onTransactionClick(id: Long) {}
                 override fun onSelectionStateChange() {}
                 override fun onDismissMultiSelectionMode() {}
-                override fun onExpenseOptionClick(option: ExpenseOption) {}
-                override fun onDeleteExpenseDismiss() {}
-                override fun onDeleteExpenseConfirm() {}
-                override fun onEditTagClick(tag: ExpenseTag) {}
+                override fun onTransactionOptionClick(option: TransactionOption) {}
+                override fun onDeleteTransactionDismiss() {}
+                override fun onDeleteTransactionConfirm() {}
+                override fun onEditTagClick(tag: TransactionTag) {}
                 override fun onDeleteTagClick() {}
                 override fun onDeleteTagDismiss() {}
                 override fun onDeleteTagConfirm() {}
-                override fun onDeleteTagWithExpensesClick() {}
-                override fun onDeleteSelectedExpensesClick() {}
+                override fun onDeleteTagWithTransactionsClick() {}
+                override fun onDeleteSelectedTransactionsClick() {}
             },
             navigateUp = {},
             tagExclusionInput = { false },

@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.presentation.addEditExpense
+package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -15,13 +15,13 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.orZero
-import dev.ridill.rivo.core.ui.navigation.destinations.AddEditExpenseScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.transactions.domain.model.Expense
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
-import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
+import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -29,19 +29,19 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class AddEditExpenseViewModel @Inject constructor(
+class AddEditTransactionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val expenseRepo: AddEditExpenseRepository,
+    private val transactionRepo: AddEditTransactionRepository,
     private val tagsRepo: TagsRepository,
     settingsRepo: SettingsRepository,
-    private val eventBus: EventBus<AddEditExpenseEvent>,
+    private val eventBus: EventBus<AddEditTransactionEvent>,
     private val evalService: ExpEvalService
-) : ViewModel(), AddEditExpenseActions {
-    private val expenseIdArg = AddEditExpenseScreenSpec
-        .getExpenseIdFromSavedStateHandle(savedStateHandle)
-    private val isEditMode = AddEditExpenseScreenSpec.isEditMode(expenseIdArg)
-    private val currentExpenseId: Long
-        get() = expenseIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
+) : ViewModel(), AddEditTransactionActions {
+    private val transactionIdArg = AddEditTransactionScreenSpec
+        .getTransactionIdFromSavedStateHandle(savedStateHandle)
+    private val isEditMode = AddEditTransactionScreenSpec.isEditMode(transactionIdArg)
+    private val currentTransactionId: Long
+        get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
     private val currency = settingsRepo.getCurrencyPreference()
 
@@ -51,19 +51,20 @@ class AddEditExpenseViewModel @Inject constructor(
     private val tagsList = tagsRepo.getAllTags()
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
 
-    private val expenseTimestamp = savedStateHandle.getStateFlow(EXPENSE_TIMESTAMP, DateUtil.now())
+    private val transactionTimestamp =
+        savedStateHandle.getStateFlow(TRANSACTION_TIMESTAMP, DateUtil.now())
 
-    private val isExpenseExcluded = savedStateHandle.getStateFlow(IS_EXPENSE_EXCLUDED, false)
+    private val isTransactionExcluded = savedStateHandle.getStateFlow(IS_TRANSACTION_EXCLUDED, false)
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
 
-    private val amountRecommendations = expenseRepo.getAmountRecommendations()
+    private val amountRecommendations = transactionRepo.getAmountRecommendations()
 
     private val showNewTagInput = savedStateHandle
         .getStateFlow(SHOW_NEW_TAG_INPUT, false)
     val tagInput = savedStateHandle
-        .getStateFlow<ExpenseTag?>(TAG_INPUT, null)
+        .getStateFlow<TransactionTag?>(TAG_INPUT, null)
     private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
@@ -73,8 +74,8 @@ class AddEditExpenseViewModel @Inject constructor(
         amountRecommendations,
         tagsList,
         selectedTagId,
-        expenseTimestamp,
-        isExpenseExcluded,
+        transactionTimestamp,
+        isTransactionExcluded,
         showDeleteConfirmation,
         showNewTagInput,
         newTagError,
@@ -84,26 +85,26 @@ class AddEditExpenseViewModel @Inject constructor(
                 amountRecommendations,
                 tagsList,
                 selectedTagId,
-                expenseTimestamp,
-                isExpenseExcluded,
+                transactionTimestamp,
+                isTransactionExcluded,
                 showDeleteConfirmation,
                 showNewTagInput,
                 newTagError,
                 showDateTimePicker
             ) ->
-        AddEditExpenseState(
+        AddEditTransactionState(
             currency = currency,
             amountRecommendations = amountRecommendations,
             tagsList = tagsList,
             selectedTagId = selectedTagId,
-            expenseTimestamp = expenseTimestamp,
-            isExpenseExcluded = isExpenseExcluded,
+            transactionTimestamp = transactionTimestamp,
+            isTransactionExcluded = isTransactionExcluded,
             showDeleteConfirmation = showDeleteConfirmation,
             showNewTagInput = showNewTagInput,
             newTagError = newTagError,
             showDateTimePicker = showDateTimePicker
         )
-    }.asStateFlow(viewModelScope, AddEditExpenseState())
+    }.asStateFlow(viewModelScope, AddEditTransactionState())
 
     val events = eventBus.eventFlow
 
@@ -112,13 +113,13 @@ class AddEditExpenseViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        val expense = expenseRepo.getExpenseById(expenseIdArg)
-            ?: Expense.DEFAULT
-        savedStateHandle[AMOUNT_INPUT] = expense.amount
-        savedStateHandle[NOTE_INPUT] = expense.note
-        savedStateHandle[EXPENSE_TIMESTAMP] = expense.createdTimestamp
-        savedStateHandle[SELECTED_TAG_ID] = expense.tagId
-        savedStateHandle[IS_EXPENSE_EXCLUDED] = expense.excluded
+        val transaction = transactionRepo.getTransactionById(transactionIdArg)
+            ?: Transaction.DEFAULT
+        savedStateHandle[AMOUNT_INPUT] = transaction.amount
+        savedStateHandle[NOTE_INPUT] = transaction.note
+        savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.createdTimestamp
+        savedStateHandle[SELECTED_TAG_ID] = transaction.tagId
+        savedStateHandle[IS_TRANSACTION_EXCLUDED] = transaction.excluded
     }
 
     override fun onAmountChange(value: String) {
@@ -152,21 +153,21 @@ class AddEditExpenseViewModel @Inject constructor(
             .takeIf { selectedTagId.value != it }
     }
 
-    override fun onExpenseTimestampClick() {
+    override fun onTransactionTimestampClick() {
         savedStateHandle[SHOW_DATE_TIME_PICKER] = true
     }
 
-    override fun onExpenseTimestampSelectionDismiss() {
+    override fun onTransactionTimestampSelectionDismiss() {
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
-    override fun onExpenseTimestampSelectionConfirm(dateTime: LocalDateTime) {
-        savedStateHandle[EXPENSE_TIMESTAMP] = dateTime
+    override fun onTransactionTimestampSelectionConfirm(dateTime: LocalDateTime) {
+        savedStateHandle[TRANSACTION_TIMESTAMP] = dateTime
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
-    override fun onExpenseExclusionToggle(excluded: Boolean) {
-        savedStateHandle[IS_EXPENSE_EXCLUDED] = excluded
+    override fun onTransactionExclusionToggle(excluded: Boolean) {
+        savedStateHandle[IS_TRANSACTION_EXCLUDED] = excluded
     }
 
     override fun onSaveClick() {
@@ -177,7 +178,7 @@ class AddEditExpenseViewModel @Inject constructor(
             else TextFormat.parseNumber(amountInput)) ?: -1.0
             if (amount < Double.Zero) {
                 eventBus.send(
-                    AddEditExpenseEvent.ShowUiMessage(
+                    AddEditTransactionEvent.ShowUiMessage(
                         UiText.StringResource(
                             R.string.error_invalid_amount,
                             true
@@ -189,9 +190,9 @@ class AddEditExpenseViewModel @Inject constructor(
             val note = noteInput.value.trim()
             if (note.isEmpty()) {
                 eventBus.send(
-                    AddEditExpenseEvent.ShowUiMessage(
+                    AddEditTransactionEvent.ShowUiMessage(
                         UiText.StringResource(
-                            R.string.error_invalid_expense_note,
+                            R.string.error_invalid_transaction_note,
                             true
                         )
                     )
@@ -199,17 +200,17 @@ class AddEditExpenseViewModel @Inject constructor(
                 return@launch
             }
             val tagId = selectedTagId.value
-            val excluded = isExpenseExcluded.value
-            expenseRepo.cacheExpense(
-                id = currentExpenseId,
+            val excluded = isTransactionExcluded.value
+            transactionRepo.saveTransaction(
+                id = currentTransactionId,
                 amount = amount,
                 note = note,
                 tagId = tagId,
-                dateTime = expenseTimestamp.value,
+                dateTime = transactionTimestamp.value,
                 excluded = excluded
             )
-            val event = if (isEditMode) AddEditExpenseEvent.ExpenseUpdated
-            else AddEditExpenseEvent.ExpenseAdded
+            val event = if (isEditMode) AddEditTransactionEvent.TransactionUpdated
+            else AddEditTransactionEvent.TransactionAdded
             eventBus.send(event)
         }
     }
@@ -224,14 +225,14 @@ class AddEditExpenseViewModel @Inject constructor(
 
     override fun onDeleteConfirm() {
         viewModelScope.launch {
-            expenseRepo.deleteExpense(currentExpenseId)
+            transactionRepo.deleteTransaction(currentTransactionId)
             savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
-            eventBus.send(AddEditExpenseEvent.ExpenseDeleted)
+            eventBus.send(AddEditTransactionEvent.TransactionDeleted)
         }
     }
 
     override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = ExpenseTag.NEW
+        savedStateHandle[TAG_INPUT] = TransactionTag.NEW
         savedStateHandle[SHOW_NEW_TAG_INPUT] = true
     }
 
@@ -281,7 +282,7 @@ class AddEditExpenseViewModel @Inject constructor(
             clearAndHideTagInput()
             savedStateHandle[SELECTED_TAG_ID] = insertedId
             eventBus.send(
-                AddEditExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
+                AddEditTransactionEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
         }
     }
@@ -291,25 +292,25 @@ class AddEditExpenseViewModel @Inject constructor(
         savedStateHandle[TAG_INPUT] = null
     }
 
-    sealed class AddEditExpenseEvent {
-        object ExpenseAdded : AddEditExpenseEvent()
-        object ExpenseUpdated : AddEditExpenseEvent()
-        object ExpenseDeleted : AddEditExpenseEvent()
-        data class ShowUiMessage(val uiText: UiText) : AddEditExpenseEvent()
+    sealed class AddEditTransactionEvent {
+        object TransactionAdded : AddEditTransactionEvent()
+        object TransactionUpdated : AddEditTransactionEvent()
+        object TransactionDeleted : AddEditTransactionEvent()
+        data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
     }
 }
 
 private const val AMOUNT_INPUT = "AMOUNT_INPUT"
 private const val NOTE_INPUT = "NOTE_INPUT"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
-private const val EXPENSE_TIMESTAMP = "EXPENSE_TIMESTAMP"
-private const val IS_EXPENSE_EXCLUDED = "IS_EXPENSE_EXCLUDED"
+private const val TRANSACTION_TIMESTAMP = "TRANSACTION_TIMESTAMP"
+private const val IS_TRANSACTION_EXCLUDED = "IS_TRANSACTION_EXCLUDED"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 
-const val RESULT_EXPENSE_ADDED = "RESULT_EXPENSE_ADDED"
-const val RESULT_EXPENSE_UPDATED = "RESULT_EXPENSE_UPDATED"
-const val RESULT_EXPENSE_DELETED = "RESULT_EXPENSE_DELETED"
+const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"
+const val RESULT_TRANSACTION_UPDATED = "RESULT_TRANSACTION_UPDATED"
+const val RESULT_TRANSACTION_DELETED = "RESULT_TRANSACTION_DELETED"

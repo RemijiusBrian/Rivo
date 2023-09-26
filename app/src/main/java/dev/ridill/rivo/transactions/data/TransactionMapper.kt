@@ -3,11 +3,11 @@ package dev.ridill.rivo.transactions.data
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
-import dev.ridill.rivo.transactions.domain.model.Expense
-import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
+import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
 
-fun TransactionEntity.toExpense(): Expense = Expense(
+fun TransactionEntity.toTransaction(): Transaction = Transaction(
     id = id,
     amount = amount.toString(),
     note = note,
@@ -16,7 +16,7 @@ fun TransactionEntity.toExpense(): Expense = Expense(
     excluded = isExcluded
 )
 
-fun TransactionDetails.toExpenseListItem(): ExpenseListItem = ExpenseListItem(
+fun TransactionDetails.toTransactionListItem(): TransactionListItem = TransactionListItem(
     id = transactionId,
     note = transactionNote,
     amount = TextFormat.currency(transactionAmount),
@@ -26,7 +26,7 @@ fun TransactionDetails.toExpenseListItem(): ExpenseListItem = ExpenseListItem(
         && tagName != null
         && tagColorCode != null
         && tagCreatedTimestamp != null
-    ) ExpenseTag(
+    ) TransactionTag(
         id = tagId,
         name = tagName,
         colorCode = tagColorCode,

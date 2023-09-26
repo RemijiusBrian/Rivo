@@ -23,19 +23,19 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
-import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseScreen
-import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseViewModel
-import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_ADDED
-import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_ADDED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_UPDATED
 
-object AddEditExpenseScreenSpec : ScreenSpec {
-    override val route: String = "add_edit_expense/{$ARG_EXPENSE_ID}"
+object AddEditTransactionScreenSpec : ScreenSpec {
+    override val route: String = "add_edit_transaction/{$ARG_TRANSACTION_ID}"
 
-    override val labelRes: Int = R.string.destination_dashboard
+    override val labelRes: Int = R.string.destination_add_edit_transaction
 
     override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_EXPENSE_ID) {
+        navArgument(ARG_TRANSACTION_ID) {
             type = NavType.LongType
             nullable = false
             defaultValue = ARG_INVALID_ID_LONG
@@ -43,7 +43,7 @@ object AddEditExpenseScreenSpec : ScreenSpec {
     )
 
     override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = "$DEEP_LINK_URI/expense/{$ARG_EXPENSE_ID}" }
+        navDeepLink { uriPattern = "$DEEP_LINK_URI/transaction/{$ARG_TRANSACTION_ID}" }
     )
 
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
@@ -53,19 +53,19 @@ object AddEditExpenseScreenSpec : ScreenSpec {
         { slideOutVertically { it } }
 
     fun routeWithArg(expenseId: Long? = null): String =
-        route.replace("{$ARG_EXPENSE_ID}", (expenseId ?: ARG_INVALID_ID_LONG).toString())
+        route.replace("{$ARG_TRANSACTION_ID}", (expenseId ?: ARG_INVALID_ID_LONG).toString())
 
-    fun getExpenseIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
-        savedStateHandle.get<Long>(ARG_EXPENSE_ID) ?: ARG_INVALID_ID_LONG
+    fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
+        savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
-        navBackStackEntry.arguments?.getLong(ARG_EXPENSE_ID) != ARG_INVALID_ID_LONG
+        navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
 
     fun isEditMode(expenseId: Long?): Boolean = expenseId != ARG_INVALID_ID_LONG
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
-        val viewModel: AddEditExpenseViewModel = hiltViewModel(navBackStackEntry)
+        val viewModel: AddEditTransactionViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -79,28 +79,28 @@ object AddEditExpenseScreenSpec : ScreenSpec {
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
-                    AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseAdded -> {
+                    AddEditTransactionViewModel.AddEditTransactionEvent.TransactionAdded -> {
                         navController.navigateUpWithResult(
                             DASHBOARD_ACTION_RESULT,
-                            RESULT_EXPENSE_ADDED
+                            RESULT_TRANSACTION_ADDED
                         )
                     }
 
-                    AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseDeleted -> {
+                    AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
                         navController.navigateUpWithResult(
                             DASHBOARD_ACTION_RESULT,
-                            RESULT_EXPENSE_DELETED
+                            RESULT_TRANSACTION_DELETED
                         )
                     }
 
-                    AddEditExpenseViewModel.AddEditExpenseEvent.ExpenseUpdated -> {
+                    AddEditTransactionViewModel.AddEditTransactionEvent.TransactionUpdated -> {
                         navController.navigateUpWithResult(
                             DASHBOARD_ACTION_RESULT,
-                            RESULT_EXPENSE_UPDATED
+                            RESULT_TRANSACTION_UPDATED
                         )
                     }
 
-                    is AddEditExpenseViewModel.AddEditExpenseEvent.ShowUiMessage -> {
+                    is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
                         snackbarController.showSnackbar(
                             message = event.uiText.asString(context),
                             isError = event.uiText.isErrorText
@@ -110,7 +110,7 @@ object AddEditExpenseScreenSpec : ScreenSpec {
             }
         }
 
-        AddEditExpenseScreen(
+        AddEditTransactionScreen(
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
@@ -125,4 +125,4 @@ object AddEditExpenseScreenSpec : ScreenSpec {
     }
 }
 
-const val ARG_EXPENSE_ID = "ARG_EXPENSE_ID"
+const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"

@@ -34,7 +34,7 @@ class RivoViewModel @Inject constructor(
 
     init {
         toggleSplashScreenVisibility()
-        collectExpenseAutoAdd()
+        collectTransactionAutoAdd()
     }
 
     private fun toggleSplashScreenVisibility() = viewModelScope.launch {
@@ -44,13 +44,13 @@ class RivoViewModel @Inject constructor(
         }
     }
 
-    private fun collectExpenseAutoAdd() = viewModelScope.launch {
-        preferences.map { it.autoAddExpenseEnabled }
+    private fun collectTransactionAutoAdd() = viewModelScope.launch {
+        preferences.map { it.autoAddTransactionEnabled }
             .collectLatest { receiverService.toggleSmsReceiver(it) }
     }
 
     fun onSmsPermissionCheck(granted: Boolean) = viewModelScope.launch {
-        preferencesManager.updateAutoAddExpenseEnabled(granted)
+        preferencesManager.updateAutoAddTransactionEnabled(granted)
     }
 
     fun onNotificationPermissionCheck(granted: Boolean) {

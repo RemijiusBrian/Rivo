@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.presentation.allExpenses
+package dev.ridill.rivo.transactions.presentation.allTransactions
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -14,9 +14,9 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.transactions.domain.model.ExpenseOption
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
-import dev.ridill.rivo.transactions.domain.repository.AllExpensesRepository
+import dev.ridill.rivo.transactions.domain.model.TransactionOption
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,20 +27,20 @@ import java.time.Month
 import javax.inject.Inject
 
 @HiltViewModel
-class AllExpensesViewModel @Inject constructor(
-    private val expenseRepo: AllExpensesRepository,
+class AllTransactionsViewModel @Inject constructor(
+    private val transactionRepo: AllTransactionsRepository,
     private val tagsRepo: TagsRepository,
     private val savedStateHandle: SavedStateHandle,
-    private val eventBus: EventBus<AllExpenseEvent>
-) : ViewModel(), AllExpensesActions {
+    private val eventBus: EventBus<AllTransactionsEvent>
+) : ViewModel(), AllTransactionsActions {
 
     private val selectedDate = savedStateHandle
         .getStateFlow(SELECTED_DATE, DateUtil.now().toLocalDate())
 
-    private val yearsList = expenseRepo.getExpenseYearsList()
+    private val yearsList = transactionRepo.getTransactionYearsList()
 
     private val totalExpenditure = selectedDate.flatMapLatest { date ->
-        expenseRepo.getTotalExpenditureForDate(date)
+        transactionRepo.getTotalExpenditureForDate(date)
     }.distinctUntilChanged()
 
     private val tagsWithExpenditures = combineTuple(
@@ -53,50 +53,50 @@ class AllExpensesViewModel @Inject constructor(
         )
     }
 
-    private val selectedTag = savedStateHandle.getStateFlow<ExpenseTag?>(SELECTED_TAG, null)
+    private val selectedTag = savedStateHandle.getStateFlow<TransactionTag?>(SELECTED_TAG, null)
 
-    private val showExcludedExpenses = expenseRepo.getShowExcludedExpenses()
+    private val showExcludedTransactions = transactionRepo.getShowExcludedTransactions()
 
-    private val expenseList = combineTuple(
+    private val transactionList = combineTuple(
         selectedDate,
         selectedTag,
-        showExcludedExpenses
+        showExcludedTransactions
     ).flatMapLatest { (date, tag, showExcluded) ->
-        expenseRepo.getExpenseForDateByTag(
+        transactionRepo.getTransactionsForDateByTag(
             date = date,
             tagId = tag?.id,
             showExcluded = showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
 
-    private val selectedExpenseIds = savedStateHandle
-        .getStateFlow<List<Long>>(SELECTED_EXPENSE_IDS, emptyList())
+    private val selectedTransactionIds = savedStateHandle
+        .getStateFlow<List<Long>>(SELECTED_TRANSACTION_IDS, emptyList())
 
-    private val expenseSelectionState = combineTuple(
-        expenseList,
-        selectedExpenseIds
-    ).map { (expenses, selectedIds) ->
+    private val transactionSelectionState = combineTuple(
+        transactionList,
+        selectedTransactionIds
+    ).map { (transactions, selectedIds) ->
         when {
             selectedIds.isEmpty() -> ToggleableState.Off
-            expenses.all { it.id in selectedIds } -> ToggleableState.On
+            transactions.all { it.id in selectedIds } -> ToggleableState.On
             else -> ToggleableState.Indeterminate
         }
     }.distinctUntilChanged()
         .asStateFlow(viewModelScope, ToggleableState.Off)
 
-    private val expenseMultiSelectionModeActive = savedStateHandle
-        .getStateFlow(EXPENSE_MULTI_SELECTION_MODE_ACTIVE, false)
+    private val transactionMultiSelectionModeActive = savedStateHandle
+        .getStateFlow(TRANSACTION_MULTI_SELECTION_MODE_ACTIVE, false)
 
-    private val showDeleteExpenseConfirmation = savedStateHandle
-        .getStateFlow(SHOW_DELETE_EXPENSE_CONFIRMATION, false)
+    private val showDeleteTransactionConfirmation = savedStateHandle
+        .getStateFlow(SHOW_DELETE_TRANSACTION_CONFIRMATION, false)
 
     private val showDeleteTagConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_TAG_CONFIRMATION, false)
 
-    private val showNewTagInput = savedStateHandle
+    private val showTagInput = savedStateHandle
         .getStateFlow(SHOW_TAG_INPUT, false)
-    val tagInput = savedStateHandle.getStateFlow<ExpenseTag?>(TAG_INPUT, null)
-    private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
+    val tagInput = savedStateHandle.getStateFlow<TransactionTag?>(TAG_INPUT, null)
+    private val tagInputError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     val state = combineTuple(
         selectedDate,
@@ -104,59 +104,59 @@ class AllExpensesViewModel @Inject constructor(
         totalExpenditure,
         tagsWithExpenditures,
         selectedTag,
-        expenseList,
-        selectedExpenseIds,
-        expenseSelectionState,
-        expenseMultiSelectionModeActive,
-        showDeleteExpenseConfirmation,
+        transactionList,
+        selectedTransactionIds,
+        transactionSelectionState,
+        transactionMultiSelectionModeActive,
+        showDeleteTransactionConfirmation,
         showDeleteTagConfirmation,
-        showNewTagInput,
-        newTagError,
-        showExcludedExpenses
+        showTagInput,
+        tagInputError,
+        showExcludedTransactions
     ).map { (
                 selectedDate,
                 yearsList,
                 totalExpenditure,
                 tagsWithExpenditures,
                 selectedTag,
-                expenseList,
-                selectedExpenseIds,
-                expenseSelectionState,
-                expenseMultiSelectionModeActive,
-                showDeleteExpenseConfirmation,
+                transactionList,
+                selectedTransactionIds,
+                transactionSelectionState,
+                transactionMultiSelectionModeActive,
+                showDeleteTransactionConfirmation,
                 showDeleteTagConfirmation,
-                showNewTagInput,
-                newTagError,
-                showExcludedExpenses
+                showTagInput,
+                tagInputError,
+                showExcludedTransactions
             ) ->
-        AllExpensesState(
+        AllTransactionsState(
             selectedDate = selectedDate,
             yearsList = yearsList,
             totalExpenditure = totalExpenditure,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTag = selectedTag,
-            expenseList = expenseList,
-            selectedExpenseIds = selectedExpenseIds,
-            expenseSelectionState = expenseSelectionState,
-            expenseMultiSelectionModeActive = expenseMultiSelectionModeActive,
-            showDeleteExpenseConfirmation = showDeleteExpenseConfirmation,
+            transactionList = transactionList,
+            selectedTransactionIds = selectedTransactionIds,
+            transactionSelectionState = transactionSelectionState,
+            transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
+            showDeleteTransactionConfirmation = showDeleteTransactionConfirmation,
             showDeleteTagConfirmation = showDeleteTagConfirmation,
-            showTagInput = showNewTagInput,
-            newTagError = newTagError,
-            showExcludedExpenses = showExcludedExpenses
+            showTagInput = showTagInput,
+            tagInputError = tagInputError,
+            showExcludedTransactions = showExcludedTransactions
         )
-    }.asStateFlow(viewModelScope, AllExpensesState())
+    }.asStateFlow(viewModelScope, AllTransactionsState())
 
     val events = eventBus.eventFlow
 
     init {
-        refreshSelectedIdsListOnExpenseListChange()
+        refreshSelectedIdsListOnTransactionListChange()
     }
 
-    private fun refreshSelectedIdsListOnExpenseListChange() = viewModelScope.launch {
-        expenseList.collectLatest { list ->
+    private fun refreshSelectedIdsListOnTransactionListChange() = viewModelScope.launch {
+        transactionList.collectLatest { list ->
             val ids = list.map { it.id }
-            savedStateHandle[SELECTED_EXPENSE_IDS] = selectedExpenseIds.value
+            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value
                 .filter { it in ids }
         }
     }
@@ -171,13 +171,13 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
     }
 
-    override fun onTagClick(tag: ExpenseTag) {
-        if (expenseMultiSelectionModeActive.value) viewModelScope.launch {
-            val selectedIds = selectedExpenseIds.value
-            tagsRepo.assignTagToExpenses(tag.id, selectedIds)
+    override fun onTagClick(tag: TransactionTag) {
+        if (transactionMultiSelectionModeActive.value) viewModelScope.launch {
+            val selectedIds = selectedTransactionIds.value
+            tagsRepo.assignTagToTransactions(tag.id, selectedIds)
             dismissMultiSelectionMode()
             savedStateHandle[SELECTED_TAG] = tag
-            eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_expenses)))
+            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
         } else {
             savedStateHandle[SELECTED_TAG] = tag
                 .takeIf { it != selectedTag.value }
@@ -185,7 +185,7 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = ExpenseTag.NEW
+        savedStateHandle[TAG_INPUT] = TransactionTag.NEW
         savedStateHandle[SHOW_TAG_INPUT] = true
     }
 
@@ -234,7 +234,7 @@ class AllExpensesViewModel @Inject constructor(
                 .copy(id = insertedId)
             hideAndClearTagInput()
             eventBus.send(
-                AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
+                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
         }
     }
@@ -244,45 +244,45 @@ class AllExpensesViewModel @Inject constructor(
         savedStateHandle[TAG_INPUT] = null
     }
 
-    override fun onToggleShowExcludedExpenses(value: Boolean) {
+    override fun onToggleShowExcludedTransactions(value: Boolean) {
         viewModelScope.launch {
-            expenseRepo.toggleShowExcludedExpenses(value)
+            transactionRepo.toggleShowExcludedTransactions(value)
         }
     }
 
-    override fun onExpenseLongClick(id: Long) {
+    override fun onTransactionLongClick(id: Long) {
         viewModelScope.launch {
-            if (expenseMultiSelectionModeActive.value) dismissMultiSelectionMode()
+            if (transactionMultiSelectionModeActive.value) dismissMultiSelectionMode()
             else {
                 savedStateHandle[SELECTED_TAG] = null
                 enableMultiSelectionModeWithId(id)
             }
-            eventBus.send(AllExpenseEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
+            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
         }
     }
 
-    override fun onExpenseClick(id: Long) {
-        if (expenseMultiSelectionModeActive.value) {
-            val selectedIds = selectedExpenseIds.value
+    override fun onTransactionClick(id: Long) {
+        if (transactionMultiSelectionModeActive.value) {
+            val selectedIds = selectedTransactionIds.value
             if (id in selectedIds) {
-                savedStateHandle[SELECTED_EXPENSE_IDS] = selectedIds - id
-                if (selectedExpenseIds.value.isEmpty()) dismissMultiSelectionMode()
+                savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds - id
+                if (selectedTransactionIds.value.isEmpty()) dismissMultiSelectionMode()
             } else {
-                savedStateHandle[SELECTED_EXPENSE_IDS] = selectedIds + id
+                savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds + id
             }
         } else viewModelScope.launch {
-            eventBus.send(AllExpenseEvent.NavigateToAddEditExpenseScreen(id))
+            eventBus.send(AllTransactionsEvent.NavigateToAddEditTransactionScreen(id))
         }
     }
 
     override fun onSelectionStateChange() {
-        when (expenseSelectionState.value) {
+        when (transactionSelectionState.value) {
             ToggleableState.On -> {
-                savedStateHandle[SELECTED_EXPENSE_IDS] = emptyList<Long>()
+                savedStateHandle[SELECTED_TRANSACTION_IDS] = emptyList<Long>()
             }
 
             else -> {
-                savedStateHandle[SELECTED_EXPENSE_IDS] = expenseList.value.map { it.id }
+                savedStateHandle[SELECTED_TRANSACTION_IDS] = transactionList.value.map { it.id }
             }
         }
     }
@@ -290,88 +290,88 @@ class AllExpensesViewModel @Inject constructor(
     override fun onDismissMultiSelectionMode() {
         viewModelScope.launch {
             dismissMultiSelectionMode()
-            eventBus.send(AllExpenseEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
+            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
         }
     }
 
     private fun dismissMultiSelectionMode() {
-        savedStateHandle[EXPENSE_MULTI_SELECTION_MODE_ACTIVE] = false
-        savedStateHandle[SELECTED_EXPENSE_IDS] = emptyList<Long>()
+        savedStateHandle[TRANSACTION_MULTI_SELECTION_MODE_ACTIVE] = false
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = emptyList<Long>()
     }
 
     private fun enableMultiSelectionModeWithId(id: Long) {
-        savedStateHandle[SELECTED_EXPENSE_IDS] = listOf(id)
-        savedStateHandle[EXPENSE_MULTI_SELECTION_MODE_ACTIVE] = true
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = listOf(id)
+        savedStateHandle[TRANSACTION_MULTI_SELECTION_MODE_ACTIVE] = true
     }
 
-    override fun onExpenseOptionClick(option: ExpenseOption) {
-        val selectedExpenseIds = selectedExpenseIds.value.ifEmpty { return }
+    override fun onTransactionOptionClick(option: TransactionOption) {
+        val selectedTransactionIds = selectedTransactionIds.value.ifEmpty { return }
         viewModelScope.launch {
             when (option) {
-                ExpenseOption.DE_TAG -> {
-                    deTagExpenses(selectedExpenseIds)
+                TransactionOption.UNTAG -> {
+                    unTagTransactions(selectedTransactionIds)
                 }
 
-                ExpenseOption.MARK_AS_EXCLUDED -> {
-                    toggleExpenseExclusion(selectedExpenseIds, true)
+                TransactionOption.MARK_AS_EXCLUDED -> {
+                    toggleTransactionExclusion(selectedTransactionIds, true)
                 }
 
-                ExpenseOption.MARK_AS_INCLUDED -> {
-                    toggleExpenseExclusion(selectedExpenseIds, false)
+                TransactionOption.MARK_AS_INCLUDED -> {
+                    toggleTransactionExclusion(selectedTransactionIds, false)
                 }
             }
         }
     }
 
-    private suspend fun deTagExpenses(ids: List<Long>) {
-        tagsRepo.deTagExpenses(ids)
+    private suspend fun unTagTransactions(ids: List<Long>) {
+        tagsRepo.untagTransactions(ids)
         dismissMultiSelectionMode()
-        eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.expenses_de_tagged)))
+        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_untagged)))
     }
 
-    private suspend fun toggleExpenseExclusion(ids: List<Long>, excluded: Boolean) {
-        expenseRepo.toggleExpenseExclusionByIds(
+    private suspend fun toggleTransactionExclusion(ids: List<Long>, excluded: Boolean) {
+        transactionRepo.toggleTransactionExclusionByIds(
             ids = ids,
             excluded = excluded
         )
         dismissMultiSelectionMode()
         eventBus.send(
-            AllExpenseEvent.ShowUiMessage(
+            AllTransactionsEvent.ShowUiMessage(
                 UiText.StringResource(
-                    if (excluded) R.string.expenses_excluded_from_expenditure
-                    else R.string.expenses_included_in_expenditure
+                    if (excluded) R.string.transactions_excluded_from_expenditure
+                    else R.string.transactions_included_in_expenditure
                 )
             )
         )
     }
 
-    override fun onDeleteSelectedExpensesClick() {
-        savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = true
+    override fun onDeleteSelectedTransactionsClick() {
+        savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = true
     }
 
-    override fun onDeleteExpenseDismiss() {
-        savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = false
+    override fun onDeleteTransactionDismiss() {
+        savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = false
     }
 
-    override fun onDeleteExpenseConfirm() {
-        val selectedIds = selectedExpenseIds.value
+    override fun onDeleteTransactionConfirm() {
+        val selectedIds = selectedTransactionIds.value
         if (selectedIds.isEmpty()) {
-            savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = false
+            savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = false
             return
         }
         viewModelScope.launch {
-            deleteExpenses(selectedIds)
-            savedStateHandle[SHOW_DELETE_EXPENSE_CONFIRMATION] = false
+            deleteTransactions(selectedIds)
+            savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = false
             dismissMultiSelectionMode()
-            eventBus.send(AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.expenses_deleted)))
+            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_deleted)))
         }
     }
 
-    private suspend fun deleteExpenses(ids: List<Long>) {
-        expenseRepo.deleteExpensesByIds(ids)
+    private suspend fun deleteTransactions(ids: List<Long>) {
+        transactionRepo.deleteTransactionsByIds(ids)
     }
 
-    override fun onEditTagClick(tag: ExpenseTag) {
+    override fun onEditTagClick(tag: TransactionTag) {
         savedStateHandle[TAG_INPUT] = tag
         savedStateHandle[SHOW_TAG_INPUT] = true
     }
@@ -394,36 +394,39 @@ class AllExpensesViewModel @Inject constructor(
             savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
             hideAndClearTagInput()
             eventBus.send(
-                AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted))
+                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted))
             )
         }
     }
 
-    override fun onDeleteTagWithExpensesClick() {
+    override fun onDeleteTagWithTransactionsClick() {
         val tagId = tagInput.value?.id ?: return
         viewModelScope.launch {
-            tagsRepo.deleteTagWithExpenses(tagId)
+            tagsRepo.deleteTagWithTransactions(tagId)
             savedStateHandle[SELECTED_TAG] = null
             savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
             hideAndClearTagInput()
             eventBus.send(
-                AllExpenseEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_expenses))
+                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_transactions))
             )
         }
     }
 
-    sealed class AllExpenseEvent {
-        data class NavigateToAddEditExpenseScreen(val expenseId: Long) : AllExpenseEvent()
-        data class ShowUiMessage(val uiText: UiText) : AllExpenseEvent()
-        data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllExpenseEvent()
+    sealed class AllTransactionsEvent {
+        data class NavigateToAddEditTransactionScreen(val transactionId: Long) :
+            AllTransactionsEvent()
+
+        data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent()
+        data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent()
     }
 }
 
 private const val SELECTED_DATE = "SELECTED_DATE"
 private const val SELECTED_TAG = "SELECTED_TAG"
-private const val SELECTED_EXPENSE_IDS = "SELECTED_EXPENSE_IDS"
-private const val EXPENSE_MULTI_SELECTION_MODE_ACTIVE = "EXPENSE_MULTI_SELECTION_MODE_ACTIVE"
-private const val SHOW_DELETE_EXPENSE_CONFIRMATION = "SHOW_DELETE_EXPENSE_CONFIRMATION"
+private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
+private const val TRANSACTION_MULTI_SELECTION_MODE_ACTIVE =
+    "TRANSACTION_MULTI_SELECTION_MODE_ACTIVE"
+private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"
 private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
 private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"

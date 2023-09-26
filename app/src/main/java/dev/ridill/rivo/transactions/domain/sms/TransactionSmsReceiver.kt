@@ -7,13 +7,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ExpenseSmsReceiver : BroadcastReceiver() {
+class TransactionSmsReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var service: ExpenseSmsService
+    lateinit var service: TransactionSmsService
 
     override fun onReceive(context: Context, intent: Intent) {
         if (!service.isSmsActionValid(intent.action)) return
-        service.saveExpenseFromSMSData(intent)
+        service.saveTransactionsFromSMSData(intent)
     }
 }

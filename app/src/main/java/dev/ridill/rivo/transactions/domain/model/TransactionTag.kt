@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
 @Parcelize
-data class ExpenseTag(
+data class TransactionTag(
     val id: Long,
     val name: String,
     val colorCode: Int,
@@ -21,7 +21,7 @@ data class ExpenseTag(
         get() = Color(colorCode)
 
     companion object {
-        val NEW = ExpenseTag(
+        val NEW = TransactionTag(
             id = RivoDatabase.DEFAULT_ID_LONG,
             name = "",
             colorCode = TagColors.first().toArgb(),

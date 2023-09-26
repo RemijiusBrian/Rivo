@@ -16,17 +16,17 @@ import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.transactions.domain.notification.AutoAddExpenseNotificationHelper
-import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
+import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
+import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 
-class ExpenseSmsService(
-    private val repo: AddEditExpenseRepository,
-    private val notificationHelper: AutoAddExpenseNotificationHelper,
+class TransactionSmsService(
+    private val repo: AddEditTransactionRepository,
+    private val notificationHelper: AutoAddTransactionNotificationHelper,
     private val applicationScope: CoroutineScope,
     private val context: Context
 ) {
@@ -35,7 +35,7 @@ class ExpenseSmsService(
     fun isSmsActionValid(action: String?): Boolean =
         action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION
 
-    fun saveExpenseFromSMSData(data: Intent) = applicationScope.launch(Dispatchers.Default) {
+    fun saveTransactionsFromSMSData(data: Intent) = applicationScope.launch(Dispatchers.Default) {
         getEntityExtractor().use { extractor ->
             val dateTimeNow = DateUtil.now()
             extractor.downloadModelIfNeeded().await()
@@ -47,26 +47,26 @@ class ExpenseSmsService(
                 val content = message.messageBody
                 if (!isExpenseSMS(content)) continue
 
-                val expenseDetails = extractExpenseDetails(extractor, content)
+                val transactionDetails = extractTransactionDetails(extractor, content)
                     ?: continue
-                if (expenseDetails.paymentDateTime.isAfter(dateTimeNow)) continue
+                if (transactionDetails.paymentDateTime.isAfter(dateTimeNow)) continue
 
-                val amount = expenseDetails.amount
-                val merchant = expenseDetails.merchant
+                val amount = transactionDetails.amount
+                val merchant = transactionDetails.merchant
                     ?: context.getString(R.string.generic_merchant)
 
-                val insertedId = repo.cacheExpense(
+                val insertedId = repo.saveTransaction(
                     id = null,
                     amount = amount,
                     note = merchant,
                     dateTime = DateUtil.now(),
                     tagId = null,
-                    excluded = false // Expense added as Included in Expenditure by default when detected from SMS
+                    excluded = false // Transaction added as Included in Expenditure by default when detected from SMS
                 )
 
                 notificationHelper.postNotification(
                     id = insertedId.toInt(),
-                    title = context.getString(R.string.new_expense_detected),
+                    title = context.getString(R.string.new_transaction_detected),
                     content = context.getString(
                         R.string.amount_spent_towards_merchant,
                         TextFormat.currency(amount),
@@ -98,10 +98,10 @@ class ExpenseSmsService(
             .build()
     )
 
-    private suspend fun extractExpenseDetails(
+    private suspend fun extractTransactionDetails(
         extractor: EntityExtractor,
         content: String
-    ): ExpenseDetailsFromSMS? = tryOrNull {
+    ): TransactionDetailsFromSMS? = tryOrNull {
         val params = EntityExtractionParams.Builder(content)
             .setEntityTypesFilter(
                 setOf(Entity.TYPE_MONEY, Entity.TYPE_DATE_TIME)
@@ -129,7 +129,7 @@ class ExpenseSmsService(
 
         val merchant = extractMerchant(content)
 
-        ExpenseDetailsFromSMS(
+        TransactionDetailsFromSMS(
             amount = amount,
             merchant = merchant,
             paymentDateTime = paymentDateTime
@@ -140,7 +140,7 @@ class ExpenseSmsService(
 private const val MERCHANT_PATTERN =
     "(?i)(?:\\sat\\s|in\\*|to\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?)"
 
-data class ExpenseDetailsFromSMS(
+data class TransactionDetailsFromSMS(
     val amount: Double,
     val merchant: String?,
     val paymentDateTime: LocalDateTime,

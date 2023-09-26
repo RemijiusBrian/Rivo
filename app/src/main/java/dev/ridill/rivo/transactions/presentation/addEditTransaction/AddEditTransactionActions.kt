@@ -1,18 +1,18 @@
-package dev.ridill.rivo.transactions.presentation.addEditExpense
+package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import androidx.compose.ui.graphics.Color
 import java.time.LocalDateTime
 
-interface AddEditExpenseActions {
+interface AddEditTransactionActions {
     fun onAmountChange(value: String)
     fun onNoteInputFocused()
     fun onNoteChange(value: String)
     fun onRecommendedAmountClick(amount: Long)
     fun onTagClick(tagId: Long)
-    fun onExpenseTimestampClick()
-    fun onExpenseTimestampSelectionDismiss()
-    fun onExpenseTimestampSelectionConfirm(dateTime: LocalDateTime)
-    fun onExpenseExclusionToggle(excluded: Boolean)
+    fun onTransactionTimestampClick()
+    fun onTransactionTimestampSelectionDismiss()
+    fun onTransactionTimestampSelectionConfirm(dateTime: LocalDateTime)
+    fun onTransactionExclusionToggle(excluded: Boolean)
     fun onSaveClick()
     fun onDeleteClick()
     fun onDeleteDismiss()

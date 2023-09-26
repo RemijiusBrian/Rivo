@@ -63,7 +63,7 @@ import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.navigation.destinations.AllExpensesScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -71,9 +71,9 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
-import dev.ridill.rivo.transactions.presentation.components.ExpenseListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -81,8 +81,8 @@ import java.time.LocalDate
 fun DashboardScreen(
     state: DashboardState,
     snackbarController: SnackbarController,
-    navigateToAllExpenses: () -> Unit,
-    navigateToAddEditExpense: (Long?) -> Unit,
+    navigateToAllTransactions: () -> Unit,
+    navigateToAddEditTransaction: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
     val recentSpendsListState = rememberLazyListState()
@@ -114,12 +114,12 @@ fun DashboardScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { navigateToAddEditExpense(null) },
+                        onClick = { navigateToAddEditTransaction(null) },
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.cd_new_expense)
+                            contentDescription = stringResource(R.string.cd_new_transaction)
                         )
                     }
                 }
@@ -152,12 +152,12 @@ fun DashboardScreen(
                 currency = state.currency,
                 spentAmount = state.spentAmount,
                 recentSpends = state.recentSpends,
-                onTransactionClick = { navigateToAddEditExpense(it.id) },
+                onTransactionClick = { navigateToAddEditTransaction(it.id) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
                     .padding(horizontal = SpacingSmall),
-                onAllExpensesClick = navigateToAllExpenses,
+                onAllTransactionsClick = navigateToAllTransactions,
                 listState = recentSpendsListState,
                 onNavigateUpClick = {
                     coroutineScope.launch {
@@ -281,9 +281,9 @@ private fun Balance(
 private fun SpendsOverview(
     currency: Currency,
     spentAmount: Double,
-    recentSpends: List<ExpenseListItem>,
-    onTransactionClick: (ExpenseListItem) -> Unit,
-    onAllExpensesClick: () -> Unit,
+    recentSpends: List<TransactionListItem>,
+    onTransactionClick: (TransactionListItem) -> Unit,
+    onAllTransactionsClick: () -> Unit,
     listState: LazyListState,
     onNavigateUpClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -311,10 +311,10 @@ private fun SpendsOverview(
 
             SpacerSmall()
 
-            SpentAmountAndAllExpenses(
+            SpentAmountAndAllTransactionsButton(
                 currency = currency,
                 amount = spentAmount,
-                onAllExpensesClick = onAllExpensesClick,
+                onAllTransactionsClick = onAllTransactionsClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -386,10 +386,10 @@ private fun SpendsOverview(
 }
 
 @Composable
-private fun SpentAmountAndAllExpenses(
+private fun SpentAmountAndAllTransactionsButton(
     currency: Currency,
     amount: Double,
-    onAllExpensesClick: () -> Unit,
+    onAllTransactionsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
@@ -426,11 +426,11 @@ private fun SpentAmountAndAllExpenses(
         Spacer(weight = Float.One)
 
         TextButton(
-            onClick = onAllExpensesClick,
+            onClick = onAllTransactionsClick,
             modifier = Modifier
                 .alignByBaseline()
         ) {
-            Text(text = "${stringResource(AllExpensesScreenSpec.labelRes)} >")
+            Text(text = "${stringResource(AllTransactionsScreenSpec.labelRes)} >")
         }
     }
 }
@@ -441,14 +441,14 @@ private fun RecentSpend(
     amount: String,
     date: LocalDate,
     onClick: () -> Unit,
-    tag: ExpenseTag?,
+    tag: TransactionTag?,
     modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
         modifier = modifier
     ) {
-        ExpenseListItem(
+        TransactionListItem(
             note = note,
             amount = amount,
             date = date,
@@ -467,8 +467,8 @@ private fun PreviewDashboardScreen() {
                 spentAmount = 500.0,
                 monthlyBudget = 5_000L
             ),
-            navigateToAllExpenses = {},
-            navigateToAddEditExpense = {},
+            navigateToAllTransactions = {},
+            navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
             navigateToBottomNavDestination = {}
         )

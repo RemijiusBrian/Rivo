@@ -3,20 +3,20 @@ package dev.ridill.rivo.core.domain.service
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import dev.ridill.rivo.transactions.domain.notification.DeleteExpenseActionReceiver
-import dev.ridill.rivo.transactions.domain.notification.MarkExcludedActionReceiver
-import dev.ridill.rivo.transactions.domain.sms.ExpenseSmsReceiver
+import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
+import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
+import dev.ridill.rivo.transactions.domain.sms.TransactionSmsReceiver
 
 class ReceiverService(
     private val context: Context
 ) {
 
     fun toggleSmsReceiver(enable: Boolean) =
-        toggleReceiver(ExpenseSmsReceiver::class.java, enable)
+        toggleReceiver(TransactionSmsReceiver::class.java, enable)
 
     fun toggleNotificationActionReceivers(enable: Boolean) {
-        toggleReceiver(DeleteExpenseActionReceiver::class.java, enable)
-        toggleReceiver(MarkExcludedActionReceiver::class.java, enable)
+        toggleReceiver(DeleteTransactionActionReceiver::class.java, enable)
+        toggleReceiver(MarkTransactionExcludedActionReceiver::class.java, enable)
     }
 
     private fun toggleReceiver(receiverClass: Class<*>, enable: Boolean) {

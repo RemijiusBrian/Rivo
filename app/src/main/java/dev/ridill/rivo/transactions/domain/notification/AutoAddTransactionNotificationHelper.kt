@@ -13,10 +13,11 @@ import androidx.core.net.toUri
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
-import dev.ridill.rivo.core.ui.navigation.destinations.ARG_EXPENSE_ID
+import dev.ridill.rivo.core.ui.navigation.destinations.ARG_TRANSACTION_ID
+import dev.ridill.rivo.core.ui.navigation.destinations.DEEP_LINK_URI
 
 @SuppressLint("MissingPermission")
-class AutoAddExpenseNotificationHelper(
+class AutoAddTransactionNotificationHelper(
     private val context: Context
 ) : NotificationHelper {
 
@@ -28,8 +29,8 @@ class AutoAddExpenseNotificationHelper(
     }
 
     override fun registerChannelGroup() {
-        val group = NotificationChannelGroupCompat.Builder(NotificationHelper.Groups.EXPENSES)
-            .setName(context.getString(R.string.notification_channel_group_expenses_name))
+        val group = NotificationChannelGroupCompat.Builder(NotificationHelper.Groups.TRANSACTIONS)
+            .setName(context.getString(R.string.notification_channel_group_transactions_name))
             .build()
         notificationManager.createNotificationChannelGroup(group)
     }
@@ -37,8 +38,8 @@ class AutoAddExpenseNotificationHelper(
     override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setName(context.getString(R.string.notification_channel_auto_add_expenses_name))
-            .setGroup(NotificationHelper.Groups.EXPENSES)
+            .setName(context.getString(R.string.notification_channel_auto_add_transactions_name))
+            .setGroup(NotificationHelper.Groups.TRANSACTIONS)
             .build()
         notificationManager.createNotificationChannel(channel)
     }
@@ -78,9 +79,9 @@ class AutoAddExpenseNotificationHelper(
         }
     }
 
-    fun updateNotificationToExpenseDeleted(id: Int) {
+    fun updateNotificationToTransactionDeleted(id: Int) {
         val notification = buildBaseNotification()
-            .setContentTitle(context.getString(R.string.expense_deleted))
+            .setContentTitle(context.getString(R.string.transaction_deleted))
             .setTimeoutAfter(NotificationHelper.Utils.TIMEOUT_MILLIS)
             .build()
 
@@ -94,7 +95,7 @@ class AutoAddExpenseNotificationHelper(
     private fun buildContentIntent(id: Int): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            "https://www.mym.com/expense/$id".toUri(),
+            "$DEEP_LINK_URI/transaction/$id".toUri(),
             context,
             RivoActivity::class.java
         )
@@ -105,8 +106,8 @@ class AutoAddExpenseNotificationHelper(
     }
 
     private fun buildDeleteAction(id: Int): NotificationCompat.Action {
-        val intent = Intent(context, DeleteExpenseActionReceiver::class.java).apply {
-            putExtra(ARG_EXPENSE_ID, id.toLong())
+        val intent = Intent(context, DeleteTransactionActionReceiver::class.java).apply {
+            putExtra(ARG_TRANSACTION_ID, id.toLong())
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context, id, intent, NotificationHelper.Utils.pendingIntentFlags
@@ -120,8 +121,8 @@ class AutoAddExpenseNotificationHelper(
     }
 
     private fun buildMarkExcludedAction(id: Int): NotificationCompat.Action {
-        val intent = Intent(context, MarkExcludedActionReceiver::class.java).apply {
-            putExtra(ARG_EXPENSE_ID, id.toLong())
+        val intent = Intent(context, MarkTransactionExcludedActionReceiver::class.java).apply {
+            putExtra(ARG_TRANSACTION_ID, id.toLong())
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context, id, intent, NotificationHelper.Utils.pendingIntentFlags
@@ -135,6 +136,6 @@ class AutoAddExpenseNotificationHelper(
     }
 }
 
-private const val CHANNEL_ID = "dev.ridill.mym.CHANNEL_AUTO_ADD_EXPENSE_NOTIFICATIONS"
-private const val SUMMARY_GROUP = "dev.ridill.mym.AUTO_ADDED_EXPENSES"
+private const val CHANNEL_ID = "dev.ridill.rivo.CHANNEL_AUTO_ADD_Transaction_NOTIFICATIONS"
+private const val SUMMARY_GROUP = "dev.ridill.rivo.AUTO_ADDED_TransactionS"
 private const val SUMMARY_ID = Int.MAX_VALUE - 1

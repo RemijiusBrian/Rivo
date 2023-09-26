@@ -118,7 +118,7 @@ private fun RestoreBackupActions(
         }
 
         TextButton(onClick = onSkipClick) {
-            Text(stringResource(R.string.dont_restore))
+            Text(stringResource(R.string.do_not_restore))
         }
     }
 }

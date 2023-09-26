@@ -6,8 +6,8 @@ import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
-import dev.ridill.rivo.transactions.data.toExpenseListItem
-import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
+import dev.ridill.rivo.transactions.data.toTransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,11 +28,11 @@ class DashboardRepositoryImpl(
         transactionDao.getExpenditureForMonth(DateUtil.now())
             .distinctUntilChanged()
 
-    override fun getRecentSpends(): Flow<List<ExpenseListItem>> = transactionDao
+    override fun getRecentSpends(): Flow<List<TransactionListItem>> = transactionDao
         .getTransactionsListForMonth(
             monthAndYear = DateUtil.now(),
             transactionDirectionName = TransactionDirection.OUTGOING.name,
             tagId = null,
             showExcluded = false
-        ).map { it.map(TransactionDetails::toExpenseListItem) }
+        ).map { it.map(TransactionDetails::toTransactionListItem) }
 }

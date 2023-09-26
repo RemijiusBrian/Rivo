@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.presentation.addEditExpense
+package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import android.icu.util.Currency
 import androidx.compose.foundation.layout.Arrangement
@@ -68,14 +68,14 @@ import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
 import dev.ridill.rivo.transactions.presentation.components.ExcludedIndicator
 import dev.ridill.rivo.transactions.presentation.components.NewTagChip
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 
 @Composable
-fun AddEditExpenseScreen(
+fun AddEditTransactionScreen(
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
@@ -83,8 +83,8 @@ fun AddEditExpenseScreen(
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
     isEditMode: Boolean,
-    state: AddEditExpenseState,
-    actions: AddEditExpenseActions,
+    state: AddEditTransactionState,
+    actions: AddEditTransactionActions,
     navigateUp: () -> Unit
 ) {
     val amountFocusRequester = remember { FocusRequester() }
@@ -97,8 +97,8 @@ fun AddEditExpenseScreen(
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = DateUtil.toMillis(state.expenseTimestamp),
-        yearRange = IntRange(DatePickerDefaults.YearRange.first, state.expenseTimestamp.year)
+        initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
+        yearRange = IntRange(DatePickerDefaults.YearRange.first, state.transactionTimestamp.year)
     )
 
     RivoScaffold(
@@ -107,8 +107,8 @@ fun AddEditExpenseScreen(
                 title = {
                     Text(
                         text = stringResource(
-                            id = if (isEditMode) R.string.destination_edit_expense
-                            else R.string.destination_add_expense
+                            id = if (isEditMode) R.string.destination_edit_transaction
+                            else R.string.destination_new_transaction
                         )
                     )
                 },
@@ -180,16 +180,16 @@ fun AddEditExpenseScreen(
 
             Divider()
 
-            ExpenseDate(
-                date = state.expenseDateFormatted,
-                onDateClick = actions::onExpenseTimestampClick,
+            TransactionDate(
+                date = state.transactionDateFormatted,
+                onDateClick = actions::onTransactionTimestampClick,
                 modifier = Modifier
                     .align(Alignment.End)
             )
 
-            Exclusion(
-                excluded = state.isExpenseExcluded,
-                onToggle = actions::onExpenseExclusionToggle,
+            ExclusionToggle(
+                excluded = state.isTransactionExcluded,
+                onToggle = actions::onTransactionExclusionToggle,
                 modifier = Modifier
                     .align(Alignment.End)
             )
@@ -206,7 +206,7 @@ fun AddEditExpenseScreen(
 
         if (state.showDeleteConfirmation) {
             ConfirmationDialog(
-                titleRes = R.string.delete_expense_confirmation_title,
+                titleRes = R.string.delete_transaction_confirmation_title,
                 contentRes = R.string.action_irreversible_message,
                 onConfirm = actions::onDeleteConfirm,
                 onDismiss = actions::onDeleteDismiss
@@ -231,20 +231,20 @@ fun AddEditExpenseScreen(
 
         if (state.showDateTimePicker) {
             DatePickerDialog(
-                onDismissRequest = actions::onExpenseTimestampSelectionDismiss,
+                onDismissRequest = actions::onTransactionTimestampSelectionDismiss,
                 confirmButton = {
                     TextButton(onClick = {
                         datePickerState.selectedDateMillis?.let {
                             val dateTime =
-                                DateUtil.dateFromMillisWithTime(it, state.expenseTimestamp)
-                            actions.onExpenseTimestampSelectionConfirm(dateTime)
+                                DateUtil.dateFromMillisWithTime(it, state.transactionTimestamp)
+                            actions.onTransactionTimestampSelectionConfirm(dateTime)
                         }
                     }) {
                         Text(stringResource(R.string.action_ok))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = actions::onExpenseTimestampSelectionDismiss) {
+                    TextButton(onClick = actions::onTransactionTimestampSelectionDismiss) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 }
@@ -321,7 +321,7 @@ fun NoteInput(
 private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 
 @Composable
-private fun ExpenseDate(
+private fun TransactionDate(
     date: String,
     onDateClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -338,14 +338,14 @@ private fun ExpenseDate(
         FilledTonalIconButton(onClick = onDateClick) {
             Icon(
                 imageVector = Icons.Outlined.CalendarClock,
-                contentDescription = stringResource(R.string.cd_expense_date)
+                contentDescription = stringResource(R.string.cd_transaction_date)
             )
         }
     }
 }
 
 @Composable
-private fun Exclusion(
+private fun ExclusionToggle(
     excluded: Boolean,
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -363,7 +363,7 @@ private fun Exclusion(
 
 @Composable
 fun TagsList(
-    tagsList: List<ExpenseTag>,
+    tagsList: List<TransactionTag>,
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onNewTagClick: () -> Unit,
@@ -374,7 +374,7 @@ fun TagsList(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingMedium)
     ) {
-        Text(text = stringResource(R.string.tag_your_expense))
+        Text(text = stringResource(R.string.tag_your_transaction))
         FlowRow(
             modifier = Modifier,
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)

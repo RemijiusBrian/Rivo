@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor(
     private val monthlyBudget = repo.getCurrentBudget()
         .distinctUntilChanged()
 
-    private val autoAddExpenseEnabled = preferences.map { it.autoAddExpenseEnabled }
+    private val autoAddTransactionEnabled = preferences.map { it.autoAddTransactionEnabled }
         .distinctUntilChanged()
 
     private val showAppThemeSelection = savedStateHandle
@@ -79,7 +79,7 @@ class SettingsViewModel @Inject constructor(
         currencyCode,
         showCurrencySelection,
         currencyList,
-        autoAddExpenseEnabled,
+        autoAddTransactionEnabled,
         showSmsPermissionRationale
     ).map { (
                 appTheme,
@@ -91,7 +91,7 @@ class SettingsViewModel @Inject constructor(
                 currencyCode,
                 showCurrencySelection,
                 currencyList,
-                autoAddExpenseEnabled,
+                autoAddTransactionEnabled,
                 showSmsPermissionRationale
             ) ->
         SettingsState(
@@ -105,7 +105,7 @@ class SettingsViewModel @Inject constructor(
             currentCurrency = currencyCode,
             showCurrencySelection = showCurrencySelection,
             currencyList = currencyList,
-            autoAddExpenseEnabled = autoAddExpenseEnabled,
+            autoAddTransactionEnabled = autoAddTransactionEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale
         )
     }.asStateFlow(viewModelScope, SettingsState())
@@ -186,18 +186,18 @@ class SettingsViewModel @Inject constructor(
         savedStateHandle[CURRENCY_SEARCH_QUERY] = String.Empty
     }
 
-    override fun onToggleAutoAddExpense(enabled: Boolean) {
+    override fun onToggleAutoAddTransactions(enabled: Boolean) {
         viewModelScope.launch {
-            savedStateHandle[TEMP_AUTO_ADD_EXPENSE_STATE] = enabled
+            savedStateHandle[TEMP_AUTO_ADD_TRANSACTION_STATE] = enabled
             eventBus.send(SettingsEvent.RequestSMSPermission)
         }
     }
 
     fun onSmsPermissionResult(granted: Boolean) = viewModelScope.launch {
         if (granted) {
-            val enabled = savedStateHandle.get<Boolean?>(TEMP_AUTO_ADD_EXPENSE_STATE) == true
-            preferencesManager.updateAutoAddExpenseEnabled(enabled)
-            savedStateHandle[TEMP_AUTO_ADD_EXPENSE_STATE] = null
+            val enabled = savedStateHandle.get<Boolean?>(TEMP_AUTO_ADD_TRANSACTION_STATE) == true
+            preferencesManager.updateAutoAddTransactionEnabled(enabled)
+            savedStateHandle[TEMP_AUTO_ADD_TRANSACTION_STATE] = null
         }
         savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = !granted
     }
@@ -226,4 +226,4 @@ private const val SHOW_CURRENCY_SELECTION = "SHOW_CURRENCY_SELECTION"
 private const val CURRENCY_SEARCH_QUERY = "CURRENCY_SEARCH_QUERY"
 private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
-private const val TEMP_AUTO_ADD_EXPENSE_STATE = "TOGGLED_AUTO_ADD_EXPENSE_STATE"
+private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TOGGLED_AUTO_ADD_TRANSACTION_STATE"

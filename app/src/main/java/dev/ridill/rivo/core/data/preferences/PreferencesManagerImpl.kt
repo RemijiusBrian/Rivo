@@ -28,8 +28,8 @@ class PreferencesManagerImpl(
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parse(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
-            val autoAddExpenseEnabled = preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] ?: false
-            val showExcludedExpenses = preferences[Keys.SHOW_EXCLUDED_EXPENSES] ?: true
+            val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED] ?: false
+            val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS] ?: true
 
             RivoPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -37,8 +37,8 @@ class PreferencesManagerImpl(
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
-                autoAddExpenseEnabled = autoAddExpenseEnabled,
-                showExcludedExpenses = showExcludedExpenses
+                autoAddTransactionEnabled = autoAddTransactionEnabled,
+                showExcludedTransactions = showExcludedTransactions
             )
         }
 
@@ -82,18 +82,18 @@ class PreferencesManagerImpl(
         }
     }
 
-    override suspend fun updateAutoAddExpenseEnabled(enabled: Boolean) {
+    override suspend fun updateAutoAddTransactionEnabled(enabled: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.AUTO_ADD_EXPENSE_ENABLED] = enabled
+                preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED] = enabled
             }
         }
     }
 
-    override suspend fun updateShowExcludedExpenses(show: Boolean) {
+    override suspend fun updateShowExcludedTransactions(show: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.SHOW_EXCLUDED_EXPENSES] = show
+                preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS] = show
             }
         }
     }
@@ -104,7 +104,7 @@ class PreferencesManagerImpl(
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
-        val AUTO_ADD_EXPENSE_ENABLED = booleanPreferencesKey("AUTO_ADD_EXPENSE_ENABLED")
-        val SHOW_EXCLUDED_EXPENSES = booleanPreferencesKey("SHOW_EXCLUDED_EXPENSES")
+        val AUTO_ADD_TRANSACTION_ENABLED = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
+        val SHOW_EXCLUDED_TRANSACTIONS = booleanPreferencesKey("SHOW_EXCLUDED_TRANSACTIONS")
     }
 }

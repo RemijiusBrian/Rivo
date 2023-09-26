@@ -1,14 +1,14 @@
 package dev.ridill.rivo.transactions.domain.repository
 
-import dev.ridill.rivo.transactions.domain.model.Expense
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
-interface AddEditExpenseRepository {
-    suspend fun getExpenseById(id: Long): Expense?
+interface AddEditTransactionRepository {
+    suspend fun getTransactionById(id: Long): Transaction?
     fun getAmountRecommendations(): Flow<List<Long>>
-    suspend fun cacheExpense(
+    suspend fun saveTransaction(
         id: Long?,
         amount: Double,
         note: String,
@@ -19,7 +19,7 @@ interface AddEditExpenseRepository {
         groupId: Long? = null
     ): Long
 
-    suspend fun deleteExpense(id: Long)
+    suspend fun deleteTransaction(id: Long)
 
     suspend fun toggleExclusionById(id: Long, excluded: Boolean)
 }

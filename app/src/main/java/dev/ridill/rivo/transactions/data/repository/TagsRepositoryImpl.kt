@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.toArgb
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
-import dev.ridill.rivo.transactions.data.toExpenseTag
+import dev.ridill.rivo.transactions.data.toTransactionTag
 import dev.ridill.rivo.transactions.data.toTagWithExpenditure
-import dev.ridill.rivo.transactions.domain.model.ExpenseTag
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.Dispatchers
@@ -21,9 +21,9 @@ class TagsRepositoryImpl(
     private val dao: TagsDao
 ) : TagsRepository {
 
-    override fun getAllTags(): Flow<List<ExpenseTag>> = dao.getAllTags()
+    override fun getAllTags(): Flow<List<TransactionTag>> = dao.getAllTags()
         .map { entities ->
-            entities.map(TagEntity::toExpenseTag)
+            entities.map(TagEntity::toTransactionTag)
         }
 
     override fun getTagsWithExpenditures(
@@ -35,12 +35,12 @@ class TagsRepositoryImpl(
             entities.map { it.toTagWithExpenditure(totalExpenditure) }
         }
 
-    override suspend fun assignTagToExpenses(tagId: Long, ids: List<Long>) =
+    override suspend fun assignTagToTransactions(tagId: Long, ids: List<Long>) =
         withContext(Dispatchers.IO) {
             dao.assignTagToTransactionsByIds(tagId, ids)
         }
 
-    override suspend fun deTagExpenses(ids: List<Long>) = withContext(Dispatchers.IO) {
+    override suspend fun untagTransactions(ids: List<Long>) = withContext(Dispatchers.IO) {
         dao.untagTransactionsByIds(ids)
     }
 
@@ -66,7 +66,7 @@ class TagsRepositoryImpl(
         dao.untagTransactionsAndDeleteTag(id)
     }
 
-    override suspend fun deleteTagWithExpenses(tagId: Long) = withContext(Dispatchers.IO) {
+    override suspend fun deleteTagWithTransactions(tagId: Long) = withContext(Dispatchers.IO) {
         dao.deleteTagWithTransactions(tagId)
     }
 }

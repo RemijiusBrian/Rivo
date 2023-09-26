@@ -132,10 +132,10 @@ fun SettingsScreen(
             )
 
             SwitchPreference(
-                titleRes = R.string.preference_auto_add_expenses,
-                summary = stringResource(R.string.preference_auto_add_expense_summary),
-                value = state.autoAddExpenseEnabled,
-                onValueChange = actions::onToggleAutoAddExpense
+                titleRes = R.string.preference_auto_add_transactions,
+                summary = stringResource(R.string.preference_auto_add_transactions_summary),
+                value = state.autoAddTransactionEnabled,
+                onValueChange = actions::onToggleAutoAddTransactions
             )
 
             SimpleSettingsPreference(

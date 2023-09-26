@@ -11,16 +11,16 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.repository.AddEditExpenseRepositoryImpl
-import dev.ridill.rivo.transactions.data.repository.AllExpensesRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.AddEditTransactionRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.AllTransactionsRepositoryImpl
 import dev.ridill.rivo.transactions.data.repository.TagsRepositoryImpl
-import dev.ridill.rivo.transactions.domain.notification.AutoAddExpenseNotificationHelper
-import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
-import dev.ridill.rivo.transactions.domain.repository.AllExpensesRepository
+import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
+import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
+import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
-import dev.ridill.rivo.transactions.domain.sms.ExpenseSmsService
-import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseViewModel
-import dev.ridill.rivo.transactions.presentation.allExpenses.AllExpensesViewModel
+import dev.ridill.rivo.transactions.domain.sms.TransactionSmsService
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
+import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Module
@@ -34,44 +34,44 @@ object TransactionModule {
     fun provideTagsDao(db: RivoDatabase): TagsDao = db.tagsDao()
 
     @Provides
-    fun provideAddEditExpenseRepository(
+    fun provideAddEditTransactionRepository(
         dao: TransactionDao
-    ): AddEditExpenseRepository = AddEditExpenseRepositoryImpl(dao)
+    ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(dao)
 
     @Provides
     fun provideTagsRepository(dao: TagsDao): TagsRepository = TagsRepositoryImpl(dao)
 
     @Provides
-    fun provideAddEditExpenseEventBus(): EventBus<AddEditExpenseViewModel.AddEditExpenseEvent> =
+    fun provideAddEditTransactionEventBus(): EventBus<AddEditTransactionViewModel.AddEditTransactionEvent> =
         EventBus()
 
     @Provides
-    fun provideAllExpensesRepository(
+    fun provideAllTransactionsRepository(
         dao: TransactionDao,
         preferencesManager: PreferencesManager
-    ): AllExpensesRepository = AllExpensesRepositoryImpl(
+    ): AllTransactionsRepository = AllTransactionsRepositoryImpl(
         dao = dao,
         preferencesManager = preferencesManager
     )
 
     @Provides
-    fun provideAllExpenseEventBus(): EventBus<AllExpensesViewModel.AllExpenseEvent> = EventBus()
+    fun provideAllTransactionEventBus(): EventBus<AllTransactionsViewModel.AllTransactionsEvent> = EventBus()
 
     @Provides
-    fun provideExpenseSmsService(
-        addEditExpenseRepository: AddEditExpenseRepository,
-        notificationHelper: AutoAddExpenseNotificationHelper,
+    fun provideTransactionSmsService(
+        addEditTransactionRepository: AddEditTransactionRepository,
+        notificationHelper: AutoAddTransactionNotificationHelper,
         @ApplicationScope applicationScope: CoroutineScope,
         @ApplicationContext context: Context
-    ): ExpenseSmsService = ExpenseSmsService(
-        repo = addEditExpenseRepository,
+    ): TransactionSmsService = TransactionSmsService(
+        repo = addEditTransactionRepository,
         notificationHelper = notificationHelper,
         applicationScope = applicationScope,
         context = context
     )
 
     @Provides
-    fun provideExpenseNotificationHelper(
+    fun provideTransactionNotificationHelper(
         @ApplicationContext context: Context
-    ): AutoAddExpenseNotificationHelper = AutoAddExpenseNotificationHelper(context)
+    ): AutoAddTransactionNotificationHelper = AutoAddTransactionNotificationHelper(context)
 }
