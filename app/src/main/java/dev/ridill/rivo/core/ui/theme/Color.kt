@@ -3,7 +3,7 @@ package dev.ridill.rivo.core.ui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
-//val PrimaryAmber = Color(0xFFFFBF00)
+val PrimaryBrandColor = Color(0xFFFFBF00)
 //val SecondaryYellow = Color(0xFFC0FF00)
 //val TertiaryRed = Color(0xFFFF4000)
 

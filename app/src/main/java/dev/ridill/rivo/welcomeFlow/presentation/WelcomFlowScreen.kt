@@ -15,7 +15,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,6 +29,7 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
+import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.welcomeFlow.domain.model.WelcomeFlowPage
@@ -50,7 +50,7 @@ fun WelcomeFlowScreen(
     RivoScaffold(
         modifier = Modifier
             .imePadding(),
-        containerColor = MaterialTheme.colorScheme.primary,
+        containerColor = PrimaryBrandColor,
         snackbarController = snackbarController
     ) { paddingValues ->
         Column(
