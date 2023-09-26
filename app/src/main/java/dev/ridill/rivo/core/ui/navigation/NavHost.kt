@@ -14,7 +14,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.ScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.WelcomeFlowScreenSpec
 
 @Composable
-fun MYMNavHost(
+fun RivoNavHost(
     navController: NavHostController,
     showWelcomeFlow: Boolean,
     modifier: Modifier = Modifier

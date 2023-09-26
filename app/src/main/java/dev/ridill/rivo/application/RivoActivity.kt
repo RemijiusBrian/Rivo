@@ -13,8 +13,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.core.domain.util.BuildUtil
-import dev.ridill.rivo.core.ui.navigation.MYMNavHost
-import dev.ridill.rivo.core.ui.theme.MYMTheme
+import dev.ridill.rivo.core.ui.navigation.RivoNavHost
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 
@@ -49,12 +49,12 @@ class RivoActivity : ComponentActivity() {
                 AppTheme.DARK -> true
             }
 
-            MYMTheme(
+            RivoTheme(
                 darkTheme = darkTheme,
                 dynamicColor = dynamicTheme
             ) {
                 val navController = rememberNavController()
-                MYMNavHost(
+                RivoNavHost(
                     navController = navController,
                     showWelcomeFlow = showWelcomeFlow
                 )

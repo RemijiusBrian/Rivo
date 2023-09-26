@@ -19,12 +19,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MYM.Splash"
+        android:theme="@style/Theme.Rivo.Splash"
         tools:targetApi="tiramisu">
         <activity
             android:name=".application.RivoActivity"
             android:exported="true"
-            android:theme="@style/Theme.MYM.Splash">
+            android:theme="@style/Theme.Rivo.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

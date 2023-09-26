@@ -44,7 +44,7 @@ import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
-import dev.ridill.rivo.core.ui.components.MYMScaffold
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.SnackbarController
@@ -52,7 +52,7 @@ import dev.ridill.rivo.core.ui.components.ValueInputSheet
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
-import dev.ridill.rivo.core.ui.theme.MYMTheme
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
@@ -69,7 +69,7 @@ fun SettingsScreen(
     navigateToBackupSettings: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    MYMScaffold(
+    RivoScaffold(
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
@@ -282,7 +282,7 @@ private fun CurrencySelectionSheet(
 @Preview(showBackground = true)
 @Composable
 fun PreviewSimplePreference() {
-    MYMTheme {
+    RivoTheme {
         Surface {
             SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,

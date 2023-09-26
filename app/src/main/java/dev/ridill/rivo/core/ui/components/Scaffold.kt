@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun MYMScaffold(
+fun RivoScaffold(
     modifier: Modifier = Modifier,
     snackbarController: SnackbarController = rememberSnackbarController(),
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
-    snackbarHost: @Composable () -> Unit = { MYMSnackbarHost(snackbarController.snackbarHostState) },
+    snackbarHost: @Composable () -> Unit = { RivoSnackbarHost(snackbarController.snackbarHostState) },
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     containerColor: Color = MaterialTheme.colorScheme.background,

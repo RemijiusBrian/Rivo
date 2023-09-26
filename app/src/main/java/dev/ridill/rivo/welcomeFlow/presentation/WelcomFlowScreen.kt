@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import dev.ridill.rivo.core.domain.util.One
-import dev.ridill.rivo.core.ui.components.MYMScaffold
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -47,7 +47,7 @@ fun WelcomeFlowScreen(
     availableBackup: BackupDetails?,
     actions: WelcomeFlowActions
 ) {
-    MYMScaffold(
+    RivoScaffold(
         modifier = Modifier
             .imePadding(),
         containerColor = MaterialTheme.colorScheme.primary,

@@ -56,7 +56,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.FadedVisibility
 import dev.ridill.rivo.core.ui.components.ListLabel
-import dev.ridill.rivo.core.ui.components.MYMScaffold
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
@@ -67,7 +67,7 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllExpensesScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
-import dev.ridill.rivo.core.ui.theme.MYMTheme
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -89,7 +89,7 @@ fun DashboardScreen(
     val recentSpendsListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    MYMScaffold(
+    RivoScaffold(
         modifier = Modifier
             .fillMaxSize(),
         bottomBar = {
@@ -472,7 +472,7 @@ private fun RecentSpend(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewDashboardScreen() {
-    MYMTheme {
+    RivoTheme {
         DashboardScreen(
             state = DashboardState(
                 balance = 1_000.0,
