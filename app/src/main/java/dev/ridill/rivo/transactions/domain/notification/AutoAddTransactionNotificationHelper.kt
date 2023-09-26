@@ -9,12 +9,11 @@ import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import androidx.core.net.toUri
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.ui.navigation.destinations.ARG_TRANSACTION_ID
-import dev.ridill.rivo.core.ui.navigation.destinations.DEEP_LINK_URI
+import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
 
 @SuppressLint("MissingPermission")
 class AutoAddTransactionNotificationHelper(
@@ -95,7 +94,7 @@ class AutoAddTransactionNotificationHelper(
     private fun buildContentIntent(id: Int): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            "$DEEP_LINK_URI/transaction/$id".toUri(),
+            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id.toLong()),
             context,
             RivoActivity::class.java
         )

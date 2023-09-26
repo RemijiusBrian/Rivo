@@ -30,12 +30,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <intent-filter>
-                <data
-                    android:host="www.mym.com"
-                    android:scheme="https" />
-            </intent-filter>
         </activity>
 
         <!-- Expense SMS Receivers -->

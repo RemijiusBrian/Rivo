@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -9,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,7 +45,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
     )
 
     override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = "$DEEP_LINK_URI/transaction/{$ARG_TRANSACTION_ID}" }
+        navDeepLink { uriPattern = AUTO_ADDED_TRANSACTION_URI_PATTERN }
     )
 
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
@@ -62,6 +64,9 @@ object AddEditTransactionScreenSpec : ScreenSpec {
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
 
     fun isEditMode(expenseId: Long?): Boolean = expenseId != ARG_INVALID_ID_LONG
+
+    fun buildAutoAddedTransactionDeeplinkUri(id: Long): Uri =
+        AUTO_ADDED_TRANSACTION_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString()).toUri()
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
@@ -126,3 +131,5 @@ object AddEditTransactionScreenSpec : ScreenSpec {
 }
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
+private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
+    "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"

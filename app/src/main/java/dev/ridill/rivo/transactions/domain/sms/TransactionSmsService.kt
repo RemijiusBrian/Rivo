@@ -12,7 +12,6 @@ import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.WhiteSpace
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
@@ -37,12 +36,11 @@ class TransactionSmsService(
 
     fun saveTransactionsFromSMSData(data: Intent) = applicationScope.launch(Dispatchers.Default) {
         getEntityExtractor().use { extractor ->
-            val dateTimeNow = DateUtil.now()
             extractor.downloadModelIfNeeded().await()
             if (!extractor.isModelDownloaded.await()) return@launch
 
+            val dateTimeNow = DateUtil.now()
             val messages = getSmsFromIntent(data)
-            logD { "Messages - $messages" }
             for (message in messages) {
                 val content = message.messageBody
                 if (!isExpenseSMS(content)) continue
