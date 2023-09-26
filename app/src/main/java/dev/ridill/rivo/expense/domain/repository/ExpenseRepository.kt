@@ -15,7 +15,8 @@ interface ExpenseRepository {
         note: String,
         dateTime: LocalDateTime,
         tagId: Long?,
-        excluded: Boolean = false
+        excluded: Boolean = false,
+        groupId: Long? = null
     ): Long
 
     suspend fun deleteExpense(id: Long)
