@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.ridill.mym"
+    namespace = "dev.ridill.rivo"
     compileSdk = 34
 
     defaultConfig {
@@ -72,7 +72,7 @@ android {
     }
 
     applicationVariants.configureEach {
-        val artifactName = "Rivo-${name}-code${versionCode}-v${versionName}"
+        val artifactName = "${rootProject.name}-${name}-code${versionCode}-v${versionName}"
 
         // Rename APKs
         outputs.configureEach {

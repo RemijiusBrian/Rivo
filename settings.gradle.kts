@@ -14,5 +14,5 @@ dependencyResolutionManagement {
         maven { setUrl("https://jitpack.io") }
     }
 }
-rootProject.name = "MYM"
+rootProject.name = "Rivo"
 include(":app")

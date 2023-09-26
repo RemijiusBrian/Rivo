@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # --- DTOs ---
--keep class dev.ridill.mym.settings.data.remote.dto.* { *; }
+-keep class dev.ridill.rivo.settings.data.remote.dto.* { *; }
 
 # --- Preferences DataStore ---
 -keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
