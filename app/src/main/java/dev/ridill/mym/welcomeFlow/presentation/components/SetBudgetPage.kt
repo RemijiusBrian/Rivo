@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -70,7 +71,11 @@ fun SetBudgetPage(
                 onClick = {
                     keyboardController?.hide()
                     onContinueClick()
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 Text(stringResource(R.string.start_budgeting))
             }
@@ -110,7 +115,9 @@ private fun LimitInput(
                 focusedIndicatorColor = contentColor,
                 unfocusedIndicatorColor = contentColor,
                 unfocusedPlaceholderColor = contentColor,
-                focusedPlaceholderColor = contentColor
+                focusedPlaceholderColor = contentColor,
+                unfocusedSupportingTextColor = contentColor,
+                focusedSupportingTextColor = contentColor
             ),
             shape = MaterialTheme.shapes.medium,
             placeholder = { Text(stringResource(R.string.enter_budget)) },

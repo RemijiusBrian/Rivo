@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -69,11 +71,22 @@ fun NotificationPermissionPage(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = onSkipClick) {
+                TextButton(
+                    onClick = onSkipClick,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = LocalContentColor.current
+                    )
+                ) {
                     Text(stringResource(R.string.action_skip))
                 }
 
-                Button(onClick = onGivePermissionClick) {
+                Button(
+                    onClick = onGivePermissionClick,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
                     Text(stringResource(R.string.give_permission))
                 }
             }

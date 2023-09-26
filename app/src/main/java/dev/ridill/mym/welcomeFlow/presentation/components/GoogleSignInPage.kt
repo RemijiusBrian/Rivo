@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -135,7 +136,12 @@ private fun GoogleSignInActions(
     ) {
         GoogleSignInButton(onClick = onSignInClick)
 
-        TextButton(onClick = onSkipClick) {
+        TextButton(
+            onClick = onSkipClick,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = LocalContentColor.current
+            )
+        ) {
             Text(stringResource(R.string.action_skip))
         }
     }

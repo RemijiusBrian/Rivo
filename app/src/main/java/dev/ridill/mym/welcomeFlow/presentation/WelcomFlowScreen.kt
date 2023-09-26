@@ -50,7 +50,7 @@ fun WelcomeFlowScreen(
     MYMScaffold(
         modifier = Modifier
             .imePadding(),
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        containerColor = MaterialTheme.colorScheme.primary,
         snackbarController = snackbarController
     ) { paddingValues ->
         Column(
@@ -122,7 +122,7 @@ private fun WelcomeFlowProgress(
                 page <= currentPage
             }
             val backgroundColor by animateColorAsState(
-                targetValue = if (isCurrentOrPrevious) MaterialTheme.colorScheme.onPrimaryContainer
+                targetValue = if (isCurrentOrPrevious) LocalContentColor.current
                 else Color.Transparent,
                 label = "PageIndicatorBackgroundColor"
             )
