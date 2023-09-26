@@ -31,7 +31,7 @@ class DashboardRepositoryImpl(
     override fun getRecentSpends(): Flow<Map<Boolean, List<ExpenseListItem>>> = transactionDao
         .getTransactionsListForMonth(
             monthAndYear = currentDateDbFormat(),
-            transactionDirectionName = TransactionDirection.Outgoing.NAME,
+            transactionDirectionName = TransactionDirection.OUTGOING.name,
             tagId = null,
             showExcluded = true
         ).map { entities ->

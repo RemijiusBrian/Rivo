@@ -6,7 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 import java.time.LocalDateTime
 
@@ -40,7 +39,7 @@ data class TransactionEntity(
     @ColumnInfo(name = "timestamp")
     val timestamp: LocalDateTime,
 
-    @ColumnInfo(name = "transaction_direction", defaultValue = TransactionDirection.Outgoing.NAME)
+    @ColumnInfo(name = "transaction_direction", defaultValue = "OUTGOING")
     val direction: String,
 
     @ColumnInfo(name = "tag_id")

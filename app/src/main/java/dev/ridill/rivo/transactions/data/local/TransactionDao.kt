@@ -7,17 +7,20 @@ import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionWithTagRelation
 import dev.ridill.rivo.transactions.domain.model.TransactionAmountLimits
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao : BaseDao<TransactionEntity> {
 
+    @Transaction
     @Query(
         """
-        SELECT IFNULL(SUM(amount), 0.0)
-        FROM transaction_table
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND is_excluded = 0 AND transaction_direction = '${TransactionDirection.Outgoing.NAME}'
+        SELECT IFNULL(SUM(tx.amount), 0.0)
+        FROM transaction_table tx
+        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
+        WHERE strftime('%m-%Y', tx.timestamp) = :monthAndYear
+        AND (tx.is_excluded = 0 AND IFNULL(tag.is_excluded, 0) = 0)
+        AND tx.transaction_direction = 'OUTGOING'
     """
     )
     fun getExpenditureForMonth(monthAndYear: String): Flow<Double>
@@ -44,7 +47,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tag.name AS tagName,
         tag.color_code AS tagColorCode,
         tag.created_timestamp AS tagCreatedTimestamp,
-        (CASE WHEN (tx.is_excluded = 1 OR tag.is_excluded = 1) THEN 1 ELSE 0 END) AS isExcludedTransaction
+        (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded) THEN 1 ELSE 0 END) AS isExcludedTransaction
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag
         ON tx.tag_id = tag.id

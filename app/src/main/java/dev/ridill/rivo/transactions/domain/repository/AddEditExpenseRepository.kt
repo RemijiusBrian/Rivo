@@ -13,7 +13,7 @@ interface AddEditExpenseRepository {
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        direction: TransactionDirection = TransactionDirection.Outgoing,
+        direction: TransactionDirection = TransactionDirection.OUTGOING,
         tagId: Long?,
         excluded: Boolean = false,
         groupId: Long? = null

@@ -47,7 +47,7 @@ class AddEditExpenseRepositoryImpl(
             note = note,
             amount = amount,
             timestamp = dateTime,
-            direction = direction.value,
+            direction = direction.name,
             tagId = tagId,
             isExcluded = excluded,
             groupId = groupId
