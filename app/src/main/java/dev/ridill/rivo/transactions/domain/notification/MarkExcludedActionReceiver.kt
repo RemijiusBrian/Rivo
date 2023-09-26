@@ -7,7 +7,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.navigation.destinations.ARG_EXPENSE_ID
 import dev.ridill.rivo.di.ApplicationScope
-import dev.ridill.rivo.transactions.domain.repository.ExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,7 +20,7 @@ class MarkExcludedActionReceiver : BroadcastReceiver() {
     lateinit var applicationScope: CoroutineScope
 
     @Inject
-    lateinit var repo: ExpenseRepository
+    lateinit var repo: AddEditExpenseRepository
 
     @Inject
     lateinit var notificationHelper: AutoAddExpenseNotificationHelper
@@ -30,7 +30,7 @@ class MarkExcludedActionReceiver : BroadcastReceiver() {
         if (id < Long.Zero) return
 
         applicationScope.launch {
-            repo.toggleExpenseExclusionByIds(listOf(id), true)
+            repo.toggleExclusionById(id, true)
             notificationHelper.dismissNotification(id.toInt())
         }
     }

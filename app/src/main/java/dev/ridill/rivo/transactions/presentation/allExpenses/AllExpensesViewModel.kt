@@ -16,7 +16,7 @@ import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactions.domain.model.ExpenseOption
 import dev.ridill.rivo.transactions.domain.model.ExpenseTag
-import dev.ridill.rivo.transactions.domain.repository.ExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.AllExpensesRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AllExpensesViewModel @Inject constructor(
-    private val expenseRepo: ExpenseRepository,
+    private val expenseRepo: AllExpensesRepository,
     private val tagsRepo: TagsRepository,
     private val savedStateHandle: SavedStateHandle,
     private val eventBus: EventBus<AllExpenseEvent>
@@ -368,7 +368,7 @@ class AllExpensesViewModel @Inject constructor(
     }
 
     private suspend fun deleteExpenses(ids: List<Long>) {
-        expenseRepo.deleteExpenses(ids)
+        expenseRepo.deleteExpensesByIds(ids)
     }
 
     override fun onEditTagClick(tag: ExpenseTag) {

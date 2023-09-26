@@ -20,7 +20,7 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactions.domain.model.Expense
 import dev.ridill.rivo.transactions.domain.model.ExpenseTag
-import dev.ridill.rivo.transactions.domain.repository.ExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.map
@@ -31,7 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditExpenseViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val expenseRepo: ExpenseRepository,
+    private val expenseRepo: AddEditExpenseRepository,
     private val tagsRepo: TagsRepository,
     settingsRepo: SettingsRepository,
     private val eventBus: EventBus<AddEditExpenseEvent>,

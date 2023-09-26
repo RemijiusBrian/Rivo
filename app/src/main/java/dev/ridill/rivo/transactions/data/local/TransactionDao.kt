@@ -7,6 +7,7 @@ import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionWithTagRelation
 import dev.ridill.rivo.transactions.domain.model.TransactionAmountLimits
+import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,7 +17,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         """
         SELECT IFNULL(SUM(amount), 0.0)
         FROM transaction_table
-        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND is_excluded = 0
+        WHERE strftime('%m-%Y', timestamp) = :monthAndYear AND is_excluded = 0 AND transaction_direction = '${TransactionDirection.Outgoing.NAME}'
     """
     )
     fun getExpenditureForMonth(monthAndYear: String): Flow<Double>
@@ -45,45 +46,24 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tag.created_timestamp AS tagCreatedTimestamp,
         (CASE WHEN (tx.is_excluded = 1 OR tag.is_excluded = 1) THEN 1 ELSE 0 END) AS isExcludedTransaction
         FROM transaction_table tx
-        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
+        LEFT OUTER JOIN tag_table tag
+        ON tx.tag_id = tag.id
         WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
             AND (:showExcluded = 1 OR isExcludedTransaction = 0)
+            AND (:transactionDirectionName IS NULL OR transaction_direction = :transactionDirectionName)
+            AND (:tagId IS NULL OR tagId = :tagId)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
         """
     )
-    fun getTransactionsForMonth(
+    fun getTransactionsListForMonth(
         monthAndYear: String,
-        showExcluded: Boolean
+        transactionDirectionName: String? = null,
+        tagId: Long? = null,
+        showExcluded: Boolean = true
     ): Flow<List<TransactionWithTagRelation>>
 
     @Query("SELECT DISTINCT(strftime('%Y', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
     fun getYearsFromTransactions(): Flow<List<Int>>
-
-    @Transaction
-    @Query(
-        """
-        SELECT tx.id AS transactionId,
-        tx.note AS transactionNote,
-        tx.amount AS transactionAmount,
-        tx.timestamp AS transactionTimestamp,
-        tag.id AS tagId,
-        tag.name AS tagName,
-        tag.color_code AS tagColorCode,
-        tag.created_timestamp AS tagCreatedTimestamp,
-        (CASE WHEN (tx.is_excluded = 1 OR tag.is_excluded = 1) THEN 1 ELSE 0 END) AS isExcludedTransaction
-        FROM transaction_table tx
-        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
-        WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
-            AND (:tagId IS NULL OR tagId = :tagId)
-            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
-        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
-    """
-    )
-    fun getTransactionForMonthByTag(
-        monthAndYear: String,
-        tagId: Long?,
-        showExcluded: Boolean
-    ): Flow<List<TransactionWithTagRelation>>
 
     @Query("UPDATE transaction_table SET is_excluded = :exclude WHERE id IN (:ids)")
     suspend fun toggleExclusionByIds(ids: List<Long>, exclude: Boolean)

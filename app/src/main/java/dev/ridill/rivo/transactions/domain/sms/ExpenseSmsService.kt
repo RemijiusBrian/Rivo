@@ -17,7 +17,7 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactions.domain.notification.AutoAddExpenseNotificationHelper
-import dev.ridill.rivo.transactions.domain.repository.ExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 
 class ExpenseSmsService(
-    private val repo: ExpenseRepository,
+    private val repo: AddEditExpenseRepository,
     private val notificationHelper: AutoAddExpenseNotificationHelper,
     private val applicationScope: CoroutineScope,
     private val context: Context

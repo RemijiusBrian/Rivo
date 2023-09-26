@@ -11,10 +11,12 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.repository.ExpenseRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.AddEditExpenseRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.AllExpensesRepositoryImpl
 import dev.ridill.rivo.transactions.data.repository.TagsRepositoryImpl
 import dev.ridill.rivo.transactions.domain.notification.AutoAddExpenseNotificationHelper
-import dev.ridill.rivo.transactions.domain.repository.ExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.AllExpensesRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import dev.ridill.rivo.transactions.domain.sms.ExpenseSmsService
 import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseViewModel
@@ -32,13 +34,9 @@ object TransactionModule {
     fun provideTagsDao(db: RivoDatabase): TagsDao = db.tagsDao()
 
     @Provides
-    fun provideExpenseRepository(
-        dao: TransactionDao,
-        preferencesManager: PreferencesManager
-    ): ExpenseRepository = ExpenseRepositoryImpl(
-        dao = dao,
-        preferencesManager = preferencesManager
-    )
+    fun provideAddEditExpenseRepository(
+        dao: TransactionDao
+    ): AddEditExpenseRepository = AddEditExpenseRepositoryImpl(dao)
 
     @Provides
     fun provideTagsRepository(dao: TagsDao): TagsRepository = TagsRepositoryImpl(dao)
@@ -48,16 +46,25 @@ object TransactionModule {
         EventBus()
 
     @Provides
+    fun provideAllExpensesRepository(
+        dao: TransactionDao,
+        preferencesManager: PreferencesManager
+    ): AllExpensesRepository = AllExpensesRepositoryImpl(
+        dao = dao,
+        preferencesManager = preferencesManager
+    )
+
+    @Provides
     fun provideAllExpenseEventBus(): EventBus<AllExpensesViewModel.AllExpenseEvent> = EventBus()
 
     @Provides
     fun provideExpenseSmsService(
-        expenseRepository: ExpenseRepository,
+        addEditExpenseRepository: AddEditExpenseRepository,
         notificationHelper: AutoAddExpenseNotificationHelper,
         @ApplicationScope applicationScope: CoroutineScope,
         @ApplicationContext context: Context
     ): ExpenseSmsService = ExpenseSmsService(
-        repo = expenseRepository,
+        repo = addEditExpenseRepository,
         notificationHelper = notificationHelper,
         applicationScope = applicationScope,
         context = context
