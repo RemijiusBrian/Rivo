@@ -13,9 +13,9 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
+import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_ADDED
+import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 
 object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"

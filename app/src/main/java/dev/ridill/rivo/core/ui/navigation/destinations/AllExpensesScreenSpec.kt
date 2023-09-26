@@ -12,8 +12,8 @@ import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.expense.presentation.allExpenses.AllExpensesScreen
-import dev.ridill.rivo.expense.presentation.allExpenses.AllExpensesViewModel
+import dev.ridill.rivo.transactions.presentation.allExpenses.AllExpensesScreen
+import dev.ridill.rivo.transactions.presentation.allExpenses.AllExpensesViewModel
 
 object AllExpensesScreenSpec : ScreenSpec {
 

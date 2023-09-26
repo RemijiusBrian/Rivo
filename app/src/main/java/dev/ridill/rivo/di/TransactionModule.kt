@@ -9,16 +9,16 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.expense.data.local.TagsDao
-import dev.ridill.rivo.expense.data.local.TransactionDao
-import dev.ridill.rivo.expense.data.repository.ExpenseRepositoryImpl
-import dev.ridill.rivo.expense.data.repository.TagsRepositoryImpl
-import dev.ridill.rivo.expense.domain.notification.AutoAddExpenseNotificationHelper
-import dev.ridill.rivo.expense.domain.repository.ExpenseRepository
-import dev.ridill.rivo.expense.domain.repository.TagsRepository
-import dev.ridill.rivo.expense.domain.sms.ExpenseSmsService
-import dev.ridill.rivo.expense.presentation.addEditExpense.AddEditExpenseViewModel
-import dev.ridill.rivo.expense.presentation.allExpenses.AllExpensesViewModel
+import dev.ridill.rivo.transactions.data.local.TagsDao
+import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.repository.ExpenseRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.TagsRepositoryImpl
+import dev.ridill.rivo.transactions.domain.notification.AutoAddExpenseNotificationHelper
+import dev.ridill.rivo.transactions.domain.repository.ExpenseRepository
+import dev.ridill.rivo.transactions.domain.repository.TagsRepository
+import dev.ridill.rivo.transactions.domain.sms.ExpenseSmsService
+import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseViewModel
+import dev.ridill.rivo.transactions.presentation.allExpenses.AllExpensesViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Module

@@ -40,7 +40,7 @@
 
         <!-- Expense SMS Receivers -->
         <receiver
-            android:name=".expense.domain.sms.ExpenseSmsReceiver"
+            android:name=".transactions.domain.sms.ExpenseSmsReceiver"
             android:enabled="false"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
@@ -49,8 +49,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".expense.domain.notification.DeleteExpenseActionReceiver" />
-        <receiver android:name=".expense.domain.notification.MarkExcludedActionReceiver" />
+        <receiver android:name=".transactions.domain.notification.DeleteExpenseActionReceiver" />
+        <receiver android:name=".transactions.domain.notification.MarkExcludedActionReceiver" />
         <!-- /Expense SMS Receivers -->
 
         <provider

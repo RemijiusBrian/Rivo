@@ -72,9 +72,9 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.expense.domain.model.ExpenseListItem
-import dev.ridill.rivo.expense.domain.model.ExpenseTag
-import dev.ridill.rivo.expense.presentation.components.ExpenseListItem
+import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
+import dev.ridill.rivo.transactions.domain.model.ExpenseTag
+import dev.ridill.rivo.transactions.presentation.components.ExpenseListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 

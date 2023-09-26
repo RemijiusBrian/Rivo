@@ -3,7 +3,7 @@ package dev.ridill.rivo.dashboard.presentation
 import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.CurrencyUtil
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.expense.domain.model.ExpenseListItem
+import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
 
 data class DashboardState(
     val currency: Currency = CurrencyUtil.default,

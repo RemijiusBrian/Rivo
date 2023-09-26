@@ -7,10 +7,10 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.BuildConfig
-import dev.ridill.rivo.expense.data.local.TagsDao
-import dev.ridill.rivo.expense.data.local.TransactionDao
-import dev.ridill.rivo.expense.data.local.entity.TagEntity
-import dev.ridill.rivo.expense.data.local.entity.TransactionEntity
+import dev.ridill.rivo.transactions.data.local.TagsDao
+import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.local.entity.TagEntity
+import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity

@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
-import dev.ridill.rivo.expense.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 import dev.ridill.rivo.transactionGroups.data.local.relation.GroupAndAggregateAmount
 import dev.ridill.rivo.transactionGroups.data.local.relation.GroupAndTransactions

@@ -23,11 +23,11 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
-import dev.ridill.rivo.expense.presentation.addEditExpense.AddEditExpenseScreen
-import dev.ridill.rivo.expense.presentation.addEditExpense.AddEditExpenseViewModel
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
+import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseScreen
+import dev.ridill.rivo.transactions.presentation.addEditExpense.AddEditExpenseViewModel
+import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_ADDED
+import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
 
 object AddEditExpenseScreenSpec : ScreenSpec {
     override val route: String = "add_edit_expense/{$ARG_EXPENSE_ID}"

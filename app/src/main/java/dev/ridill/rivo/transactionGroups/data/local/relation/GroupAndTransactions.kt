@@ -2,7 +2,7 @@ package dev.ridill.rivo.transactionGroups.data.local.relation
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import dev.ridill.rivo.expense.data.local.entity.TransactionEntity
+import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 
 data class GroupAndTransactions(

@@ -3,10 +3,10 @@ package dev.ridill.rivo.dashboard.data.repository
 import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
-import dev.ridill.rivo.expense.data.local.TransactionDao
-import dev.ridill.rivo.expense.data.local.relations.TransactionWithTagRelation
-import dev.ridill.rivo.expense.data.toExpenseListItem
-import dev.ridill.rivo.expense.domain.model.ExpenseListItem
+import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.local.relations.TransactionWithTagRelation
+import dev.ridill.rivo.transactions.data.toExpenseListItem
+import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
