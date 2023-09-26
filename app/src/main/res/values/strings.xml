@@ -12,6 +12,7 @@
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_tx_groups">TX Groups</string>
     <string name="destination_tx_groups_list">Groups</string>
+    <string name="destination_tx_groups_details">Details</string>
 
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
@@ -41,6 +42,8 @@
     <string name="cd_options">Options</string>
     <string name="cd_excluded">Excluded</string>
     <string name="cd_new_transaction_group">New Transaction Group</string>
+    <string name="cd_edit_transaction_group">Edit Transaction Group Details</string>
+    <string name="cd_save_transaction_group">Save Transaction Group Details</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -53,6 +56,7 @@
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
+    <string name="error_invalid_transaction_group_name">Please enter a valid note</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -204,4 +208,7 @@
     <string name="do_not_restore">Don\'t Restore</string>
     <string name="give_permission">Give Permission</string>
     <string name="i_understand">I Understand</string>
+    <string name="transaction_group_created">Transaction group created</string>
+    <string name="mark_excluded_question">Mark Excluded?</string>
+    <string name="transaction_group_name">Group Name</string>
 </resources>

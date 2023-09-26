@@ -19,6 +19,7 @@ fun LabelledSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     style: TextStyle = MaterialTheme.typography.bodyLarge
 ) {
     Row(
@@ -32,7 +33,8 @@ fun LabelledSwitch(
         )
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            enabled = enabled
         )
     }
 }

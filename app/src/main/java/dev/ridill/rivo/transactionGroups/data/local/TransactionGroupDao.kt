@@ -6,7 +6,7 @@ import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 import dev.ridill.rivo.transactionGroups.data.local.relation.GroupAndAggregateAmount
-import dev.ridill.rivo.transactionGroups.data.local.relation.GroupAndTransactions
+import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,7 +25,9 @@ interface TransactionGroupDao : BaseDao<TransactionGroupEntity> {
     )
     fun getGroupsWithAggregateExpenditure(): Flow<List<GroupAndAggregateAmount>>
 
-    @Transaction
     @Query("SELECT * FROM transaction_group_table WHERE id = :id")
-    fun getGroupWithTransactionsById(id: Long): Flow<GroupAndTransactions>
+    fun getGroupById(id: Long): Flow<TransactionGroupEntity?>
+
+    @Query("SELECT * FROM transaction_table WHERE group_id = :groupId")
+    fun getTransactionsForGroup(groupId: Long): Flow<List<TransactionEntity>>
 }

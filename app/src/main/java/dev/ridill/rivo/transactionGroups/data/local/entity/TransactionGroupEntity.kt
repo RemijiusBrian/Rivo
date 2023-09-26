@@ -17,4 +17,7 @@ data class TransactionGroupEntity(
 
     @ColumnInfo(name = "created_timestamp")
     val createdTimestamp: LocalDateTime,
+
+    @ColumnInfo(name = "is_excluded")
+    val isExcluded: Boolean
 )

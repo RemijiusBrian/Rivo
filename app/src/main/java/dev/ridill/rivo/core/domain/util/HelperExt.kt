@@ -26,3 +26,5 @@ val Dp.Companion.Zero: Dp get() = 0.dp
 val String.Companion.Empty: String get() = ""
 val String.Companion.WhiteSpace: String get() = " "
 fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())
+
+fun Boolean?.orFalse(): Boolean = this ?: false

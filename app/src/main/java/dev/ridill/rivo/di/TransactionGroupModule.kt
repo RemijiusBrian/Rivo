@@ -7,8 +7,11 @@ import dagger.hilt.android.components.ViewModelComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.transactionGroups.data.local.TransactionGroupDao
+import dev.ridill.rivo.transactionGroups.data.repository.TxGroupDetailsRepositoryImpl
 import dev.ridill.rivo.transactionGroups.data.repository.TxGroupsListRepositoryImpl
+import dev.ridill.rivo.transactionGroups.domain.repository.TxGroupDetailsRepository
 import dev.ridill.rivo.transactionGroups.domain.repository.TxGroupsListRepository
+import dev.ridill.rivo.transactionGroups.presentation.groupDetails.TxGroupDetailsViewModel
 import dev.ridill.rivo.transactionGroups.presentation.groupsList.TxGroupsListViewModel
 
 @Module
@@ -25,5 +28,14 @@ object TransactionGroupModule {
 
     @Provides
     fun providesTxGroupsListEventBus(): EventBus<TxGroupsListViewModel.TxGroupsListEvent> =
+        EventBus()
+
+    @Provides
+    fun provideTxGroupDetailsRepository(
+        dao: TransactionGroupDao
+    ): TxGroupDetailsRepository = TxGroupDetailsRepositoryImpl(dao)
+
+    @Provides
+    fun provideTxGroupDetailsEventBus(): EventBus<TxGroupDetailsViewModel.TxGroupDetailsEvent> =
         EventBus()
 }

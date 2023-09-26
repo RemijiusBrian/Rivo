@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "58059e586d727efc7360d0fd12617d0d",
+    "identityHash": "cbaee9f925e299e9e379ccd91e4fe41b",
     "entities": [
       {
         "tableName": "transaction_table",
@@ -111,7 +111,7 @@
       },
       {
         "tableName": "transaction_group_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `created_timestamp` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `created_timestamp` TEXT NOT NULL, `is_excluded` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -129,6 +129,12 @@
             "fieldPath": "createdTimestamp",
             "columnName": "created_timestamp",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isExcluded",
+            "columnName": "is_excluded",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -215,7 +221,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '58059e586d727efc7360d0fd12617d0d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cbaee9f925e299e9e379ccd91e4fe41b')"
     ]
   }
 }

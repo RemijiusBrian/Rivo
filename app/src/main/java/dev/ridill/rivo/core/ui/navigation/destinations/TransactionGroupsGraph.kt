@@ -13,6 +13,7 @@ object TransactionGroupsGraph : NavGraphSpec, BottomNavDestination {
     override val icon: ImageVector = Icons.Outlined.ObjectGroup
 
     override val children: List<NavDestination> = listOf(
-        TxGroupsListScreenSpec
+        TxGroupsListScreenSpec,
+        TransactionGroupDetailsScreenSpec
     )
 }

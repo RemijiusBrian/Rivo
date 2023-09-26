@@ -42,7 +42,11 @@ object TxGroupsListScreenSpec : ScreenSpec {
         TxGroupsListScreen(
             snackbarController = snackbarController,
             groupsList = groupsList,
-            navigateToGroupDetails = {},
+            navigateToGroupDetails = {
+                navController.navigate(
+                    TransactionGroupDetailsScreenSpec.routeWithArg(it)
+                )
+            },
             navigateUp = navController::navigateUp
         )
     }

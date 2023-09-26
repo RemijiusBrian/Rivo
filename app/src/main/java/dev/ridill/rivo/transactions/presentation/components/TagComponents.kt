@@ -153,7 +153,7 @@ fun TagInputSheet(
             }
 
             LabelledSwitch(
-                labelRes = R.string.action_mark_excluded,
+                labelRes = R.string.mark_excluded_question,
                 checked = excluded() == true,
                 onCheckedChange = onExclusionToggle,
                 modifier = Modifier

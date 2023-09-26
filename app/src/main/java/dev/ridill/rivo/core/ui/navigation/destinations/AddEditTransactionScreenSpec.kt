@@ -54,8 +54,8 @@ object AddEditTransactionScreenSpec : ScreenSpec {
     override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
         { slideOutVertically { it } }
 
-    fun routeWithArg(expenseId: Long? = null): String =
-        route.replace("{$ARG_TRANSACTION_ID}", (expenseId ?: ARG_INVALID_ID_LONG).toString())
+    fun routeWithArg(transactionId: Long? = null): String =
+        route.replace("{$ARG_TRANSACTION_ID}", (transactionId ?: ARG_INVALID_ID_LONG).toString())
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
