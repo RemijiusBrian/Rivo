@@ -2,6 +2,7 @@ package dev.ridill.rivo.expense.domain.repository
 
 import dev.ridill.rivo.expense.domain.model.Expense
 import dev.ridill.rivo.expense.domain.model.ExpenseListItem
+import dev.ridill.rivo.expense.domain.model.TransactionDirection
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -14,6 +15,7 @@ interface ExpenseRepository {
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
+        direction: TransactionDirection = TransactionDirection.OUTGOING,
         tagId: Long?,
         excluded: Boolean = false,
         groupId: Long? = null

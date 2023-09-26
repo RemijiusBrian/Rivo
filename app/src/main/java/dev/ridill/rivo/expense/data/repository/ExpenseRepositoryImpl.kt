@@ -10,6 +10,7 @@ import dev.ridill.rivo.expense.data.toExpense
 import dev.ridill.rivo.expense.data.toExpenseListItem
 import dev.ridill.rivo.expense.domain.model.Expense
 import dev.ridill.rivo.expense.domain.model.ExpenseListItem
+import dev.ridill.rivo.expense.domain.model.TransactionDirection
 import dev.ridill.rivo.expense.domain.repository.ExpenseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -44,6 +45,7 @@ class ExpenseRepositoryImpl(
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
+        direction: TransactionDirection,
         tagId: Long?,
         excluded: Boolean,
         groupId: Long?
@@ -53,6 +55,7 @@ class ExpenseRepositoryImpl(
             note = note,
             amount = amount,
             timestamp = dateTime,
+            direction = direction.name,
             tagId = tagId,
             isExcluded = excluded,
             groupId = groupId
