@@ -2,7 +2,7 @@ package dev.ridill.rivo.transactions.data.local.relations
 
 import java.time.LocalDateTime
 
-data class TransactionWithTagRelation(
+data class TransactionDetails(
     val transactionId: Long,
     val transactionNote: String,
     val transactionAmount: Double,

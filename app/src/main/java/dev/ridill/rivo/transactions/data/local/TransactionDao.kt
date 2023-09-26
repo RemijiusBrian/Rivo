@@ -5,9 +5,10 @@ import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
-import dev.ridill.rivo.transactions.data.local.relations.TransactionWithTagRelation
+import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.domain.model.TransactionAmountLimits
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface TransactionDao : BaseDao<TransactionEntity> {
@@ -18,12 +19,12 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         SELECT IFNULL(SUM(tx.amount), 0.0)
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
-        WHERE strftime('%m-%Y', tx.timestamp) = :monthAndYear
+        WHERE strftime('%m-%Y', tx.timestamp) = strftime('%m-%Y', :monthAndYear)
         AND (tx.is_excluded = 0 AND IFNULL(tag.is_excluded, 0) = 0)
         AND tx.transaction_direction = 'OUTGOING'
     """
     )
-    fun getExpenditureForMonth(monthAndYear: String): Flow<Double>
+    fun getExpenditureForMonth(monthAndYear: LocalDateTime): Flow<Double>
 
     @Query(
         """
@@ -51,7 +52,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag
         ON tx.tag_id = tag.id
-        WHERE strftime('%m-%Y', transactionTimestamp) = :monthAndYear
+        WHERE strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear)
             AND (:showExcluded = 1 OR isExcludedTransaction = 0)
             AND (:transactionDirectionName IS NULL OR transaction_direction = :transactionDirectionName)
             AND (:tagId IS NULL OR tagId = :tagId)
@@ -59,11 +60,11 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         """
     )
     fun getTransactionsListForMonth(
-        monthAndYear: String,
-        transactionDirectionName: String? = null,
-        tagId: Long? = null,
-        showExcluded: Boolean = true
-    ): Flow<List<TransactionWithTagRelation>>
+        monthAndYear: LocalDateTime,
+        transactionDirectionName: String?,
+        tagId: Long?,
+        showExcluded: Boolean
+    ): Flow<List<TransactionDetails>>
 
     @Query("SELECT DISTINCT(strftime('%Y', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
     fun getYearsFromTransactions(): Flow<List<Int>>

@@ -3,7 +3,7 @@ package dev.ridill.rivo.transactions.data.repository
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.relations.TransactionWithTagRelation
+import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.data.toExpenseListItem
 import dev.ridill.rivo.transactions.domain.model.ExpenseListItem
 import dev.ridill.rivo.transactions.domain.repository.AllExpensesRepository
@@ -35,18 +35,18 @@ class AllExpensesRepositoryImpl(
             }
 
     override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =
-        dao.getExpenditureForMonth(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))
+        dao.getExpenditureForMonth(date.atStartOfDay())
 
     override fun getExpenseForDateByTag(
         date: LocalDate,
         tagId: Long?,
         showExcluded: Boolean
     ): Flow<List<ExpenseListItem>> = dao.getTransactionsListForMonth(
-        monthAndYear = date.format(DateUtil.Formatters.MM_yyyy_dbFormat),
+        monthAndYear = date.atStartOfDay(),
         transactionDirectionName = null,
         tagId = tagId,
         showExcluded = showExcluded
-    ).map { entities -> entities.map(TransactionWithTagRelation::toExpenseListItem) }
+    ).map { it.map(TransactionDetails::toExpenseListItem) }
 
     override fun getShowExcludedExpenses(): Flow<Boolean> =
         preferencesManager.preferences.map { it.showExcludedExpenses }

@@ -10,6 +10,6 @@ data class DashboardState(
     val balance: Double = Double.Zero,
     val spentAmount: Double = Double.Zero,
     val monthlyBudget: Long = Long.Zero,
-    val recentSpends: Map<Boolean, List<ExpenseListItem>> = emptyMap(),
+    val recentSpends: List<ExpenseListItem> = emptyList(),
     val signedInUsername: String? = null
 )
