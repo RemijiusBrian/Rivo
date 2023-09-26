@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
-import dev.ridill.rivo.core.ui.components.MYMScaffold
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.TxGroupsListScreenSpec
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
@@ -41,7 +41,7 @@ fun TxGroupsListScreen(
     navigateUp: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    MYMScaffold(
+    RivoScaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(TxGroupsListScreenSpec.labelRes)) },
