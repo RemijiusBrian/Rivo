@@ -13,8 +13,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.mym.core.domain.util.BuildUtil
-import dev.ridill.mym.core.ui.components.OnLifecycleResumeEffect
-import dev.ridill.mym.core.ui.components.rememberPermissionState
 import dev.ridill.mym.core.ui.navigation.MYMNavHost
 import dev.ridill.mym.core.ui.theme.MYMTheme
 import dev.ridill.mym.core.ui.util.isPermissionGranted
@@ -49,14 +47,6 @@ class RivoActivity : ComponentActivity() {
                 AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
                 AppTheme.LIGHT -> false
                 AppTheme.DARK -> true
-            }
-
-            val notificationPermissionState = if (BuildUtil.isNotificationRuntimePermissionNeeded())
-                rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
-            else null
-
-            OnLifecycleResumeEffect {
-                notificationPermissionState?.launchRequest()
             }
 
             MYMTheme(

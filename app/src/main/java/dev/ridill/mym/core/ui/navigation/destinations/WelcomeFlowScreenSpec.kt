@@ -15,8 +15,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.BuildUtil
-import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsLauncher
-import dev.ridill.mym.core.ui.components.rememberMultiplePermissionsState
+import dev.ridill.mym.core.ui.components.rememberPermissionState
 import dev.ridill.mym.core.ui.components.rememberSnackbarController
 import dev.ridill.mym.core.ui.util.restartApplication
 import dev.ridill.mym.welcomeFlow.domain.model.WelcomeFlowPage
@@ -39,17 +38,13 @@ object WelcomeFlowScreenSpec : ScreenSpec {
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
-        val permissionsList = if (BuildUtil.isNotificationRuntimePermissionNeeded()) listOf(
-            Manifest.permission.POST_NOTIFICATIONS,
-            Manifest.permission.RECEIVE_SMS
-        ) else listOf(Manifest.permission.RECEIVE_SMS)
-        val permissionsLauncher = rememberMultiplePermissionsLauncher(
-            onResult = { viewModel.onPermissionResponse() }
-        )
-        val multiplePermissionsState = rememberMultiplePermissionsState(
-            permissions = permissionsList,
-            launcher = permissionsLauncher
-        )
+
+        val notificationPermissionLauncher = if (BuildUtil.isNotificationRuntimePermissionNeeded())
+            rememberPermissionState(
+                permission = Manifest.permission.POST_NOTIFICATIONS,
+                onPermissionResult = viewModel::onNotificationPermissionResponse
+            )
+        else null
 
         val signInLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
@@ -68,8 +63,8 @@ object WelcomeFlowScreenSpec : ScreenSpec {
                             pagerState.animateScrollToPage(event.page.ordinal)
                     }
 
-                    WelcomeFlowViewModel.WelcomeFlowEvent.LaunchPermissionRequests -> {
-                        multiplePermissionsState.launchRequest()
+                    WelcomeFlowViewModel.WelcomeFlowEvent.LaunchNotificationPermissionRequest -> {
+                        notificationPermissionLauncher?.launchRequest()
                     }
 
                     is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
