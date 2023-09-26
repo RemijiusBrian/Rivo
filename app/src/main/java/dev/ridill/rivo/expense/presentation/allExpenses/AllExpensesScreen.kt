@@ -97,7 +97,7 @@ import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.ListLabel
-import dev.ridill.rivo.core.ui.components.MYMScaffold
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
@@ -107,7 +107,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllExpensesScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
-import dev.ridill.rivo.core.ui.theme.MYMTheme
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -148,7 +148,7 @@ fun AllExpensesScreen(
     )
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    MYMScaffold(
+    RivoScaffold(
         snackbarController = snackbarController,
         topBar = {
             TopAppBar(
@@ -940,7 +940,7 @@ private fun DeleteTagDialog(
 @Preview
 @Composable
 private fun PreviewAllExpensesScreen() {
-    MYMTheme {
+    RivoTheme {
         AllExpensesScreen(
             snackbarController = rememberSnackbarController(),
             state = AllExpensesState(),

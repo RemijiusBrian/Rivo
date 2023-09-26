@@ -24,11 +24,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun MYMSnackbarHost(
+fun RivoSnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     snackbar: @Composable (SnackbarData) -> Unit = { snackbarData ->
-        MYMSnackbar(
+        RivoSnackbar(
             snackbarData = snackbarData,
             onSwipeDismiss = { dismissValue ->
                 if (dismissValue == DismissValue.DismissedToEnd) {
@@ -44,7 +44,7 @@ fun MYMSnackbarHost(
 )
 
 @Composable
-fun MYMSnackbar(
+fun RivoSnackbar(
     snackbarData: SnackbarData,
     onSwipeDismiss: (DismissValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -56,7 +56,7 @@ fun MYMSnackbar(
     actionContentColor: Color = SnackbarDefaults.actionContentColor,
     dismissActionContentColor: Color = SnackbarDefaults.dismissActionContentColor
 ) {
-    val visuals = snackbarData.visuals as MYMSnackbarVisuals
+    val visuals = snackbarData.visuals as RivoSnackbarVisuals
     val isError = visuals.isError
     val dismissState = rememberDismissState(
         confirmValueChange = {
@@ -87,7 +87,7 @@ fun MYMSnackbar(
     )
 }
 
-class MYMSnackbarVisuals(
+class RivoSnackbarVisuals(
     val isError: Boolean,
     override val actionLabel: String?,
     override val duration: SnackbarDuration,
@@ -120,7 +120,7 @@ class SnackbarController(
     ) {
         cancelCurrentJob()
         snackbarJob = coroutineScope.launch {
-            val visuals = MYMSnackbarVisuals(
+            val visuals = RivoSnackbarVisuals(
                 isError = isError,
                 actionLabel = actionLabel,
                 duration = duration,

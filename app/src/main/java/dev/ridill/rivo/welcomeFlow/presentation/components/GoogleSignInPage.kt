@@ -31,7 +31,7 @@ import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.MYMTheme
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
@@ -209,7 +209,7 @@ private fun RestoreStatus(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewRestoreScreen() {
-    MYMTheme {
+    RivoTheme {
         GoogleSignInPage(
             onSignInClick = {},
             onSkipSignInClick = {},

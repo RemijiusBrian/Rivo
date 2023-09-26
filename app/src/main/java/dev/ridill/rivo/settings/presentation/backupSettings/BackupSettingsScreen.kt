@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.BackArrowButton
-import dev.ridill.rivo.core.ui.components.MYMScaffold
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.icons.Google
@@ -51,7 +51,7 @@ fun BackupSettingsScreen(
     navigateUp: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    MYMScaffold(
+    RivoScaffold(
         snackbarController = snackbarController,
         topBar = {
             TopAppBar(
