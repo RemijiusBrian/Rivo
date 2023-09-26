@@ -15,7 +15,7 @@ interface ExpenseRepository {
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        direction: TransactionDirection = TransactionDirection.OUTGOING,
+        direction: TransactionDirection = TransactionDirection.Outgoing,
         tagId: Long?,
         excluded: Boolean = false,
         groupId: Long? = null

@@ -55,7 +55,7 @@ class ExpenseRepositoryImpl(
             note = note,
             amount = amount,
             timestamp = dateTime,
-            direction = direction.name,
+            direction = direction.value,
             tagId = tagId,
             isExcluded = excluded,
             groupId = groupId

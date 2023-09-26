@@ -10,7 +10,8 @@ sealed interface NavDestination {
                 DashboardScreenSpec,
                 AddEditExpenseScreenSpec,
                 AllExpensesScreenSpec,
-                SettingsGraphSpec
+                SettingsGraphSpec,
+                TransactionGroupsGraph
             )
     }
 
