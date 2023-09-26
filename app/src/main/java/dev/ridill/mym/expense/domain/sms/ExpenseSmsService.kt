@@ -12,6 +12,7 @@ import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.mym.R
 import dev.ridill.mym.core.domain.util.DateUtil
 import dev.ridill.mym.core.domain.util.WhiteSpace
+import dev.ridill.mym.core.domain.util.logD
 import dev.ridill.mym.core.domain.util.orZero
 import dev.ridill.mym.core.domain.util.tryOrNull
 import dev.ridill.mym.core.ui.util.TextFormat
@@ -41,9 +42,10 @@ class ExpenseSmsService(
             if (!extractor.isModelDownloaded.await()) return@launch
 
             val messages = getSmsFromIntent(data)
+            logD { "Messages - $messages" }
             for (message in messages) {
                 val content = message.messageBody
-                if (!isDebitSms(content)) continue
+                if (!isExpenseSMS(content)) continue
 
                 val expenseDetails = extractExpenseDetails(extractor, content)
                     ?: continue
@@ -78,9 +80,10 @@ class ExpenseSmsService(
     private fun getSmsFromIntent(intent: Intent): List<SmsMessage> =
         Telephony.Sms.Intents.getMessagesFromIntent(intent).toList()
 
-    private fun isDebitSms(content: String): Boolean =
+    private fun isExpenseSMS(content: String): Boolean =
         content.contains("debited", true)
                 || content.contains("spent", true)
+                || content.contains("money transfer", true)
 
     private fun extractMerchant(content: String): String? {
         val groupValues = merchantRegex.find(content)?.groupValues ?: return null
@@ -111,7 +114,8 @@ class ExpenseSmsService(
         val moneyEntity = entities
             ?.find { it.type == Entity.TYPE_MONEY }
             ?.asMoneyEntity()
-            ?: return@tryOrNull null
+            ?: throw MoneyExtractionFailedThrowable()
+
         val integer = moneyEntity.integerPart.orZero()
         val fraction = ("0.${moneyEntity.fractionalPart.orZero()}").toDouble()
         val amount = integer + fraction
@@ -121,7 +125,7 @@ class ExpenseSmsService(
             ?.asDateTimeEntity()
             ?.timestampMillis
             ?.let { DateUtil.fromMillis(it) }
-            ?: return@tryOrNull null
+            ?: throw DateExtractionFailedThrowable()
 
         val merchant = extractMerchant(content)
 
@@ -141,3 +145,6 @@ data class ExpenseDetailsFromSMS(
     val merchant: String?,
     val paymentDateTime: LocalDateTime,
 )
+
+class MoneyExtractionFailedThrowable : Throwable("Failed to extract money amount")
+class DateExtractionFailedThrowable : Throwable("Failed to extract date")
