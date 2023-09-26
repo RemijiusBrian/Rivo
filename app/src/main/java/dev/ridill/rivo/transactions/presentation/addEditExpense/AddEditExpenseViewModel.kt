@@ -18,11 +18,11 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditExpenseScreenSpec
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.domain.model.Expense
 import dev.ridill.rivo.transactions.domain.model.ExpenseTag
 import dev.ridill.rivo.transactions.domain.repository.AddEditExpenseRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
