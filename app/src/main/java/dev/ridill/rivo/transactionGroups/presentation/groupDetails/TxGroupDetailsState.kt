@@ -4,7 +4,7 @@ import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.CurrencyUtil
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import java.time.LocalDateTime
 
@@ -15,7 +15,7 @@ data class TxGroupDetailsState(
     val isExcluded: Boolean = false,
     val currency: Currency = CurrencyUtil.default,
     val aggregateAmount: Double = Double.Zero,
-    val aggregateDirection: TransactionDirection? = null,
+    val aggregateDirection: TransactionType? = null,
     val transactions: List<TransactionListItem> = emptyList()
 ) {
     val createdTimestampFormatted: String

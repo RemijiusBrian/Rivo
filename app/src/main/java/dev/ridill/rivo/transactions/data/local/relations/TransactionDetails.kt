@@ -7,7 +7,7 @@ data class TransactionDetails(
     val transactionNote: String,
     val transactionAmount: Double,
     val transactionTimestamp: LocalDateTime,
-    val transactionDirectionName: String,
+    val transactionTypeName: String,
     val tagId: Long?,
     val tagName: String?,
     val tagColorCode: Int?,

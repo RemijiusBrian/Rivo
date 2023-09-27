@@ -217,10 +217,12 @@
     <string name="transaction_group_name">Name</string>
     <string name="transactions">Transactions</string>
     <string name="created">Created</string>
-    <string name="aggregate_amount_inbound">Aggregate Inbound</string>
-    <string name="inbound">Inbound</string>
-    <string name="aggregate_amount_outbound">Aggregate Outbound</string>
-    <string name="outbound">Outbound</string>
+    <string name="aggregate_amount_debited">Aggregate Credited</string>
+    <string name="credited">Credited</string>
+    <string name="aggregate_amount_credited">Aggregate Credited</string>
+    <string name="debited">Debited</string>
     <string name="aggregate_amount_zero">Aggregate Balanced</string>
     <string name="balanced">Balanced</string>
+    <string name="transaction_type_label_credit">Credit</string>
+    <string name="transaction_type_label_debit">Debit</string>
 </resources>

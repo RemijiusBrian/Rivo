@@ -15,8 +15,8 @@ interface TransactionGroupDao : BaseDao<TransactionGroupEntity> {
     @Query(
         """
         SELECT txGroup.id, txGroup.name, txGroup.created_timestamp AS createdTimestamp, txGroup.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.group_id = txGroup.id AND tx1.transaction_direction = 'OUTGOING')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.group_id = txGroup.id AND tx2.transaction_direction = 'INCOMING')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.group_id = txGroup.id AND tx1.transaction_type_name = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.group_id = txGroup.id AND tx2.transaction_type_name = 'CREDIT')
         ) AS aggregateAmount
         FROM transaction_group_table txGroup
         ORDER BY datetime(createdTimestamp) DESC, id DESC
@@ -28,8 +28,8 @@ interface TransactionGroupDao : BaseDao<TransactionGroupEntity> {
     @Query(
         """
         SELECT txGroup.id, txGroup.name, txGroup.created_timestamp AS createdTimestamp, txGroup.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.group_id = txGroup.id AND tx1.transaction_direction = 'OUTGOING')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.group_id = txGroup.id AND tx2.transaction_direction = 'INCOMING')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.group_id = txGroup.id AND tx1.transaction_type_name = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.group_id = txGroup.id AND tx2.transaction_type_name = 'CREDIT')
         ) AS aggregateAmount
         FROM transaction_group_table txGroup
         WHERE txGroup.id = :id

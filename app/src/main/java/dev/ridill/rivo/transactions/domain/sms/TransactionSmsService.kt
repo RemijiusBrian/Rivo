@@ -15,6 +15,7 @@ import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -59,7 +60,9 @@ class TransactionSmsService(
                     note = merchant,
                     dateTime = DateUtil.now(),
                     tagId = null,
-                    excluded = false // Transaction added as Included in Expenditure by default when detected from SMS
+                    excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
+                    transactionType = TransactionType.DEBIT,
+                    groupId = null
                 )
 
                 notificationHelper.postNotification(

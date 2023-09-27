@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import androidx.compose.ui.graphics.Color
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 interface AddEditTransactionActions {
@@ -12,6 +13,7 @@ interface AddEditTransactionActions {
     fun onTransactionTimestampClick()
     fun onTransactionTimestampSelectionDismiss()
     fun onTransactionTimestampSelectionConfirm(dateTime: LocalDateTime)
+    fun onTransactionTypeChange(type: TransactionType)
     fun onTransactionExclusionToggle(excluded: Boolean)
     fun onSaveClick()
     fun onDeleteClick()

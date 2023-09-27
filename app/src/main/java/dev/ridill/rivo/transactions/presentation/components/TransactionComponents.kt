@@ -34,7 +34,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import java.time.LocalDate
 
@@ -45,7 +45,7 @@ fun TransactionListItem(
     date: LocalDate,
     tag: TransactionTag?,
     modifier: Modifier = Modifier,
-    direction: TransactionDirection? = null,
+    type: TransactionType? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,

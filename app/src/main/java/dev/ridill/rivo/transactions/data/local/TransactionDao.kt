@@ -21,7 +21,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         WHERE strftime('%m-%Y', tx.timestamp) = strftime('%m-%Y', :monthAndYear)
         AND (tx.is_excluded = 0 AND IFNULL(tag.is_excluded, 0) = 0)
-        AND tx.transaction_direction = 'OUTGOING'
+        AND tx.transaction_type_name = 'DEBIT'
     """
     )
     fun getExpenditureForMonth(monthAndYear: LocalDateTime): Flow<Double>
@@ -44,7 +44,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tx.note AS transactionNote,
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
-        tx.transaction_direction AS transactionDirectionName,
+        tx.transaction_type_name AS transactionTypeName,
         tag.id AS tagId,
         tag.name AS tagName,
         tag.color_code AS tagColorCode,
@@ -57,7 +57,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         LEFT OUTER JOIN transaction_group_table txGroup ON tx.group_id = txGroup.id
         WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
-            AND (:transactionDirectionName IS NULL OR transaction_direction = :transactionDirectionName)
+            AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:groupId IS NULL OR groupId = :groupId)
             AND (:showExcluded = 1 OR isExcludedTransaction = 0)
@@ -66,7 +66,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     )
     fun getTransactionsList(
         monthAndYear: LocalDateTime? = null,
-        transactionDirectionName: String? = null,
+        transactionTypeName: String? = null,
         tagId: Long? = null,
         groupId: Long? = null,
         showExcluded: Boolean = true

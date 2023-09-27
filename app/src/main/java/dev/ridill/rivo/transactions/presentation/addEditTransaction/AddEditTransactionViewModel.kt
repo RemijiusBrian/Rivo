@@ -20,8 +20,8 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.map
@@ -62,8 +62,8 @@ class AddEditTransactionViewModel @Inject constructor(
     private val transactionGroupId = savedStateHandle
         .getStateFlow<Long?>(TRANSACTION_GROUP_ID, null)
 
-    private val transactionDirection = savedStateHandle
-        .getStateFlow(TRANSACTION_DIRECTION, TransactionDirection.OUTGOING)
+    private val transactionType = savedStateHandle
+        .getStateFlow(TRANSACTION_TYPE, TransactionType.DEBIT)
 
     private val isTransactionExcluded = savedStateHandle
         .getStateFlow(IS_TRANSACTION_EXCLUDED, false)
@@ -88,7 +88,7 @@ class AddEditTransactionViewModel @Inject constructor(
         selectedTagId,
         transactionTimestamp,
         transactionGroupId,
-        transactionDirection,
+        transactionType,
         isTransactionExcluded,
         showDeleteConfirmation,
         showNewTagInput,
@@ -101,7 +101,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 selectedTagId,
                 transactionTimestamp,
                 transactionGroupId,
-                transactionDirection,
+                transactionType,
                 isTransactionExcluded,
                 showDeleteConfirmation,
                 showNewTagInput,
@@ -120,7 +120,7 @@ class AddEditTransactionViewModel @Inject constructor(
             newTagError = newTagError,
             showDateTimePicker = showDateTimePicker,
             transactionGroupId = transactionGroupId,
-            transactionDirection = transactionDirection
+            transactionType = transactionType
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -136,7 +136,7 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[AMOUNT_INPUT] = transaction.amount
         savedStateHandle[NOTE_INPUT] = transaction.note
         savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.createdTimestamp
-        savedStateHandle[TRANSACTION_DIRECTION] = transaction.direction
+        savedStateHandle[TRANSACTION_TYPE] = transaction.type
         savedStateHandle[SELECTED_TAG_ID] = transaction.tagId
         savedStateHandle[IS_TRANSACTION_EXCLUDED] = transaction.excluded
         savedStateHandle[TRANSACTION_GROUP_ID] = linkGroupIdArg
@@ -187,6 +187,10 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
+    override fun onTransactionTypeChange(type: TransactionType) {
+        savedStateHandle[TRANSACTION_TYPE] = type
+    }
+
     override fun onTransactionExclusionToggle(excluded: Boolean) {
         savedStateHandle[IS_TRANSACTION_EXCLUDED] = excluded
     }
@@ -220,6 +224,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 )
                 return@launch
             }
+            val type = transactionType.value
             val tagId = selectedTagId.value
             val groupId = transactionGroupId.value
             val excluded = isTransactionExcluded.value
@@ -228,6 +233,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 amount = amount,
                 note = note,
                 dateTime = transactionTimestamp.value,
+                transactionType = type,
                 tagId = tagId,
                 groupId = groupId,
                 excluded = excluded
@@ -334,7 +340,7 @@ private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val TRANSACTION_GROUP_ID = "TRANSACTION_GROUP_ID"
-private const val TRANSACTION_DIRECTION = "TRANSACTION_DIRECTION"
+private const val TRANSACTION_TYPE = "TRANSACTION_TYPE"
 
 const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"
 const val RESULT_TRANSACTION_UPDATED = "RESULT_TRANSACTION_UPDATED"

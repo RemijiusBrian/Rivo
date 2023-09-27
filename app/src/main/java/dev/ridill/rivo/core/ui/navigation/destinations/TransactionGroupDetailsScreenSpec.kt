@@ -1,5 +1,10 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,6 +34,12 @@ object TransactionGroupDetailsScreenSpec : ScreenSpec {
             defaultValue = ARG_INVALID_ID_LONG
         }
     )
+
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInVertically { it } }
+
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutVertically { it } }
 
     fun routeWithArg(transactionGroupId: Long?): String =
         route.replace("{$ARG_TX_GROUP_ID}", (transactionGroupId ?: ARG_INVALID_ID_LONG).toString())

@@ -63,7 +63,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -155,7 +155,7 @@ fun TxGroupDetailsScreen(
             TransactionsInGroup(
                 currency = state.currency,
                 aggregateAmount = state.aggregateAmount,
-                aggregateDirection = state.aggregateDirection,
+                aggregateType = state.aggregateDirection,
                 transactions = state.transactions,
                 onTransactionClick = { navigateToAddEditTransaction(it) },
                 onNewTransactionClick = { navigateToAddEditTransaction(null) },
@@ -244,7 +244,7 @@ private fun NameField(
 private fun TransactionsInGroup(
     currency: Currency,
     aggregateAmount: Double,
-    aggregateDirection: TransactionDirection?,
+    aggregateType: TransactionType?,
     transactions: List<TransactionListItem>,
     onTransactionClick: (Long) -> Unit,
     onNewTransactionClick: () -> Unit,
@@ -266,7 +266,7 @@ private fun TransactionsInGroup(
             AggregateAmount(
                 currency = currency,
                 amount = aggregateAmount,
-                direction = aggregateDirection
+                type = aggregateType
             )
 
             Divider(
@@ -305,7 +305,7 @@ private fun TransactionsInGroup(
                             currency = currency
                         ),
                         date = transaction.date,
-                        direction = transaction.direction,
+                        type = transaction.type,
                         tag = transaction.tag,
                         onClick = { onTransactionClick(transaction.id) },
                         modifier = Modifier
@@ -321,7 +321,7 @@ private fun TransactionsInGroup(
 private fun AggregateAmount(
     amount: Double,
     currency: Currency,
-    direction: TransactionDirection?,
+    type: TransactionType?,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -342,7 +342,7 @@ private fun AggregateAmount(
         SpacerSmall()
 
         Crossfade(
-            targetState = direction,
+            targetState = type,
             label = "AggregateDirection",
             modifier = Modifier
                 .alignByBaseline()
@@ -350,8 +350,8 @@ private fun AggregateAmount(
             Text(
                 text = stringResource(
                     id = when (aggregateDirection) {
-                        TransactionDirection.INCOMING -> R.string.aggregate_amount_inbound
-                        TransactionDirection.OUTGOING -> R.string.aggregate_amount_outbound
+                        TransactionType.CREDIT -> R.string.aggregate_amount_debited
+                        TransactionType.DEBIT -> R.string.aggregate_amount_credited
                         else -> R.string.aggregate_amount_zero
                     }
                 ),
@@ -367,7 +367,7 @@ private fun TransactionCard(
     amount: String,
     date: LocalDate,
     tag: TransactionTag?,
-    direction: TransactionDirection,
+    type: TransactionType,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -380,7 +380,7 @@ private fun TransactionCard(
             amount = amount,
             date = date,
             tag = tag,
-            direction = direction
+            type = type
         )
     }
 }

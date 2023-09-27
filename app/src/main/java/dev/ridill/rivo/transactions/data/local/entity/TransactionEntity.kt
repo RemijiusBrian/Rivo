@@ -39,8 +39,8 @@ data class TransactionEntity(
     @ColumnInfo(name = "timestamp")
     val timestamp: LocalDateTime,
 
-    @ColumnInfo(name = "transaction_direction", defaultValue = "OUTGOING")
-    val direction: String,
+    @ColumnInfo(name = "transaction_type_name", defaultValue = "DEBIT")
+    val typeName: String,
 
     @ColumnInfo(name = "tag_id")
     val tagId: Long?,

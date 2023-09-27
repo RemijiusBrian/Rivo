@@ -57,7 +57,7 @@ class TxGroupDetailsViewModel @Inject constructor(
     private val aggregateAmount = groupDetails.map { it?.aggregateAmount.orZero() }
         .distinctUntilChanged()
 
-    private val aggregateDirection = groupDetails.map { it?.aggregateDirection }
+    private val aggregateDirection = groupDetails.map { it?.aggregateType }
         .distinctUntilChanged()
 
     private val editModeActive = savedStateHandle.getStateFlow(EDIT_MODE_ACTIVE, false)

@@ -2,7 +2,7 @@ package dev.ridill.rivo.transactionGroups.domain.model
 
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 data class TxGroupDetails(
@@ -15,8 +15,8 @@ data class TxGroupDetails(
     val createdDateFormatted: String
         get() = createdTimestamp.format(DateUtil.Formatters.localizedDateMedium)
 
-    val aggregateDirection: TransactionDirection?
+    val aggregateType: TransactionType?
         get() = if (aggregateAmount == Double.Zero) null
-        else if (aggregateAmount < Double.Zero) TransactionDirection.INCOMING
-        else TransactionDirection.OUTGOING
+        else if (aggregateAmount < Double.Zero) TransactionType.CREDIT
+        else TransactionType.DEBIT
 }

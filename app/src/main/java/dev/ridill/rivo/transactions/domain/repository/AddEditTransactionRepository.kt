@@ -1,7 +1,7 @@
 package dev.ridill.rivo.transactions.domain.repository
 
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
@@ -13,7 +13,7 @@ interface AddEditTransactionRepository {
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        direction: TransactionDirection = TransactionDirection.OUTGOING,
+        transactionType: TransactionType,
         tagId: Long?,
         groupId: Long? = null,
         excluded: Boolean = false

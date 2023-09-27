@@ -47,7 +47,8 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
+import kotlin.math.absoluteValue
 
 @Composable
 fun TxGroupsListScreen(
@@ -130,9 +131,9 @@ fun TxGroupsListScreen(
                             listMode = state.listMode,
                             name = group.name,
                             created = group.createdDateFormatted,
-                            aggregateDirection = group.aggregateDirection,
+                            aggregateDirection = group.aggregateType,
                             aggregateAmount = TextFormat.compactNumber(
-                                value = group.aggregateAmount,
+                                value = group.aggregateAmount.absoluteValue,
                                 currency = state.currency
                             ),
                             onClick = { navigateToGroupDetails(group.id) },
@@ -152,7 +153,7 @@ private fun GroupCard(
     name: String,
     created: String,
     aggregateAmount: String,
-    aggregateDirection: TransactionDirection?,
+    aggregateDirection: TransactionType?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -199,7 +200,7 @@ private fun GroupCard(
 
                         AggregateAmountText(
                             amount = aggregateAmount,
-                            direction = aggregateDirection
+                            type = aggregateDirection
                         )
                     }
                 }
@@ -225,7 +226,7 @@ private fun GroupCard(
 
                         AggregateAmountText(
                             amount = aggregateAmount,
-                            direction = aggregateDirection
+                            type = aggregateDirection
                         )
                     }
                 }
@@ -237,13 +238,13 @@ private fun GroupCard(
 @Composable
 private fun AggregateAmountText(
     amount: String,
-    direction: TransactionDirection?,
+    type: TransactionType?,
     modifier: Modifier = Modifier
 ) {
     val aggregateDirectionText = stringResource(
-        id = when (direction) {
-            TransactionDirection.INCOMING -> R.string.inbound
-            TransactionDirection.OUTGOING -> R.string.outbound
+        id = when (type) {
+            TransactionType.CREDIT -> R.string.credited
+            TransactionType.DEBIT -> R.string.debited
             else -> R.string.balanced
         }
     )
@@ -268,7 +269,7 @@ private fun AggregateAmountText(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .alignByBaseline(),
-            textDecoration = if (direction == null) TextDecoration.Underline
+            textDecoration = if (type == null) TextDecoration.Underline
             else null
         )
     }

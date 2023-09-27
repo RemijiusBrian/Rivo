@@ -8,7 +8,7 @@ data class TransactionListItem(
     val note: String,
     val amount: Double,
     val date: LocalDate,
-    val direction: TransactionDirection,
+    val type: TransactionType,
     val tag: TransactionTag?,
     val group: TxGroup?,
     val excluded: Boolean

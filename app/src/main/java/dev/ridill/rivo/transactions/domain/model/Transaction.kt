@@ -9,7 +9,7 @@ data class Transaction(
     val amount: String,
     val note: String,
     val createdTimestamp: LocalDateTime,
-    val direction: TransactionDirection,
+    val type: TransactionType,
     val tagId: Long?,
     val groupId: Long?,
     val excluded: Boolean
@@ -20,7 +20,7 @@ data class Transaction(
             amount = "",
             note = "",
             createdTimestamp = DateUtil.now(),
-            direction = TransactionDirection.OUTGOING,
+            type = TransactionType.DEBIT,
             tagId = null,
             groupId = null,
             excluded = false

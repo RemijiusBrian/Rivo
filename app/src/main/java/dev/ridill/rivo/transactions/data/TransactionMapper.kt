@@ -4,7 +4,7 @@ import dev.ridill.rivo.transactionGroups.domain.model.TxGroup
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 
@@ -13,7 +13,7 @@ fun TransactionEntity.toTransaction(): Transaction = Transaction(
     amount = amount.toString(),
     note = note,
     createdTimestamp = timestamp,
-    direction = TransactionDirection.valueOf(direction),
+    type = TransactionType.valueOf(typeName),
     groupId = groupId,
     tagId = tagId,
     excluded = isExcluded
@@ -48,7 +48,7 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
         note = transactionNote,
         amount = transactionAmount,
         date = transactionTimestamp.toLocalDate(),
-        direction = TransactionDirection.valueOf(transactionDirectionName),
+        type = TransactionType.valueOf(transactionTypeName),
         tag = tag,
         group = transactionGroup,
         excluded = isExcludedTransaction

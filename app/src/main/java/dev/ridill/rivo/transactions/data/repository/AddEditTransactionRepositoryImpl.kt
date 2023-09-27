@@ -5,7 +5,7 @@ import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.toTransaction
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +37,7 @@ class AddEditTransactionRepositoryImpl(
         amount: Double,
         note: String,
         dateTime: LocalDateTime,
-        direction: TransactionDirection,
+        transactionType: TransactionType,
         tagId: Long?,
         groupId: Long?,
         excluded: Boolean
@@ -47,7 +47,7 @@ class AddEditTransactionRepositoryImpl(
             note = note,
             amount = amount,
             timestamp = dateTime,
-            direction = direction.name,
+            typeName = transactionType.name,
             tagId = tagId,
             isExcluded = excluded,
             groupId = groupId
