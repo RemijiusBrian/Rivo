@@ -65,11 +65,7 @@ fun TxGroupsListScreen(
                 scrollBehavior = topAppBarScrollBehavior,
                 actions = {
                     if (state.groupsList.isNotEmpty()) {
-                        IconButton(
-                            onClick = actions::onListModeToggle,
-//                            modifier = Modifier
-//                                .align(Alignment.End)
-                        ) {
+                        IconButton(onClick = actions::onListModeToggle) {
                             Crossfade(
                                 targetState = state.listMode,
                                 label = "ListModeIcon"
