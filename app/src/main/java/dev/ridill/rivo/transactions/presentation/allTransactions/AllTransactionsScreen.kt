@@ -119,6 +119,7 @@ import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagColors
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -718,6 +719,7 @@ private fun TransactionsList(
                             currency = currency
                         ),
                         date = transaction.date,
+                        type = transaction.type,
                         selected = transaction.id in selectedTransactionIds,
                         onLongClick = { onTransactionLongClick(transaction.id) },
                         onClick = { onTransactionClick(transaction.id) },
@@ -880,6 +882,7 @@ private fun TransactionCard(
     note: String,
     amount: String,
     date: LocalDate,
+    type: TransactionType,
     selected: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
@@ -890,6 +893,7 @@ private fun TransactionCard(
         note = note,
         amount = amount,
         date = date,
+        type = type,
         tag = null,
         modifier = modifier
             .fillMaxWidth()

@@ -358,8 +358,8 @@ private fun SpendsOverview(
                                 currency = currency
                             ),
                             date = transaction.date,
-                            onClick = { onTransactionClick(transaction) },
                             tag = transaction.tag,
+                            onClick = { onTransactionClick(transaction) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .animateItemPlacement()
@@ -443,8 +443,8 @@ private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,
-    onClick: () -> Unit,
     tag: TransactionTag?,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -455,7 +455,8 @@ private fun RecentSpendCard(
             note = note,
             amount = amount,
             date = date,
-            tag = tag
+            tag = tag,
+            type = null
         )
     }
 }

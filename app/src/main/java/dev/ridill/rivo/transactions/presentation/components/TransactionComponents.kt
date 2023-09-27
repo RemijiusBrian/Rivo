@@ -1,12 +1,15 @@
 package dev.ridill.rivo.transactions.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -34,8 +37,8 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
 
 @Composable
@@ -68,19 +71,30 @@ fun TransactionListItem(
                 )
             }
         },
-        leadingContent = {
-            TransactionDate(
-                date = date,
-            )
-        },
+        leadingContent = { TransactionDate(date) },
         trailingContent = {
-            Text(
-                text = amount,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = amount,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                type?.let {
+                    Icon(
+                        imageVector = when (it) {
+                            TransactionType.CREDIT -> Icons.Rounded.ArrowDownward
+                            TransactionType.DEBIT -> Icons.Rounded.ArrowUpward
+                        },
+                        contentDescription = stringResource(it.labelRes),
+                    )
+                }
+            }
         },
-        supportingContent = { tag?.let { TagIndicator(it.name, it.color) } },
+        supportingContent = {
+            tag?.let { TagIndicator(it.name, it.color) }
+        },
         overlineContent = overlineContent,
         modifier = modifier,
         colors = colors,
@@ -104,9 +118,7 @@ fun TransactionDate(
         modifier = Modifier
             .widthIn(min = DateContainerMinWidth)
             .clip(MaterialTheme.shapes.small)
-            .background(
-                color = containerColor
-            )
+            .background(containerColor)
             .padding(SpacingSmall)
             .then(modifier),
         contentAlignment = Alignment.Center
@@ -132,16 +144,16 @@ private fun TagIndicator(
 ) {
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
         Icon(
             imageVector = Icons.Rounded.Tags,
             contentDescription = null,
             tint = color,
             modifier = Modifier
-                .size(IndicatorSize)
+                .size(SmallIndicatorSize)
         )
-        SpacerSmall()
         Text(
             text = name,
             maxLines = 1,
@@ -158,9 +170,9 @@ fun ExcludedIndicator(
     imageVector = Icons.Rounded.VisibilityOff,
     contentDescription = stringResource(R.string.cd_excluded),
     modifier = Modifier
-        .size(IndicatorSize)
+        .size(SmallIndicatorSize)
         .then(modifier),
     tint = tint
 )
 
-private val IndicatorSize = 12.dp
+private val SmallIndicatorSize = 12.dp
