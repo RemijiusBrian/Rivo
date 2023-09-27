@@ -222,16 +222,13 @@ class AllTransactionsViewModel @Inject constructor(
             }
 
             val color = tagInput.color
-
-            val insertedId = tagsRepo.saveTag(
+            tagsRepo.saveTag(
                 name = name,
                 color = color,
                 id = tagInput.id,
                 timestamp = tagInput.createdTimestamp,
                 excluded = tagInput.excluded
             )
-            savedStateHandle[SELECTED_TAG] = tagInput
-                .copy(id = insertedId)
             hideAndClearTagInput()
             eventBus.send(
                 AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
