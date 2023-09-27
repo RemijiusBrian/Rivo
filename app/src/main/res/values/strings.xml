@@ -10,7 +10,7 @@
     <string name="destination_settings">Settings</string>
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_all_transactions">All Transactions</string>
-    <string name="destination_tx_groups">TX Groups</string>
+    <string name="destination_tx_groups">Transaction Groups</string>
     <string name="destination_tx_groups_list">Groups</string>
     <string name="destination_tx_groups_details">Details</string>
 
@@ -202,6 +202,7 @@
     <string name="transaction_option_untag">Remove Tag</string>
     <string name="transaction_option_mark_excluded">Exclude from expenditure</string>
     <string name="transaction_option_mark_included">Include in expenditure</string>
+    <string name="transaction_option_add_to_group">Add to group</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="exclude_from_expenditure_ques">Exclude From Expenditure?</string>
