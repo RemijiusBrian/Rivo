@@ -1,5 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
+import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -114,13 +115,13 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
-import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
-import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import dev.ridill.rivo.transactions.presentation.components.TagColors
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
+import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -142,12 +143,7 @@ fun AllTransactionsScreen(
         onBack = actions::onDismissMultiSelectionMode
     )
 
-    BackHandler(
-        enabled = state.showTagInput,
-        onBack = actions::onTagInputDismiss
-    )
-
-    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     RivoScaffold(
         snackbarController = snackbarController,
         topBar = {
@@ -155,7 +151,10 @@ fun AllTransactionsScreen(
                 title = {
                     Text(
                         text = if (state.transactionMultiSelectionModeActive)
-                            stringResource(R.string.count_selected, state.selectedTransactionIds.size)
+                            stringResource(
+                                R.string.count_selected,
+                                state.selectedTransactionIds.size
+                            )
                         else stringResource(AllTransactionsScreenSpec.labelRes)
                     )
                 },
@@ -189,6 +188,7 @@ fun AllTransactionsScreen(
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
             TagsInfoList(
+                currency = state.currency,
                 tags = state.tagsWithExpenditures,
                 selectedTagId = state.selectedTag?.id,
                 onTagClick = actions::onTagClick,
@@ -209,6 +209,7 @@ fun AllTransactionsScreen(
 
             TransactionsList(
                 selectedTagName = state.selectedTag?.name,
+                currency = state.currency,
                 transactionsList = state.transactionList,
                 totalExpenditure = state.totalExpenditure,
                 selectedTransactionIds = state.selectedTransactionIds,
@@ -269,6 +270,7 @@ fun AllTransactionsScreen(
 
 @Composable
 private fun TagsInfoList(
+    currency: Currency,
     tags: List<TagWithExpenditure>,
     selectedTagId: Long?,
     onTagClick: (TransactionTag) -> Unit,
@@ -307,7 +309,10 @@ private fun TagsInfoList(
                 TagInfoCard(
                     name = item.tag.name,
                     color = item.tag.color,
-                    amount = TextFormat.currency(item.expenditure),
+                    amount = TextFormat.currency(
+                        amount = item.expenditure,
+                        currency = currency
+                    ),
                     isExcluded = item.tag.excluded,
                     percentOfTotalExpenditure = item.percentOfTotalExpenditure,
                     isSelected = item.tag.id == selectedTagId,
@@ -636,6 +641,7 @@ private fun DateIndicator(
 
 @Composable
 private fun TransactionsList(
+    currency: Currency,
     selectedTagName: String?,
     transactionsList: List<TransactionListItem>,
     totalExpenditure: Double,
@@ -673,6 +679,7 @@ private fun TransactionsList(
             ) {
                 TotalExpenditureAmount(
                     expenditure = totalExpenditure,
+                    currency = currency,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -706,7 +713,10 @@ private fun TransactionsList(
                 items(items = transactionsList, key = { it.id }) { transaction ->
                     TransactionCard(
                         note = transaction.note,
-                        amount = transaction.amount,
+                        amount = TextFormat.compactNumber(
+                            value = transaction.amount,
+                            currency = currency
+                        ),
                         date = transaction.date,
                         selected = transaction.id in selectedTransactionIds,
                         onLongClick = { onTransactionLongClick(transaction.id) },
@@ -837,6 +847,7 @@ private fun TransactionListOptions(
 
 @Composable
 private fun TotalExpenditureAmount(
+    currency: Currency,
     expenditure: Double,
     modifier: Modifier = Modifier
 ) {
@@ -854,7 +865,7 @@ private fun TotalExpenditureAmount(
 
         VerticalNumberSpinnerContent(expenditure) { amount ->
             Text(
-                text = TextFormat.currency(amount),
+                text = TextFormat.currency(amount = amount, currency = currency),
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

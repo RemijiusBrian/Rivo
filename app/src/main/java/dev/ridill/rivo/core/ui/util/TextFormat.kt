@@ -60,6 +60,7 @@ object TextFormat {
     fun compactNumber(
         value: Double,
         locale: Locale = Locale.getDefault(),
+        currency: Currency = CurrencyUtil.default,
         compactStyle: CompactStyle = CompactStyle.SHORT,
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
@@ -68,6 +69,7 @@ object TextFormat {
         .apply {
             maximumFractionDigits = maxFractionDigits
             minimumFractionDigits = minFractionDigits
+            this.currency = currency
             this.isGroupingUsed = isGroupingUsed
         }
         .format(value)

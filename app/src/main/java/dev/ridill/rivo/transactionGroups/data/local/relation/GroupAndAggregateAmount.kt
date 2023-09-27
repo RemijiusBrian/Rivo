@@ -6,5 +6,6 @@ data class GroupAndAggregateAmount(
     val id: Long,
     val name: String,
     val createdTimestamp: LocalDateTime,
+    val excluded: Boolean,
     val aggregateAmount: Double
 )

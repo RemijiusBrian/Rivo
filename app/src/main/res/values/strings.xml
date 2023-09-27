@@ -44,6 +44,8 @@
     <string name="cd_new_transaction_group">New Transaction Group</string>
     <string name="cd_edit_transaction_group">Edit Transaction Group Details</string>
     <string name="cd_save_transaction_group">Save Transaction Group Details</string>
+    <string name="cd_transaction_group_created_date">Transaction Group Created Date</string>
+    <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -209,6 +211,16 @@
     <string name="give_permission">Give Permission</string>
     <string name="i_understand">I Understand</string>
     <string name="transaction_group_created">Transaction group created</string>
+    <string name="transaction_group_updated">Transaction group updated</string>
+    <string name="transaction_group_deleted">Transaction group deleted</string>
     <string name="mark_excluded_question">Mark Excluded?</string>
-    <string name="transaction_group_name">Group Name</string>
+    <string name="transaction_group_name">Name</string>
+    <string name="transactions">Transactions</string>
+    <string name="created">Created</string>
+    <string name="aggregate_amount_inbound">Aggregate Inbound</string>
+    <string name="inbound">Inbound</string>
+    <string name="aggregate_amount_outbound">Aggregate Outbound</string>
+    <string name="outbound">Outbound</string>
+    <string name="aggregate_amount_zero">Aggregate Balanced</string>
+    <string name="balanced">Balanced</string>
 </resources>

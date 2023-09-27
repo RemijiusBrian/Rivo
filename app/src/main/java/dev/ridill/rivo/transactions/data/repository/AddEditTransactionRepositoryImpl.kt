@@ -39,8 +39,8 @@ class AddEditTransactionRepositoryImpl(
         dateTime: LocalDateTime,
         direction: TransactionDirection,
         tagId: Long?,
-        excluded: Boolean,
-        groupId: Long?
+        groupId: Long?,
+        excluded: Boolean
     ): Long = withContext(Dispatchers.IO) {
         val entity = TransactionEntity(
             id = id ?: Long.Zero,

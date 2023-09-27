@@ -351,9 +351,12 @@ private fun SpendsOverview(
                     state = listState
                 ) {
                     items(items = recentSpends, key = { it.id }) { transaction ->
-                        RecentSpend(
+                        RecentSpendCard(
                             note = transaction.note,
-                            amount = transaction.amount,
+                            amount = TextFormat.compactNumber(
+                                value = transaction.amount,
+                                currency = currency
+                            ),
                             date = transaction.date,
                             onClick = { onTransactionClick(transaction) },
                             tag = transaction.tag,
@@ -436,7 +439,7 @@ private fun SpentAmountAndAllTransactionsButton(
 }
 
 @Composable
-private fun RecentSpend(
+private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,

@@ -67,6 +67,14 @@ object TransactionGroupDetailsScreenSpec : ScreenSpec {
             state = state,
             groupName = { nameInput.value },
             actions = viewModel,
+            navigateToAddEditTransaction = { transactionId ->
+                navController.navigate(
+                    AddEditTransactionScreenSpec.routeWithArg(
+                        transactionId = transactionId,
+                        transactionGroupId = state.groupId
+                    )
+                )
+            },
             navigateUp = navController::navigateUp
         )
     }

@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.repository.AddEditTransactionRepositoryImpl
@@ -48,14 +49,17 @@ object TransactionModule {
     @Provides
     fun provideAllTransactionsRepository(
         dao: TransactionDao,
-        preferencesManager: PreferencesManager
+        preferencesManager: PreferencesManager,
+        settingsRepo: SettingsRepository
     ): AllTransactionsRepository = AllTransactionsRepositoryImpl(
         dao = dao,
-        preferencesManager = preferencesManager
+        preferencesManager = preferencesManager,
+        settingsRepo = settingsRepo
     )
 
     @Provides
-    fun provideAllTransactionEventBus(): EventBus<AllTransactionsViewModel.AllTransactionsEvent> = EventBus()
+    fun provideAllTransactionEventBus(): EventBus<AllTransactionsViewModel.AllTransactionsEvent> =
+        EventBus()
 
     @Provides
     fun provideTransactionSmsService(

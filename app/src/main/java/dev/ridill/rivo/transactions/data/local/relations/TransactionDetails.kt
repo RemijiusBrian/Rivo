@@ -7,9 +7,13 @@ data class TransactionDetails(
     val transactionNote: String,
     val transactionAmount: Double,
     val transactionTimestamp: LocalDateTime,
+    val transactionDirectionName: String,
     val tagId: Long?,
     val tagName: String?,
     val tagColorCode: Int?,
     val tagCreatedTimestamp: LocalDateTime?,
+    val groupId: Long?,
+    val groupName: String?,
+    val groupCreatedTimestamp: LocalDateTime?,
     val isExcludedTransaction: Boolean
 )

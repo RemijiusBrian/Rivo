@@ -20,6 +20,7 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
@@ -40,6 +41,10 @@ class AddEditTransactionViewModel @Inject constructor(
     private val transactionIdArg = AddEditTransactionScreenSpec
         .getTransactionIdFromSavedStateHandle(savedStateHandle)
     private val isEditMode = AddEditTransactionScreenSpec.isEditMode(transactionIdArg)
+
+    private val linkGroupIdArg = AddEditTransactionScreenSpec
+        .getLinkGroupIdFromSavedStateHandle(savedStateHandle)
+
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
@@ -51,10 +56,17 @@ class AddEditTransactionViewModel @Inject constructor(
     private val tagsList = tagsRepo.getAllTags()
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
 
-    private val transactionTimestamp =
-        savedStateHandle.getStateFlow(TRANSACTION_TIMESTAMP, DateUtil.now())
+    private val transactionTimestamp = savedStateHandle
+        .getStateFlow(TRANSACTION_TIMESTAMP, DateUtil.now())
 
-    private val isTransactionExcluded = savedStateHandle.getStateFlow(IS_TRANSACTION_EXCLUDED, false)
+    private val transactionGroupId = savedStateHandle
+        .getStateFlow<Long?>(TRANSACTION_GROUP_ID, null)
+
+    private val transactionDirection = savedStateHandle
+        .getStateFlow(TRANSACTION_DIRECTION, TransactionDirection.OUTGOING)
+
+    private val isTransactionExcluded = savedStateHandle
+        .getStateFlow(IS_TRANSACTION_EXCLUDED, false)
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
@@ -75,6 +87,8 @@ class AddEditTransactionViewModel @Inject constructor(
         tagsList,
         selectedTagId,
         transactionTimestamp,
+        transactionGroupId,
+        transactionDirection,
         isTransactionExcluded,
         showDeleteConfirmation,
         showNewTagInput,
@@ -86,6 +100,8 @@ class AddEditTransactionViewModel @Inject constructor(
                 tagsList,
                 selectedTagId,
                 transactionTimestamp,
+                transactionGroupId,
+                transactionDirection,
                 isTransactionExcluded,
                 showDeleteConfirmation,
                 showNewTagInput,
@@ -102,7 +118,9 @@ class AddEditTransactionViewModel @Inject constructor(
             showDeleteConfirmation = showDeleteConfirmation,
             showNewTagInput = showNewTagInput,
             newTagError = newTagError,
-            showDateTimePicker = showDateTimePicker
+            showDateTimePicker = showDateTimePicker,
+            transactionGroupId = transactionGroupId,
+            transactionDirection = transactionDirection
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -118,8 +136,11 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[AMOUNT_INPUT] = transaction.amount
         savedStateHandle[NOTE_INPUT] = transaction.note
         savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.createdTimestamp
+        savedStateHandle[TRANSACTION_DIRECTION] = transaction.direction
         savedStateHandle[SELECTED_TAG_ID] = transaction.tagId
         savedStateHandle[IS_TRANSACTION_EXCLUDED] = transaction.excluded
+        savedStateHandle[TRANSACTION_GROUP_ID] = linkGroupIdArg
+            ?: transaction.groupId
     }
 
     override fun onAmountChange(value: String) {
@@ -200,13 +221,15 @@ class AddEditTransactionViewModel @Inject constructor(
                 return@launch
             }
             val tagId = selectedTagId.value
+            val groupId = transactionGroupId.value
             val excluded = isTransactionExcluded.value
             transactionRepo.saveTransaction(
                 id = currentTransactionId,
                 amount = amount,
                 note = note,
-                tagId = tagId,
                 dateTime = transactionTimestamp.value,
+                tagId = tagId,
+                groupId = groupId,
                 excluded = excluded
             )
             val event = if (isEditMode) AddEditTransactionEvent.TransactionUpdated
@@ -310,6 +333,8 @@ private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
+private const val TRANSACTION_GROUP_ID = "TRANSACTION_GROUP_ID"
+private const val TRANSACTION_DIRECTION = "TRANSACTION_DIRECTION"
 
 const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"
 const val RESULT_TRANSACTION_UPDATED = "RESULT_TRANSACTION_UPDATED"

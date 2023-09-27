@@ -1,6 +1,8 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
+import android.icu.util.Currency
 import androidx.compose.ui.state.ToggleableState
+import dev.ridill.rivo.core.domain.util.CurrencyUtil
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.util.UiText
@@ -13,6 +15,7 @@ data class AllTransactionsState(
     val selectedDate: LocalDate = DateUtil.now().toLocalDate(),
     val yearsList: List<Int> = emptyList(),
     val totalExpenditure: Double = Double.Zero,
+    val currency: Currency = CurrencyUtil.default,
     val tagsWithExpenditures: List<TagWithExpenditure> = emptyList(),
     val selectedTag: TransactionTag? = null,
     val transactionList: List<TransactionListItem> = emptyList(),

@@ -1,20 +1,12 @@
 package dev.ridill.rivo.transactionGroups.data
 
-import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 import dev.ridill.rivo.transactionGroups.data.local.relation.GroupAndAggregateAmount
-import dev.ridill.rivo.transactionGroups.domain.model.TxGroup
-import dev.ridill.rivo.transactionGroups.domain.model.TxGroupListItem
+import dev.ridill.rivo.transactionGroups.domain.model.TxGroupDetails
 
-fun GroupAndAggregateAmount.toTxGroupListItem(): TxGroupListItem = TxGroupListItem(
+fun GroupAndAggregateAmount.toTxGroupDetails(): TxGroupDetails = TxGroupDetails(
     id = id,
     name = name,
     createdTimestamp = createdTimestamp,
+    excluded = excluded,
     aggregateAmount = aggregateAmount
-)
-
-fun TransactionGroupEntity.toTxGroup(): TxGroup = TxGroup(
-    id = id,
-    name = name,
-    createdTimestamp = createdTimestamp,
-    excluded = isExcluded
 )

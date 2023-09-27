@@ -9,7 +9,9 @@ data class Transaction(
     val amount: String,
     val note: String,
     val createdTimestamp: LocalDateTime,
+    val direction: TransactionDirection,
     val tagId: Long?,
+    val groupId: Long?,
     val excluded: Boolean
 ) {
     companion object {
@@ -18,7 +20,9 @@ data class Transaction(
             amount = "",
             note = "",
             createdTimestamp = DateUtil.now(),
+            direction = TransactionDirection.OUTGOING,
             tagId = null,
+            groupId = null,
             excluded = false
         )
     }

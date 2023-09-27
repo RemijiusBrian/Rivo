@@ -1,23 +1,53 @@
 package dev.ridill.rivo.transactionGroups.presentation.groupsList
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.core.domain.model.ListMode
+import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactionGroups.domain.repository.TxGroupsListRepository
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TxGroupsListViewModel @Inject constructor(
-    private val repo: TxGroupsListRepository,
-    private val eventBus: EventBus<TxGroupsListEvent>
-) : ViewModel() {
+    private val txGroupsRepo: TxGroupsListRepository,
+    settingsRepo: SettingsRepository
+) : ViewModel(), TxGroupsListActions {
 
-    val groupsList = repo.getGroupsList()
+    private val currency = settingsRepo.getCurrencyPreference()
+        .distinctUntilChanged()
+    private val listMode = txGroupsRepo.getGroupsListMode()
+        .distinctUntilChanged()
+    private val groupsList = txGroupsRepo.getGroupsList()
 
-    val events = eventBus.eventFlow
+    val state = combineTuple(
+        currency,
+        listMode,
+        groupsList
+    ).map { (
+                currency,
+                listMode,
+                groupsList
+            ) ->
+        TxGroupsListState(
+            currency = currency,
+            listMode = listMode,
+            groupsList = groupsList
+        )
+    }.asStateFlow(viewModelScope, TxGroupsListState())
 
-    sealed class TxGroupsListEvent {
-        data class ShowUiMessage(val uiText: UiText) : TxGroupsListEvent()
+    override fun onListModeToggle() {
+        viewModelScope.launch {
+            val newListMode = when (state.value.listMode) {
+                ListMode.LIST -> ListMode.GRID
+                ListMode.GRID -> ListMode.LIST
+            }
+            txGroupsRepo.updateGroupsListMode(newListMode)
+        }
     }
 }

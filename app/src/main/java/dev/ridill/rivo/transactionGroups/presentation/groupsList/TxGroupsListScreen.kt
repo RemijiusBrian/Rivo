@@ -1,19 +1,27 @@
 package dev.ridill.rivo.transactionGroups.presentation.groupsList
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -22,21 +30,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.model.ListMode
+import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
-import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
+import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.navigation.destinations.TxGroupsListScreenSpec
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.transactionGroups.domain.model.TxGroupListItem
+import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.transactions.domain.model.TransactionDirection
 
 @Composable
 fun TxGroupsListScreen(
-    snackbarController: SnackbarController,
-    groupsList: List<TxGroupListItem>,
+    state: TxGroupsListState,
+    actions: TxGroupsListActions,
     navigateToGroupDetails: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -49,7 +65,6 @@ fun TxGroupsListScreen(
                 scrollBehavior = topAppBarScrollBehavior
             )
         },
-        snackbarController = snackbarController,
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         floatingActionButton = {
@@ -61,32 +76,70 @@ fun TxGroupsListScreen(
             }
         }
     ) { paddingValues ->
-        Box(
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(SpacingMedium)
         ) {
-            if (groupsList.isEmpty()) {
-                EmptyListIndicator(
-                    resId = R.raw.lottie_empty_list_ghost
-                )
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+            IconButton(
+                onClick = actions::onListModeToggle,
                 modifier = Modifier
-                    .fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = paddingValues.calculateTopPadding(),
-                    bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
-                )
+                    .align(Alignment.End)
             ) {
-                items(items = groupsList, key = { it.id }) { group ->
-                    GroupCard(
-                        name = group.name,
-                        created = group.createdDateFormatted,
-                        aggregateAmount = group.aggregateAmountFormatted,
-                        onClick = { navigateToGroupDetails(group.id) },
-                        modifier = Modifier
-                            .animateItemPlacement()
+                Crossfade(
+                    targetState = state.listMode,
+                    label = "ListModeIcon"
+                ) { listMode ->
+                    Icon(
+                        imageVector = when (listMode) {
+                            ListMode.LIST -> Icons.Rounded.List
+                            ListMode.GRID -> Icons.Rounded.GridView
+                        },
+                        contentDescription = stringResource(R.string.cd_toggle_list_mode)
                     )
+                }
+            }
+            SpacerSmall()
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                if (state.groupsList.isEmpty()) {
+                    EmptyListIndicator(
+                        resId = R.raw.lottie_empty_list_ghost
+                    )
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(
+                        when (state.listMode) {
+                            ListMode.LIST -> 1
+                            ListMode.GRID -> 2
+                        }
+                    ),
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = SpacingSmall,
+                        bottom = SpacingListEnd
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
+                    verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+                ) {
+                    items(items = state.groupsList, key = { it.id }) { group ->
+                        GroupCard(
+                            listMode = state.listMode,
+                            name = group.name,
+                            created = group.createdDateFormatted,
+                            aggregateDirection = group.aggregateDirection,
+                            aggregateAmount = TextFormat.compactNumber(
+                                value = group.aggregateAmount,
+                                currency = state.currency
+                            ),
+                            onClick = { navigateToGroupDetails(group.id) },
+                            modifier = Modifier
+                                .animateItemPlacement()
+                        )
+                    }
                 }
             }
         }
@@ -95,40 +148,128 @@ fun TxGroupsListScreen(
 
 @Composable
 private fun GroupCard(
+    listMode: ListMode,
     name: String,
     created: String,
     aggregateAmount: String,
+    aggregateDirection: TransactionDirection?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    val nameStyle = MaterialTheme.typography.titleMedium
+    val createdDateStyle = MaterialTheme.typography.bodySmall
+        .copy(
+            color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+        )
+
+    OutlinedCard(
         onClick = onClick,
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .padding(SpacingMedium)
-        ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+        Crossfade(
+            targetState = listMode,
+            label = "GroupCardContent"
+        ) { mode ->
+            when (mode) {
+                ListMode.LIST -> {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(SpacingMedium),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(Float.One)
+                        ) {
+                            Text(
+                                text = name,
+                                style = nameStyle,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
 
-            Text(
-                text = created,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+                            Text(
+                                text = created,
+                                style = createdDateStyle,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-            Text(
-                text = aggregateAmount,
-                style = MaterialTheme.typography.displayMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+                        AggregateAmountText(
+                            amount = aggregateAmount,
+                            direction = aggregateDirection
+                        )
+                    }
+                }
+
+                ListMode.GRID -> {
+                    Column(
+                        modifier = Modifier
+                            .padding(SpacingMedium)
+                    ) {
+                        Text(
+                            text = name,
+                            style = nameStyle,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Text(
+                            text = created,
+                            style = createdDateStyle,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        AggregateAmountText(
+                            amount = aggregateAmount,
+                            direction = aggregateDirection
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun AggregateAmountText(
+    amount: String,
+    direction: TransactionDirection?,
+    modifier: Modifier = Modifier
+) {
+    val aggregateDirectionText = stringResource(
+        id = when (direction) {
+            TransactionDirection.INCOMING -> R.string.inbound
+            TransactionDirection.OUTGOING -> R.string.outbound
+            else -> R.string.balanced
+        }
+    )
+
+    Row(
+        modifier = modifier,
+    ) {
+        Text(
+            text = amount,
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .alignByBaseline()
+        )
+        SpacerExtraSmall()
+        Text(
+            text = aggregateDirectionText,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .alignByBaseline(),
+            textDecoration = if (direction == null) TextDecoration.Underline
+            else null
+        )
     }
 }

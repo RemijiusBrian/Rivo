@@ -44,26 +44,32 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tx.note AS transactionNote,
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
+        tx.transaction_direction AS transactionDirectionName,
         tag.id AS tagId,
         tag.name AS tagName,
         tag.color_code AS tagColorCode,
         tag.created_timestamp AS tagCreatedTimestamp,
-        (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded) THEN 1 ELSE 0 END) AS isExcludedTransaction
+        txGroup.id AS groupId,
+        txGroup.name AS groupName,
+        txGroup.created_timestamp AS groupCreatedTimestamp,
+        (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txGroup.is_excluded) THEN 1 ELSE 0 END) AS isExcludedTransaction
         FROM transaction_table tx
-        LEFT OUTER JOIN tag_table tag
-        ON tx.tag_id = tag.id
-        WHERE strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear)
-            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
+        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
+        LEFT OUTER JOIN transaction_group_table txGroup ON tx.group_id = txGroup.id
+        WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
             AND (:transactionDirectionName IS NULL OR transaction_direction = :transactionDirectionName)
             AND (:tagId IS NULL OR tagId = :tagId)
+            AND (:groupId IS NULL OR groupId = :groupId)
+            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
         """
     )
-    fun getTransactionsListForMonth(
-        monthAndYear: LocalDateTime,
-        transactionDirectionName: String?,
-        tagId: Long?,
-        showExcluded: Boolean
+    fun getTransactionsList(
+        monthAndYear: LocalDateTime? = null,
+        transactionDirectionName: String? = null,
+        tagId: Long? = null,
+        groupId: Long? = null,
+        showExcluded: Boolean = true
     ): Flow<List<TransactionDetails>>
 
     @Query("SELECT DISTINCT(strftime('%Y', timestamp)) AS year FROM transaction_table ORDER BY year DESC")

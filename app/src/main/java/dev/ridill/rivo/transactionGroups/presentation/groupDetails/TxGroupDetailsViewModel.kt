@@ -11,13 +11,16 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.orFalse
+import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.ARG_INVALID_ID_LONG
 import dev.ridill.rivo.core.ui.navigation.destinations.TransactionGroupDetailsScreenSpec
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.transactionGroups.domain.model.TxGroup
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.transactionGroups.domain.model.TxGroupDetails
 import dev.ridill.rivo.transactionGroups.domain.repository.TxGroupDetailsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -28,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TxGroupDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repo: TxGroupDetailsRepository,
+    private val txGroupRepo: TxGroupDetailsRepository,
+    settingsRepo: SettingsRepository,
     private val eventBus: EventBus<TxGroupDetailsEvent>
 ) : ViewModel(), TxGroupDetailsActions {
 
@@ -39,36 +43,56 @@ class TxGroupDetailsViewModel @Inject constructor(
 
     private val groupIdFlow = MutableStateFlow(groupIdArg)
     private val groupDetails = groupIdFlow.flatMapLatest {
-        repo.getGroupDetailsFlowById(it)
+        txGroupRepo.getGroupDetailsFlowById(it)
     }
 
     val groupNameInput = savedStateHandle.getStateFlow(GROUP_NAME_INPUT, "")
     private val groupCreatedTimestamp = groupDetails.map {
         it?.createdTimestamp ?: DateUtil.now()
-    }
+    }.distinctUntilChanged()
     private val isGroupExcluded = savedStateHandle.getStateFlow(IS_GROUP_EXCLUDED, false)
+
+    private val currency = settingsRepo.getCurrencyPreference()
+
+    private val aggregateAmount = groupDetails.map { it?.aggregateAmount.orZero() }
+        .distinctUntilChanged()
+
+    private val aggregateDirection = groupDetails.map { it?.aggregateDirection }
+        .distinctUntilChanged()
 
     private val editModeActive = savedStateHandle.getStateFlow(EDIT_MODE_ACTIVE, false)
 
     private val transactions = groupIdFlow.flatMapLatest {
-        repo.getTransactionsForGroup(it)
+        txGroupRepo.getTransactionsForGroup(it)
     }
 
     val state = combineTuple(
+        groupIdFlow,
         editModeActive,
         groupCreatedTimestamp,
         isGroupExcluded,
+        currency,
+        aggregateAmount,
+        aggregateDirection,
         transactions
     ).map { (
+                groupId,
                 editModeActive,
                 groupCreatedTimestamp,
                 isGroupExcluded,
+                currency,
+                aggregateAmount,
+                aggregateDirection,
                 transactions
             ) ->
         TxGroupDetailsState(
+            groupId = groupId,
             editModeActive = editModeActive,
             createdTimestamp = groupCreatedTimestamp,
             isExcluded = isGroupExcluded,
+            currency = currency,
+            aggregateAmount = aggregateAmount,
+            aggregateDirection = aggregateDirection,
             transactions = transactions
         )
     }.asStateFlow(viewModelScope, TxGroupDetailsState())
@@ -88,7 +112,7 @@ class TxGroupDetailsViewModel @Inject constructor(
         groupDetails.collectLatest { updateInputsFromGroupDetails(it) }
     }
 
-    private fun updateInputsFromGroupDetails(details: TxGroup?) {
+    private fun updateInputsFromGroupDetails(details: TxGroupDetails?) {
         savedStateHandle[GROUP_NAME_INPUT] = details?.name.orEmpty()
         savedStateHandle[IS_GROUP_EXCLUDED] = details?.excluded.orFalse()
     }
@@ -126,7 +150,7 @@ class TxGroupDetailsViewModel @Inject constructor(
             val createdTimestamp = groupCreatedTimestamp.first()
             val excluded = isGroupExcluded.value
             val id = groupIdFlow.value.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
-            val insertedId = repo.saveGroup(
+            val insertedId = txGroupRepo.saveGroup(
                 id = id,
                 name = name,
                 createdTimestamp = createdTimestamp,
@@ -134,7 +158,14 @@ class TxGroupDetailsViewModel @Inject constructor(
             )
             groupIdFlow.update { insertedId }
             savedStateHandle[EDIT_MODE_ACTIVE] = false
-            eventBus.send(TxGroupDetailsEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_group_created)))
+            eventBus.send(
+                TxGroupDetailsEvent.ShowUiMessage(
+                    UiText.StringResource(
+                        if (isNewGroup) R.string.transaction_group_created
+                        else R.string.transaction_group_updated
+                    )
+                )
+            )
         }
     }
 

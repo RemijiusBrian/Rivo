@@ -1,38 +1,74 @@
 package dev.ridill.rivo.transactionGroups.presentation.groupDetails
 
+import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
+import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerSmall
+import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.TransactionGroupDetailsScreenSpec
+import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.transactions.domain.model.TransactionDirection
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
+import java.time.LocalDate
+import kotlin.math.absoluteValue
 
 @Composable
 fun TxGroupDetailsScreen(
@@ -40,6 +76,7 @@ fun TxGroupDetailsScreen(
     state: TxGroupDetailsState,
     groupName: () -> String,
     actions: TxGroupDetailsActions,
+    navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
     BackHandler(
@@ -93,8 +130,14 @@ fun TxGroupDetailsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingMedium)
+                .padding(SpacingMedium),
+            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
+            GroupCreatedDate(
+                date = state.createdTimestampFormatted,
+                modifier = Modifier
+                    .align(Alignment.End)
+            )
             NameField(
                 name = groupName,
                 onNameChange = actions::onNameChange,
@@ -108,7 +151,48 @@ fun TxGroupDetailsScreen(
                 modifier = Modifier
                     .align(Alignment.End)
             )
+
+            TransactionsInGroup(
+                currency = state.currency,
+                aggregateAmount = state.aggregateAmount,
+                aggregateDirection = state.aggregateDirection,
+                transactions = state.transactions,
+                onTransactionClick = { navigateToAddEditTransaction(it) },
+                onNewTransactionClick = { navigateToAddEditTransaction(null) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(Float.One)
+            )
         }
+    }
+}
+
+@Composable
+private fun GroupCreatedDate(
+    date: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = stringResource(R.string.created),
+                style = MaterialTheme.typography.labelSmall
+            )
+            Text(
+                text = date,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        SpacerSmall()
+        Icon(
+            imageVector = Icons.Outlined.CalendarClock,
+            contentDescription = stringResource(R.string.cd_transaction_group_created_date)
+        )
     }
 }
 
@@ -119,6 +203,20 @@ private fun NameField(
     editModeActive: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val containerColor by animateColorAsState(
+        targetValue = if (editModeActive) MaterialTheme.colorScheme.surfaceVariant
+        else Color.Transparent,
+        label = "NameFieldContainerColor"
+    )
+
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(editModeActive) {
+        if (editModeActive) {
+            focusRequester.requestFocus()
+        }
+    }
+
     TextField(
         value = name(),
         onValueChange = onNameChange,
@@ -131,7 +229,158 @@ private fun NameField(
         readOnly = !editModeActive,
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
-            .fillMaxWidth(),
-        label = { Text(stringResource(R.string.transaction_group_name)) }
+            .fillMaxWidth()
+            .focusRequester(focusRequester),
+        label = { Text(stringResource(R.string.transaction_group_name)) },
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = containerColor,
+            focusedContainerColor = containerColor
+        ),
+        textStyle = MaterialTheme.typography.headlineMedium
     )
+}
+
+@Composable
+private fun TransactionsInGroup(
+    currency: Currency,
+    aggregateAmount: Double,
+    aggregateDirection: TransactionDirection?,
+    transactions: List<TransactionListItem>,
+    onTransactionClick: (Long) -> Unit,
+    onNewTransactionClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        if (transactions.isEmpty()) {
+            EmptyListIndicator(
+                resId = R.raw.lottie_empty_list_ghost
+            )
+        }
+        Column(
+            modifier = Modifier
+                .matchParentSize()
+        ) {
+            AggregateAmount(
+                currency = currency,
+                amount = aggregateAmount,
+                direction = aggregateDirection
+            )
+
+            Divider(
+                modifier = Modifier
+                    .padding(vertical = SpacingSmall)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ListLabel(stringResource(R.string.transactions))
+                FilledTonalIconButton(onClick = onNewTransactionClick) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = stringResource(R.string.cd_new_transaction)
+                    )
+                }
+            }
+
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    top = SpacingSmall,
+                    bottom = SpacingListEnd
+                ),
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                items(items = transactions, key = { it.id }) { transaction ->
+                    TransactionCard(
+                        note = transaction.note,
+                        amount = TextFormat.compactNumber(
+                            value = transaction.amount,
+                            currency = currency
+                        ),
+                        date = transaction.date,
+                        direction = transaction.direction,
+                        tag = transaction.tag,
+                        onClick = { onTransactionClick(transaction.id) },
+                        modifier = Modifier
+                            .animateItemPlacement()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AggregateAmount(
+    amount: Double,
+    currency: Currency,
+    direction: TransactionDirection?,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+    ) {
+        VerticalNumberSpinnerContent(
+            number = amount.absoluteValue,
+            modifier = Modifier
+                .alignByBaseline()
+        ) {
+            Text(
+                text = TextFormat.currency(it, currency = currency),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        SpacerSmall()
+
+        Crossfade(
+            targetState = direction,
+            label = "AggregateDirection",
+            modifier = Modifier
+                .alignByBaseline()
+        ) { aggregateDirection ->
+            Text(
+                text = stringResource(
+                    id = when (aggregateDirection) {
+                        TransactionDirection.INCOMING -> R.string.aggregate_amount_inbound
+                        TransactionDirection.OUTGOING -> R.string.aggregate_amount_outbound
+                        else -> R.string.aggregate_amount_zero
+                    }
+                ),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun TransactionCard(
+    note: String,
+    amount: String,
+    date: LocalDate,
+    tag: TransactionTag?,
+    direction: TransactionDirection,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        TransactionListItem(
+            note = note,
+            amount = amount,
+            date = date,
+            tag = tag,
+            direction = direction
+        )
+    }
 }

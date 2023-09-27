@@ -39,6 +39,8 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val yearsList = transactionRepo.getTransactionYearsList()
 
+    private val currency = transactionRepo.getCurrencyPreference()
+
     private val totalExpenditure = selectedDate.flatMapLatest { date ->
         transactionRepo.getTotalExpenditureForDate(date)
     }.distinctUntilChanged()
@@ -101,6 +103,7 @@ class AllTransactionsViewModel @Inject constructor(
     val state = combineTuple(
         selectedDate,
         yearsList,
+        currency,
         totalExpenditure,
         tagsWithExpenditures,
         selectedTag,
@@ -116,6 +119,7 @@ class AllTransactionsViewModel @Inject constructor(
     ).map { (
                 selectedDate,
                 yearsList,
+                currency,
                 totalExpenditure,
                 tagsWithExpenditures,
                 selectedTag,
@@ -132,6 +136,7 @@ class AllTransactionsViewModel @Inject constructor(
         AllTransactionsState(
             selectedDate = selectedDate,
             yearsList = yearsList,
+            currency = currency,
             totalExpenditure = totalExpenditure,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTag = selectedTag,

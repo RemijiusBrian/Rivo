@@ -6,7 +6,6 @@ import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 import dev.ridill.rivo.transactionGroups.data.local.relation.GroupAndAggregateAmount
-import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,19 +14,27 @@ interface TransactionGroupDao : BaseDao<TransactionGroupEntity> {
     @Transaction
     @Query(
         """
-        SELECT id, name, created_timestamp AS createdTimestamp,
-        IFNULL(((SELECT SUM(amount) FROM transaction_table WHERE group_id = id AND transaction_direction = 'OUTGOING')
-        - (SELECT SUM(amount) FROM transaction_table WHERE group_id = id AND transaction_direction = 'INCOMING')
-        ), 0.0) AS aggregateAmount
-        FROM transaction_group_table
-        ORDER BY datetime(created_timestamp) DESC, id DESC
+        SELECT txGroup.id, txGroup.name, txGroup.created_timestamp AS createdTimestamp, txGroup.is_excluded as excluded,
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.group_id = txGroup.id AND tx1.transaction_direction = 'OUTGOING')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.group_id = txGroup.id AND tx2.transaction_direction = 'INCOMING')
+        ) AS aggregateAmount
+        FROM transaction_group_table txGroup
+        ORDER BY datetime(createdTimestamp) DESC, id DESC
     """
     )
     fun getGroupsWithAggregateExpenditure(): Flow<List<GroupAndAggregateAmount>>
 
-    @Query("SELECT * FROM transaction_group_table WHERE id = :id")
-    fun getGroupById(id: Long): Flow<TransactionGroupEntity?>
-
-    @Query("SELECT * FROM transaction_table WHERE group_id = :groupId")
-    fun getTransactionsForGroup(groupId: Long): Flow<List<TransactionEntity>>
+    @Transaction
+    @Query(
+        """
+        SELECT txGroup.id, txGroup.name, txGroup.created_timestamp AS createdTimestamp, txGroup.is_excluded as excluded,
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.group_id = txGroup.id AND tx1.transaction_direction = 'OUTGOING')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.group_id = txGroup.id AND tx2.transaction_direction = 'INCOMING')
+        ) AS aggregateAmount
+        FROM transaction_group_table txGroup
+        WHERE txGroup.id = :id
+        ORDER BY datetime(createdTimestamp) DESC, id DESC
+    """
+    )
+    fun getGroupDetailsWithAggregateExpenditureById(id: Long): Flow<GroupAndAggregateAmount?>
 }

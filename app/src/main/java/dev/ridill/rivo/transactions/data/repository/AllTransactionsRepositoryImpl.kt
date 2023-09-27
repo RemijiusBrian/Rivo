@@ -1,7 +1,9 @@
 package dev.ridill.rivo.transactions.data.repository
 
+import android.icu.util.Currency
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.data.toTransactionListItem
@@ -16,8 +18,11 @@ import java.time.LocalDate
 
 class AllTransactionsRepositoryImpl(
     private val dao: TransactionDao,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val settingsRepo: SettingsRepository
 ) : AllTransactionsRepository {
+    override fun getCurrencyPreference(): Flow<Currency> = settingsRepo.getCurrencyPreference()
+
     override suspend fun deleteTransactionsByIds(ids: List<Long>) = withContext(Dispatchers.IO) {
         dao.deleteMultipleTransactionsById(ids)
     }
@@ -41,9 +46,8 @@ class AllTransactionsRepositoryImpl(
         date: LocalDate,
         tagId: Long?,
         showExcluded: Boolean
-    ): Flow<List<TransactionListItem>> = dao.getTransactionsListForMonth(
+    ): Flow<List<TransactionListItem>> = dao.getTransactionsList(
         monthAndYear = date.atStartOfDay(),
-        transactionDirectionName = null,
         tagId = tagId,
         showExcluded = showExcluded
     ).map { it.map(TransactionDetails::toTransactionListItem) }

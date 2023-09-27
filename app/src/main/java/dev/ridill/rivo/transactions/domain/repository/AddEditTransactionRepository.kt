@@ -15,8 +15,8 @@ interface AddEditTransactionRepository {
         dateTime: LocalDateTime,
         direction: TransactionDirection = TransactionDirection.OUTGOING,
         tagId: Long?,
-        excluded: Boolean = false,
-        groupId: Long? = null
+        groupId: Long? = null,
+        excluded: Boolean = false
     ): Long
 
     suspend fun deleteTransaction(id: Long)
