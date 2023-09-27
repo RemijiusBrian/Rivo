@@ -80,7 +80,7 @@ fun TxGroupsListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingMedium)
+                .padding(horizontal = SpacingMedium)
         ) {
             IconButton(
                 onClick = actions::onListModeToggle,
