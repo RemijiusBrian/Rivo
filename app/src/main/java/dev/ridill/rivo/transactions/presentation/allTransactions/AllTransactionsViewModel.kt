@@ -321,6 +321,10 @@ class AllTransactionsViewModel @Inject constructor(
                 TransactionOption.MARK_AS_INCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
+
+                TransactionOption.ADD_TO_GROUP -> {
+                    showGroupSelection()
+                }
             }
         }
     }
@@ -345,6 +349,10 @@ class AllTransactionsViewModel @Inject constructor(
                 )
             )
         )
+    }
+
+    private fun showGroupSelection() {
+        savedStateHandle[SHOW_GROUP_SELECTION] = true
     }
 
     override fun onDeleteSelectedTransactionsClick() {
@@ -433,3 +441,4 @@ private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
 private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
+private const val SHOW_GROUP_SELECTION = "SHOW_GROUP_SELECTION"

@@ -13,9 +13,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.GridView
-import androidx.compose.material.icons.rounded.List
+import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,8 +27,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,12 +41,10 @@ import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
-import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.navigation.destinations.TxGroupsListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
@@ -57,13 +56,35 @@ fun TxGroupsListScreen(
     navigateToGroupDetails: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     RivoScaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(TxGroupsListScreenSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
-                scrollBehavior = topAppBarScrollBehavior
+                scrollBehavior = topAppBarScrollBehavior,
+                actions = {
+                    if (state.groupsList.isNotEmpty()) {
+                        IconButton(
+                            onClick = actions::onListModeToggle,
+//                            modifier = Modifier
+//                                .align(Alignment.End)
+                        ) {
+                            Crossfade(
+                                targetState = state.listMode,
+                                label = "ListModeIcon"
+                            ) { listMode ->
+                                Icon(
+                                    imageVector = when (listMode) {
+                                        ListMode.LIST -> Icons.Rounded.ViewList
+                                        ListMode.GRID -> Icons.Rounded.GridView
+                                    },
+                                    contentDescription = stringResource(R.string.cd_toggle_list_mode)
+                                )
+                            }
+                        }
+                    }
+                }
             )
         },
         modifier = Modifier
@@ -71,7 +92,7 @@ fun TxGroupsListScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = { navigateToGroupDetails(null) }) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_add_folder),
                     contentDescription = stringResource(R.string.cd_new_transaction_group)
                 )
             }
@@ -83,31 +104,33 @@ fun TxGroupsListScreen(
                 .padding(paddingValues)
                 .padding(horizontal = SpacingMedium)
         ) {
-            IconButton(
-                onClick = actions::onListModeToggle,
-                modifier = Modifier
-                    .align(Alignment.End)
-            ) {
-                Crossfade(
-                    targetState = state.listMode,
-                    label = "ListModeIcon"
-                ) { listMode ->
-                    Icon(
-                        imageVector = when (listMode) {
-                            ListMode.LIST -> Icons.Rounded.List
-                            ListMode.GRID -> Icons.Rounded.GridView
-                        },
-                        contentDescription = stringResource(R.string.cd_toggle_list_mode)
-                    )
+            /*if (state.groupsList.isNotEmpty()) {
+                IconButton(
+                    onClick = actions::onListModeToggle,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                ) {
+                    Crossfade(
+                        targetState = state.listMode,
+                        label = "ListModeIcon"
+                    ) { listMode ->
+                        Icon(
+                            imageVector = when (listMode) {
+                                ListMode.LIST -> Icons.Rounded.ViewList
+                                ListMode.GRID -> Icons.Rounded.GridView
+                            },
+                            contentDescription = stringResource(R.string.cd_toggle_list_mode)
+                        )
+                    }
                 }
-            }
-            SpacerSmall()
+            }*/
             Box(
                 contentAlignment = Alignment.Center
             ) {
                 if (state.groupsList.isEmpty()) {
                     EmptyListIndicator(
-                        resId = R.raw.lottie_empty_list_ghost
+                        resId = R.raw.lottie_empty_list_ghost,
+                        messageRes = R.string.transaction_groups_list_empty_message
                     )
                 }
                 LazyVerticalGrid(
@@ -120,7 +143,7 @@ fun TxGroupsListScreen(
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
-                        top = SpacingSmall,
+                        top = SpacingMedium,
                         bottom = SpacingListEnd
                     ),
                     horizontalArrangement = Arrangement.spacedBy(SpacingMedium),

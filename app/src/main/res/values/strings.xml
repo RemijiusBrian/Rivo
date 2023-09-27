@@ -11,7 +11,7 @@
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_tx_groups">Transaction Groups</string>
-    <string name="destination_tx_groups_list">Groups</string>
+    <string name="destination_tx_groups_list">Transaction Groups</string>
     <string name="destination_tx_groups_details">Details</string>
 
     <!-- Notifications -->
@@ -226,4 +226,6 @@
     <string name="balanced">Balanced</string>
     <string name="transaction_type_label_credit">Credit</string>
     <string name="transaction_type_label_debit">Debit</string>
+    <string name="transaction_groups_list_empty_message">You don\'t have any Transaction Groups yet</string>
+    <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
 </resources>
