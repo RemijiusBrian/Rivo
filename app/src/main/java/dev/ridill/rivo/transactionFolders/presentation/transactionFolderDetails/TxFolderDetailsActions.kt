@@ -2,8 +2,8 @@ package dev.ridill.rivo.transactionFolders.presentation.transactionFolderDetails
 
 interface TxFolderDetailsActions {
     fun onDeleteClick()
-    fun onDeleteCancel()
-    fun onDeleteFolderClick()
+    fun onDeleteDismiss()
+    fun onDeleteFolderOnlyClick()
     fun onDeleteFolderAndTransactionsClick()
     fun onEditClick()
     fun onEditDismiss()

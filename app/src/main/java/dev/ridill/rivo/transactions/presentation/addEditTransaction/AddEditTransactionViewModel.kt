@@ -11,7 +11,9 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.orZero
@@ -19,11 +21,15 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenS
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
+import dev.ridill.rivo.transactionFolders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -34,6 +40,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val transactionRepo: AddEditTransactionRepository,
     private val tagsRepo: TagsRepository,
+    private val foldersListRepo: FoldersListRepository,
     settingsRepo: SettingsRepository,
     private val eventBus: EventBus<AddEditTransactionEvent>,
     private val evalService: ExpEvalService
@@ -81,32 +88,51 @@ class AddEditTransactionViewModel @Inject constructor(
 
     private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
 
+    private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
+
+    val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
+    private val foldersList = folderSearchQuery
+        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
+        .flatMapLatest { query ->
+            foldersListRepo.getFoldersList(query)
+        }
+    private val linkedFolderName = combineTuple(
+        foldersList,
+        transactionFolderId
+    ).map { (folders, selectedId) ->
+        folders.find { it.id == selectedId }
+    }.map { it?.name }
+
     val state = combineTuple(
         currency,
         amountRecommendations,
         tagsList,
         selectedTagId,
         transactionTimestamp,
-        transactionFolderId,
         transactionType,
         isTransactionExcluded,
         showDeleteConfirmation,
         showNewTagInput,
         newTagError,
-        showDateTimePicker
+        showDateTimePicker,
+        showFolderSelection,
+        foldersList,
+        linkedFolderName
     ).map { (
                 currency,
                 amountRecommendations,
                 tagsList,
                 selectedTagId,
                 transactionTimestamp,
-                transactionFolderId,
                 transactionType,
                 isTransactionExcluded,
                 showDeleteConfirmation,
                 showNewTagInput,
                 newTagError,
-                showDateTimePicker
+                showDateTimePicker,
+                showFolderSelection,
+                folderList,
+                linkedFolderName
             ) ->
         AddEditTransactionState(
             currency = currency,
@@ -119,8 +145,10 @@ class AddEditTransactionViewModel @Inject constructor(
             showNewTagInput = showNewTagInput,
             newTagError = newTagError,
             showDateTimePicker = showDateTimePicker,
-            transactionFolderId = transactionFolderId,
-            transactionType = transactionType
+            transactionType = transactionType,
+            showFolderSelection = showFolderSelection,
+            folderList = folderList,
+            linkedFolderName = linkedFolderName
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -316,6 +344,39 @@ class AddEditTransactionViewModel @Inject constructor(
         }
     }
 
+    override fun onAddToFolderClick() {
+        savedStateHandle[FOLDER_SEARCH_QUERY] = String.Empty
+        savedStateHandle[SHOW_FOLDER_SELECTION] = true
+    }
+
+    override fun onRemoveFromFolderClick() {
+        savedStateHandle[TRANSACTION_FOLDER_ID] = null
+    }
+
+    override fun onFolderSearchQueryChange(query: String) {
+        savedStateHandle[FOLDER_SEARCH_QUERY] = query
+    }
+
+    override fun onFolderSelectionDismiss() {
+        savedStateHandle[SHOW_FOLDER_SELECTION] = false
+    }
+
+    override fun onFolderSelect(folder: TransactionFolder) {
+        savedStateHandle[TRANSACTION_FOLDER_ID] = folder.id
+        savedStateHandle[SHOW_FOLDER_SELECTION] = false
+    }
+
+    override fun onCreateFolderClick() {
+        viewModelScope.launch {
+            savedStateHandle[SHOW_FOLDER_SELECTION] = false
+            eventBus.send(AddEditTransactionEvent.NavigateToFolderDetailsForCreation)
+        }
+    }
+
+    fun onCreateFolderResult(folderIdString: String?) {
+        savedStateHandle[TRANSACTION_FOLDER_ID] = folderIdString?.toLongOrNull()
+    }
+
     private fun clearAndHideTagInput() {
         savedStateHandle[SHOW_NEW_TAG_INPUT] = false
         savedStateHandle[TAG_INPUT] = null
@@ -326,8 +387,10 @@ class AddEditTransactionViewModel @Inject constructor(
         object TransactionUpdated : AddEditTransactionEvent()
         object TransactionDeleted : AddEditTransactionEvent()
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
+        object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
     }
 }
+
 
 private const val AMOUNT_INPUT = "AMOUNT_INPUT"
 private const val NOTE_INPUT = "NOTE_INPUT"
@@ -341,6 +404,8 @@ private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
 private const val TRANSACTION_TYPE = "TRANSACTION_TYPE"
+private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
+private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
 
 const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"
 const val RESULT_TRANSACTION_UPDATED = "RESULT_TRANSACTION_UPDATED"

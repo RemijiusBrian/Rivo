@@ -52,7 +52,7 @@ object AllTransactionsScreenSpec : ScreenSpec {
                     }
 
                     is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
-                        val route = TransactionFolderDetailsScreenSpec.routeWithArg(
+                        val route = TransactionFolderDetailsScreenSpec.routeWithArgs(
                             transactionFolderId = null,
                             txIds = event.transactionIds
                         )

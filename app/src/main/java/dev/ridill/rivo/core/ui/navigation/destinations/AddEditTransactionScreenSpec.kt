@@ -22,6 +22,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
@@ -94,11 +95,18 @@ object AddEditTransactionScreenSpec : ScreenSpec {
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
+        val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
+
+        DestinationResultEffect(
+            key = ACTION_NEW_FOLDER_CREATE,
+            navBackStackEntry = navBackStackEntry,
+            onResult = viewModel::onCreateFolderResult
+        )
 
         LaunchedEffect(viewModel, snackbarController, context) {
             viewModel.events.collect { event ->
@@ -130,6 +138,15 @@ object AddEditTransactionScreenSpec : ScreenSpec {
                             isError = event.uiText.isErrorText
                         )
                     }
+
+                    AddEditTransactionViewModel.AddEditTransactionEvent.NavigateToFolderDetailsForCreation -> {
+                        navController.navigate(
+                            TransactionFolderDetailsScreenSpec.routeWithArgs(
+                                transactionFolderId = null,
+                                exitAfterClear = true
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -142,6 +159,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagColorInput = { tagInput.value?.colorCode },
             tagExclusionInput = { tagInput.value?.excluded },
+            folderSearchQuery = { folderSearchQuery.value },
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp
@@ -153,3 +171,5 @@ const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
 private const val ARG_LINK_TX_FOLDER_ID = "ARG_LINK_TX_FOLDER_ID"
 private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
     "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"
+
+const val ACTION_NEW_FOLDER_CREATE = "ACTION_NEW_FOLDER_CREATE"

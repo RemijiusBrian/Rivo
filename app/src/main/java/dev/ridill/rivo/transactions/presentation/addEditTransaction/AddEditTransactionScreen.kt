@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import android.icu.util.Currency
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,13 +56,17 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
@@ -77,6 +82,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.transactionFolders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
@@ -93,6 +99,7 @@ fun AddEditTransactionScreen(
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
     isEditMode: Boolean,
+    folderSearchQuery: () -> String,
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit
@@ -196,12 +203,23 @@ fun AddEditTransactionScreen(
 
             Divider()
 
-            TransactionDate(
-                date = state.transactionDateFormatted,
-                onDateClick = actions::onTransactionTimestampClick,
+            Row(
                 modifier = Modifier
-                    .align(Alignment.End)
-            )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                FolderIndicator(
+                    folderName = state.linkedFolderName,
+                    onAddToFolderClick = actions::onAddToFolderClick,
+                    onRemoveFolderClick = actions::onRemoveFromFolderClick
+                )
+
+                TransactionDate(
+                    date = state.transactionDateFormatted,
+                    onDateClick = actions::onTransactionTimestampClick
+                )
+            }
 
             ExclusionToggle(
                 excluded = state.isTransactionExcluded,
@@ -267,6 +285,17 @@ fun AddEditTransactionScreen(
             ) {
                 DatePicker(datePickerState)
             }
+        }
+
+        if (state.showFolderSelection) {
+            FolderListSearchSheet(
+                searchQuery = folderSearchQuery,
+                onSearchQueryChange = actions::onFolderSearchQueryChange,
+                foldersList = state.folderList,
+                onFolderClick = actions::onFolderSelect,
+                onCreateNewClick = actions::onCreateFolderClick,
+                onDismiss = actions::onFolderSelectionDismiss
+            )
         }
     }
 }
@@ -357,6 +386,56 @@ private fun TransactionDate(
                 imageVector = Icons.Outlined.CalendarClock,
                 contentDescription = stringResource(R.string.cd_transaction_date)
             )
+        }
+    }
+}
+
+@Composable
+private fun FolderIndicator(
+    folderName: String?,
+    onAddToFolderClick: () -> Unit,
+    onRemoveFolderClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isFolderLinked by remember(folderName) {
+        derivedStateOf { !folderName.isNullOrEmpty() }
+    }
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Crossfade(targetState = isFolderLinked, label = "FolderIcon") { isLinked ->
+            IconButton(
+                onClick = {
+                    if (isLinked) onRemoveFolderClick()
+                    else onAddToFolderClick()
+                }
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(
+                        id = if (isLinked) R.drawable.ic_remove_folder
+                        else R.drawable.ic_move_to_folder
+                    ),
+                    contentDescription = stringResource(R.string.cd_add_to_folder)
+                )
+            }
+        }
+        Column {
+            Text(
+                text = stringResource(R.string.transaction_folder_indicator_label),
+                style = MaterialTheme.typography.bodySmall,
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.SemiBold
+            )
+            Crossfade(
+                targetState = folderName ?: stringResource(R.string.add_to_folder),
+                label = "FolderNameContent"
+            ) { text ->
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }

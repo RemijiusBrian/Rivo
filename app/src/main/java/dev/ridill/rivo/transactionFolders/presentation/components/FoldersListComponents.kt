@@ -25,7 +25,7 @@ import dev.ridill.rivo.transactions.presentation.components.ExcludedIndicator
 fun FolderListSearchSheet(
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
-    folderssList: List<TransactionFolder>,
+    foldersList: List<TransactionFolder>,
     onFolderClick: (TransactionFolder) -> Unit,
     onCreateNewClick: () -> Unit,
     onDismiss: () -> Unit,
@@ -60,7 +60,7 @@ fun FolderListSearchSheet(
                     )
             )
         }
-        items(items = folderssList, key = { it.id }) { group ->
+        items(items = foldersList, key = { it.id }) { group ->
             OutlinedCard(onClick = { onFolderClick(group) }) {
                 ListItem(
                     headlineContent = { Text(group.name) },

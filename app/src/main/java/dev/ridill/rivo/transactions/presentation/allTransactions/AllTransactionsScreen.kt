@@ -275,7 +275,7 @@ fun AllTransactionsScreen(
             FolderListSearchSheet(
                 searchQuery = folderSearchQuery,
                 onSearchQueryChange = actions::onTransactionFolderQueryChange,
-                folderssList = state.foldersList,
+                foldersList = state.foldersList,
                 onFolderClick = actions::onTransactionFolderSelect,
                 onCreateNewClick = actions::onCreateNewFolderClick,
                 onDismiss = actions::onTransactionFolderSelectionDismiss

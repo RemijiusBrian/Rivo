@@ -47,6 +47,7 @@
     <string name="cd_transaction_folder_created_date">Transaction Folder Created Date</string>
     <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
     <string name="cd_create_new_transaction_folder">Create New Transaction Folder</string>
+    <string name="cd_add_to_folder">Add To Folder</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -242,4 +243,6 @@
     <string name="delete_tag">Delete Tag</string>
     <string name="delete_folder">Delete Folder</string>
     <string name="delete_folder_and_transactions">Delete Folder and Transactions</string>
+    <string name="add_to_folder">Add to a folder</string>
+    <string name="transaction_folder_indicator_label">Folder</string>
 </resources>

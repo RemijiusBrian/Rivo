@@ -4,12 +4,14 @@ import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.CurrencyUtil
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.ui.navigation.destinations.ARG_INVALID_ID_LONG
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 data class TxFolderDetailsState(
-    val folderId: Long = Long.Zero,
+    val folderId: Long = ARG_INVALID_ID_LONG,
+    val isNewFolder: Boolean = true,
     val editModeActive: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
     val createdTimestamp: LocalDateTime = DateUtil.now(),

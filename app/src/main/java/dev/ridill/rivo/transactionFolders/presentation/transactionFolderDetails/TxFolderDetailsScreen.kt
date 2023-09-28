@@ -51,6 +51,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.ListLabel
@@ -169,29 +170,40 @@ fun TxFolderDetailsScreen(
                     .align(Alignment.End)
             )
 
-            TransactionsInFolder(
-                currency = state.currency,
-                aggregateAmount = state.aggregateAmount,
-                aggregateType = state.aggregateType,
-                transactions = state.transactions,
-                onTransactionClick = { navigateToAddEditTransaction(it) },
-                onNewTransactionClick = { navigateToAddEditTransaction(null) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(Float.One)
-            )
+            if (state.isNewFolder) {
+                TransactionsInFolder(
+                    currency = state.currency,
+                    aggregateAmount = state.aggregateAmount,
+                    aggregateType = state.aggregateType,
+                    transactions = state.transactions,
+                    onTransactionClick = { navigateToAddEditTransaction(it) },
+                    onNewTransactionClick = { navigateToAddEditTransaction(null) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(Float.One)
+                )
+            }
         }
 
         if (state.showDeleteConfirmation) {
-            MultiActionConfirmationDialog(
-                title = stringResource(R.string.delete_transaction_folder_confirmation_title),
-                text = stringResource(R.string.action_irreversible_message),
-                primaryActionLabelRes = R.string.delete_folder,
-                onPrimaryActionClick = actions::onDeleteFolderClick,
-                secondaryActionLabelRes = R.string.delete_folder_and_transactions,
-                onSecondaryActionClick = actions::onDeleteFolderAndTransactionsClick,
-                onDismiss = actions::onDeleteCancel
-            )
+            if (state.transactions.isEmpty()) {
+                ConfirmationDialog(
+                    titleRes = R.string.delete_transaction_folder_confirmation_title,
+                    contentRes = R.string.action_irreversible_message,
+                    onConfirm = actions::onDeleteFolderOnlyClick,
+                    onDismiss = actions::onDeleteDismiss
+                )
+            } else {
+                MultiActionConfirmationDialog(
+                    title = stringResource(R.string.delete_transaction_folder_confirmation_title),
+                    text = stringResource(R.string.action_irreversible_message),
+                    primaryActionLabelRes = R.string.delete_folder,
+                    onPrimaryActionClick = actions::onDeleteFolderOnlyClick,
+                    secondaryActionLabelRes = R.string.delete_folder_and_transactions,
+                    onSecondaryActionClick = actions::onDeleteFolderAndTransactionsClick,
+                    onDismiss = actions::onDeleteDismiss
+                )
+            }
         }
     }
 }

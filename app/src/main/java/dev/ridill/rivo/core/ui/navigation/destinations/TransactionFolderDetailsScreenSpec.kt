@@ -18,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactionFolders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
@@ -27,11 +28,16 @@ import dev.ridill.rivo.transactionFolders.presentation.transactionFoldersList.AC
 
 object TransactionFolderDetailsScreenSpec : ScreenSpec {
     override val route: String =
-        "transaction_folder_details/{$ARG_TX_FOLDER_ID}?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}"
+        "transaction_folder_details/{$ARG_EXIT_AFTER_CREATE}/{$ARG_TX_FOLDER_ID}?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}"
 
     override val labelRes: Int = R.string.destination_tx_folder_details
 
     override val arguments: List<NamedNavArgument> = listOf(
+        navArgument(ARG_EXIT_AFTER_CREATE) {
+            type = NavType.BoolType
+            nullable = false
+            defaultValue = false
+        },
         navArgument(ARG_TX_FOLDER_ID) {
             type = NavType.LongType
             nullable = false
@@ -44,16 +50,24 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
         }
     )
 
+    fun getExitAfterCreateArg(savedStateHandle: SavedStateHandle): Boolean =
+        savedStateHandle.get<Boolean>(ARG_EXIT_AFTER_CREATE).orFalse()
+
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
         { slideInVertically { it } }
 
     override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
         { slideOutVertically { it } }
 
-    fun routeWithArg(
+    fun routeWithArgs(
         transactionFolderId: Long?,
-        txIds: List<Long> = emptyList()
+        txIds: List<Long> = emptyList(),
+        exitAfterClear: Boolean = false
     ): String = route
+        .replace(
+            oldValue = "{$ARG_EXIT_AFTER_CREATE}",
+            newValue = exitAfterClear.toString()
+        )
         .replace(
             oldValue = "{$ARG_TX_FOLDER_ID}",
             newValue = (transactionFolderId ?: ARG_INVALID_ID_LONG).toString()
@@ -76,7 +90,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
         savedStateHandle.get<String>(ARG_TX_IDS_LIST)?.split(TX_IDS_SEPARATOR)
             ?.map { it.toLong() }.orEmpty()
 
-    fun isNewFolder(folderId: Long): Boolean = folderId == ARG_INVALID_ID_LONG
+    fun isIdInvalid(folderId: Long): Boolean = folderId == ARG_INVALID_ID_LONG
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
@@ -85,7 +99,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
         val nameInput = viewModel.folderNameInput.collectAsStateWithLifecycle()
         val folderId = navBackStackEntry.arguments
             ?.getLong(ARG_TX_FOLDER_ID, ARG_INVALID_ID_LONG) ?: ARG_INVALID_ID_LONG
-        val isNewFolder = isNewFolder(folderId)
+        val isNewFolder = isIdInvalid(folderId)
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -108,6 +122,13 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
                         navController.navigateUpWithResult(
                             ACTION_FOLDER_DETAILS,
                             RESULT_FOLDER_DELETED
+                        )
+                    }
+
+                    is TxFolderDetailsViewModel.TxFolderDetailsEvent.NavigateUpWithFolderId -> {
+                        navController.navigateUpWithResult(
+                            ACTION_NEW_FOLDER_CREATE,
+                            event.folderId.toString()
                         )
                     }
                 }
@@ -133,6 +154,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
     }
 }
 
+private const val ARG_EXIT_AFTER_CREATE = "ARG_EXIT_AFTER_CREATE"
 private const val ARG_TX_FOLDER_ID = "ARG_TX_FOLDER_ID"
 private const val ARG_TX_IDS_LIST = "ARG_TX_IDS_LIST"
 private const val TX_IDS_SEPARATOR = "-"

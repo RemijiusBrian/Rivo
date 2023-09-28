@@ -38,10 +38,12 @@ class TxFolderDetailsViewModel @Inject constructor(
     private val folderIdArg = TransactionFolderDetailsScreenSpec
         .getFolderIdArgFromSavedStateHandle(savedStateHandle)
 
-    private val isNewFolder = TransactionFolderDetailsScreenSpec
-        .isNewFolder(folderIdArg)
-
     private val folderIdFlow = MutableStateFlow(folderIdArg)
+    private val isNewFolder = folderIdFlow.map {
+        !TransactionFolderDetailsScreenSpec
+            .isIdInvalid(it)
+    }.asStateFlow(viewModelScope, true)
+
     private val folderDetails = folderIdFlow.flatMapLatest {
         repo.getFolderDetailsById(it)
     }
@@ -71,6 +73,7 @@ class TxFolderDetailsViewModel @Inject constructor(
 
     val state = combineTuple(
         folderIdFlow,
+        isNewFolder,
         editModeActive,
         showDeleteConfirmation,
         folderCreatedTimestamp,
@@ -81,6 +84,7 @@ class TxFolderDetailsViewModel @Inject constructor(
         transactions
     ).map { (
                 folderId,
+                isNewFolder,
                 editModeActive,
                 showDeleteConfirmation,
                 folderCreatedTimestamp,
@@ -92,6 +96,7 @@ class TxFolderDetailsViewModel @Inject constructor(
             ) ->
         TxFolderDetailsState(
             folderId = folderId,
+            isNewFolder = isNewFolder,
             editModeActive = editModeActive,
             showDeleteConfirmation = showDeleteConfirmation,
             createdTimestamp = folderCreatedTimestamp,
@@ -111,7 +116,8 @@ class TxFolderDetailsViewModel @Inject constructor(
     }
 
     private fun onInit() {
-        savedStateHandle[EDIT_MODE_ACTIVE] = isNewFolder
+        savedStateHandle[EDIT_MODE_ACTIVE] = TransactionFolderDetailsScreenSpec
+            .isIdInvalid(folderIdArg)
     }
 
     private fun collectFolderDetails() = viewModelScope.launch {
@@ -127,11 +133,11 @@ class TxFolderDetailsViewModel @Inject constructor(
         savedStateHandle[SHOW_DELETE_CONFIRMATION] = true
     }
 
-    override fun onDeleteCancel() {
+    override fun onDeleteDismiss() {
         savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
     }
 
-    override fun onDeleteFolderClick() {
+    override fun onDeleteFolderOnlyClick() {
         viewModelScope.launch {
             val id = folderIdFlow.value
             repo.deleteFolderById(id)
@@ -155,7 +161,7 @@ class TxFolderDetailsViewModel @Inject constructor(
 
     override fun onEditDismiss() {
         viewModelScope.launch {
-            if (isNewFolder) {
+            if (isNewFolder.value) {
                 eventBus.send(TxFolderDetailsEvent.NavigateUp)
                 return@launch
             }
@@ -189,7 +195,7 @@ class TxFolderDetailsViewModel @Inject constructor(
                 excluded = excluded
             )
             folderIdFlow.update { insertedId }
-            if (isNewFolder) {
+            if (isNewFolder.value) {
                 val txIdsListToAdd = TransactionFolderDetailsScreenSpec
                     .getTxIdsArgFromSavedStateHandle(savedStateHandle)
                 repo.addTransactionsToFolderByIds(
@@ -198,14 +204,21 @@ class TxFolderDetailsViewModel @Inject constructor(
                 )
             }
             savedStateHandle[EDIT_MODE_ACTIVE] = false
-            eventBus.send(
-                TxFolderDetailsEvent.ShowUiMessage(
-                    UiText.StringResource(
-                        if (isNewFolder) R.string.transaction_folder_created
-                        else R.string.transaction_folder_updated
+            val shouldNavigateUp = TransactionFolderDetailsScreenSpec.isIdInvalid(folderIdArg)
+                    && TransactionFolderDetailsScreenSpec.getExitAfterCreateArg(savedStateHandle)
+
+            if (shouldNavigateUp) {
+                eventBus.send(TxFolderDetailsEvent.NavigateUpWithFolderId(insertedId))
+            } else {
+                eventBus.send(
+                    TxFolderDetailsEvent.ShowUiMessage(
+                        UiText.StringResource(
+                            if (isNewFolder.value) R.string.transaction_folder_created
+                            else R.string.transaction_folder_updated
+                        )
                     )
                 )
-            )
+            }
         }
     }
 
@@ -221,6 +234,7 @@ class TxFolderDetailsViewModel @Inject constructor(
         object NavigateUp : TxFolderDetailsEvent()
         data class ShowUiMessage(val uiText: UiText) : TxFolderDetailsEvent()
         object FolderDeleted : TxFolderDetailsEvent()
+        data class NavigateUpWithFolderId(val folderId: Long) : TxFolderDetailsEvent()
     }
 }
 

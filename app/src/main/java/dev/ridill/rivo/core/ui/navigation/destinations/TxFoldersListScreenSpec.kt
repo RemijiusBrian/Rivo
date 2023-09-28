@@ -34,13 +34,13 @@ object TxFoldersListScreenSpec : ScreenSpec {
             context,
             snackbarController
         ) {
-                when (it) {
-                    RESULT_FOLDER_DELETED -> R.string.transaction_folder_deleted
-                    else -> null
-                }?.let { resId ->
-                    snackbarController.showSnackbar(context.getString(resId))
-                }
+            when (it) {
+                RESULT_FOLDER_DELETED -> R.string.transaction_folder_deleted
+                else -> null
+            }?.let { resId ->
+                snackbarController.showSnackbar(context.getString(resId))
             }
+        }
 
         TxFoldersListScreen(
             snackbarController = snackbarController,
@@ -48,7 +48,7 @@ object TxFoldersListScreenSpec : ScreenSpec {
             actions = viewModel,
             navigateToFolderDetails = {
                 navController.navigate(
-                    TransactionFolderDetailsScreenSpec.routeWithArg(it)
+                    TransactionFolderDetailsScreenSpec.routeWithArgs(it)
                 )
             },
             navigateUp = navController::navigateUp
