@@ -1,5 +1,7 @@
 package dev.ridill.rivo.core.ui.util
 
+import android.icu.text.CompactDecimalFormat
+import android.icu.text.CompactDecimalFormat.CompactStyle
 import android.icu.text.NumberFormat
 import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.CurrencyUtil
@@ -51,6 +53,23 @@ object TextFormat {
         .apply {
             maximumFractionDigits = maxFractionDigits
             minimumFractionDigits = minFractionDigits
+            this.isGroupingUsed = isGroupingUsed
+        }
+        .format(value)
+
+    fun compactNumber(
+        value: Double,
+        locale: Locale = Locale.getDefault(),
+        currency: Currency = CurrencyUtil.default,
+        compactStyle: CompactStyle = CompactStyle.SHORT,
+        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
+        isGroupingUsed: Boolean = true
+    ): String = CompactDecimalFormat.getInstance(locale, compactStyle)
+        .apply {
+            maximumFractionDigits = maxFractionDigits
+            minimumFractionDigits = minFractionDigits
+            this.currency = currency
             this.isGroupingUsed = isGroupingUsed
         }
         .format(value)

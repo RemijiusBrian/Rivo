@@ -15,6 +15,6 @@ data class SettingsState(
     val currentCurrency: Currency = CurrencyUtil.default,
     val showCurrencySelection: Boolean = false,
     val currencyList: List<Currency> = emptyList(),
-    val autoAddExpenseEnabled: Boolean = false,
+    val autoAddTransactionEnabled: Boolean = false,
     val showSmsPermissionRationale: Boolean = false
 )

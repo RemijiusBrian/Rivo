@@ -4,32 +4,35 @@
     <!-- Destination Labels -->
     <string name="destination_welcome_flow">Welcome Flow</string>
     <string name="destination_dashboard">Dashboard</string>
-    <string name="destination_add_edit_expense">Add/Edit Expense</string>
-    <string name="destination_add_expense">Add Expense</string>
-    <string name="destination_edit_expense">Edit Expense</string>
+    <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
+    <string name="destination_new_transaction">New Transaction</string>
+    <string name="destination_edit_transaction">Edit Transaction</string>
     <string name="destination_settings">Settings</string>
     <string name="destination_backup_settings">Backup</string>
-    <string name="destination_all_expenses">All Expenses</string>
+    <string name="destination_all_transactions">All Transactions</string>
+    <string name="destination_tx_folders">Folders</string>
+    <string name="destination_tx_folders_list">Folders</string>
+    <string name="destination_tx_folder_details">Folder</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_group_expenses_name">Expenses</string>
-    <string name="notification_channel_auto_add_expenses_name">Expense added from SMS</string>
+    <string name="notification_channel_group_transactions_name">Transactions</string>
+    <string name="notification_channel_auto_add_transactions_name">Transactions added from SMS</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
 
     <!-- Content Description -->
     <string name="cd_set_monthly_budget">Set Monthly Budget</string>
-    <string name="cd_new_expense">New Expense</string>
+    <string name="cd_new_transaction">New Transaction</string>
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_save">Save</string>
     <string name="cd_delete">Delete</string>
-    <string name="cd_expense_date">Expense Date</string>
+    <string name="cd_transaction_date">Transaction Date</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
-    <string name="cd_expense_selection_change">Select or Unselect Expense</string>
+    <string name="cd_transaction_selection_change">Select or Unselect Transaction</string>
     <string name="cd_long_press_to_toggle_selection">Long Press To Toggle Selection</string>
-    <string name="cd_clear_expense_selection">Clear Expense Selection</string>
+    <string name="cd_clear_transaction_selection">Clear Transaction Selection</string>
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
     <string name="cd_edit_tag">Edit Tag</string>
@@ -38,10 +41,17 @@
     <string name="cd_clear">Clear</string>
     <string name="cd_options">Options</string>
     <string name="cd_excluded">Excluded</string>
+    <string name="cd_new_transaction_folder">New Transaction Folder</string>
+    <string name="cd_edit_transaction_folder">Edit Transaction Folder Details</string>
+    <string name="cd_save_transaction_folder">Save Transaction Folder Details</string>
+    <string name="cd_transaction_folder_created_date">Transaction Folder Created Date</string>
+    <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
+    <string name="cd_create_new_transaction_folder">Create New Transaction Folder</string>
+    <string name="cd_add_to_folder">Add To Folder</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
-    <string name="error_invalid_expense_note">Please enter a valid Note</string>
+    <string name="error_invalid_transaction_note">Please enter a valid Note</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
     <string name="error_app_data_backup_failed">Failed to backup App Data</string>
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
@@ -50,6 +60,7 @@
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
+    <string name="error_invalid_transaction_folder_name">Please enter a valid note</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -76,15 +87,16 @@
     <string name="part_of_day_afternoon">Afternoon</string>
     <string name="part_of_day_evening">Evening</string>
 
-    <string name="delete_expense_confirmation_title">Delete Expense?</string>
-    <string name="delete_multiple_expense_confirmation_title">Delete Expenses?</string>
+    <string name="delete_transaction_confirmation_title">Delete Transaction?</string>
+    <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
     <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
+    <string name="delete_transaction_folder_confirmation_title">Delete Folder?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
-    <string name="permission_rationale_notification">%s will post notifications to provide updates regarding various activities like Data Backup and Auto-added Expenses</string>
+    <string name="permission_rationale_notification">%s will post notifications to provide updates regarding various activities like Data Backup and Auto-added Transactions</string>
     <string name="permission_sms">Receive SMS Messages</string>
-    <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add expenses automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
+    <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
 
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>
@@ -96,12 +108,12 @@
     <string name="preference_set_budget_summary">Tap to update your budget</string>
     <string name="preference_current_budget_summary">Your budget is set to %s</string>
     <string name="preference_currency">Currency</string>
-    <string name="preference_auto_add_expenses">Auto Add Expenses</string>
-    <string name="preference_auto_add_expense_summary">Try to add expenses from SMS</string>
+    <string name="preference_auto_add_transactions">Auto Add Transactions</string>
+    <string name="preference_auto_add_transactions_summary">Try to add transactions from SMS</string>
     <string name="preference_source_code">Source Code</string>
     <string name="preference_version">Version</string>
     <string name="preference_backup">Backup</string>
-    <string name="preference_backup_summary">Backup your expenses</string>
+    <string name="preference_backup_summary">Backup your transactions</string>
     <string name="preference_title_google_drive">Google Drive</string>
     <string name="preference_google_drive_backup_message">MYM uses Google Drive to backup up your data. You can restore your data when you install the app.</string>
     <string name="preference_google_account">Google Account</string>
@@ -117,11 +129,11 @@
     <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>
 
     <string name="monthly_budget_input_title">Monthly Budget</string>
-    <string name="monthly_budget_input_text">Set a monthly budget to keep your expenses within</string>
+    <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
 
     <string name="new_tag_input_title">New Tag</string>
     <string name="edit_tag_input_title">Edit Tag</string>
-    <string name="new_tag_input_text">Create a tag to help organize your expenses</string>
+    <string name="new_tag_input_text">Create a tag to help organize your transactions</string>
 
     <string name="today">Today</string>
     <plurals name="days_past" formatted="true">
@@ -134,6 +146,11 @@
         <item quantity="other">%s weeks ago</item>
     </plurals>
 
+    <plurals name="transaction_added_to_folder_message">
+        <item quantity="one">Transaction added to folder</item>
+        <item quantity="other">Transactions added to folder</item>
+    </plurals>
+
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
     <string name="fwd_slash_amount_value">/ %s</string>
@@ -142,26 +159,26 @@
     <string name="spent_this_month">Spent this month</string>
     <string name="amount_zero">0</string>
     <string name="add_a_note">Add a Note</string>
-    <string name="expense_added">Expense Added</string>
-    <string name="expense_updated">Expense Updated</string>
-    <string name="expense_deleted">Expense Deleted</string>
+    <string name="transaction_added">Transaction Added</string>
+    <string name="transaction_updated">Transaction Updated</string>
+    <string name="transaction_deleted">Transaction Deleted</string>
     <string name="choose_theme">Choose Theme</string>
     <string name="budget_updated">Your budget has been updated</string>
     <string name="enter_budget">Enter Budget</string>
-    <string name="tag_your_expense">Tag your expense</string>
+    <string name="tag_your_transaction">Tag your Transaction</string>
     <string name="new_tag_chip_label">New</string>
     <string name="percent_of_expenditure">%s Percent of expenditure</string>
     <string name="amount_worth_spent">%s worth spent</string>
     <string name="count_selected">%s Selected</string>
-    <string name="click_tag_to_assign_to_selected_expenses">Click on a tag to assign it to the selected expenses</string>
-    <string name="tag_assigned_to_expenses">Tag assigned to expenses</string>
-    <string name="expenses_de_tagged">Expenses De-Tagged</string>
-    <string name="expenses_deleted">Expenses Deleted</string>
+    <string name="click_tag_to_assign_to_selected_transactions">Click on a tag to assign it to the selected transactions</string>
+    <string name="tag_assigned_to_transactions">Tag assigned to transactions</string>
+    <string name="transactions_untagged">Transactions Untagged</string>
+    <string name="transactions_deleted">Transactions Deleted</string>
     <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
-    <string name="tag_deleted_with_expenses">Tag deleted with expenses</string>
+    <string name="tag_deleted_with_transactions">Tag deleted with transactions</string>
     <string name="amount_spent_towards_merchant">%1$s spent towards %2$s</string>
-    <string name="new_expense_detected">New Expense Detected</string>
+    <string name="new_transaction_detected">New Transaction Detected</string>
     <string name="no_expenditure_yet">No Expenditure Yet</string>
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>
@@ -180,25 +197,52 @@
     <string name="backup_complete">Data backed up to your google drive</string>
     <string name="backing_up_app_data">Backing up app data</string>
     <string name="some_previous_budgets">Some Previous Budgets</string>
-    <string name="delete_tag_with_expenses">Delete Tag and Expenses</string>
+    <string name="delete_tag_with_transactions">Delete Tag and Transactions</string>
     <string name="total_expenditure">Total Expenditure</string>
     <string name="generic_merchant">Merchant</string>
-    <string name="all_expenses">All Expenses</string>
+    <string name="all_transactions">All Transactions</string>
     <string name="settings">Settings</string>
     <string name="tags">Tags</string>
     <string name="currency_updated">Currency preference updated</string>
     <string name="search_currency">Search Currency</string>
-    <string name="hide_excluded_expenses">Hide Excluded</string>
-    <string name="show_excluded_expenses">Show Excluded</string>
-    <string name="expense_option_de_tag">Remove Tag</string>
-    <string name="expense_option_mark_excluded">Exclude from expenditure</string>
-    <string name="expense_option_mark_included">Include in expenditure</string>
-    <string name="expenses_excluded_from_expenditure">Expenses excluded from expenditure</string>
-    <string name="expenses_included_in_expenditure">Expenses excluded in expenditure</string>
+    <string name="hide_excluded_transactions">Hide Excluded</string>
+    <string name="show_excluded_transactions">Show Excluded</string>
+    <string name="transaction_option_untag">Remove Tag</string>
+    <string name="transaction_option_mark_excluded">Exclude from expenditure</string>
+    <string name="transaction_option_mark_included">Include in expenditure</string>
+    <string name="transaction_option_add_to_folder">Add to Folder</string>
+    <string name="transaction_option_remove_from_folders">Remove from folders</string>
+    <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
+    <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="exclude_from_expenditure_ques">Exclude From Expenditure?</string>
     <string name="excluded">Excluded</string>
     <string name="start_budgeting">Start Budgeting</string>
-    <string name="dont_restore">Don\'t Restore</string>
+    <string name="do_not_restore">Don\'t Restore</string>
     <string name="give_permission">Give Permission</string>
     <string name="i_understand">I Understand</string>
+    <string name="transaction_folder_created">Folder created</string>
+    <string name="transaction_folder_updated">Folder updated</string>
+    <string name="transaction_folder_deleted">Folder deleted</string>
+    <string name="mark_excluded_question">Mark Excluded?</string>
+    <string name="label_transaction_folder_name">Name</string>
+    <string name="transactions">Transactions</string>
+    <string name="created">Created</string>
+    <string name="aggregate_amount_debited">Aggregate Debited</string>
+    <string name="debited">Debited</string>
+    <string name="aggregate_amount_credited">Aggregate Credited</string>
+    <string name="credited">Credited</string>
+    <string name="aggregate_amount_zero">Aggregate Balanced</string>
+    <string name="balanced">Balanced</string>
+    <string name="transaction_type_label_credit">Credit</string>
+    <string name="transaction_type_label_debit">Debit</string>
+    <string name="transaction_folders_list_empty_message">You don\'t have any Folders yet</string>
+    <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
+    <string name="search_folder">Search Folder</string>
+    <string name="create_new_folder">Create New Folder</string>
+    <string name="transactions_removed_from_their_folders">Transactions removed from their folders</string>
+    <string name="delete_tag">Delete Tag</string>
+    <string name="delete_folder">Delete Folder</string>
+    <string name="delete_folder_and_transactions">Delete Folder and Transactions</string>
+    <string name="add_to_folder">Add to a folder</string>
+    <string name="transaction_folder_indicator_label">Folder</string>
 </resources>

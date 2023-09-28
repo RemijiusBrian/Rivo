@@ -9,15 +9,15 @@ import androidx.navigation.NavHostController
 fun DestinationResultEffect(
     key: String,
     navBackStackEntry: NavBackStackEntry,
-    vararg keys: Any? = emptyArray(),
-    onResult: (String?) -> Unit
+    vararg keys: Any,
+    onResult: (String) -> Unit
 ) {
     val result = navBackStackEntry
         .savedStateHandle
         .get<String>(key)
 
     LaunchedEffect(result, *keys) {
-        onResult(result)
+        result?.let(onResult)
         navBackStackEntry.savedStateHandle
             .remove<String>(key)
     }

@@ -30,17 +30,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <intent-filter>
-                <data
-                    android:host="www.mym.com"
-                    android:scheme="https" />
-            </intent-filter>
         </activity>
 
         <!-- Expense SMS Receivers -->
         <receiver
-            android:name=".expense.domain.sms.ExpenseSmsReceiver"
+            android:name=".transactions.domain.sms.TransactionSmsReceiver"
             android:enabled="false"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
@@ -49,8 +43,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".expense.domain.notification.DeleteExpenseActionReceiver" />
-        <receiver android:name=".expense.domain.notification.MarkExcludedActionReceiver" />
+        <receiver android:name=".transactions.domain.notification.DeleteTransactionActionReceiver" />
+        <receiver android:name=".transactions.domain.notification.MarkTransactionExcludedActionReceiver" />
         <!-- /Expense SMS Receivers -->
 
         <provider

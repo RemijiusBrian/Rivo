@@ -1,26 +1,33 @@
 package dev.ridill.rivo.core.data.db
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.BuildConfig
-import dev.ridill.rivo.expense.data.local.TransactionDao
-import dev.ridill.rivo.expense.data.local.TagsDao
-import dev.ridill.rivo.expense.data.local.entity.TransactionEntity
-import dev.ridill.rivo.expense.data.local.entity.TagEntity
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
+import dev.ridill.rivo.transactionFolders.data.local.TransactionFolderDao
+import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
+import dev.ridill.rivo.transactions.data.local.TagsDao
+import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.local.entity.TagEntity
+import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 
 @Database(
     entities = [
         TransactionEntity::class,
+        TransactionFolderEntity::class,
         TagEntity::class,
         ConfigEntity::class
     ],
-    version = BuildConfig.DB_VERSION
+    version = BuildConfig.DB_VERSION,
+    autoMigrations = [
+        AutoMigration(from = 5, to = 6)
+    ]
 )
 @TypeConverters(DateTimeConverter::class)
 abstract class RivoDatabase : RoomDatabase() {
@@ -31,6 +38,7 @@ abstract class RivoDatabase : RoomDatabase() {
 
     // Dao Methods
     abstract fun transactionDao(): TransactionDao
+    abstract fun transactionFolderDao(): TransactionFolderDao
     abstract fun tagsDao(): TagsDao
     abstract fun configDao(): ConfigDao
 }

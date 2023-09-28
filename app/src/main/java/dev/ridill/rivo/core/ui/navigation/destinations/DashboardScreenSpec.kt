@@ -13,9 +13,9 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_ADDED
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_DELETED
-import dev.ridill.rivo.expense.presentation.addEditExpense.RESULT_EXPENSE_UPDATED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_ADDED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_UPDATED
 
 object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
@@ -37,9 +37,9 @@ object DashboardScreenSpec : ScreenSpec {
             snackbarController,
         ) {
             when (it) {
-                RESULT_EXPENSE_ADDED -> R.string.expense_added
-                RESULT_EXPENSE_UPDATED -> R.string.expense_updated
-                RESULT_EXPENSE_DELETED -> R.string.expense_deleted
+                RESULT_TRANSACTION_ADDED -> R.string.transaction_added
+                RESULT_TRANSACTION_UPDATED -> R.string.transaction_updated
+                RESULT_TRANSACTION_DELETED -> R.string.transaction_deleted
                 else -> null
             }?.let { messageRes ->
                 snackbarController.showSnackbar(context.getString(messageRes))
@@ -49,11 +49,11 @@ object DashboardScreenSpec : ScreenSpec {
         DashboardScreen(
             snackbarController = snackbarController,
             state = state,
-            navigateToAllExpenses = {
-                navController.navigate(AllExpensesScreenSpec.route)
+            navigateToAllTransactions = {
+                navController.navigate(AllTransactionsScreenSpec.route)
             },
-            navigateToAddEditExpense = {
-                navController.navigate(AddEditExpenseScreenSpec.routeWithArg(it))
+            navigateToAddEditTransaction = {
+                navController.navigate(AddEditTransactionScreenSpec.routeWithArg(it))
             },
             navigateToBottomNavDestination = {
                 navController.navigate(it.route)

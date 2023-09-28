@@ -14,7 +14,7 @@ interface SettingsActions {
     fun onCurrencySelectionDismiss()
     fun onCurrencySelectionConfirm(currencyCode: String)
     fun onCurrencySearchQueryChange(value: String)
-    fun onToggleAutoAddExpense(enabled: Boolean)
+    fun onToggleAutoAddTransactions(enabled: Boolean)
     fun onSmsPermissionRationaleDismiss()
     fun onSmsPermissionRationaleSettingsClick()
 }

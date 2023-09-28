@@ -1,6 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.annotation.DrawableRes
 
 sealed interface BottomNavDestination : NavDestination {
     companion object {
@@ -9,5 +9,6 @@ sealed interface BottomNavDestination : NavDestination {
                 .filterIsInstance<BottomNavDestination>()
     }
 
-    val icon: ImageVector
+    @get:DrawableRes
+    val iconRes: Int
 }

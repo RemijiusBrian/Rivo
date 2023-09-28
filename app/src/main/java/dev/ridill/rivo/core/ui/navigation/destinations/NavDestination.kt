@@ -8,9 +8,10 @@ sealed interface NavDestination {
             get() = listOf(
                 WelcomeFlowScreenSpec,
                 DashboardScreenSpec,
-                AddEditExpenseScreenSpec,
-                AllExpensesScreenSpec,
-                SettingsGraphSpec
+                AddEditTransactionScreenSpec,
+                AllTransactionsScreenSpec,
+                SettingsGraphSpec,
+                TransactionFoldersGraph
             )
     }
 
@@ -20,5 +21,5 @@ sealed interface NavDestination {
     val labelRes: Int
 }
 
-const val DEEP_LINK_URI = "https://www.mym.com"
+const val DEEP_LINK_URI = "https://www.rivo.com"
 const val ARG_INVALID_ID_LONG = -1L

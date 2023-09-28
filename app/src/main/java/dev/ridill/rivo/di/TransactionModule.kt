@@ -9,16 +9,19 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.expense.data.local.TagsDao
-import dev.ridill.rivo.expense.data.local.TransactionDao
-import dev.ridill.rivo.expense.data.repository.ExpenseRepositoryImpl
-import dev.ridill.rivo.expense.data.repository.TagsRepositoryImpl
-import dev.ridill.rivo.expense.domain.notification.AutoAddExpenseNotificationHelper
-import dev.ridill.rivo.expense.domain.repository.ExpenseRepository
-import dev.ridill.rivo.expense.domain.repository.TagsRepository
-import dev.ridill.rivo.expense.domain.sms.ExpenseSmsService
-import dev.ridill.rivo.expense.presentation.addEditExpense.AddEditExpenseViewModel
-import dev.ridill.rivo.expense.presentation.allExpenses.AllExpensesViewModel
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.transactions.data.local.TagsDao
+import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.repository.AddEditTransactionRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.AllTransactionsRepositoryImpl
+import dev.ridill.rivo.transactions.data.repository.TagsRepositoryImpl
+import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
+import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
+import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
+import dev.ridill.rivo.transactions.domain.repository.TagsRepository
+import dev.ridill.rivo.transactions.domain.sms.TransactionSmsService
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
+import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Module
@@ -32,39 +35,47 @@ object TransactionModule {
     fun provideTagsDao(db: RivoDatabase): TagsDao = db.tagsDao()
 
     @Provides
-    fun provideExpenseRepository(
-        dao: TransactionDao,
-        preferencesManager: PreferencesManager
-    ): ExpenseRepository = ExpenseRepositoryImpl(
-        dao = dao,
-        preferencesManager = preferencesManager
-    )
+    fun provideAddEditTransactionRepository(
+        dao: TransactionDao
+    ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(dao)
 
     @Provides
     fun provideTagsRepository(dao: TagsDao): TagsRepository = TagsRepositoryImpl(dao)
 
     @Provides
-    fun provideAddEditExpenseEventBus(): EventBus<AddEditExpenseViewModel.AddEditExpenseEvent> =
+    fun provideAddEditTransactionEventBus(): EventBus<AddEditTransactionViewModel.AddEditTransactionEvent> =
         EventBus()
 
     @Provides
-    fun provideAllExpenseEventBus(): EventBus<AllExpensesViewModel.AllExpenseEvent> = EventBus()
+    fun provideAllTransactionsRepository(
+        dao: TransactionDao,
+        preferencesManager: PreferencesManager,
+        settingsRepo: SettingsRepository
+    ): AllTransactionsRepository = AllTransactionsRepositoryImpl(
+        dao = dao,
+        preferencesManager = preferencesManager,
+        settingsRepo = settingsRepo
+    )
 
     @Provides
-    fun provideExpenseSmsService(
-        expenseRepository: ExpenseRepository,
-        notificationHelper: AutoAddExpenseNotificationHelper,
+    fun provideAllTransactionEventBus(): EventBus<AllTransactionsViewModel.AllTransactionsEvent> =
+        EventBus()
+
+    @Provides
+    fun provideTransactionSmsService(
+        addEditTransactionRepository: AddEditTransactionRepository,
+        notificationHelper: AutoAddTransactionNotificationHelper,
         @ApplicationScope applicationScope: CoroutineScope,
         @ApplicationContext context: Context
-    ): ExpenseSmsService = ExpenseSmsService(
-        repo = expenseRepository,
+    ): TransactionSmsService = TransactionSmsService(
+        repo = addEditTransactionRepository,
         notificationHelper = notificationHelper,
         applicationScope = applicationScope,
         context = context
     )
 
     @Provides
-    fun provideExpenseNotificationHelper(
+    fun provideTransactionNotificationHelper(
         @ApplicationContext context: Context
-    ): AutoAddExpenseNotificationHelper = AutoAddExpenseNotificationHelper(context)
+    ): AutoAddTransactionNotificationHelper = AutoAddTransactionNotificationHelper(context)
 }

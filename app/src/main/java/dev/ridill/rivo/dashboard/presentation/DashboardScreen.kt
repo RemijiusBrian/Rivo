@@ -43,8 +43,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,16 +57,15 @@ import dev.ridill.rivo.core.domain.util.PartOfDay
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.FadedVisibility
-import dev.ridill.rivo.core.ui.components.ListLabel
-import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.navigation.destinations.AllExpensesScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -72,9 +73,9 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.expense.domain.model.ExpenseListItem
-import dev.ridill.rivo.expense.domain.model.ExpenseTag
-import dev.ridill.rivo.expense.presentation.components.ExpenseListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -82,8 +83,8 @@ import java.time.LocalDate
 fun DashboardScreen(
     state: DashboardState,
     snackbarController: SnackbarController,
-    navigateToAllExpenses: () -> Unit,
-    navigateToAddEditExpense: (Long?) -> Unit,
+    navigateToAllTransactions: () -> Unit,
+    navigateToAddEditTransaction: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
     val recentSpendsListState = rememberLazyListState()
@@ -106,7 +107,7 @@ fun DashboardScreen(
                                     .tooltipAnchor()
                             ) {
                                 Icon(
-                                    imageVector = destination.icon,
+                                    imageVector = ImageVector.vectorResource(destination.iconRes),
                                     contentDescription = stringResource(destination.labelRes)
                                 )
                             }
@@ -115,12 +116,12 @@ fun DashboardScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { navigateToAddEditExpense(null) },
+                        onClick = { navigateToAddEditTransaction(null) },
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.cd_new_expense)
+                            contentDescription = stringResource(R.string.cd_new_transaction)
                         )
                     }
                 }
@@ -153,12 +154,12 @@ fun DashboardScreen(
                 currency = state.currency,
                 spentAmount = state.spentAmount,
                 recentSpends = state.recentSpends,
-                onTransactionClick = { navigateToAddEditExpense(it.id) },
+                onTransactionClick = { navigateToAddEditTransaction(it.id) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One)
                     .padding(horizontal = SpacingSmall),
-                onAllExpensesClick = navigateToAllExpenses,
+                onAllTransactionsClick = navigateToAllTransactions,
                 listState = recentSpendsListState,
                 onNavigateUpClick = {
                     coroutineScope.launch {
@@ -282,9 +283,9 @@ private fun Balance(
 private fun SpendsOverview(
     currency: Currency,
     spentAmount: Double,
-    recentSpends: Map<Boolean, List<ExpenseListItem>>,
-    onTransactionClick: (ExpenseListItem) -> Unit,
-    onAllExpensesClick: () -> Unit,
+    recentSpends: List<TransactionListItem>,
+    onTransactionClick: (TransactionListItem) -> Unit,
+    onAllTransactionsClick: () -> Unit,
     listState: LazyListState,
     onNavigateUpClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -312,10 +313,10 @@ private fun SpendsOverview(
 
             SpacerSmall()
 
-            SpentAmountAndAllExpenses(
+            SpentAmountAndAllTransactionsButton(
                 currency = currency,
                 amount = spentAmount,
-                onAllExpensesClick = onAllExpensesClick,
+                onAllTransactionsClick = onAllTransactionsClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -336,7 +337,8 @@ private fun SpendsOverview(
             ) {
                 if (recentSpends.isEmpty()) {
                     EmptyListIndicator(
-                        resId = R.raw.lottie_empty_list_ghost
+                        resId = R.raw.lottie_empty_list_ghost,
+                        messageRes = R.string.recent_spends_list_empty_message
                     )
                 }
                 LazyColumn(
@@ -351,28 +353,20 @@ private fun SpendsOverview(
                     verticalArrangement = Arrangement.spacedBy(SpacingSmall),
                     state = listState
                 ) {
-                    recentSpends.forEach { (excluded, spends) ->
-                        if (spends.isNotEmpty() && excluded) {
-                            stickyHeader(key = "ExcludedHeader") {
-                                ListLabel(
-                                    text = stringResource(R.string.excluded),
-                                    modifier = Modifier
-                                        .animateItemPlacement()
-                                )
-                            }
-                        }
-                        items(items = spends, key = { it.id }) { transaction ->
-                            RecentSpend(
-                                note = transaction.note,
-                                amount = transaction.amount,
-                                date = transaction.date,
-                                onClick = { onTransactionClick(transaction) },
-                                tag = transaction.tag,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .animateItemPlacement()
-                            )
-                        }
+                    items(items = recentSpends, key = { it.id }) { transaction ->
+                        RecentSpendCard(
+                            note = transaction.note,
+                            amount = TextFormat.compactNumber(
+                                value = transaction.amount,
+                                currency = currency
+                            ),
+                            date = transaction.date,
+                            tag = transaction.tag,
+                            onClick = { onTransactionClick(transaction) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItemPlacement()
+                        )
                     }
                 }
 
@@ -398,10 +392,10 @@ private fun SpendsOverview(
 }
 
 @Composable
-private fun SpentAmountAndAllExpenses(
+private fun SpentAmountAndAllTransactionsButton(
     currency: Currency,
     amount: Double,
-    onAllExpensesClick: () -> Unit,
+    onAllTransactionsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
@@ -438,33 +432,34 @@ private fun SpentAmountAndAllExpenses(
         Spacer(weight = Float.One)
 
         TextButton(
-            onClick = onAllExpensesClick,
+            onClick = onAllTransactionsClick,
             modifier = Modifier
                 .alignByBaseline()
         ) {
-            Text(text = "${stringResource(AllExpensesScreenSpec.labelRes)} >")
+            Text(text = "${stringResource(AllTransactionsScreenSpec.labelRes)} >")
         }
     }
 }
 
 @Composable
-private fun RecentSpend(
+private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,
+    tag: TransactionTag?,
     onClick: () -> Unit,
-    tag: ExpenseTag?,
     modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
         modifier = modifier
     ) {
-        ExpenseListItem(
+        TransactionListItem(
             note = note,
             amount = amount,
             date = date,
-            tag = tag
+            tag = tag,
+            type = null
         )
     }
 }
@@ -479,8 +474,8 @@ private fun PreviewDashboardScreen() {
                 spentAmount = 500.0,
                 monthlyBudget = 5_000L
             ),
-            navigateToAllExpenses = {},
-            navigateToAddEditExpense = {},
+            navigateToAllTransactions = {},
+            navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
             navigateToBottomNavDestination = {}
         )

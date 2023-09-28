@@ -17,6 +17,6 @@ interface PreferencesManager {
     suspend fun updateDynamicColorsEnabled(enabled: Boolean)
     suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime)
     suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
-    suspend fun updateAutoAddExpenseEnabled(enabled: Boolean)
-    suspend fun updateShowExcludedExpenses(show: Boolean)
+    suspend fun updateAutoAddTransactionEnabled(enabled: Boolean)
+    suspend fun updateShowExcludedTransactions(show: Boolean)
 }
