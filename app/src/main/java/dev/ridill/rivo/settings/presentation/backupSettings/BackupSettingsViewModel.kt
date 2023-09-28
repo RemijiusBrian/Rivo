@@ -97,8 +97,10 @@ class BackupSettingsViewModel @Inject constructor(
             isBackupWorkerRunning.update {
                 info?.state == WorkInfo.State.RUNNING
             }
-            info?.outputData?.getString(BackupWorkManager.KEY_MESSAGE)?.let {
-                eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(it)))
+            if (info?.state == WorkInfo.State.FAILED) {
+                info.outputData.getString(BackupWorkManager.KEY_MESSAGE)?.let {
+                    eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(it)))
+                }
             }
         }
     }
