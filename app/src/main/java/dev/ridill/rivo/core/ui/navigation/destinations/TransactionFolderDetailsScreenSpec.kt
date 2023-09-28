@@ -97,9 +97,6 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
         val viewModel: TxFolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val nameInput = viewModel.folderNameInput.collectAsStateWithLifecycle()
-        val folderId = navBackStackEntry.arguments
-            ?.getLong(ARG_TX_FOLDER_ID, ARG_INVALID_ID_LONG) ?: ARG_INVALID_ID_LONG
-        val isNewFolder = isIdInvalid(folderId)
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -137,7 +134,6 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
 
         TxFolderDetailsScreen(
             snackbarController = snackbarController,
-            isNewFolder = isNewFolder,
             state = state,
             folderName = { nameInput.value },
             actions = viewModel,

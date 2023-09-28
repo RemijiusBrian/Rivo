@@ -76,7 +76,6 @@ import kotlin.math.absoluteValue
 @Composable
 fun TxFolderDetailsScreen(
     snackbarController: SnackbarController,
-    isNewFolder: Boolean,
     state: TxFolderDetailsState,
     folderName: () -> String,
     actions: TxFolderDetailsActions,
@@ -106,7 +105,7 @@ fun TxFolderDetailsScreen(
                     }
                 },
                 actions = {
-                    if (!isNewFolder) {
+                    if (!state.isNewFolder) {
                         IconButton(onClick = actions::onDeleteClick) {
                             Icon(
                                 imageVector = Icons.Rounded.DeleteForever,
