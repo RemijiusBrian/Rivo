@@ -29,12 +29,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
@@ -60,14 +60,16 @@ fun TransactionListItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (excluded) {
+                /*if (excluded) {
                     ExcludedIndicator()
                     SpacerSmall()
-                }
+                }*/
                 Text(
                     text = note,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    textDecoration = if (excluded) TextDecoration.LineThrough
+                    else null
                 )
             }
         },
@@ -92,9 +94,7 @@ fun TransactionListItem(
                 }
             }
         },
-        supportingContent = {
-            tag?.let { TagIndicator(it.name, it.color) }
-        },
+        supportingContent = { tag?.let { TagIndicator(it.name, it.color) } },
         overlineContent = overlineContent,
         modifier = modifier,
         colors = colors,
