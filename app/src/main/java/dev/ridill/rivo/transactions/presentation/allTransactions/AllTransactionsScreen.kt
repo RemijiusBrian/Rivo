@@ -199,7 +199,7 @@ fun AllTransactionsScreen(
                 tagAssignModeActive = state.transactionMultiSelectionModeActive,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.20f)
+                    .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
             )
 
             DateFilter(
@@ -283,6 +283,8 @@ fun AllTransactionsScreen(
         }
     }
 }
+
+private const val TAGS_LIST_HEIGHT_FRACTION = 0.20f
 
 @Composable
 private fun TagsInfoList(
@@ -409,7 +411,7 @@ private fun TagInfoCard(
             Column(
                 modifier = Modifier
                     .weight(Float.One),
-                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+//                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
@@ -459,7 +461,7 @@ private fun TagInfoCard(
 
             Text(
                 text = if (isExcluded) stringResource(R.string.excluded)
-                else if (percent.isNaN()) stringResource(R.string.no_expenditure_yet)
+                else if (percent.isNaN() || percent <= Float.Zero) stringResource(R.string.no_debits_yet)
                 else stringResource(
                     R.string.percent_of_expenditure,
                     TextFormat.percent(percent)

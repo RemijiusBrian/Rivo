@@ -2,8 +2,8 @@ package dev.ridill.rivo.transactions.data
 
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
+import dev.ridill.rivo.transactions.domain.model.TransactionTag
 
 fun TagEntity.toTransactionTag(): TransactionTag = TransactionTag(
     id = id,
