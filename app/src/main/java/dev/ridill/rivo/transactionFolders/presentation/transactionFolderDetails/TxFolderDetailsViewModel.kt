@@ -40,7 +40,7 @@ class TxFolderDetailsViewModel @Inject constructor(
 
     private val folderIdFlow = MutableStateFlow(folderIdArg)
     private val isNewFolder = folderIdFlow.map {
-        !TransactionFolderDetailsScreenSpec
+        TransactionFolderDetailsScreenSpec
             .isIdInvalid(it)
     }.asStateFlow(viewModelScope, true)
 

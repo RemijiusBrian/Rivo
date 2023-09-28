@@ -170,7 +170,7 @@ fun TxFolderDetailsScreen(
                     .align(Alignment.End)
             )
 
-            if (state.isNewFolder) {
+            if (!state.isNewFolder) {
                 TransactionsInFolder(
                     currency = state.currency,
                     aggregateAmount = state.aggregateAmount,
