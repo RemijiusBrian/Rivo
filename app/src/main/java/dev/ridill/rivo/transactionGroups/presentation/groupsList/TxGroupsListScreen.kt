@@ -100,26 +100,6 @@ fun TxGroupsListScreen(
                 .padding(paddingValues)
                 .padding(horizontal = SpacingMedium)
         ) {
-            /*if (state.groupsList.isNotEmpty()) {
-                IconButton(
-                    onClick = actions::onListModeToggle,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                ) {
-                    Crossfade(
-                        targetState = state.listMode,
-                        label = "ListModeIcon"
-                    ) { listMode ->
-                        Icon(
-                            imageVector = when (listMode) {
-                                ListMode.LIST -> Icons.Rounded.ViewList
-                                ListMode.GRID -> Icons.Rounded.GridView
-                            },
-                            contentDescription = stringResource(R.string.cd_toggle_list_mode)
-                        )
-                    }
-                }
-            }*/
             Box(
                 contentAlignment = Alignment.Center
             ) {

@@ -130,24 +130,30 @@ fun TxGroupDetailsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingMedium),
+                .padding(
+                    top = SpacingMedium,
+                    start = SpacingMedium,
+                    end = SpacingMedium
+                ),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
-            GroupCreatedDate(
-                date = state.createdTimestampFormatted,
-                modifier = Modifier
-                    .align(Alignment.End)
-            )
             NameField(
                 name = groupName,
                 onNameChange = actions::onNameChange,
                 editModeActive = state.editModeActive
             )
+
             LabelledSwitch(
                 labelRes = R.string.mark_excluded_question,
                 checked = state.isExcluded,
                 onCheckedChange = actions::onExclusionToggle,
                 enabled = state.editModeActive,
+                modifier = Modifier
+                    .align(Alignment.End)
+            )
+
+            GroupCreatedDate(
+                date = state.createdTimestampFormatted,
                 modifier = Modifier
                     .align(Alignment.End)
             )

@@ -71,7 +71,6 @@ import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
@@ -168,8 +167,6 @@ fun AddEditTransactionScreen(
                     .fillMaxWidth(TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION)
                     .align(Alignment.CenterHorizontally)
             )
-
-            SpacerMedium()
 
             AmountInput(
                 currency = state.currency,
