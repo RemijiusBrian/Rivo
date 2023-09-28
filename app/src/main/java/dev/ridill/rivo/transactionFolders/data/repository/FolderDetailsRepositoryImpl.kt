@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class FolderDetailsRepositoryImpl(
@@ -38,11 +39,15 @@ class FolderDetailsRepositoryImpl(
         dao.insert(entity).first()
     }
 
-    override fun getTransactionsInFolder(folderId: Long): Flow<List<TransactionListItem>> =
-        transactionDao
-            .getTransactionsList(
-                folderId = folderId
-            ).map { it.map(TransactionDetails::toTransactionListItem) }
+    override fun getTransactionsInFolder(folderId: Long): Flow<Map<LocalDate, List<TransactionListItem>>> =
+        transactionDao.getTransactionsList(
+            folderId = folderId
+        )
+            .map { it.map(TransactionDetails::toTransactionListItem) }
+            .map { transactions ->
+                transactions
+                    .groupBy { it.date.withDayOfMonth(1) }
+            }
 
     override suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: List<Long>) =
         withContext(Dispatchers.IO) {

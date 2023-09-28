@@ -67,6 +67,9 @@ object DateUtil {
         val localizedDateMedium: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
 
+        val MMMM_yyyy_spaceSep: DateTimeFormatter
+            get() = DateTimeFormatter.ofPattern("MMMM yyyy")
+
         val localizedDateLong: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 

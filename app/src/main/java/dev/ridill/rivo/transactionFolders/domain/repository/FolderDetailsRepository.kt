@@ -3,6 +3,7 @@ package dev.ridill.rivo.transactionFolders.domain.repository
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolderDetails
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface FolderDetailsRepository {
@@ -16,6 +17,6 @@ interface FolderDetailsRepository {
         excluded: Boolean
     ): Long
 
-    fun getTransactionsInFolder(folderId: Long): Flow<List<TransactionListItem>>
+    fun getTransactionsInFolder(folderId: Long): Flow<Map<LocalDate, List<TransactionListItem>>>
     suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: List<Long>)
 }

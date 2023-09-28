@@ -4,11 +4,14 @@ import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -43,12 +46,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
@@ -137,21 +142,24 @@ fun TxFolderDetailsScreen(
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
             .imePadding()
     ) { paddingValues ->
+        val localLayoutDirection = LocalLayoutDirection.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(
-                    top = SpacingMedium,
-                    start = SpacingMedium,
-                    end = SpacingMedium
-                ),
+                    top = paddingValues.calculateTopPadding(),
+                    start = paddingValues.calculateStartPadding(localLayoutDirection),
+                    end = paddingValues.calculateEndPadding(localLayoutDirection)
+                )
+                .padding(top = SpacingMedium),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
             NameField(
                 name = folderName,
                 onNameChange = actions::onNameChange,
-                editModeActive = state.editModeActive
+                editModeActive = state.editModeActive,
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
             )
 
             LabelledSwitch(
@@ -160,12 +168,14 @@ fun TxFolderDetailsScreen(
                 onCheckedChange = actions::onExclusionToggle,
                 enabled = state.editModeActive,
                 modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
                     .align(Alignment.End)
             )
 
             FolderCreatedDate(
                 date = state.createdTimestampFormatted,
                 modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
                     .align(Alignment.End)
             )
 
@@ -174,12 +184,13 @@ fun TxFolderDetailsScreen(
                     currency = state.currency,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,
-                    transactions = state.transactions,
+                    transactionsMap = state.transactions,
                     onTransactionClick = { navigateToAddEditTransaction(it) },
                     onNewTransactionClick = { navigateToAddEditTransaction(null) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(Float.One)
+                        .weight(Float.One),
+                    insetPadding = paddingValues
                 )
             }
         }
@@ -285,16 +296,17 @@ private fun TransactionsInFolder(
     currency: Currency,
     aggregateAmount: Double,
     aggregateType: TransactionType?,
-    transactions: List<TransactionListItem>,
+    transactionsMap: Map<LocalDate, List<TransactionListItem>>,
     onTransactionClick: (Long) -> Unit,
     onNewTransactionClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    insetPadding: PaddingValues = PaddingValues()
 ) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        if (transactions.isEmpty()) {
+        if (transactionsMap.isEmpty()) {
             EmptyListIndicator(
                 resId = R.raw.lottie_empty_list_ghost
             )
@@ -306,17 +318,23 @@ private fun TransactionsInFolder(
             AggregateAmount(
                 currency = currency,
                 amount = aggregateAmount,
-                type = aggregateType
+                type = aggregateType,
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
             )
 
             Divider(
                 modifier = Modifier
-                    .padding(vertical = SpacingSmall)
+                    .padding(
+                        vertical = SpacingSmall,
+                        horizontal = SpacingMedium
+                    )
             )
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingMedium),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -332,25 +350,36 @@ private fun TransactionsInFolder(
             LazyColumn(
                 contentPadding = PaddingValues(
                     top = SpacingSmall,
-                    bottom = SpacingListEnd
+                    bottom = insetPadding.calculateBottomPadding() + SpacingListEnd
                 ),
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
-                items(items = transactions, key = { it.id }) { transaction ->
-                    TransactionCard(
-                        note = transaction.note,
-                        amount = TextFormat.compactNumber(
-                            value = transaction.amount,
-                            currency = currency
-                        ),
-                        date = transaction.date,
-                        type = transaction.type,
-                        tag = transaction.tag,
-                        onClick = { onTransactionClick(transaction.id) },
-                        modifier = Modifier
-                            .animateItemPlacement()
-                    )
+                transactionsMap.forEach { (date, transactions) ->
+                    stickyHeader(key = date.toString()) {
+                        TransactionDateHeader(
+                            date = date,
+                            modifier = Modifier
+                                .animateItemPlacement()
+                        )
+                    }
+
+                    items(items = transactions, key = { it.id }) { transaction ->
+                        TransactionCard(
+                            note = transaction.note,
+                            amount = TextFormat.compactNumber(
+                                value = transaction.amount,
+                                currency = currency
+                            ),
+                            date = transaction.date,
+                            type = transaction.type,
+                            tag = transaction.tag,
+                            onClick = { onTransactionClick(transaction.id) },
+                            modifier = Modifier
+                                .animateItemPlacement()
+                        )
+                    }
                 }
             }
         }
@@ -399,6 +428,28 @@ private fun AggregateAmount(
                 style = MaterialTheme.typography.titleMedium
             )
         }
+    }
+}
+
+@Composable
+private fun TransactionDateHeader(
+    date: LocalDate,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.tertiaryContainer)
+            .padding(
+                vertical = SpacingSmall,
+                horizontal = SpacingMedium
+            )
+    ) {
+        Text(
+            text = date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
