@@ -41,8 +41,6 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -56,10 +54,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TriStateCheckbox
@@ -92,12 +88,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.ListLabel
+import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
@@ -115,6 +113,8 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
+import dev.ridill.rivo.transactionFolders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
@@ -136,6 +136,7 @@ fun AllTransactionsScreen(
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
+    folderSearchQuery: () -> String,
     actions: AllTransactionsActions,
     navigateUp: () -> Unit
 ) {
@@ -243,10 +244,13 @@ fun AllTransactionsScreen(
         }
 
         if (state.showDeleteTagConfirmation) {
-            DeleteTagDialog(
-                tagName = tagNameInput(),
-                onDeleteTag = actions::onDeleteTagConfirm,
-                onDeleteTagWithTransactions = actions::onDeleteTagWithTransactionsClick,
+            MultiActionConfirmationDialog(
+                title = stringResource(R.string.delete_tag_confirmation_title, tagNameInput()),
+                text = stringResource(R.string.action_irreversible_message),
+                primaryActionLabelRes = R.string.delete_tag,
+                onPrimaryActionClick = actions::onDeleteTagClick,
+                secondaryActionLabelRes = R.string.delete_tag_with_transactions,
+                onSecondaryActionClick = actions::onDeleteTagWithTransactionsClick,
                 onDismiss = actions::onDeleteTagDismiss
             )
         }
@@ -264,6 +268,17 @@ fun AllTransactionsScreen(
                 errorMessage = state.tagInputError,
                 isEditMode = isTagInputEditMode,
                 onDeleteClick = actions::onDeleteTagClick
+            )
+        }
+
+        if (state.showFolderSelection) {
+            FolderListSearchSheet(
+                searchQuery = folderSearchQuery,
+                onSearchQueryChange = actions::onTransactionFolderQueryChange,
+                folderssList = state.foldersList,
+                onFolderClick = actions::onTransactionFolderSelect,
+                onCreateNewClick = actions::onCreateNewFolderClick,
+                onDismiss = actions::onTransactionFolderSelectionDismiss
             )
         }
     }
@@ -909,49 +924,6 @@ private fun TransactionCard(
     )
 }
 
-@Composable
-private fun DeleteTagDialog(
-    tagName: String,
-    onDeleteTag: () -> Unit,
-    onDeleteTagWithTransactions: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
-            ) {
-                Button(
-                    onClick = onDeleteTag,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.action_delete))
-                }
-                OutlinedButton(
-                    onClick = onDeleteTagWithTransactions,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.delete_tag_with_transactions))
-                }
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        },
-        title = { Text(stringResource(R.string.delete_tag_confirmation_title, tagName)) },
-        text = { Text(stringResource(R.string.action_irreversible_message)) }
-    )
-}
-
 @Preview
 @Composable
 private fun PreviewAllTransactionsScreen() {
@@ -977,6 +949,10 @@ private fun PreviewAllTransactionsScreen() {
                 override fun onSelectionStateChange() {}
                 override fun onDismissMultiSelectionMode() {}
                 override fun onTransactionOptionClick(option: TransactionOption) {}
+                override fun onTransactionFolderQueryChange(query: String) {}
+                override fun onTransactionFolderSelectionDismiss() {}
+                override fun onTransactionFolderSelect(folder: TransactionFolder) {}
+                override fun onCreateNewFolderClick() {}
                 override fun onDeleteTransactionDismiss() {}
                 override fun onDeleteTransactionConfirm() {}
                 override fun onEditTagClick(tag: TransactionTag) {}
@@ -988,7 +964,8 @@ private fun PreviewAllTransactionsScreen() {
             },
             navigateUp = {},
             tagExclusionInput = { false },
-            isTagInputEditMode = { false }
+            isTagInputEditMode = { false },
+            folderSearchQuery = { String.Empty }
         )
     }
 }

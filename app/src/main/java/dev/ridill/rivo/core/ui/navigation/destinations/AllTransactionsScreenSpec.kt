@@ -26,6 +26,7 @@ object AllTransactionsScreenSpec : ScreenSpec {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
+        val groupSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -50,6 +51,13 @@ object AllTransactionsScreenSpec : ScreenSpec {
                         hapticFeedback.performHapticFeedback(event.type)
                     }
 
+                    is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
+                        val route = TransactionFolderDetailsScreenSpec.routeWithArg(
+                            transactionFolderId = null,
+                            txIds = event.transactionIds
+                        )
+                        navController.navigate(route)
+                    }
                 }
             }
         }
@@ -62,7 +70,8 @@ object AllTransactionsScreenSpec : ScreenSpec {
             tagExclusionInput = { tagInput.value?.excluded },
             actions = viewModel,
             navigateUp = navController::navigateUp,
-            isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG }
+            isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG },
+            folderSearchQuery = { groupSearchQuery.value }
         )
     }
 }

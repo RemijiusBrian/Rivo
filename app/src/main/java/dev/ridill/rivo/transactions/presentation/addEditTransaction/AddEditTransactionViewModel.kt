@@ -42,8 +42,8 @@ class AddEditTransactionViewModel @Inject constructor(
         .getTransactionIdFromSavedStateHandle(savedStateHandle)
     private val isEditMode = AddEditTransactionScreenSpec.isEditMode(transactionIdArg)
 
-    private val linkGroupIdArg = AddEditTransactionScreenSpec
-        .getLinkGroupIdFromSavedStateHandle(savedStateHandle)
+    private val linkFolderIdArg = AddEditTransactionScreenSpec
+        .getFolderIdToLinkFromSavedStateHandle(savedStateHandle)
 
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
@@ -59,8 +59,8 @@ class AddEditTransactionViewModel @Inject constructor(
     private val transactionTimestamp = savedStateHandle
         .getStateFlow(TRANSACTION_TIMESTAMP, DateUtil.now())
 
-    private val transactionGroupId = savedStateHandle
-        .getStateFlow<Long?>(TRANSACTION_GROUP_ID, null)
+    private val transactionFolderId = savedStateHandle
+        .getStateFlow<Long?>(TRANSACTION_FOLDER_ID, null)
 
     private val transactionType = savedStateHandle
         .getStateFlow(TRANSACTION_TYPE, TransactionType.DEBIT)
@@ -87,7 +87,7 @@ class AddEditTransactionViewModel @Inject constructor(
         tagsList,
         selectedTagId,
         transactionTimestamp,
-        transactionGroupId,
+        transactionFolderId,
         transactionType,
         isTransactionExcluded,
         showDeleteConfirmation,
@@ -100,7 +100,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 tagsList,
                 selectedTagId,
                 transactionTimestamp,
-                transactionGroupId,
+                transactionFolderId,
                 transactionType,
                 isTransactionExcluded,
                 showDeleteConfirmation,
@@ -119,7 +119,7 @@ class AddEditTransactionViewModel @Inject constructor(
             showNewTagInput = showNewTagInput,
             newTagError = newTagError,
             showDateTimePicker = showDateTimePicker,
-            transactionGroupId = transactionGroupId,
+            transactionFolderId = transactionFolderId,
             transactionType = transactionType
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
@@ -139,8 +139,8 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[TRANSACTION_TYPE] = transaction.type
         savedStateHandle[SELECTED_TAG_ID] = transaction.tagId
         savedStateHandle[IS_TRANSACTION_EXCLUDED] = transaction.excluded
-        savedStateHandle[TRANSACTION_GROUP_ID] = linkGroupIdArg
-            ?: transaction.groupId
+        savedStateHandle[TRANSACTION_FOLDER_ID] = linkFolderIdArg
+            ?: transaction.folderId
     }
 
     override fun onAmountChange(value: String) {
@@ -226,7 +226,7 @@ class AddEditTransactionViewModel @Inject constructor(
             }
             val type = transactionType.value
             val tagId = selectedTagId.value
-            val groupId = transactionGroupId.value
+            val folderId = transactionFolderId.value
             val excluded = isTransactionExcluded.value
             transactionRepo.saveTransaction(
                 id = currentTransactionId,
@@ -235,7 +235,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 dateTime = transactionTimestamp.value,
                 transactionType = type,
                 tagId = tagId,
-                groupId = groupId,
+                folderId = folderId,
                 excluded = excluded
             )
             val event = if (isEditMode) AddEditTransactionEvent.TransactionUpdated
@@ -339,7 +339,7 @@ private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
-private const val TRANSACTION_GROUP_ID = "TRANSACTION_GROUP_ID"
+private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
 private const val TRANSACTION_TYPE = "TRANSACTION_TYPE"
 
 const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"

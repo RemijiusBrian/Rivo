@@ -7,20 +7,20 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.BuildConfig
+import dev.ridill.rivo.settings.data.local.ConfigDao
+import dev.ridill.rivo.settings.data.local.ConfigKeys
+import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
+import dev.ridill.rivo.transactionFolders.data.local.TransactionFolderDao
+import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
-import dev.ridill.rivo.settings.data.local.ConfigDao
-import dev.ridill.rivo.settings.data.local.ConfigKeys
-import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
-import dev.ridill.rivo.transactionGroups.data.local.TransactionGroupDao
-import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
 
 @Database(
     entities = [
         TransactionEntity::class,
-        TransactionGroupEntity::class,
+        TransactionFolderEntity::class,
         TagEntity::class,
         ConfigEntity::class
     ],
@@ -38,7 +38,7 @@ abstract class RivoDatabase : RoomDatabase() {
 
     // Dao Methods
     abstract fun transactionDao(): TransactionDao
-    abstract fun transactionGroupDao(): TransactionGroupDao
+    abstract fun transactionFolderDao(): TransactionFolderDao
     abstract fun tagsDao(): TagsDao
     abstract fun configDao(): ConfigDao
 }

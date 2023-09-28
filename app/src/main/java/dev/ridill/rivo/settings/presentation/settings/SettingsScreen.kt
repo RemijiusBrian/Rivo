@@ -5,29 +5,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrightnessMedium
-import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,17 +32,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
-import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
-import dev.ridill.rivo.core.ui.components.RivoScaffold
+import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.ValueInputSheet
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
-import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
@@ -235,47 +225,23 @@ private fun CurrencySelectionSheet(
     onConfirm: (Currency) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isSearchQueryEmpty by remember {
-        derivedStateOf { searchQuery().isEmpty() }
-    }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        modifier = modifier
-    ) {
-        SearchBar(
-            query = searchQuery(),
-            onQueryChange = onSearchQueryChange,
-            onSearch = {},
-            active = true,
-            onActiveChange = {},
-            trailingIcon = {
-                if (!isSearchQueryEmpty) {
-                    IconButton(onClick = { onSearchQueryChange(String.Empty) }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Clear,
-                            contentDescription = stringResource(R.string.cd_clear)
-                        )
-                    }
-                }
-            },
-            placeholder = { Text(stringResource(R.string.search_currency)) },
-            tonalElevation = ElevationLevel0
-        ) {
-            LazyColumn {
-                items(items = currencyList, key = { it.currencyCode }) { currency ->
-                    LabelledRadioButton(
-                        label = "${currency.displayName} (${currency.currencyCode})",
-                        selected = currency.currencyCode == currentCurrency.currencyCode,
-                        onClick = { onConfirm(currency) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement()
-                    )
-                }
-            }
-        }
+    ListSearchSheet(
+        searchQuery = searchQuery,
+        onSearchQueryChange = onSearchQueryChange,
+        itemsList = currencyList,
+        onDismiss = onDismiss,
+        placeholder = stringResource(R.string.search_currency),
+        modifier = modifier,
+        itemKey = { it.currencyCode }
+    ) { currency ->
+        LabelledRadioButton(
+            label = "${currency.displayName} (${currency.currencyCode})",
+            selected = currency.currencyCode == currentCurrency.currencyCode,
+            onClick = { onConfirm(currency) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateItemPlacement()
+        )
     }
 }
 

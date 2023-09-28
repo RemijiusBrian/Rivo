@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
 import androidx.compose.ui.graphics.Color
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import java.time.Month
@@ -21,6 +22,10 @@ interface AllTransactionsActions {
     fun onSelectionStateChange()
     fun onDismissMultiSelectionMode()
     fun onTransactionOptionClick(option: TransactionOption)
+    fun onTransactionFolderQueryChange(query: String)
+    fun onTransactionFolderSelectionDismiss()
+    fun onTransactionFolderSelect(folder: TransactionFolder)
+    fun onCreateNewFolderClick()
     fun onDeleteSelectedTransactionsClick()
     fun onDeleteTransactionDismiss()
     fun onDeleteTransactionConfirm()

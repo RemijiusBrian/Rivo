@@ -1,6 +1,6 @@
 package dev.ridill.rivo.transactions.domain.model
 
-import dev.ridill.rivo.transactionGroups.domain.model.TxGroup
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import java.time.LocalDate
 
 data class TransactionListItem(
@@ -10,6 +10,6 @@ data class TransactionListItem(
     val date: LocalDate,
     val type: TransactionType,
     val tag: TransactionTag?,
-    val group: TxGroup?,
+    val folder: TransactionFolder?,
     val excluded: Boolean
 )

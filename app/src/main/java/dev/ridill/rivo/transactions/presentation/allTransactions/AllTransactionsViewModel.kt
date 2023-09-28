@@ -11,14 +11,19 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
+import dev.ridill.rivo.transactionFolders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -30,6 +35,7 @@ import javax.inject.Inject
 class AllTransactionsViewModel @Inject constructor(
     private val transactionRepo: AllTransactionsRepository,
     private val tagsRepo: TagsRepository,
+    private val foldersListRepo: FoldersListRepository,
     private val savedStateHandle: SavedStateHandle,
     private val eventBus: EventBus<AllTransactionsEvent>
 ) : ViewModel(), AllTransactionsActions {
@@ -100,6 +106,14 @@ class AllTransactionsViewModel @Inject constructor(
     val tagInput = savedStateHandle.getStateFlow<TransactionTag?>(TAG_INPUT, null)
     private val tagInputError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
+    private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
+    val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
+    private val foldersList = folderSearchQuery
+        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
+        .flatMapLatest { query ->
+            foldersListRepo.getFoldersList(query)
+        }
+
     val state = combineTuple(
         selectedDate,
         yearsList,
@@ -115,7 +129,9 @@ class AllTransactionsViewModel @Inject constructor(
         showDeleteTagConfirmation,
         showTagInput,
         tagInputError,
-        showExcludedTransactions
+        showExcludedTransactions,
+        showFolderSelection,
+        foldersList
     ).map { (
                 selectedDate,
                 yearsList,
@@ -131,7 +147,9 @@ class AllTransactionsViewModel @Inject constructor(
                 showDeleteTagConfirmation,
                 showTagInput,
                 tagInputError,
-                showExcludedTransactions
+                showExcludedTransactions,
+                showFolderSelection,
+                foldersList
             ) ->
         AllTransactionsState(
             selectedDate = selectedDate,
@@ -148,7 +166,9 @@ class AllTransactionsViewModel @Inject constructor(
             showDeleteTagConfirmation = showDeleteTagConfirmation,
             showTagInput = showTagInput,
             tagInputError = tagInputError,
-            showExcludedTransactions = showExcludedTransactions
+            showExcludedTransactions = showExcludedTransactions,
+            showFolderSelection = showFolderSelection,
+            foldersList = foldersList
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
 
@@ -322,8 +342,12 @@ class AllTransactionsViewModel @Inject constructor(
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
 
-                TransactionOption.ADD_TO_GROUP -> {
-                    showGroupSelection()
+                TransactionOption.ADD_TO_FOLDER -> {
+                    showFolderSelection()
+                }
+
+                TransactionOption.REMOVE_FROM_FOLDERS -> {
+                    removeTransactionsFromFolders(selectedTransactionIds)
                 }
             }
         }
@@ -351,8 +375,52 @@ class AllTransactionsViewModel @Inject constructor(
         )
     }
 
-    private fun showGroupSelection() {
-        savedStateHandle[SHOW_GROUP_SELECTION] = true
+    private fun showFolderSelection() {
+        savedStateHandle[FOLDER_SEARCH_QUERY] = String.Empty
+        savedStateHandle[SHOW_FOLDER_SELECTION] = true
+    }
+
+    private suspend fun removeTransactionsFromFolders(ids: List<Long>) {
+        transactionRepo.removeTransactionsFromFolders(ids)
+        dismissMultiSelectionMode()
+        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_removed_from_their_folders)))
+    }
+
+    override fun onTransactionFolderQueryChange(query: String) {
+        savedStateHandle[FOLDER_SEARCH_QUERY] = query
+    }
+
+    override fun onTransactionFolderSelectionDismiss() {
+        savedStateHandle[SHOW_FOLDER_SELECTION] = false
+    }
+
+    override fun onTransactionFolderSelect(folder: TransactionFolder) {
+        viewModelScope.launch {
+            val selectedIds = selectedTransactionIds.value
+            transactionRepo.addTransactionsToFolderByIds(
+                transactionIds = selectedIds,
+                folderId = folder.id
+            )
+            savedStateHandle[SHOW_FOLDER_SELECTION] = false
+            eventBus.send(
+                AllTransactionsEvent.ShowUiMessage(
+                    UiText.PluralResource(
+                        R.plurals.transaction_added_to_folder_message,
+                        selectedIds.size
+                    )
+                )
+            )
+            dismissMultiSelectionMode()
+        }
+    }
+
+    override fun onCreateNewFolderClick() {
+        viewModelScope.launch {
+            val selectedIds = selectedTransactionIds.value
+            savedStateHandle[SHOW_FOLDER_SELECTION] = false
+            eventBus.send(AllTransactionsEvent.NavigateToFolderDetailsWithIds(selectedIds))
+            dismissMultiSelectionMode()
+        }
     }
 
     override fun onDeleteSelectedTransactionsClick() {
@@ -428,6 +496,8 @@ class AllTransactionsViewModel @Inject constructor(
 
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent()
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent()
+        data class NavigateToFolderDetailsWithIds(val transactionIds: List<Long>) :
+            AllTransactionsEvent()
     }
 }
 
@@ -441,4 +511,5 @@ private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
 private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
-private const val SHOW_GROUP_SELECTION = "SHOW_GROUP_SELECTION"
+private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
+private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"

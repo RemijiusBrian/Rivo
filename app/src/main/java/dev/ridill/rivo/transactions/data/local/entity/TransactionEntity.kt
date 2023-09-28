@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
-import dev.ridill.rivo.transactionGroups.data.local.entity.TransactionGroupEntity
+import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
 import java.time.LocalDateTime
 
 @Entity(
@@ -18,12 +18,12 @@ import java.time.LocalDateTime
             childColumns = ["tag_id"]
         ),
         ForeignKey(
-            entity = TransactionGroupEntity::class,
+            entity = TransactionFolderEntity::class,
             parentColumns = ["id"],
-            childColumns = ["group_id"]
+            childColumns = ["folder_id"]
         )
     ],
-    indices = [Index("tag_id"), Index("group_id")]
+    indices = [Index("tag_id"), Index("folder_id")]
 )
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
@@ -48,6 +48,6 @@ data class TransactionEntity(
     @ColumnInfo(name = "is_excluded")
     val isExcluded: Boolean,
 
-    @ColumnInfo(name = "group_id")
-    val groupId: Long?
+    @ColumnInfo(name = "folder_id")
+    val folderId: Long?
 )

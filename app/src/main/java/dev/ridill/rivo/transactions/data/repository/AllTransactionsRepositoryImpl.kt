@@ -63,4 +63,13 @@ class AllTransactionsRepositoryImpl(
         withContext(Dispatchers.IO) {
             dao.toggleExclusionByIds(ids, excluded)
         }
+
+    override suspend fun addTransactionsToFolderByIds(transactionIds: List<Long>, folderId: Long) =
+        withContext(Dispatchers.IO) {
+            dao.setFolderIdToTransactionsByIds(transactionIds = transactionIds, folderId = folderId)
+        }
+
+    override suspend fun removeTransactionsFromFolders(ids: List<Long>) = withContext(Dispatchers.IO) {
+        dao.removeFolderFromTransactionsByIds(ids)
+    }
 }

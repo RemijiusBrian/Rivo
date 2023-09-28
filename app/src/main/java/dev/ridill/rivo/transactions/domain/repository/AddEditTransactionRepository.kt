@@ -15,7 +15,7 @@ interface AddEditTransactionRepository {
         dateTime: LocalDateTime,
         transactionType: TransactionType,
         tagId: Long?,
-        groupId: Long? = null,
+        folderId: Long? = null,
         excluded: Boolean = false
     ): Long
 

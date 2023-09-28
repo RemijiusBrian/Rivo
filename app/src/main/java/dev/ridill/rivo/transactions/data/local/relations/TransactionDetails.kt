@@ -12,8 +12,8 @@ data class TransactionDetails(
     val tagName: String?,
     val tagColorCode: Int?,
     val tagCreatedTimestamp: LocalDateTime?,
-    val groupId: Long?,
-    val groupName: String?,
-    val groupCreatedTimestamp: LocalDateTime?,
+    val folderId: Long?,
+    val folderName: String?,
+    val folderCreatedTimestamp: LocalDateTime?,
     val isExcludedTransaction: Boolean
 )

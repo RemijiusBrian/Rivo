@@ -2,6 +2,7 @@ package dev.ridill.rivo.core.ui.components
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.settings.domain.modal.BaseRadioOption
 
@@ -164,5 +167,52 @@ fun <T : BaseRadioOption> RadioOptionListDialog(
             }
         },
         modifier = modifier
+    )
+}
+
+@Composable
+fun MultiActionConfirmationDialog(
+    title: String,
+    text: String,
+    @StringRes primaryActionLabelRes: Int,
+    onPrimaryActionClick: () -> Unit,
+    @StringRes secondaryActionLabelRes: Int,
+    onSecondaryActionClick: () -> Unit,
+    @StringRes dismissActionLabelRes: Int = R.string.action_cancel,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+            ) {
+                Button(
+                    onClick = onPrimaryActionClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(stringResource(primaryActionLabelRes))
+                }
+                OutlinedButton(
+                    onClick = onSecondaryActionClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(stringResource(secondaryActionLabelRes))
+                }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(stringResource(dismissActionLabelRes))
+                }
+            }
+        },
+        title = { Text(title) },
+        text = { Text(text) }
     )
 }

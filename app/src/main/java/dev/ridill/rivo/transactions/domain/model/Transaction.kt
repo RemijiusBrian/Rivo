@@ -11,7 +11,7 @@ data class Transaction(
     val createdTimestamp: LocalDateTime,
     val type: TransactionType,
     val tagId: Long?,
-    val groupId: Long?,
+    val folderId: Long?,
     val excluded: Boolean
 ) {
     companion object {
@@ -22,7 +22,7 @@ data class Transaction(
             createdTimestamp = DateUtil.now(),
             type = TransactionType.DEBIT,
             tagId = null,
-            groupId = null,
+            folderId = null,
             excluded = false
         )
     }

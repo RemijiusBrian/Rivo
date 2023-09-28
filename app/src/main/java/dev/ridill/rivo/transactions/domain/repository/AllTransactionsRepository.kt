@@ -19,6 +19,8 @@ interface AllTransactionsRepository {
     fun getShowExcludedTransactions(): Flow<Boolean>
     suspend fun toggleShowExcludedTransactions(show: Boolean)
     suspend fun toggleTransactionExclusionByIds(ids: List<Long>, excluded: Boolean)
+    suspend fun addTransactionsToFolderByIds(transactionIds: List<Long>, folderId: Long)
+    suspend fun removeTransactionsFromFolders(ids: List<Long>)
 }
 
 private const val DEFAULT_YEAR_LIST_PADDING = 5

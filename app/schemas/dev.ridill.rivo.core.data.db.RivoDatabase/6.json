@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "5a04a9253d6f9cdcea1393b1f321ae12",
+    "identityHash": "a7974d83222479cd7bba5834ac2a52f9",
     "entities": [
       {
         "tableName": "transaction_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `note` TEXT NOT NULL, `amount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `transaction_type_name` TEXT NOT NULL DEFAULT 'DEBIT', `tag_id` INTEGER, `is_excluded` INTEGER NOT NULL, `group_id` INTEGER, FOREIGN KEY(`tag_id`) REFERENCES `tag_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`group_id`) REFERENCES `transaction_group_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `note` TEXT NOT NULL, `amount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `transaction_type_name` TEXT NOT NULL DEFAULT 'DEBIT', `tag_id` INTEGER, `is_excluded` INTEGER NOT NULL, `folder_id` INTEGER, FOREIGN KEY(`tag_id`) REFERENCES `tag_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`folder_id`) REFERENCES `transaction_folder_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -52,8 +52,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "groupId",
-            "columnName": "group_id",
+            "fieldPath": "folderId",
+            "columnName": "folder_id",
             "affinity": "INTEGER",
             "notNull": false
           }
@@ -75,13 +75,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_transaction_table_tag_id` ON `${TABLE_NAME}` (`tag_id`)"
           },
           {
-            "name": "index_transaction_table_group_id",
+            "name": "index_transaction_table_folder_id",
             "unique": false,
             "columnNames": [
-              "group_id"
+              "folder_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_transaction_table_group_id` ON `${TABLE_NAME}` (`group_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_transaction_table_folder_id` ON `${TABLE_NAME}` (`folder_id`)"
           }
         ],
         "foreignKeys": [
@@ -97,11 +97,11 @@
             ]
           },
           {
-            "table": "transaction_group_table",
+            "table": "transaction_folder_table",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "group_id"
+              "folder_id"
             ],
             "referencedColumns": [
               "id"
@@ -110,7 +110,7 @@
         ]
       },
       {
-        "tableName": "transaction_group_table",
+        "tableName": "transaction_folder_table",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `created_timestamp` TEXT NOT NULL, `is_excluded` INTEGER NOT NULL)",
         "fields": [
           {
@@ -221,7 +221,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5a04a9253d6f9cdcea1393b1f321ae12')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a7974d83222479cd7bba5834ac2a52f9')"
     ]
   }
 }

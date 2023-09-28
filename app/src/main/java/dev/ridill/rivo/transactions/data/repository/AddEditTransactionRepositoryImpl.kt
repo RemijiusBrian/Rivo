@@ -39,7 +39,7 @@ class AddEditTransactionRepositoryImpl(
         dateTime: LocalDateTime,
         transactionType: TransactionType,
         tagId: Long?,
-        groupId: Long?,
+        folderId: Long?,
         excluded: Boolean
     ): Long = withContext(Dispatchers.IO) {
         val entity = TransactionEntity(
@@ -50,7 +50,7 @@ class AddEditTransactionRepositoryImpl(
             typeName = transactionType.name,
             tagId = tagId,
             isExcluded = excluded,
-            groupId = groupId
+            folderId = folderId
         )
         dao.insert(entity).first()
     }

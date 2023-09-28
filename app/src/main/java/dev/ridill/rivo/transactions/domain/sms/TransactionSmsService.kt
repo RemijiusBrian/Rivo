@@ -62,7 +62,7 @@ class TransactionSmsService(
                     tagId = null,
                     excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
                     transactionType = TransactionType.DEBIT,
-                    groupId = null
+                    folderId = null
                 )
 
                 notificationHelper.postNotification(

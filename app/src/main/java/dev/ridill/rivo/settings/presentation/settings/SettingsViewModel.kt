@@ -10,6 +10,7 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.CurrencyUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.TextFormat
@@ -57,7 +58,7 @@ class SettingsViewModel @Inject constructor(
         .getStateFlow(CURRENCY_SEARCH_QUERY, "")
 
     private val currencyList = currencySearchQuery
-        .debounce(250L)
+        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .map { query ->
             CurrencyUtil.currencyList.filter { currency ->
                 query.isEmpty()

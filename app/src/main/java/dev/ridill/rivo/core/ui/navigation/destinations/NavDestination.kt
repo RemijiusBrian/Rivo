@@ -11,7 +11,7 @@ sealed interface NavDestination {
                 AddEditTransactionScreenSpec,
                 AllTransactionsScreenSpec,
                 SettingsGraphSpec,
-                TransactionGroupsGraph
+                TransactionFoldersGraph
             )
     }
 

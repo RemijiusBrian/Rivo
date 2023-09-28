@@ -33,7 +33,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANS
 
 object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String =
-        "add_edit_transaction/{$ARG_TRANSACTION_ID}?$ARG_LINK_TX_GROUP_ID={$ARG_LINK_TX_GROUP_ID}"
+        "add_edit_transaction/{$ARG_TRANSACTION_ID}?$ARG_LINK_TX_FOLDER_ID={$ARG_LINK_TX_FOLDER_ID}"
 
     override val labelRes: Int = R.string.destination_add_edit_transaction
 
@@ -43,7 +43,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             nullable = false
             defaultValue = ARG_INVALID_ID_LONG
         },
-        navArgument(ARG_LINK_TX_GROUP_ID) {
+        navArgument(ARG_LINK_TX_FOLDER_ID) {
             nullable = true
         }
     )
@@ -60,31 +60,29 @@ object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun routeWithArg(
         transactionId: Long? = null,
-        transactionGroupId: Long? = null
+        transactionFolderId: Long? = null
     ): String = route
         .replace(
             oldValue = "{$ARG_TRANSACTION_ID}",
             newValue = (transactionId ?: ARG_INVALID_ID_LONG).toString()
         )
         .replace(
-            oldValue = "?$ARG_LINK_TX_GROUP_ID={$ARG_LINK_TX_GROUP_ID}",
-            newValue = transactionGroupId?.let {
-                "?$ARG_LINK_TX_GROUP_ID=$it"
+            oldValue = "?$ARG_LINK_TX_FOLDER_ID={$ARG_LINK_TX_FOLDER_ID}",
+            newValue = transactionFolderId?.let {
+                "?$ARG_LINK_TX_FOLDER_ID=$it"
             }.orEmpty()
         )
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
 
-    fun getLinkGroupIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
-        savedStateHandle.get<String?>(ARG_LINK_TX_GROUP_ID)?.toLongOrNull()
+    fun getFolderIdToLinkFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
+        savedStateHandle.get<String?>(ARG_LINK_TX_FOLDER_ID)?.toLongOrNull()
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
 
     fun isEditMode(expenseId: Long?): Boolean = expenseId != ARG_INVALID_ID_LONG
-    fun isGroupPresentToBeLinked(groupId: Long?): Boolean =
-        groupId != null && groupId != ARG_INVALID_ID_LONG
 
     fun buildAutoAddedTransactionDeeplinkUri(id: Long): Uri =
         AUTO_ADDED_TRANSACTION_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString()).toUri()
@@ -152,6 +150,6 @@ object AddEditTransactionScreenSpec : ScreenSpec {
 }
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
-private const val ARG_LINK_TX_GROUP_ID = "ARG_LINK_TX_GROUP_ID"
+private const val ARG_LINK_TX_FOLDER_ID = "ARG_LINK_TX_FOLDER_ID"
 private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
     "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"

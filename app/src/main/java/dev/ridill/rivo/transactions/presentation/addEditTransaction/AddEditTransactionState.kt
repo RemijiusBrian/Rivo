@@ -14,7 +14,7 @@ data class AddEditTransactionState(
     val tagsList: List<TransactionTag> = emptyList(),
     val selectedTagId: Long? = null,
     val transactionTimestamp: LocalDateTime = DateUtil.now(),
-    val transactionGroupId: Long? = null,
+    val transactionFolderId: Long? = null,
     val transactionType: TransactionType = TransactionType.DEBIT,
     val isTransactionExcluded: Boolean = false,
     val showDeleteConfirmation: Boolean = false,

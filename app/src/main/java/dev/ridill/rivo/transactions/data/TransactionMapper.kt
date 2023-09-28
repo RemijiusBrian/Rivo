@@ -1,6 +1,6 @@
 package dev.ridill.rivo.transactions.data
 
-import dev.ridill.rivo.transactionGroups.domain.model.TxGroup
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.domain.model.Transaction
@@ -14,7 +14,7 @@ fun TransactionEntity.toTransaction(): Transaction = Transaction(
     note = note,
     createdTimestamp = timestamp,
     type = TransactionType.valueOf(typeName),
-    groupId = groupId,
+    folderId = folderId,
     tagId = tagId,
     excluded = isExcluded
 )
@@ -33,13 +33,13 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
     )
     else null
 
-    val transactionGroup = if (groupId != null
-        && groupName != null
-        && groupCreatedTimestamp != null
-    ) TxGroup(
-        id = groupId,
-        name = groupName,
-        createdTimestamp = groupCreatedTimestamp,
+    val transactionFolder = if (folderId != null
+        && folderName != null
+        && folderCreatedTimestamp != null
+    ) TransactionFolder(
+        id = folderId,
+        name = folderName,
+        createdTimestamp = folderCreatedTimestamp,
         excluded = isExcludedTransaction
     ) else null
 
@@ -50,7 +50,7 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
         date = transactionTimestamp.toLocalDate(),
         type = TransactionType.valueOf(transactionTypeName),
         tag = tag,
-        group = transactionGroup,
+        folder = transactionFolder,
         excluded = isExcludedTransaction
     )
 }
