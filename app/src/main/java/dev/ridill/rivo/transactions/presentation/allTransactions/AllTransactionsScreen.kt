@@ -145,7 +145,7 @@ fun AllTransactionsScreen(
         onBack = actions::onDismissMultiSelectionMode
     )
 
-    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     RivoScaffold(
         snackbarController = snackbarController,
         topBar = {

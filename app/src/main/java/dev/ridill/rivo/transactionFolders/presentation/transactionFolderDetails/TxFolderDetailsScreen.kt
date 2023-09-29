@@ -94,7 +94,7 @@ fun TxFolderDetailsScreen(
         onBack = actions::onEditDismiss
     )
 
-    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     RivoScaffold(
         topBar = {
             TopAppBar(
