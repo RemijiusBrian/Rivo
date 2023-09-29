@@ -83,10 +83,9 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.transactionFolders.presentation.components.FolderListSearchSheet
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
-import dev.ridill.rivo.transactions.presentation.components.ExcludedIndicator
 import dev.ridill.rivo.transactions.presentation.components.NewTagChip
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 
@@ -512,13 +511,12 @@ private fun ExclusionToggle(
 
 @Composable
 fun TagsList(
-    tagsList: List<TransactionTag>,
+    tagsList: List<Tag>,
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onNewTagClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val localContentColor = LocalContentColor.current
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingMedium)
@@ -530,12 +528,6 @@ fun TagsList(
         ) {
             tagsList.forEach { tag ->
                 val selected = tag.id == selectedTagId
-                val contentColor by remember(selected) {
-                    derivedStateOf {
-                        if (selected) tag.color.contentColor()
-                        else localContentColor
-                    }
-                }
                 FilterChip(
                     selected = selected,
                     onClick = { onTagClick(tag.id) },
@@ -544,20 +536,15 @@ fun TagsList(
                             text = tag.name,
                             textAlign = TextAlign.Center,
                             maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            textDecoration = if (tag.excluded) TextDecoration.LineThrough
+                            else null
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = tag.color,
                         selectedLabelColor = tag.color.contentColor()
-                    ),
-                    leadingIcon = if (tag.excluded) {
-                        {
-                            ExcludedIndicator(
-                                tint = contentColor
-                            )
-                        }
-                    } else null
+                    )
                 )
             }
 

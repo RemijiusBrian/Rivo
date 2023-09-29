@@ -19,7 +19,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactionFolders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
@@ -61,7 +61,7 @@ class AllTransactionsViewModel @Inject constructor(
         )
     }
 
-    private val selectedTag = savedStateHandle.getStateFlow<TransactionTag?>(SELECTED_TAG, null)
+    private val selectedTag = savedStateHandle.getStateFlow<Tag?>(SELECTED_TAG, null)
 
     private val showExcludedTransactions = transactionRepo.getShowExcludedTransactions()
 
@@ -103,7 +103,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val showTagInput = savedStateHandle
         .getStateFlow(SHOW_TAG_INPUT, false)
-    val tagInput = savedStateHandle.getStateFlow<TransactionTag?>(TAG_INPUT, null)
+    val tagInput = savedStateHandle.getStateFlow<Tag?>(TAG_INPUT, null)
     private val tagInputError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
@@ -196,7 +196,7 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
     }
 
-    override fun onTagClick(tag: TransactionTag) {
+    override fun onTagClick(tag: Tag) {
         if (transactionMultiSelectionModeActive.value) viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             tagsRepo.assignTagToTransactions(tag.id, selectedIds)
@@ -210,7 +210,7 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = TransactionTag.NEW
+        savedStateHandle[TAG_INPUT] = Tag.NEW
         savedStateHandle[SHOW_TAG_INPUT] = true
     }
 
@@ -449,7 +449,7 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.deleteTransactionsByIds(ids)
     }
 
-    override fun onEditTagClick(tag: TransactionTag) {
+    override fun onEditTagClick(tag: Tag) {
         savedStateHandle[TAG_INPUT] = tag
         savedStateHandle[SHOW_TAG_INPUT] = true
     }

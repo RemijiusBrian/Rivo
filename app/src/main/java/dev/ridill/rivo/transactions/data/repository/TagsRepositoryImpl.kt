@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.toArgb
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
-import dev.ridill.rivo.transactions.data.toTransactionTag
+import dev.ridill.rivo.transactions.data.toTag
 import dev.ridill.rivo.transactions.data.toTagWithExpenditure
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +21,8 @@ class TagsRepositoryImpl(
     private val dao: TagsDao
 ) : TagsRepository {
 
-    override fun getAllTags(): Flow<List<TransactionTag>> = dao.getAllTags()
-        .map { entities ->
-            entities.map(TagEntity::toTransactionTag)
-        }
+    override fun getAllTags(): Flow<List<Tag>> = dao.getAllTags()
+        .map { it.map(TagEntity::toTag) }
 
     override fun getTagsWithExpenditures(
         date: LocalDate,

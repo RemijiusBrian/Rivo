@@ -9,7 +9,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import java.time.LocalDate
 
 data class AllTransactionsState(
@@ -18,7 +18,7 @@ data class AllTransactionsState(
     val totalExpenditure: Double = Double.Zero,
     val currency: Currency = CurrencyUtil.default,
     val tagsWithExpenditures: List<TagWithExpenditure> = emptyList(),
-    val selectedTag: TransactionTag? = null,
+    val selectedTag: Tag? = null,
     val transactionList: List<TransactionListItem> = emptyList(),
     val selectedTransactionIds: List<Long> = emptyList(),
     val transactionSelectionState: ToggleableState = ToggleableState.Off,

@@ -1,14 +1,14 @@
 package dev.ridill.rivo.transactions.domain.repository
 
 import androidx.compose.ui.graphics.Color
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface TagsRepository {
-    fun getAllTags(): Flow<List<TransactionTag>>
+    fun getAllTags(): Flow<List<Tag>>
     fun getTagsWithExpenditures(
         date: LocalDate,
         totalExpenditure: Double

@@ -42,11 +42,11 @@ data class TransactionEntity(
     @ColumnInfo(name = "transaction_type_name", defaultValue = "DEBIT")
     val typeName: String,
 
-    @ColumnInfo(name = "tag_id")
-    val tagId: Long?,
-
     @ColumnInfo(name = "is_excluded")
     val isExcluded: Boolean,
+
+    @ColumnInfo(name = "tag_id")
+    val tagId: Long?,
 
     @ColumnInfo(name = "folder_id")
     val folderId: Long?

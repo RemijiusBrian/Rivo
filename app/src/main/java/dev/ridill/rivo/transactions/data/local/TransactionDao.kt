@@ -46,14 +46,16 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
         tx.transaction_type_name AS transactionTypeName,
+        tx.is_excluded AS isTransactionExcluded,
         tag.id AS tagId,
         tag.name AS tagName,
         tag.color_code AS tagColorCode,
         tag.created_timestamp AS tagCreatedTimestamp,
+        tag.is_excluded AS isTagExcluded,
         txFolder.id AS folderId,
         txFolder.name AS folderName,
         txFolder.created_timestamp AS folderCreatedTimestamp,
-        (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txFolder.is_excluded) THEN 1 ELSE 0 END) AS isExcludedTransaction
+        txFolder.is_excluded AS isFolderExcluded
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         LEFT OUTER JOIN transaction_folder_table txFolder ON tx.folder_id = txFolder.id
@@ -61,8 +63,8 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
-            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
-        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
+            AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txFolder.is_excluded) THEN 1 ELSE 0 END) = 0)
+        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
         """
     )
     fun getTransactionsList(
@@ -81,14 +83,16 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
         tx.transaction_type_name AS transactionTypeName,
+        tx.is_excluded AS isTransactionExcluded,
         tag.id AS tagId,
         tag.name AS tagName,
         tag.color_code AS tagColorCode,
         tag.created_timestamp AS tagCreatedTimestamp,
+        tag.is_excluded AS isTagExcluded,
         txFolder.id AS folderId,
         txFolder.name AS folderName,
         txFolder.created_timestamp AS folderCreatedTimestamp,
-        (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txFolder.is_excluded) THEN 1 ELSE 0 END) AS isExcludedTransaction
+        txFolder.is_excluded AS isFolderExcluded
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         LEFT OUTER JOIN transaction_folder_table txFolder ON tx.folder_id = txFolder.id
@@ -96,8 +100,8 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
-            AND (:showExcluded = 1 OR isExcludedTransaction = 0)
-        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC, isExcludedTransaction ASC
+            AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txFolder.is_excluded) THEN 1 ELSE 0 END) = 0)
+        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
         """
     )
     fun getTransactionsListPaginated(
@@ -121,7 +125,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     suspend fun deleteMultipleTransactionsById(ids: List<Long>)
 
     @Query("UPDATE transaction_table SET folder_id = :folderId WHERE id IN (:transactionIds)")
-    suspend fun setFolderIdToTransactionsByIds(transactionIds: List<Long>, folderId: Long)
+    suspend fun setFolderIdToTransactionsByIds(transactionIds: List<Long>, folderId: Long?)
 
     @Query("UPDATE transaction_table SET folder_id = NULL WHERE id IN (:ids)")
     suspend fun removeFolderFromTransactionsByIds(ids: List<Long>)

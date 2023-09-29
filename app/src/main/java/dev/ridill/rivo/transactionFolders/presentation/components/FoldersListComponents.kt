@@ -19,7 +19,6 @@ import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
-import dev.ridill.rivo.transactions.presentation.components.ExcludedIndicator
 
 @Composable
 fun FolderListSearchSheet(
@@ -60,13 +59,12 @@ fun FolderListSearchSheet(
                     )
             )
         }
-        items(items = foldersList, key = { it.id }) { group ->
-            OutlinedCard(onClick = { onFolderClick(group) }) {
+        items(items = foldersList, key = { it.id }) { folder ->
+            OutlinedCard(onClick = { onFolderClick(folder) }) {
                 ListItem(
-                    headlineContent = { Text(group.name) },
+                    headlineContent = { Text(folder.name) },
                     modifier = modifier
-                        .animateItemPlacement(),
-                    leadingContent = { if (group.excluded) ExcludedIndicator() }
+                        .animateItemPlacement()
                 )
             }
         }

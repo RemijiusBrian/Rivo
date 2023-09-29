@@ -5,6 +5,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -128,6 +129,18 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
                         navController.navigateUpWithResult(
                             ACTION_NEW_FOLDER_CREATE,
                             event.folderId.toString()
+                        )
+                    }
+
+                    is TxFolderDetailsViewModel.TxFolderDetailsEvent.TransactionRemovedFromGroup -> {
+                        snackbarController.showSnackbar(
+                            message = context.getString(R.string.transaction_removed_from_folder),
+                            actionLabel = context.getString(R.string.action_undo),
+                            onSnackbarResult = {
+                                if (it == SnackbarResult.ActionPerformed) {
+                                    viewModel.onRemoveTransactionUndo(event.transaction)
+                                }
+                            }
                         )
                     }
                 }

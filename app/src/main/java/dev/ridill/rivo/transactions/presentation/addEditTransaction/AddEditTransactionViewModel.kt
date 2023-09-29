@@ -24,7 +24,7 @@ import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactionFolders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
@@ -83,7 +83,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val showNewTagInput = savedStateHandle
         .getStateFlow(SHOW_NEW_TAG_INPUT, false)
     val tagInput = savedStateHandle
-        .getStateFlow<TransactionTag?>(TAG_INPUT, null)
+        .getStateFlow<Tag?>(TAG_INPUT, null)
     private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
     private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
@@ -289,7 +289,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = TransactionTag.NEW
+        savedStateHandle[TAG_INPUT] = Tag.NEW
         savedStateHandle[SHOW_NEW_TAG_INPUT] = true
     }
 

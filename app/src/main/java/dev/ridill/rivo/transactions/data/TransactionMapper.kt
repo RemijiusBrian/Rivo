@@ -3,10 +3,10 @@ package dev.ridill.rivo.transactions.data
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 fun TransactionEntity.toTransaction(): Transaction = Transaction(
     id = id,
@@ -24,12 +24,12 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
         && tagName != null
         && tagColorCode != null
         && tagCreatedTimestamp != null
-    ) TransactionTag(
+    ) Tag(
         id = tagId,
         name = tagName,
         colorCode = tagColorCode,
         createdTimestamp = tagCreatedTimestamp,
-        excluded = isExcludedTransaction
+        excluded = isTagExcluded == true
     )
     else null
 
@@ -40,17 +40,28 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
         id = folderId,
         name = folderName,
         createdTimestamp = folderCreatedTimestamp,
-        excluded = isExcludedTransaction
+        excluded = isFolderExcluded == true
     ) else null
 
     return TransactionListItem(
         id = transactionId,
         note = transactionNote,
         amount = transactionAmount,
-        date = transactionTimestamp.toLocalDate(),
+        timestamp = transactionTimestamp,
         type = TransactionType.valueOf(transactionTypeName),
+        isTransactionExcluded = isTransactionExcluded,
         tag = tag,
-        folder = transactionFolder,
-        excluded = isExcludedTransaction
+        folder = transactionFolder
     )
 }
+
+fun TransactionListItem.toEntity(): TransactionEntity = TransactionEntity(
+    id = id,
+    note = note,
+    amount = amount,
+    timestamp = timestamp,
+    typeName = type.name,
+    isExcluded = isTransactionExcluded,
+    tagId = tag?.id,
+    folderId = folder?.id
+)

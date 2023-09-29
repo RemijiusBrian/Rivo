@@ -25,16 +25,19 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,8 +75,9 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
-import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
@@ -83,7 +87,7 @@ import kotlin.math.absoluteValue
 fun TxFolderDetailsScreen(
     snackbarController: SnackbarController,
     state: TxFolderDetailsState,
-    transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUiModel>,
+    transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUIModel>,
     folderName: () -> String,
     actions: TxFolderDetailsActions,
     navigateToAddEditTransaction: (Long?) -> Unit,
@@ -192,7 +196,8 @@ fun TxFolderDetailsScreen(
                         .fillMaxWidth()
                         .weight(Float.One),
                     insetPadding = paddingValues,
-                    pagingItems = transactionsLazyPagingItems
+                    pagingItems = transactionsLazyPagingItems,
+                    onTransactionSwipeDismiss = actions::onTransactionSwipeToDismiss
                 )
             }
         }
@@ -300,9 +305,10 @@ private fun TransactionsInFolder(
     aggregateType: TransactionType?,
     onTransactionClick: (Long) -> Unit,
     onNewTransactionClick: () -> Unit,
+    onTransactionSwipeDismiss: (TransactionListItem) -> Unit,
     modifier: Modifier = Modifier,
     insetPadding: PaddingValues = PaddingValues(),
-    pagingItems: LazyPagingItems<TransactionListItemUiModel>
+    pagingItems: LazyPagingItems<TransactionListItemUIModel>
 ) {
     Box(
         modifier = modifier,
@@ -361,7 +367,7 @@ private fun TransactionsInFolder(
                 repeat(pagingItems.itemCount) { index ->
                     pagingItems[index]?.let { item ->
                         when (item) {
-                            is TransactionListItemUiModel.DateSeparator -> {
+                            is TransactionListItemUIModel.DateSeparator -> {
                                 stickyHeader(
                                     key = item.date.toString(),
                                     contentType = "TransactionDateSeparator"
@@ -374,21 +380,35 @@ private fun TransactionsInFolder(
                                 }
                             }
 
-                            is TransactionListItemUiModel.TransactionItem -> {
+                            is TransactionListItemUIModel.TransactionItem -> {
                                 item(
                                     key = item.transaction.id,
                                     contentType = "TransactionListItem"
                                 ) {
-                                    TransactionCard(
-                                        note = item.transaction.note,
-                                        amount = item.transaction
-                                            .amountFormattedWithCurrency(currency),
-                                        date = item.transaction.date,
-                                        type = item.transaction.type,
-                                        tag = item.transaction.tag,
-                                        onClick = { onTransactionClick(item.transaction.id) },
-                                        modifier = Modifier
-                                            .animateItemPlacement()
+                                    val dismissState = rememberDismissState(
+                                        confirmValueChange = {
+                                            if (it == DismissValue.DismissedToStart) {
+                                                onTransactionSwipeDismiss(item.transaction)
+                                            }
+                                            true
+                                        }
+                                    )
+                                    SwipeToDismiss(
+                                        state = dismissState,
+                                        background = {},
+                                        dismissContent = {
+                                            TransactionCard(
+                                                note = item.transaction.note,
+                                                amount = item.transaction
+                                                    .amountFormattedWithCurrency(currency),
+                                                date = item.transaction.date,
+                                                type = item.transaction.type,
+                                                tag = item.transaction.tag,
+                                                onClick = { onTransactionClick(item.transaction.id) },
+                                                modifier = Modifier
+                                                    .animateItemPlacement()
+                                            )
+                                        }
                                     )
                                 }
                             }
@@ -473,7 +493,7 @@ private fun TransactionCard(
     amount: String,
     date: LocalDate,
     type: TransactionType,
-    tag: TransactionTag?,
+    tag: Tag?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

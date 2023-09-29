@@ -12,8 +12,11 @@ import dev.ridill.rivo.transactionFolders.data.toTransactionFolderDetails
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolderDetails
 import dev.ridill.rivo.transactionFolders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -45,27 +48,28 @@ class FolderDetailsRepositoryImpl(
 
     override fun getPagedTransactionsInFolder(
         folderId: Long
-    ): Flow<PagingData<TransactionListItemUiModel>> = Pager(
+    ): Flow<PagingData<TransactionListItemUIModel>> = Pager(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
     ) { transactionDao.getTransactionsListPaginated(folderId = folderId) }
         .flow
+        .map { it.map(TransactionDetails::toTransactionListItem) }
         .map { pagingData ->
-            pagingData.map { it.toTransactionListItem() }
-        }
-        .map { pagingData ->
-            pagingData.map { TransactionListItemUiModel.TransactionItem(it) }
+            pagingData.map { TransactionListItemUIModel.TransactionItem(it) }
         }
         .map {
-            it.insertSeparators<TransactionListItemUiModel.TransactionItem, TransactionListItemUiModel>
+            it.insertSeparators<TransactionListItemUIModel.TransactionItem, TransactionListItemUIModel>
             { before, after ->
-                if (before?.transaction?.date
+                if (before?.transaction?.timestamp
                         ?.withDayOfMonth(1)
-                    != after?.transaction?.date
+                        ?.toLocalDate()
+                    != after?.transaction?.timestamp
                         ?.withDayOfMonth(1)
-                ) after?.transaction?.date
+                        ?.toLocalDate()
+                ) after?.transaction?.timestamp
                     ?.withDayOfMonth(1)
+                    ?.toLocalDate()
                     ?.let { localDate ->
-                        TransactionListItemUiModel.DateSeparator(localDate)
+                        TransactionListItemUIModel.DateSeparator(localDate)
                     } else null
             }
         }
@@ -85,5 +89,16 @@ class FolderDetailsRepositoryImpl(
 
     override suspend fun deleteFolderWithTransactions(id: Long) = withContext(Dispatchers.IO) {
         dao.deleteFolderAndTransactionsById(id)
+    }
+
+    override suspend fun removeTransactionFromFolderById(transactionId: Long) =
+        withContext(Dispatchers.IO) {
+            transactionDao.setFolderIdToTransactionsByIds(listOf(transactionId), null)
+        }
+
+    override suspend fun addTransactionToFolder(transaction: TransactionListItem) {
+        withContext(Dispatchers.IO) {
+            transactionDao.insert(transaction.toEntity())
+        }
     }
 }

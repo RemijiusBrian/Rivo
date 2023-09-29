@@ -8,12 +8,14 @@ data class TransactionDetails(
     val transactionAmount: Double,
     val transactionTimestamp: LocalDateTime,
     val transactionTypeName: String,
+    val isTransactionExcluded: Boolean,
     val tagId: Long?,
     val tagName: String?,
     val tagColorCode: Int?,
     val tagCreatedTimestamp: LocalDateTime?,
+    val isTagExcluded: Boolean?,
     val folderId: Long?,
     val folderName: String?,
     val folderCreatedTimestamp: LocalDateTime?,
-    val isExcludedTransaction: Boolean
+    val isFolderExcluded: Boolean?
 )

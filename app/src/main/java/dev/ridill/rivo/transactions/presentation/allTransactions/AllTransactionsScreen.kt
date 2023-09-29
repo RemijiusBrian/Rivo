@@ -118,7 +118,7 @@ import dev.ridill.rivo.transactionFolders.presentation.components.FolderListSear
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagColors
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
@@ -291,8 +291,8 @@ private fun TagsInfoList(
     currency: Currency,
     tags: List<TagWithExpenditure>,
     selectedTagId: Long?,
-    onTagClick: (TransactionTag) -> Unit,
-    onTagEditClick: (TransactionTag) -> Unit,
+    onTagClick: (Tag) -> Unit,
+    onTagEditClick: (Tag) -> Unit,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -935,7 +935,7 @@ private fun PreviewAllTransactionsScreen() {
             actions = object : AllTransactionsActions {
                 override fun onMonthSelect(month: Month) {}
                 override fun onYearSelect(year: Int) {}
-                override fun onTagClick(tag: TransactionTag) {}
+                override fun onTagClick(tag: Tag) {}
                 override fun onNewTagClick() {}
                 override fun onTagInputNameChange(value: String) {}
                 override fun onTagInputColorSelect(color: Color) {}
@@ -954,7 +954,7 @@ private fun PreviewAllTransactionsScreen() {
                 override fun onCreateNewFolderClick() {}
                 override fun onDeleteTransactionDismiss() {}
                 override fun onDeleteTransactionConfirm() {}
-                override fun onEditTagClick(tag: TransactionTag) {}
+                override fun onEditTagClick(tag: Tag) {}
                 override fun onDeleteTagClick() {}
                 override fun onDeleteTagDismiss() {}
                 override fun onDeleteTagConfirm() {}

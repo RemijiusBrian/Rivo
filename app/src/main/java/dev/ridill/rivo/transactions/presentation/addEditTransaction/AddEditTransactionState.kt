@@ -5,14 +5,14 @@ import dev.ridill.rivo.core.domain.util.CurrencyUtil
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 data class AddEditTransactionState(
     val currency: Currency = CurrencyUtil.default,
     val amountRecommendations: List<Long> = emptyList(),
-    val tagsList: List<TransactionTag> = emptyList(),
+    val tagsList: List<Tag> = emptyList(),
     val selectedTagId: Long? = null,
     val transactionTimestamp: LocalDateTime = DateUtil.now(),
     val transactionType: TransactionType = TransactionType.DEBIT,

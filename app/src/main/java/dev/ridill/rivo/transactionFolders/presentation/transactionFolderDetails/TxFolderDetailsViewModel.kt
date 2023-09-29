@@ -17,6 +17,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolderDetails
 import dev.ridill.rivo.transactionFolders.domain.repository.FolderDetailsRepository
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -227,11 +228,24 @@ class TxFolderDetailsViewModel @Inject constructor(
         savedStateHandle[IS_FOLDER_EXCLUDED] = excluded
     }
 
+    override fun onTransactionSwipeToDismiss(transaction: TransactionListItem) {
+        viewModelScope.launch {
+            repo.removeTransactionFromFolderById(transaction.id)
+            eventBus.send(TxFolderDetailsEvent.TransactionRemovedFromGroup(transaction))
+        }
+    }
+
+    fun onRemoveTransactionUndo(transaction: TransactionListItem) = viewModelScope.launch {
+        repo.addTransactionToFolder(transaction)
+    }
+
     sealed class TxFolderDetailsEvent {
         object NavigateUp : TxFolderDetailsEvent()
         data class ShowUiMessage(val uiText: UiText) : TxFolderDetailsEvent()
         object FolderDeleted : TxFolderDetailsEvent()
         data class NavigateUpWithFolderId(val folderId: Long) : TxFolderDetailsEvent()
+        data class TransactionRemovedFromGroup(val transaction: TransactionListItem) :
+            TxFolderDetailsEvent()
     }
 }
 

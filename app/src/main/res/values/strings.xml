@@ -71,6 +71,7 @@
     <string name="action_mark_excluded">Mark Excluded</string>
     <string name="action_ok">OK</string>
     <string name="action_skip">Skip</string>
+    <string name="action_undo">Undo</string>
 
     <!-- Texts -->
     <string name="welcome_flow_page_welcome_title">Welcome to\n%s</string>
@@ -245,4 +246,5 @@
     <string name="delete_folder_and_transactions">Delete Folder and Transactions</string>
     <string name="add_to_folder">Add to a folder</string>
     <string name="transaction_folder_indicator_label">Folder</string>
+    <string name="transaction_removed_from_folder">Transaction removed from folder</string>
 </resources>

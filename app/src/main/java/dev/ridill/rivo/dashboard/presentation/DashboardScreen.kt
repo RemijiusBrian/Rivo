@@ -74,7 +74,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -443,7 +443,7 @@ private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,
-    tag: TransactionTag?,
+    tag: Tag?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

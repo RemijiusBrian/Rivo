@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
@@ -31,11 +30,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.transactions.domain.model.TransactionTag
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
 
@@ -44,7 +42,7 @@ fun TransactionListItem(
     note: String,
     amount: String,
     date: LocalDate,
-    tag: TransactionTag?,
+    tag: Tag?,
     modifier: Modifier = Modifier,
     type: TransactionType? = null,
     overlineContent: @Composable (() -> Unit)? = null,
@@ -153,7 +151,7 @@ private fun TagIndicator(
     }
 }
 
-@Composable
+/*@Composable
 fun ExcludedIndicator(
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current
@@ -164,6 +162,6 @@ fun ExcludedIndicator(
         .size(SmallIndicatorSize)
         .then(modifier),
     tint = tint
-)
+)*/
 
 private val SmallIndicatorSize = 12.dp
