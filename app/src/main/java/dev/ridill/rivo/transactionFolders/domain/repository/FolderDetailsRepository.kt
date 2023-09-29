@@ -1,9 +1,9 @@
 package dev.ridill.rivo.transactionFolders.domain.repository
 
+import androidx.paging.PagingData
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolderDetails
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface FolderDetailsRepository {
@@ -17,6 +17,9 @@ interface FolderDetailsRepository {
         excluded: Boolean
     ): Long
 
-    fun getTransactionsInFolder(folderId: Long): Flow<Map<LocalDate, List<TransactionListItem>>>
+    fun getPagedTransactionsInFolder(
+        folderId: Long
+    ): Flow<PagingData<TransactionListItemUiModel>>
+
     suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: List<Long>)
 }

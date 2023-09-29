@@ -1,0 +1,8 @@
+package dev.ridill.rivo.transactions.domain.model
+
+import java.time.LocalDate
+
+sealed class TransactionListItemUiModel {
+    data class TransactionItem(val transaction: Transaction) : TransactionListItemUiModel()
+    data class DateSeparator(val date: LocalDate) : TransactionListItemUiModel()
+}

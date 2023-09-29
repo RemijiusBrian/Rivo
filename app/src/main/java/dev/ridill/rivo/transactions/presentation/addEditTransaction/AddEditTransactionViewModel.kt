@@ -163,7 +163,7 @@ class AddEditTransactionViewModel @Inject constructor(
             ?: Transaction.DEFAULT
         savedStateHandle[AMOUNT_INPUT] = transaction.amount
         savedStateHandle[NOTE_INPUT] = transaction.note
-        savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.createdTimestamp
+        savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.timestamp
         savedStateHandle[TRANSACTION_TYPE] = transaction.type
         savedStateHandle[SELECTED_TAG_ID] = transaction.tagId
         savedStateHandle[IS_TRANSACTION_EXCLUDED] = transaction.excluded

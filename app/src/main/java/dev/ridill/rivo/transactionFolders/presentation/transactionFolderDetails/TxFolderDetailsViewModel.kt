@@ -67,8 +67,8 @@ class TxFolderDetailsViewModel @Inject constructor(
 
     private val editModeActive = savedStateHandle.getStateFlow(EDIT_MODE_ACTIVE, false)
 
-    private val transactions = folderIdFlow.flatMapLatest {
-        repo.getTransactionsInFolder(it)
+    val pager = folderIdFlow.flatMapLatest {
+        repo.getPagedTransactionsInFolder(it)
     }
 
     val state = combineTuple(
@@ -81,7 +81,6 @@ class TxFolderDetailsViewModel @Inject constructor(
         currency,
         aggregateAmount,
         aggregateType,
-        transactions
     ).map { (
                 folderId,
                 isNewFolder,
@@ -92,7 +91,6 @@ class TxFolderDetailsViewModel @Inject constructor(
                 currency,
                 aggregateAmount,
                 aggregateType,
-                transactions
             ) ->
         TxFolderDetailsState(
             folderId = folderId,
@@ -103,8 +101,7 @@ class TxFolderDetailsViewModel @Inject constructor(
             isExcluded = isFolderExcluded,
             currency = currency,
             aggregateAmount = aggregateAmount,
-            aggregateType = aggregateType,
-            transactions = transactions
+            aggregateType = aggregateType
         )
     }.asStateFlow(viewModelScope, TxFolderDetailsState())
 

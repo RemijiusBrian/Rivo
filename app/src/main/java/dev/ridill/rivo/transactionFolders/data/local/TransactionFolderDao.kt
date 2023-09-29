@@ -1,11 +1,13 @@
 package dev.ridill.rivo.transactionFolders.data.local
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
 import dev.ridill.rivo.transactionFolders.data.local.relation.FolderAndAggregateAmount
+import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -37,6 +39,16 @@ interface TransactionFolderDao : BaseDao<TransactionFolderEntity> {
     """
     )
     fun getFolderWithAggregateExpenditureById(id: Long): Flow<FolderAndAggregateAmount?>
+
+    @Query(
+        """
+        SELECT *
+        FROM transaction_table
+        WHERE folder_id = :folderId
+        ORDER BY datetime(timestamp) DESC, id DESC, is_excluded ASC
+    """
+    )
+    fun getPagedTransactionsInFolder(folderId: Long): PagingSource<Int, TransactionEntity>
 
     @Query("SELECT * FROM transaction_folder_table WHERE name LIKE '%' || :query || '%'")
     fun getFoldersList(query: String): Flow<List<TransactionFolderEntity>>

@@ -17,6 +17,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
@@ -96,6 +97,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
         val viewModel: TxFolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val transactionsLazyPagingItems = viewModel.pager.collectAsLazyPagingItems()
         val nameInput = viewModel.folderNameInput.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
@@ -134,6 +136,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
 
         TxFolderDetailsScreen(
             snackbarController = snackbarController,
+            transactionsLazyPagingItems = transactionsLazyPagingItems,
             state = state,
             folderName = { nameInput.value },
             actions = viewModel,

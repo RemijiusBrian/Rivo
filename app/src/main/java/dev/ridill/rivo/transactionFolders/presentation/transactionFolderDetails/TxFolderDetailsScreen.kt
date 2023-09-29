@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -52,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
@@ -71,7 +71,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -82,6 +82,7 @@ import kotlin.math.absoluteValue
 fun TxFolderDetailsScreen(
     snackbarController: SnackbarController,
     state: TxFolderDetailsState,
+    transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUiModel>,
     folderName: () -> String,
     actions: TxFolderDetailsActions,
     navigateToAddEditTransaction: (Long?) -> Unit,
@@ -184,19 +185,19 @@ fun TxFolderDetailsScreen(
                     currency = state.currency,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,
-                    transactionsMap = state.transactions,
                     onTransactionClick = { navigateToAddEditTransaction(it) },
                     onNewTransactionClick = { navigateToAddEditTransaction(null) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(Float.One),
-                    insetPadding = paddingValues
+                    insetPadding = paddingValues,
+                    pagingItems = transactionsLazyPagingItems
                 )
             }
         }
 
         if (state.showDeleteConfirmation) {
-            if (state.transactions.isEmpty()) {
+            if (transactionsLazyPagingItems.itemCount == 0) {
                 ConfirmationDialog(
                     titleRes = R.string.delete_transaction_folder_confirmation_title,
                     contentRes = R.string.action_irreversible_message,
@@ -296,17 +297,17 @@ private fun TransactionsInFolder(
     currency: Currency,
     aggregateAmount: Double,
     aggregateType: TransactionType?,
-    transactionsMap: Map<LocalDate, List<TransactionListItem>>,
     onTransactionClick: (Long) -> Unit,
     onNewTransactionClick: () -> Unit,
     modifier: Modifier = Modifier,
-    insetPadding: PaddingValues = PaddingValues()
+    insetPadding: PaddingValues = PaddingValues(),
+    pagingItems: LazyPagingItems<TransactionListItemUiModel>
 ) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        if (transactionsMap.isEmpty()) {
+        if (pagingItems.itemCount == 0) {
             EmptyListIndicator(
                 resId = R.raw.lottie_empty_list_ghost
             )
@@ -356,29 +357,40 @@ private fun TransactionsInFolder(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
-                transactionsMap.forEach { (date, transactions) ->
-                    stickyHeader(key = date.toString()) {
-                        TransactionDateHeader(
-                            date = date,
-                            modifier = Modifier
-                                .animateItemPlacement()
-                        )
-                    }
+                repeat(pagingItems.itemCount) { index ->
+                    pagingItems[index]?.let { item ->
+                        when (item) {
+                            is TransactionListItemUiModel.DateSeparator -> {
+                                stickyHeader(
+                                    key = item.date.toString(),
+                                    contentType = "TransactionDateSeparator"
+                                ) {
+                                    TransactionDateHeader(
+                                        date = item.date,
+                                        modifier = Modifier
+                                            .animateItemPlacement()
+                                    )
+                                }
+                            }
 
-                    items(items = transactions, key = { it.id }) { transaction ->
-                        TransactionCard(
-                            note = transaction.note,
-                            amount = TextFormat.compactNumber(
-                                value = transaction.amount,
-                                currency = currency
-                            ),
-                            date = transaction.date,
-                            type = transaction.type,
-                            tag = transaction.tag,
-                            onClick = { onTransactionClick(transaction.id) },
-                            modifier = Modifier
-                                .animateItemPlacement()
-                        )
+                            is TransactionListItemUiModel.TransactionItem -> {
+                                item(
+                                    key = item.transaction.id,
+                                    contentType = "TransactionListItem"
+                                ) {
+                                    TransactionCard(
+                                        note = item.transaction.note,
+                                        amount = item.transaction.amount,
+                                        date = item.transaction.timestamp.toLocalDate(),
+                                        type = item.transaction.type,
+                                        tag = null,
+                                        onClick = { onTransactionClick(item.transaction.id) },
+                                        modifier = Modifier
+                                            .animateItemPlacement()
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
