@@ -79,7 +79,10 @@ class BackupRepositoryImpl(
 
             backupService.clearLocalCache()
 
-            Resource.Success(Unit)
+            Resource.Success(
+                data = Unit,
+                message = UiText.StringResource(R.string.backup_complete)
+            )
         } catch (t: BackupCachingFailedThrowable) {
             logE(t)
             Resource.Error(UiText.StringResource(R.string.error_backup_creation_failed))

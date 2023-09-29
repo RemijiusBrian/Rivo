@@ -8,6 +8,6 @@ sealed class Resource<T>(
     val data: T? = null,
     val message: UiText? = null
 ) {
-    class Success<T>(data: T) : Resource<T>(data)
+    class Success<T>(data: T, message: UiText? = null) : Resource<T>(data, message)
     class Error<T>(message: UiText) : Resource<T>(null, message)
 }

@@ -10,7 +10,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
@@ -28,19 +27,17 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         startForegroundService()
         when (val resource = repo.performAppDataBackup()) {
             is Resource.Error -> {
-                val message = resource.message?.asString(appContext)
                 Result.failure(
                     workDataOf(
-                        BackupWorkManager.KEY_MESSAGE to message
+                        BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
                     )
                 )
             }
 
             is Resource.Success -> {
-                val message = UiText.StringResource(R.string.backup_complete).asString(appContext)
                 Result.success(
                     workDataOf(
-                        BackupWorkManager.KEY_MESSAGE to message
+                        BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
                     )
                 )
             }
