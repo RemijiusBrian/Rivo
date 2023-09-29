@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -60,10 +58,6 @@ fun TransactionListItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                /*if (excluded) {
-                    ExcludedIndicator()
-                    SpacerSmall()
-                }*/
                 Text(
                     text = note,
                     maxLines = 2,
@@ -85,10 +79,7 @@ fun TransactionListItem(
                 )
                 type?.let {
                     Icon(
-                        imageVector = when (it) {
-                            TransactionType.CREDIT -> Icons.Rounded.ArrowDownward
-                            TransactionType.DEBIT -> Icons.Rounded.ArrowUpward
-                        },
+                        imageVector = it.directionIcon,
                         contentDescription = stringResource(it.labelRes),
                     )
                 }

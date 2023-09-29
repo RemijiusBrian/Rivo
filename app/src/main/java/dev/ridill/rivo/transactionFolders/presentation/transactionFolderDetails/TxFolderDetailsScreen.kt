@@ -381,9 +381,8 @@ private fun TransactionsInFolder(
                                 ) {
                                     TransactionCard(
                                         note = item.transaction.note,
-                                        amount = item.transaction.amountFormattedWithCurrency(
-                                            currency
-                                        ),
+                                        amount = item.transaction
+                                            .amountFormattedWithCurrency(currency),
                                         date = item.transaction.date,
                                         type = item.transaction.type,
                                         tag = item.transaction.tag,
@@ -473,8 +472,8 @@ private fun TransactionCard(
     note: String,
     amount: String,
     date: LocalDate,
-    tag: TransactionTag?,
     type: TransactionType,
+    tag: TransactionTag?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -486,8 +485,8 @@ private fun TransactionCard(
             note = note,
             amount = amount,
             date = date,
-            tag = tag,
-            type = type
+            type = type,
+            tag = tag
         )
     }
 }

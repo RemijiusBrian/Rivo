@@ -152,6 +152,7 @@ fun TxFoldersListScreen(
                                 listMode = state.listMode,
                                 name = folder.name,
                                 created = folder.createdDateFormatted,
+                                excluded = folder.excluded,
                                 aggregateDirection = folder.aggregateType,
                                 aggregateAmount = TextFormat.compactNumber(
                                     value = folder.aggregateAmount.absoluteValue,
@@ -174,6 +175,7 @@ private fun FolderCard(
     listMode: ListMode,
     name: String,
     created: String,
+    excluded: Boolean,
     aggregateAmount: String,
     aggregateDirection: TransactionType?,
     onClick: () -> Unit,
@@ -209,7 +211,9 @@ private fun FolderCard(
                                 text = name,
                                 style = nameStyle,
                                 maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                textDecoration = if (excluded) TextDecoration.LineThrough
+                                else null
                             )
 
                             Text(
@@ -236,7 +240,9 @@ private fun FolderCard(
                             text = name,
                             style = nameStyle,
                             maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            textDecoration = if (excluded) TextDecoration.LineThrough
+                            else null
                         )
 
                         Text(
@@ -274,6 +280,14 @@ private fun AggregateAmountText(
     Row(
         modifier = modifier,
     ) {
+        type?.let {
+            Icon(
+                imageVector = it.directionIcon,
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+            )
+        }
         Text(
             text = amount,
             style = MaterialTheme.typography.displaySmall,
