@@ -1,5 +1,6 @@
 package dev.ridill.rivo.transactionFolders.data.local
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -22,7 +23,7 @@ interface TransactionFolderDao : BaseDao<TransactionFolderEntity> {
         ORDER BY datetime(createdTimestamp) DESC, id DESC
     """
     )
-    fun getFoldersWithAggregateExpenditure(): Flow<List<FolderAndAggregateAmount>>
+    fun getFoldersWithAggregateExpenditure(): PagingSource<Int, FolderAndAggregateAmount>
 
     @Transaction
     @Query(

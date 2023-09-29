@@ -23,21 +23,18 @@ class TxFoldersListViewModel @Inject constructor(
         .distinctUntilChanged()
     private val listMode = repo.getFoldersListMode()
         .distinctUntilChanged()
-    private val folderList = repo.getFoldersWithAggregateList()
+    val folderListPagingData = repo.getFoldersWithAggregateList()
 
     val state = combineTuple(
         currency,
-        listMode,
-        folderList
+        listMode
     ).map { (
                 currency,
-                listMode,
-                folderList
+                listMode
             ) ->
         TxFoldersListState(
             currency = currency,
-            listMode = listMode,
-            foldersList = folderList
+            listMode = listMode
         )
     }.asStateFlow(viewModelScope, TxFoldersListState())
 

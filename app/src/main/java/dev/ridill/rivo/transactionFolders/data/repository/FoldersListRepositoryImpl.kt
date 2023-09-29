@@ -1,6 +1,11 @@
 package dev.ridill.rivo.transactionFolders.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import dev.ridill.rivo.core.domain.model.ListMode
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
@@ -21,14 +26,15 @@ class FoldersListRepositoryImpl(
     private val folderDao: TransactionFolderDao,
     private val configDao: ConfigDao
 ) : FoldersListRepository {
-    override fun getFoldersWithAggregateList(): Flow<List<TransactionFolderDetails>> =
-        folderDao.getFoldersWithAggregateExpenditure()
-            .map { entities ->
-                entities.map(FolderAndAggregateAmount::toTransactionFolderDetails)
-            }
+    override fun getFoldersWithAggregateList(): Flow<PagingData<TransactionFolderDetails>> =
+        Pager(
+            config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
+        ) { folderDao.getFoldersWithAggregateExpenditure() }
+            .flow
+            .map { it.map(FolderAndAggregateAmount::toTransactionFolderDetails) }
 
     override fun getFoldersListMode(): Flow<ListMode> = configDao
-        .getTansactionFolderssListMode().map {
+        .getTansactionFoldersListMode().map {
             ListMode.valueOf(
                 it ?: ListMode.GRID.name
             )

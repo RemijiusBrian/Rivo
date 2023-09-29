@@ -71,6 +71,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
 import dev.ridill.rivo.transactions.domain.model.TransactionTag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -307,7 +308,7 @@ private fun TransactionsInFolder(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        if (pagingItems.itemCount == 0) {
+        if (pagingItems.isEmpty()) {
             EmptyListIndicator(
                 resId = R.raw.lottie_empty_list_ghost
             )

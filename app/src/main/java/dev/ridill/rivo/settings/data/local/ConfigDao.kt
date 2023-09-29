@@ -18,5 +18,5 @@ interface ConfigDao : BaseDao<ConfigEntity> {
     suspend fun getBackupInterval(): String?
 
     @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.TRANSACTION_FOLDERS_LIST_MODE}'")
-    fun getTansactionFolderssListMode(): Flow<String?>
+    fun getTansactionFoldersListMode(): Flow<String?>
 }

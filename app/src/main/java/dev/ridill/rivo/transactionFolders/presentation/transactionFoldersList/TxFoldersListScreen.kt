@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.ViewList
@@ -37,6 +36,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.ListMode
 import dev.ridill.rivo.core.domain.util.One
@@ -50,12 +52,16 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.isEmpty
+import dev.ridill.rivo.core.ui.util.isNotEmpty
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolderDetails
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
 
 @Composable
 fun TxFoldersListScreen(
     snackbarController: SnackbarController,
+    foldersList: LazyPagingItems<TransactionFolderDetails>,
     state: TxFoldersListState,
     actions: TxFoldersListActions,
     navigateToFolderDetails: (Long?) -> Unit,
@@ -69,7 +75,7 @@ fun TxFoldersListScreen(
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 scrollBehavior = topAppBarScrollBehavior,
                 actions = {
-                    if (state.foldersList.isNotEmpty()) {
+                    if (foldersList.isNotEmpty()) {
                         IconButton(onClick = actions::onListModeToggle) {
                             Crossfade(
                                 targetState = state.listMode,
@@ -114,7 +120,7 @@ fun TxFoldersListScreen(
             Box(
                 contentAlignment = Alignment.Center
             ) {
-                if (state.foldersList.isEmpty()) {
+                if (foldersList.isEmpty()) {
                     EmptyListIndicator(
                         resId = R.raw.lottie_empty_list_ghost,
                         messageRes = R.string.transaction_folders_list_empty_message
@@ -136,20 +142,26 @@ fun TxFoldersListScreen(
                     horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
                     verticalArrangement = Arrangement.spacedBy(SpacingMedium)
                 ) {
-                    items(items = state.foldersList, key = { it.id }) { folder ->
-                        FolderCard(
-                            listMode = state.listMode,
-                            name = folder.name,
-                            created = folder.createdDateFormatted,
-                            aggregateDirection = folder.aggregateType,
-                            aggregateAmount = TextFormat.compactNumber(
-                                value = folder.aggregateAmount.absoluteValue,
-                                currency = state.currency
-                            ),
-                            onClick = { navigateToFolderDetails(folder.id) },
-                            modifier = Modifier
-                                .animateItemPlacement()
-                        )
+                    items(
+                        count = foldersList.itemCount,
+                        key = foldersList.itemKey { it.id },
+                        contentType = foldersList.itemContentType { "FolderListItem" }
+                    ) { index ->
+                        foldersList[index]?.let { folder ->
+                            FolderCard(
+                                listMode = state.listMode,
+                                name = folder.name,
+                                created = folder.createdDateFormatted,
+                                aggregateDirection = folder.aggregateType,
+                                aggregateAmount = TextFormat.compactNumber(
+                                    value = folder.aggregateAmount.absoluteValue,
+                                    currency = state.currency
+                                ),
+                                onClick = { navigateToFolderDetails(folder.id) },
+                                modifier = Modifier
+                                    .animateItemPlacement()
+                            )
+                        }
                     }
                 }
             }
