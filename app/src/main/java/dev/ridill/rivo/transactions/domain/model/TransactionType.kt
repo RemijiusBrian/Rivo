@@ -11,6 +11,6 @@ enum class TransactionType(
     @StringRes val labelRes: Int,
     val directionIcon: ImageVector
 ) {
-    CREDIT(R.string.transaction_type_label_credit, Icons.Default.ArrowUpward),
-    DEBIT(R.string.transaction_type_label_debit, Icons.Default.ArrowDownward)
+    CREDIT(R.string.transaction_type_label_credit, Icons.Default.ArrowDownward),
+    DEBIT(R.string.transaction_type_label_debit, Icons.Default.ArrowUpward)
 }
