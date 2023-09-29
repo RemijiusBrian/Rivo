@@ -356,10 +356,7 @@ private fun SpendsOverview(
                     items(items = recentSpends, key = { it.id }) { transaction ->
                         RecentSpendCard(
                             note = transaction.note,
-                            amount = TextFormat.compactNumber(
-                                value = transaction.amount,
-                                currency = currency
-                            ),
+                            amount = transaction.amountFormattedWithCurrency(currency),
                             date = transaction.date,
                             tag = transaction.tag,
                             onClick = { onTransactionClick(transaction) },

@@ -731,10 +731,7 @@ private fun TransactionsList(
                 items(items = transactionsList, key = { it.id }) { transaction ->
                     TransactionCard(
                         note = transaction.note,
-                        amount = TextFormat.compactNumber(
-                            value = transaction.amount,
-                            currency = currency
-                        ),
+                        amount = transaction.amountFormattedWithCurrency(currency),
                         date = transaction.date,
                         type = transaction.type,
                         selected = transaction.id in selectedTransactionIds,

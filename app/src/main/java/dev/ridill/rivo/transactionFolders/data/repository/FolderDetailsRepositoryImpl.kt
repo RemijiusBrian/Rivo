@@ -5,14 +5,15 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.transactionFolders.data.local.TransactionFolderDao
 import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
 import dev.ridill.rivo.transactionFolders.data.toTransactionFolderDetails
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolderDetails
-import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
 import dev.ridill.rivo.transactionFolders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.toTransaction
+import dev.ridill.rivo.transactions.data.toTransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -45,11 +46,11 @@ class FolderDetailsRepositoryImpl(
     override fun getPagedTransactionsInFolder(
         folderId: Long
     ): Flow<PagingData<TransactionListItemUiModel>> = Pager(
-        config = PagingConfig(pageSize = 5)
-    ) { dao.getPagedTransactionsInFolder(folderId) }
+        config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
+    ) { transactionDao.getTransactionsListPaginated(folderId = folderId) }
         .flow
         .map { pagingData ->
-            pagingData.map { it.toTransaction() }
+            pagingData.map { it.toTransactionListItem() }
         }
         .map { pagingData ->
             pagingData.map { TransactionListItemUiModel.TransactionItem(it) }
@@ -57,15 +58,13 @@ class FolderDetailsRepositoryImpl(
         .map {
             it.insertSeparators<TransactionListItemUiModel.TransactionItem, TransactionListItemUiModel>
             { before, after ->
-                if (before?.transaction?.timestamp
+                if (before?.transaction?.date
                         ?.withDayOfMonth(1)
-                        ?.toLocalDate()
-                    != after?.transaction?.timestamp
+                    != after?.transaction?.date
                         ?.withDayOfMonth(1)
-                        ?.toLocalDate()
-                ) after?.transaction?.timestamp
+                ) after?.transaction?.date
                     ?.withDayOfMonth(1)
-                    ?.toLocalDate()?.let { localDate ->
+                    ?.let { localDate ->
                         TransactionListItemUiModel.DateSeparator(localDate)
                     } else null
             }

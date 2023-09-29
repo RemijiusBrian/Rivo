@@ -93,7 +93,7 @@ fun TxFolderDetailsScreen(
         onBack = actions::onEditDismiss
     )
 
-    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     RivoScaffold(
         topBar = {
             TopAppBar(
@@ -380,10 +380,12 @@ private fun TransactionsInFolder(
                                 ) {
                                     TransactionCard(
                                         note = item.transaction.note,
-                                        amount = item.transaction.amount,
-                                        date = item.transaction.timestamp.toLocalDate(),
+                                        amount = item.transaction.amountFormattedWithCurrency(
+                                            currency
+                                        ),
+                                        date = item.transaction.date,
                                         type = item.transaction.type,
-                                        tag = null,
+                                        tag = item.transaction.tag,
                                         onClick = { onTransactionClick(item.transaction.id) },
                                         modifier = Modifier
                                             .animateItemPlacement()

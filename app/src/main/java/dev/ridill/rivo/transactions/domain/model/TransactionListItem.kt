@@ -1,5 +1,7 @@
 package dev.ridill.rivo.transactions.domain.model
 
+import android.icu.util.Currency
+import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import java.time.LocalDate
 
@@ -12,4 +14,9 @@ data class TransactionListItem(
     val tag: TransactionTag?,
     val folder: TransactionFolder?,
     val excluded: Boolean
-)
+) {
+    fun amountFormattedWithCurrency(currency: Currency): String = TextFormat.compactNumber(
+        value = amount,
+        currency = currency
+    )
+}
