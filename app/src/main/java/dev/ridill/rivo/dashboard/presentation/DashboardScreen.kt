@@ -47,6 +47,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,7 +63,6 @@ import dev.ridill.rivo.core.ui.components.FadedVisibility
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
@@ -76,6 +78,7 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.folders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -122,7 +125,7 @@ fun DashboardScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.cd_new_transaction)
+                            contentDescription = stringResource(R.string.cd_new_transaction_fab)
                         )
                     }
                 }
@@ -145,7 +148,7 @@ fun DashboardScreen(
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
-                monthlyLimit = state.monthlyBudget,
+                budget = state.monthlyBudget,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -211,11 +214,20 @@ private fun Greeting(
 private fun BalanceAndBudget(
     currency: Currency,
     balance: Double,
-    monthlyLimit: Long,
+    budget: Long,
     modifier: Modifier = Modifier
 ) {
+    val balanceAndBudgetContentDescription = stringResource(
+        R.string.cd_balance_and_budget_amounts,
+        TextFormat.currency(balance, currency),
+        TextFormat.currency(budget, currency)
+    )
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .semantics(mergeDescendants = true) {}
+            .clearAndSetSemantics {
+                contentDescription = balanceAndBudgetContentDescription
+            },
         verticalAlignment = Alignment.Bottom
     ) {
         Balance(
@@ -226,7 +238,7 @@ private fun BalanceAndBudget(
         )
         SpacerSmall()
         VerticalNumberSpinnerContent(
-            number = monthlyLimit,
+            number = budget,
             modifier = Modifier
                 .alignBy(LastBaseline)
         ) {
@@ -359,6 +371,7 @@ private fun SpendsOverview(
                             note = transaction.note,
                             amount = transaction.amountFormattedWithCurrency(currency),
                             date = transaction.date,
+                            type = transaction.type,
                             tag = transaction.tag,
                             folder = transaction.folder,
                             onClick = { onTransactionClick(transaction) },
@@ -398,37 +411,48 @@ private fun SpentAmountAndAllTransactionsButton(
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
+    val spentAmountContentDescription = stringResource(
+        R.string.cd_new_transaction_fab,
+        TextFormat.currency(amount, currency)
+    )
     Row(
         modifier = modifier
     ) {
-        VerticalNumberSpinnerContent(
-            number = amount,
+        Row(
             modifier = Modifier
-                .alignByBaseline()
+                .weight(Float.One)
+                .semantics(mergeDescendants = true) {}
+                .clearAndSetSemantics {
+                    contentDescription = spentAmountContentDescription
+                }
         ) {
+            VerticalNumberSpinnerContent(
+                number = amount,
+                modifier = Modifier
+                    .alignByBaseline()
+            ) {
+                Text(
+                    text = TextFormat.currency(amount = it, currency = currency),
+                    style = MaterialTheme.typography.headlineMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = contentColor
+                )
+            }
+
+            SpacerSmall()
+
             Text(
-                text = TextFormat.currency(amount = it, currency = currency),
-                style = MaterialTheme.typography.headlineMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = contentColor
+                text = stringResource(R.string.spent_this_month),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .alignByBaseline(),
+                color = contentColor.copy(
+                    alpha = 0.80f
+                ),
+                fontWeight = FontWeight.Normal
             )
         }
-
-        SpacerSmall()
-
-        Text(
-            text = stringResource(R.string.spent_this_month),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier
-                .alignByBaseline(),
-            color = contentColor.copy(
-                alpha = 0.80f
-            ),
-            fontWeight = FontWeight.Normal
-        )
-
-        Spacer(weight = Float.One)
 
         TextButton(
             onClick = onAllTransactionsClick,
@@ -445,6 +469,7 @@ private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,
+    type: TransactionType,
     tag: Tag?,
     folder: TransactionFolder?,
     onClick: () -> Unit,
@@ -458,7 +483,7 @@ private fun RecentSpendCard(
             note = note,
             amount = amount,
             date = date,
-            type = null,
+            type = type,
             tag = tag,
             folder = folder
         )

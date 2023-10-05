@@ -350,7 +350,7 @@ private fun TransactionsInFolder(
                 FilledTonalIconButton(onClick = onNewTransactionClick) {
                     Icon(
                         imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.cd_new_transaction)
+                        contentDescription = stringResource(R.string.cd_new_transaction_fab)
                     )
                 }
             }

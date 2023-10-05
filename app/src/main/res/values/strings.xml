@@ -21,8 +21,13 @@
     <string name="notification_channel_backups_name">Data backup</string>
 
     <!-- Content Description -->
-    <string name="cd_set_monthly_budget">Set Monthly Budget</string>
-    <string name="cd_new_transaction">New Transaction</string>
+    <string name="cd_balance_and_budget_amounts">You have a balance of %s from your budget of %s</string>
+    <string name="cd_recent_spent_amount">You have spent %s this month</string>
+    <string name="cd_transaction_list_item_debit">You have spent %s with note %s on %s</string>
+    <string name="cd_transaction_list_item_credit">You have received %s with note %s on %s</string>
+    <string name="cd_transaction_list_item_folder_append">part of %s folder</string>
+    <string name="cd_transaction_list_item_tag_append">tagged as %s</string>
+    <string name="cd_new_transaction_fab">Add new transaction</string>
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_save">Save</string>
     <string name="cd_delete">Delete</string>

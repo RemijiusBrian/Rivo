@@ -26,6 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -34,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -47,8 +51,9 @@ fun TransactionListItem(
     note: String,
     amount: String,
     date: LocalDate,
+    type: TransactionType,
     modifier: Modifier = Modifier,
-    type: TransactionType? = null,
+    showTypeIndicator: Boolean = false,
     tag: Tag? = null,
     folder: TransactionFolder? = null,
     overlineContent: @Composable (() -> Unit)? = null,
@@ -57,6 +62,29 @@ fun TransactionListItem(
     shadowElevation: Dp = ListItemDefaults.Elevation,
     excluded: Boolean = false
 ) {
+    val transactionListItemContentDescription = buildString {
+        append(
+            stringResource(
+                when (type) {
+                    TransactionType.CREDIT -> R.string.cd_transaction_list_item_credit
+                    TransactionType.DEBIT -> R.string.cd_transaction_list_item_debit
+                },
+                amount,
+                note,
+                date.format(DateUtil.Formatters.localizedDateLong)
+            )
+        )
+
+        folder?.let {
+            append(String.WhiteSpace)
+            append(stringResource(R.string.cd_transaction_list_item_folder_append, it.name))
+        }
+
+        tag?.let {
+            append(String.WhiteSpace)
+            append(stringResource(R.string.cd_transaction_list_item_tag_append, it.name))
+        }
+    }
     ListItem(
         headlineContent = {
             Row(
@@ -81,10 +109,10 @@ fun TransactionListItem(
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
-                type?.let {
+                if (showTypeIndicator) {
                     Icon(
-                        imageVector = it.directionIcon,
-                        contentDescription = stringResource(it.labelRes),
+                        imageVector = type.directionIcon,
+                        contentDescription = stringResource(type.labelRes),
                     )
                 }
             }
@@ -99,7 +127,11 @@ fun TransactionListItem(
             }
         },
         overlineContent = overlineContent,
-        modifier = modifier,
+        modifier = modifier
+            .semantics(mergeDescendants = true) {}
+            .clearAndSetSemantics {
+                contentDescription = transactionListItemContentDescription
+            },
         colors = colors,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
