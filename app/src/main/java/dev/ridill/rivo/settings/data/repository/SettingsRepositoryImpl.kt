@@ -1,7 +1,7 @@
 package dev.ridill.rivo.settings.data.repository
 
 import android.icu.util.Currency
-import dev.ridill.rivo.core.domain.util.CurrencyUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
@@ -33,8 +33,8 @@ class SettingsRepositoryImpl(
 
     override fun getCurrencyPreference(): Flow<Currency> = dao.getCurrencyCode()
         .map { code ->
-            code?.let { CurrencyUtil.currencyForCode(it) }
-                ?: CurrencyUtil.default
+            code?.let { LocaleUtil.currencyForCode(it) }
+                ?: LocaleUtil.defaultCurrency
         }
 
     override suspend fun updateCurrencyCode(code: String) {

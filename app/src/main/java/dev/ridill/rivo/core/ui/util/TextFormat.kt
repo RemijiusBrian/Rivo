@@ -4,15 +4,15 @@ import android.icu.text.CompactDecimalFormat
 import android.icu.text.CompactDecimalFormat.CompactStyle
 import android.icu.text.NumberFormat
 import android.icu.util.Currency
-import dev.ridill.rivo.core.domain.util.CurrencyUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import java.util.Locale
 
 object TextFormat {
     fun currency(
         amount: Double,
+        currency: Currency = LocaleUtil.defaultCurrency,
         locale: Locale = Locale.getDefault(),
-        currency: Currency = CurrencyUtil.default,
         maxFractionDigits: Int = currency.defaultFractionDigits,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
     ): String = NumberFormat.getCurrencyInstance(locale)
@@ -25,8 +25,8 @@ object TextFormat {
 
     fun currency(
         amount: Long,
+        currency: Currency = LocaleUtil.defaultCurrency,
         locale: Locale = Locale.getDefault(),
-        currency: Currency = CurrencyUtil.default,
         maxFractionDigits: Int = currency.defaultFractionDigits,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
     ): String = NumberFormat.getCurrencyInstance(locale)
@@ -60,7 +60,7 @@ object TextFormat {
     fun compactNumber(
         value: Double,
         locale: Locale = Locale.getDefault(),
-        currency: Currency = CurrencyUtil.default,
+        currency: Currency = LocaleUtil.defaultCurrency,
         compactStyle: CompactStyle = CompactStyle.SHORT,
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,

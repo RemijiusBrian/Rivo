@@ -24,8 +24,8 @@ data class TransactionListItem(
                 || tag?.excluded == true
                 || folder?.excluded == true
 
-    fun amountFormattedWithCurrency(currency: Currency): String = TextFormat.compactNumber(
-        value = amount,
+    fun amountFormattedWithCurrency(currency: Currency): String = TextFormat.currency(
+        amount = amount,
         currency = currency
     )
 }

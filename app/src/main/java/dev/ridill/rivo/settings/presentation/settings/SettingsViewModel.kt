@@ -7,7 +7,7 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.util.CurrencyUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.UtilConstants
@@ -60,7 +60,7 @@ class SettingsViewModel @Inject constructor(
     private val currencyList = currencySearchQuery
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .map { query ->
-            CurrencyUtil.currencyList.filter { currency ->
+            LocaleUtil.currencyList.filter { currency ->
                 query.isEmpty()
                         || currency.displayName.contains(query, true)
                         || currency.currencyCode.contains(query, true)

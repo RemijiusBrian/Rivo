@@ -1,7 +1,7 @@
 package dev.ridill.rivo.settings.presentation.settings
 
 import android.icu.util.Currency
-import dev.ridill.rivo.core.domain.util.CurrencyUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 
@@ -12,7 +12,7 @@ data class SettingsState(
     val currentMonthlyBudget: String = "",
     val showBudgetInput: Boolean = false,
     val budgetInputError: UiText? = null,
-    val currentCurrency: Currency = CurrencyUtil.default,
+    val currentCurrency: Currency = LocaleUtil.defaultCurrency,
     val showCurrencySelection: Boolean = false,
     val currencyList: List<Currency> = emptyList(),
     val autoAddTransactionEnabled: Boolean = false,
