@@ -248,7 +248,7 @@ fun AllTransactionsScreen(
                 title = stringResource(R.string.delete_tag_confirmation_title, tagNameInput()),
                 text = stringResource(R.string.action_irreversible_message),
                 primaryActionLabelRes = R.string.delete_tag,
-                onPrimaryActionClick = actions::onDeleteTagClick,
+                onPrimaryActionClick = actions::onDeleteTagConfirm,
                 secondaryActionLabelRes = R.string.delete_tag_with_transactions,
                 onSecondaryActionClick = actions::onDeleteTagWithTransactionsClick,
                 onDismiss = actions::onDeleteTagDismiss
