@@ -60,22 +60,25 @@ import dev.ridill.rivo.core.ui.components.FadedVisibility
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -122,7 +125,7 @@ fun DashboardScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.cd_new_transaction)
+                            contentDescription = stringResource(R.string.cd_new_transaction_fab)
                         )
                     }
                 }
@@ -145,7 +148,7 @@ fun DashboardScreen(
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
-                monthlyLimit = state.monthlyBudget,
+                budget = state.monthlyBudget,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -211,22 +214,29 @@ private fun Greeting(
 private fun BalanceAndBudget(
     currency: Currency,
     balance: Double,
-    monthlyLimit: Long,
+    budget: Long,
     modifier: Modifier = Modifier
 ) {
+    val balanceAndBudgetContentDescription = stringResource(
+        R.string.cd_balance_and_budget_amounts,
+        TextFormat.currency(balance, currency),
+        TextFormat.currency(budget, currency)
+    )
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .mergedContentDescription(balanceAndBudgetContentDescription),
         verticalAlignment = Alignment.Bottom
     ) {
         Balance(
             currency = currency,
             amount = balance,
             modifier = Modifier
+                .weight(weight = Float.One, fill = false)
                 .alignBy(LastBaseline)
         )
         SpacerSmall()
         VerticalNumberSpinnerContent(
-            number = monthlyLimit,
+            number = budget,
             modifier = Modifier
                 .alignBy(LastBaseline)
         ) {
@@ -359,6 +369,7 @@ private fun SpendsOverview(
                             note = transaction.note,
                             amount = transaction.amountFormattedWithCurrency(currency),
                             date = transaction.date,
+                            type = transaction.type,
                             tag = transaction.tag,
                             folder = transaction.folder,
                             onClick = { onTransactionClick(transaction) },
@@ -398,44 +409,55 @@ private fun SpentAmountAndAllTransactionsButton(
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
+    val spentAmountContentDescription = stringResource(
+        R.string.cd_new_transaction_fab,
+        TextFormat.currency(amount, currency)
+    )
     Row(
-        modifier = modifier
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        VerticalNumberSpinnerContent(
-            number = amount,
+        Row(
             modifier = Modifier
-                .alignByBaseline()
+                .weight(weight = Float.One, fill = false)
+                .alignBy(LastBaseline)
+                .mergedContentDescription(spentAmountContentDescription),
+            horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
         ) {
+            VerticalNumberSpinnerContent(
+                number = amount,
+                modifier = Modifier
+                    .weight(weight = Float.One, fill = false)
+                    .alignBy(LastBaseline)
+            ) {
+                Text(
+                    text = TextFormat.currency(amount = it, currency = currency),
+                    style = MaterialTheme.typography.headlineMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = contentColor
+                )
+            }
+
             Text(
-                text = TextFormat.currency(amount = it, currency = currency),
-                style = MaterialTheme.typography.headlineMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = contentColor
+                text = stringResource(R.string.spent_this_month),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .alignBy(LastBaseline),
+                color = contentColor.copy(
+                    alpha = ContentAlpha.SUB_CONTENT
+                ),
+                fontWeight = FontWeight.Normal,
+                maxLines = 1
             )
         }
-
-        SpacerSmall()
-
-        Text(
-            text = stringResource(R.string.spent_this_month),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier
-                .alignByBaseline(),
-            color = contentColor.copy(
-                alpha = 0.80f
-            ),
-            fontWeight = FontWeight.Normal
-        )
-
-        Spacer(weight = Float.One)
 
         TextButton(
             onClick = onAllTransactionsClick,
             modifier = Modifier
-                .alignByBaseline()
+                .alignBy(LastBaseline)
         ) {
-            Text(text = "${stringResource(AllTransactionsScreenSpec.labelRes)} >")
+            Text("${stringResource(AllTransactionsScreenSpec.labelRes)} >")
         }
     }
 }
@@ -445,6 +467,7 @@ private fun RecentSpendCard(
     note: String,
     amount: String,
     date: LocalDate,
+    type: TransactionType,
     tag: Tag?,
     folder: TransactionFolder?,
     onClick: () -> Unit,
@@ -458,7 +481,7 @@ private fun RecentSpendCard(
             note = note,
             amount = amount,
             date = date,
-            type = null,
+            type = type,
             tag = tag,
             folder = folder
         )

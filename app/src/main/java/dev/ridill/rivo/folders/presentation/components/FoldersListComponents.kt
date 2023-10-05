@@ -49,7 +49,7 @@ fun FolderListSearchSheet(
                 trailingContent = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_outline_add_folder),
-                        contentDescription = stringResource(R.string.cd_create_new_transaction_folder)
+                        contentDescription = stringResource(R.string.cd_create_new_folder)
                     )
                 },
                 modifier = Modifier

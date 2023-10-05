@@ -11,19 +11,19 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.folders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
-import dev.ridill.rivo.folders.presentation.transactionFoldersList.ACTION_FOLDER_DETAILS
-import dev.ridill.rivo.folders.presentation.transactionFoldersList.TxFoldersListScreen
-import dev.ridill.rivo.folders.presentation.transactionFoldersList.TxFoldersListViewModel
+import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
+import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
+import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
+import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
 
-object TxFoldersListScreenSpec : ScreenSpec {
-    override val route: String = "transaction_folders_list"
+object FoldersListScreenSpec : ScreenSpec {
+    override val route: String = "folders_list"
 
-    override val labelRes: Int = R.string.destination_tx_folders_list
+    override val labelRes: Int = R.string.destination_folders_list
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
-        val viewModel: TxFoldersListViewModel = hiltViewModel(navBackStackEntry)
+        val viewModel: FoldersListViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val foldersList = viewModel.folderListPagingData.collectAsLazyPagingItems()
 
@@ -44,14 +44,14 @@ object TxFoldersListScreenSpec : ScreenSpec {
             }
         }
 
-        TxFoldersListScreen(
+        FoldersListScreen(
             snackbarController = snackbarController,
             foldersList = foldersList,
             state = state,
             actions = viewModel,
             navigateToFolderDetails = {
                 navController.navigate(
-                    TransactionFolderDetailsScreenSpec.routeWithArgs(it)
+                    FolderDetailsScreenSpec.routeWithArgs(it)
                 )
             },
             navigateUp = navController::navigateUp

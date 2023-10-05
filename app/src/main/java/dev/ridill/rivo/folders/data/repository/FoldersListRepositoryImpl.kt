@@ -15,7 +15,7 @@ import dev.ridill.rivo.folders.data.local.relation.FolderAndAggregateAmount
 import dev.ridill.rivo.folders.data.toTransactionFolder
 import dev.ridill.rivo.folders.data.toTransactionFolderDetails
 import dev.ridill.rivo.folders.domain.model.TransactionFolder
-import dev.ridill.rivo.folders.domain.model.TransactionFolderDetails
+import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +26,7 @@ class FoldersListRepositoryImpl(
     private val folderDao: FolderDao,
     private val configDao: ConfigDao
 ) : FoldersListRepository {
-    override fun getFoldersWithAggregateList(): Flow<PagingData<TransactionFolderDetails>> =
+    override fun getFoldersWithAggregateList(): Flow<PagingData<FolderDetails>> =
         Pager(
             config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
         ) { folderDao.getFoldersWithAggregateExpenditure() }

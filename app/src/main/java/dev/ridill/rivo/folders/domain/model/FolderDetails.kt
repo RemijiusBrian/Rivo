@@ -5,7 +5,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
-data class TransactionFolderDetails(
+data class FolderDetails(
     val id: Long,
     val name: String,
     val createdTimestamp: LocalDateTime,

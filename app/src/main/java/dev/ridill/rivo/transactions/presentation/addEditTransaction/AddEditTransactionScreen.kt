@@ -61,6 +61,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -82,6 +85,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -128,15 +132,13 @@ fun AddEditTransactionScreen(
                         )
                     )
                 },
-                navigationIcon = {
-                    BackArrowButton(onClick = navigateUp)
-                },
+                navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 actions = {
                     if (isEditMode) {
                         IconButton(onClick = actions::onDeleteClick) {
                             Icon(
                                 imageVector = Icons.Rounded.DeleteForever,
-                                contentDescription = stringResource(R.string.cd_delete)
+                                contentDescription = stringResource(R.string.cd_delete_transaction)
                             )
                         }
                     }
@@ -148,7 +150,7 @@ fun AddEditTransactionScreen(
             FloatingActionButton(onClick = actions::onSaveClick) {
                 Icon(
                     imageVector = Icons.Default.Save,
-                    contentDescription = stringResource(R.string.cd_save)
+                    contentDescription = stringResource(R.string.cd_save_transaction)
                 )
             }
         },
@@ -167,7 +169,7 @@ fun AddEditTransactionScreen(
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
             TransactionTypeSelector(
-                currentType = state.transactionType,
+                selectedType = state.transactionType,
                 onValueChange = actions::onTransactionTypeChange,
                 modifier = Modifier
                     .fillMaxWidth(TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION)
@@ -306,10 +308,14 @@ private fun AmountInput(
     onAmountChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val amountContentDescription = stringResource(R.string.cd_enter_amount)
     MinWidthOutlinedTextField(
         value = amount,
         onValueChange = onAmountChange,
-        modifier = modifier,
+        modifier = modifier
+            .clearAndSetSemantics {
+                contentDescription = amountContentDescription
+            },
         prefix = { Text(currency.symbol) },
         textStyle = MaterialTheme.typography.headlineMedium,
         placeholder = {
@@ -383,7 +389,7 @@ private fun TransactionDate(
         FilledTonalIconButton(onClick = onDateClick) {
             Icon(
                 imageVector = Icons.Outlined.CalendarClock,
-                contentDescription = stringResource(R.string.cd_transaction_date)
+                contentDescription = stringResource(R.string.cd_click_to_change_transaction_date)
             )
         }
     }
@@ -415,7 +421,7 @@ private fun FolderIndicator(
                         id = if (isLinked) R.drawable.ic_outline_remove_folder
                         else R.drawable.ic_outline_move_to_folder
                     ),
-                    contentDescription = stringResource(R.string.cd_add_to_folder)
+                    contentDescription = stringResource(R.string.cd_add_transaction_to_folder)
                 )
             }
         }
@@ -441,17 +447,21 @@ private fun FolderIndicator(
 
 @Composable
 private fun TransactionTypeSelector(
-    currentType: TransactionType,
+    selectedType: TransactionType,
     onValueChange: (TransactionType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedIndex by remember(currentType) {
+    val selectedIndex by remember(selectedType) {
         derivedStateOf {
-            TransactionType.values().indexOf(currentType)
+            TransactionType.values().indexOf(selectedType)
         }
     }
     val indicatorColor = MaterialTheme.colorScheme.secondaryContainer
         .copy(alpha = ContentAlpha.PERCENT_32)
+    val typeSelectorContentDescription = stringResource(
+        R.string.cd_transaction_type_selector,
+        stringResource(selectedType.labelRes)
+    )
     TabRow(
         selectedTabIndex = selectedIndex,
         modifier = Modifier
@@ -461,6 +471,9 @@ private fun TransactionTypeSelector(
                 color = indicatorColor,
                 shape = CircleShape
             )
+            .semantics {
+                contentDescription = typeSelectorContentDescription
+            }
             .then(modifier),
         indicator = {
             Box(
@@ -474,17 +487,25 @@ private fun TransactionTypeSelector(
         },
         divider = {}
     ) {
-        TransactionType.values().forEach { direction ->
+        TransactionType.values().forEach { type ->
+            val selected = selectedType == type
+            val transactionTypeSelectorContentDescription = if (!selected)
+                stringResource(
+                    R.string.cd_transaction_type_selector_unselected,
+                    stringResource(type.labelRes)
+                )
+            else null
             Tab(
-                selected = currentType == direction,
-                onClick = { onValueChange(direction) },
+                selected = selected,
+                onClick = { onValueChange(type) },
                 text = {
                     Text(
-                        text = stringResource(direction.labelRes),
+                        text = stringResource(type.labelRes),
                         overflow = TextOverflow.Ellipsis
                     )
                 },
-                modifier = Modifier,
+                modifier = Modifier
+                    .mergedContentDescription(transactionTypeSelectorContentDescription),
                 selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 unselectedContentColor = LocalContentColor.current
             )

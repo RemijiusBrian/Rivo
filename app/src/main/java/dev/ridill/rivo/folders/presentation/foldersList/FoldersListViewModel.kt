@@ -1,4 +1,4 @@
-package dev.ridill.rivo.folders.presentation.transactionFoldersList
+package dev.ridill.rivo.folders.presentation.foldersList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,10 +14,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TxFoldersListViewModel @Inject constructor(
+class FoldersListViewModel @Inject constructor(
     private val repo: FoldersListRepository,
     settingsRepo: SettingsRepository
-) : ViewModel(), TxFoldersListActions {
+) : ViewModel(), FoldersListActions {
 
     private val currency = settingsRepo.getCurrencyPreference()
         .distinctUntilChanged()
@@ -32,11 +32,11 @@ class TxFoldersListViewModel @Inject constructor(
                 currency,
                 listMode
             ) ->
-        TxFoldersListState(
+        FoldersListState(
             currency = currency,
             listMode = listMode
         )
-    }.asStateFlow(viewModelScope, TxFoldersListState())
+    }.asStateFlow(viewModelScope, FoldersListState())
 
     override fun onListModeToggle() {
         viewModelScope.launch {

@@ -2,11 +2,14 @@ package dev.ridill.rivo.transactions.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.core.ui.util.TextFormat
 
 @Composable
@@ -25,8 +28,18 @@ fun AmountRecommendationsRow(
         recommendations.forEach { amount ->
             SuggestionChip(
                 onClick = { onRecommendationClick(amount) },
-                label = { Text(TextFormat.currency(amount)) }
+                label = {
+                    Text(
+                        text = TextFormat.currency(amount),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                modifier = Modifier
+                    .widthIn(max = AmountChipMaxWidth)
             )
         }
     }
 }
+
+private val AmountChipMaxWidth = 80.dp

@@ -34,7 +34,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANS
 
 object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String =
-        "add_edit_transaction/{$ARG_TRANSACTION_ID}?$ARG_LINK_TX_FOLDER_ID={$ARG_LINK_TX_FOLDER_ID}"
+        "add_edit_transaction/{$ARG_TRANSACTION_ID}?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}"
 
     override val labelRes: Int = R.string.destination_add_edit_transaction
 
@@ -44,7 +44,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             nullable = false
             defaultValue = ARG_INVALID_ID_LONG
         },
-        navArgument(ARG_LINK_TX_FOLDER_ID) {
+        navArgument(ARG_LINK_FOLDER_ID) {
             nullable = true
         }
     )
@@ -68,9 +68,9 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             newValue = (transactionId ?: ARG_INVALID_ID_LONG).toString()
         )
         .replace(
-            oldValue = "?$ARG_LINK_TX_FOLDER_ID={$ARG_LINK_TX_FOLDER_ID}",
+            oldValue = "?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}",
             newValue = transactionFolderId?.let {
-                "?$ARG_LINK_TX_FOLDER_ID=$it"
+                "?$ARG_LINK_FOLDER_ID=$it"
             }.orEmpty()
         )
 
@@ -78,7 +78,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
         savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
 
     fun getFolderIdToLinkFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
-        savedStateHandle.get<String?>(ARG_LINK_TX_FOLDER_ID)?.toLongOrNull()
+        savedStateHandle.get<String?>(ARG_LINK_FOLDER_ID)?.toLongOrNull()
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
@@ -141,7 +141,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
 
                     AddEditTransactionViewModel.AddEditTransactionEvent.NavigateToFolderDetailsForCreation -> {
                         navController.navigate(
-                            TransactionFolderDetailsScreenSpec.routeWithArgs(
+                            FolderDetailsScreenSpec.routeWithArgs(
                                 transactionFolderId = null,
                                 exitAfterClear = true
                             )
@@ -168,7 +168,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
 }
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
-private const val ARG_LINK_TX_FOLDER_ID = "ARG_LINK_TX_FOLDER_ID"
+private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
 private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
     "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"
 

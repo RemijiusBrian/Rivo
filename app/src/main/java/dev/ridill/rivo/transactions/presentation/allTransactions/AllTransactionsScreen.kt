@@ -99,6 +99,7 @@ import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
+import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
@@ -410,8 +411,7 @@ private fun TagInfoCard(
         ) {
             Column(
                 modifier = Modifier
-                    .weight(Float.One),
-//                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+                    .weight(Float.One)
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
@@ -810,7 +810,7 @@ private fun TransactionListOptions(
                 IconButton(onClick = onDeleteClick) {
                     Icon(
                         imageVector = Icons.Rounded.DeleteForever,
-                        contentDescription = stringResource(R.string.cd_delete)
+                        contentDescription = stringResource(R.string.cd_delete_selected_transactions)
                     )
                 }
                 TriStateCheckbox(
@@ -879,7 +879,7 @@ private fun TotalExpenditureAmount(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-
+        SpacerSmall()
         VerticalNumberSpinnerContent(expenditure) { amount ->
             Text(
                 text = TextFormat.currency(amount = amount, currency = currency),
@@ -910,6 +910,7 @@ private fun TransactionCard(
         amount = amount,
         date = date,
         type = type,
+        showTypeIndicator = true,
         tag = null,
         folder = folder,
         modifier = modifier

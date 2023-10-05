@@ -1,4 +1,4 @@
-package dev.ridill.rivo.folders.presentation.transactionFolderDetails
+package dev.ridill.rivo.folders.presentation.folderDetails
 
 import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
@@ -48,12 +48,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
@@ -69,12 +71,13 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.navigation.destinations.TransactionFolderDetailsScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
@@ -84,12 +87,12 @@ import java.time.LocalDate
 import kotlin.math.absoluteValue
 
 @Composable
-fun TxFolderDetailsScreen(
+fun FolderDetailsScreen(
     snackbarController: SnackbarController,
-    state: TxFolderDetailsState,
+    state: FolderDetailsState,
     transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUIModel>,
     folderName: () -> String,
-    actions: TxFolderDetailsActions,
+    actions: FolderDetailsActions,
     navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -102,7 +105,7 @@ fun TxFolderDetailsScreen(
     RivoScaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(TransactionFolderDetailsScreenSpec.labelRes)) },
+                title = { Text(stringResource(FolderDetailsScreenSpec.labelRes)) },
                 navigationIcon = {
                     if (state.editModeActive) {
                         IconButton(onClick = actions::onEditDismiss) {
@@ -120,7 +123,7 @@ fun TxFolderDetailsScreen(
                         IconButton(onClick = actions::onDeleteClick) {
                             Icon(
                                 imageVector = Icons.Rounded.DeleteForever,
-                                contentDescription = stringResource(R.string.cd_delete)
+                                contentDescription = stringResource(R.string.cd_delete_folder)
                             )
                         }
                     }
@@ -128,14 +131,14 @@ fun TxFolderDetailsScreen(
                         IconButton(onClick = actions::onEditConfirm) {
                             Icon(
                                 imageVector = Icons.Rounded.Check,
-                                contentDescription = stringResource(R.string.cd_save_transaction_folder)
+                                contentDescription = stringResource(R.string.cd_save_folder)
                             )
                         }
                     } else {
                         IconButton(onClick = actions::onEditClick) {
                             Icon(
                                 imageVector = Icons.Rounded.Edit,
-                                contentDescription = stringResource(R.string.cd_edit_transaction_folder)
+                                contentDescription = stringResource(R.string.cd_edit_folder)
                             )
                         }
                     }
@@ -249,7 +252,7 @@ private fun FolderCreatedDate(
         SpacerSmall()
         Icon(
             imageVector = Icons.Outlined.CalendarClock,
-            contentDescription = stringResource(R.string.cd_transaction_folder_created_date)
+            contentDescription = stringResource(R.string.cd_folder_created_date)
         )
     }
 }
@@ -294,7 +297,8 @@ private fun NameField(
             unfocusedContainerColor = containerColor,
             focusedContainerColor = containerColor
         ),
-        textStyle = MaterialTheme.typography.headlineMedium
+        textStyle = MaterialTheme.typography.headlineMedium,
+        placeholder = { Text(stringResource(R.string.enter_folder_name)) }
     )
 }
 
@@ -350,7 +354,7 @@ private fun TransactionsInFolder(
                 FilledTonalIconButton(onClick = onNewTransactionClick) {
                     Icon(
                         imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.cd_new_transaction)
+                        contentDescription = stringResource(R.string.cd_new_transaction_fab)
                     )
                 }
             }
@@ -434,18 +438,29 @@ private fun AggregateAmount(
             else -> R.string.aggregate_amount_zero
         }
     )
+    val aggregateAmountContentDescription = type?.let {
+        stringResource(
+            R.string.cd_folder_aggregate_amount_unbalanced,
+            TextFormat.currency(amount, currency),
+            aggregateTypeText
+        )
+    } ?: stringResource(R.string.cd_folder_aggregate_amount_balanced)
     Row(
         modifier = modifier
+            .mergedContentDescription(aggregateAmountContentDescription)
     ) {
         VerticalNumberSpinnerContent(
             number = amount.absoluteValue,
             modifier = Modifier
-                .alignByBaseline()
+                .weight(weight = Float.One, fill = false)
+                .alignBy(LastBaseline)
         ) {
             Text(
                 text = TextFormat.currency(it, currency = currency),
                 style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
@@ -455,7 +470,7 @@ private fun AggregateAmount(
             targetState = aggregateTypeText,
             label = "AggregateType",
             modifier = Modifier
-                .alignByBaseline()
+                .alignBy(LastBaseline)
         ) { text ->
             Text(
                 text = text,
@@ -506,7 +521,8 @@ private fun TransactionCard(
             amount = amount,
             date = date,
             type = type,
-            tag = tag
+            tag = tag,
+            showTypeIndicator = true
         )
     }
 }
