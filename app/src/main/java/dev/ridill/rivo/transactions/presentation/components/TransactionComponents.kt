@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
@@ -87,27 +89,31 @@ fun TransactionListItem(
     }
     ListItem(
         headlineContent = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = note,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textDecoration = if (excluded) TextDecoration.LineThrough
-                    else null
-                )
-            }
+            Text(
+                text = note,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = if (excluded) TextDecoration.LineThrough
+                else null,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            // FIXME: note text not visible if amount text is too long
         },
         leadingContent = { TransactionDate(date) },
         trailingContent = {
             Row(
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = amount,
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(weight = Float.One, fill = false)
                 )
                 if (showTypeIndicator) {
                     Icon(
@@ -120,7 +126,9 @@ fun TransactionListItem(
         supportingContent = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall),
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 folder?.let { FolderIndicator(name = it.name) }
                 tag?.let { TagIndicator(it.name, it.color) }
