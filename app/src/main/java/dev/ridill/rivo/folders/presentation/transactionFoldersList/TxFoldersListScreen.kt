@@ -46,7 +46,6 @@ import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.navigation.destinations.TxFoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
@@ -54,6 +53,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.isNotEmpty
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.TransactionFolderDetails
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
@@ -187,9 +187,24 @@ private fun FolderCard(
             color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
         )
 
+    val folderContentDescription = aggregateDirection?.let {
+        stringResource(
+            R.string.cd_folder_list_item_without_aggregate_amount,
+            name,
+            created,
+            aggregateAmount,
+            stringResource(it.labelRes)
+        )
+    } ?: stringResource(
+        R.string.cd_folder_list_item_with_aggregate_amount,
+        name,
+        created
+    )
+
     OutlinedCard(
         onClick = onClick,
         modifier = modifier
+            .mergedContentDescription(folderContentDescription)
     ) {
         Crossfade(
             targetState = listMode,
@@ -226,7 +241,8 @@ private fun FolderCard(
 
                         AggregateAmountText(
                             amount = aggregateAmount,
-                            type = aggregateDirection
+                            type = aggregateDirection,
+                            horizontalAlignment = Alignment.End
                         )
                     }
                 }
@@ -254,7 +270,8 @@ private fun FolderCard(
 
                         AggregateAmountText(
                             amount = aggregateAmount,
-                            type = aggregateDirection
+                            type = aggregateDirection,
+                            horizontalAlignment = Alignment.Start
                         )
                     }
                 }
@@ -267,6 +284,7 @@ private fun FolderCard(
 private fun AggregateAmountText(
     amount: String,
     type: TransactionType?,
+    horizontalAlignment: Alignment.Horizontal,
     modifier: Modifier = Modifier
 ) {
     val aggregateTypeText = stringResource(
@@ -277,34 +295,34 @@ private fun AggregateAmountText(
         }
     )
 
-    Row(
+    Column(
         modifier = modifier,
+        horizontalAlignment = horizontalAlignment
     ) {
-        type?.let {
-            Icon(
-                imageVector = it.directionIcon,
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            type?.let {
+                Icon(
+                    imageVector = it.directionIcon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                )
+            }
+            Text(
+                text = amount,
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        Text(
-            text = amount,
-            style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .alignByBaseline()
-        )
-        SpacerExtraSmall()
         Text(
             text = aggregateTypeText,
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .alignByBaseline(),
             textDecoration = if (type == null) TextDecoration.Underline
             else null
         )

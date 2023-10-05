@@ -37,6 +37,11 @@
     <string name="cd_delete_selected_transactions">Delete selected transactions</string>
     <string name="cd_click_to_change_transaction_date">Click to change transaction Date</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
+    <string name="cd_edit_tag">Edit Tag</string>
+    <string name="cd_delete_tag">Delete Tag</string>
+    <string name="cd_delete_folder">Delete Folder</string>
+    <string name="cd_folder_list_item_with_aggregate_amount">Folder %s created %d</string>
+    <string name="cd_folder_list_item_without_aggregate_amount">Folder %s created %d with aggregate amount of %s %s</string>
 
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
@@ -45,9 +50,6 @@
     <string name="cd_clear_transaction_selection">Clear Transaction Selection</string>
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
-    <string name="cd_edit_tag">Edit Tag</string>
-    <string name="cd_delete_tag">Delete Tag</string>
-    <string name="cd_delete_folder">Delete Tag</string>
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_options">Options</string>
