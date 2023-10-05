@@ -21,8 +21,8 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenS
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
-import dev.ridill.rivo.transactionFolders.domain.repository.FoldersListRepository
+import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType

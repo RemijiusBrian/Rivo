@@ -11,10 +11,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.transactionFolders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
-import dev.ridill.rivo.transactionFolders.presentation.transactionFoldersList.ACTION_FOLDER_DETAILS
-import dev.ridill.rivo.transactionFolders.presentation.transactionFoldersList.TxFoldersListScreen
-import dev.ridill.rivo.transactionFolders.presentation.transactionFoldersList.TxFoldersListViewModel
+import dev.ridill.rivo.folders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
+import dev.ridill.rivo.folders.presentation.transactionFoldersList.ACTION_FOLDER_DETAILS
+import dev.ridill.rivo.folders.presentation.transactionFoldersList.TxFoldersListScreen
+import dev.ridill.rivo.folders.presentation.transactionFoldersList.TxFoldersListViewModel
 
 object TxFoldersListScreenSpec : ScreenSpec {
     override val route: String = "transaction_folders_list"

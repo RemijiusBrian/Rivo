@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
-import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
+import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import java.time.LocalDateTime
 
 @Entity(
@@ -18,7 +18,7 @@ import java.time.LocalDateTime
             childColumns = ["tag_id"]
         ),
         ForeignKey(
-            entity = TransactionFolderEntity::class,
+            entity = FolderEntity::class,
             parentColumns = ["id"],
             childColumns = ["folder_id"]
         )

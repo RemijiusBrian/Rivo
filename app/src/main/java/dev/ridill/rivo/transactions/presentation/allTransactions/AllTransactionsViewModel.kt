@@ -16,8 +16,8 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
-import dev.ridill.rivo.transactionFolders.domain.repository.FoldersListRepository
+import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository

@@ -37,7 +37,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate

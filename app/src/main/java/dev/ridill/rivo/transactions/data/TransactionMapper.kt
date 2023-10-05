@@ -1,6 +1,6 @@
 package dev.ridill.rivo.transactions.data
 
-import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.domain.model.Tag

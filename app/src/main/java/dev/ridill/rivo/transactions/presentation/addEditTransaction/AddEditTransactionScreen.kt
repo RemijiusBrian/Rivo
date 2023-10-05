@@ -82,7 +82,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
-import dev.ridill.rivo.transactionFolders.presentation.components.FolderListSearchSheet
+import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow

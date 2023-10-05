@@ -52,18 +52,18 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tag.color_code AS tagColorCode,
         tag.created_timestamp AS tagCreatedTimestamp,
         tag.is_excluded AS isTagExcluded,
-        txFolder.id AS folderId,
-        txFolder.name AS folderName,
-        txFolder.created_timestamp AS folderCreatedTimestamp,
-        txFolder.is_excluded AS isFolderExcluded
+        folder.id AS folderId,
+        folder.name AS folderName,
+        folder.created_timestamp AS folderCreatedTimestamp,
+        folder.is_excluded AS isFolderExcluded
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
-        LEFT OUTER JOIN transaction_folder_table txFolder ON tx.folder_id = txFolder.id
+        LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
             AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
-            AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txFolder.is_excluded) THEN 1 ELSE 0 END) = 0)
+            AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
         """
     )
@@ -89,18 +89,18 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tag.color_code AS tagColorCode,
         tag.created_timestamp AS tagCreatedTimestamp,
         tag.is_excluded AS isTagExcluded,
-        txFolder.id AS folderId,
-        txFolder.name AS folderName,
-        txFolder.created_timestamp AS folderCreatedTimestamp,
-        txFolder.is_excluded AS isFolderExcluded
+        folder.id AS folderId,
+        folder.name AS folderName,
+        folder.created_timestamp AS folderCreatedTimestamp,
+        folder.is_excluded AS isFolderExcluded
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
-        LEFT OUTER JOIN transaction_folder_table txFolder ON tx.folder_id = txFolder.id
+        LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
             AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
-            AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, txFolder.is_excluded) THEN 1 ELSE 0 END) = 0)
+            AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
         """
     )

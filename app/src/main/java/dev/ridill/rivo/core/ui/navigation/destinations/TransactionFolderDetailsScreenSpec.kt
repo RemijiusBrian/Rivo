@@ -23,10 +23,10 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.transactionFolders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
-import dev.ridill.rivo.transactionFolders.presentation.transactionFolderDetails.TxFolderDetailsScreen
-import dev.ridill.rivo.transactionFolders.presentation.transactionFolderDetails.TxFolderDetailsViewModel
-import dev.ridill.rivo.transactionFolders.presentation.transactionFoldersList.ACTION_FOLDER_DETAILS
+import dev.ridill.rivo.folders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
+import dev.ridill.rivo.folders.presentation.transactionFolderDetails.TxFolderDetailsScreen
+import dev.ridill.rivo.folders.presentation.transactionFolderDetails.TxFolderDetailsViewModel
+import dev.ridill.rivo.folders.presentation.transactionFoldersList.ACTION_FOLDER_DETAILS
 
 object TransactionFolderDetailsScreenSpec : ScreenSpec {
     override val route: String =

@@ -10,8 +10,8 @@ import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
-import dev.ridill.rivo.transactionFolders.data.local.TransactionFolderDao
-import dev.ridill.rivo.transactionFolders.data.local.entity.TransactionFolderEntity
+import dev.ridill.rivo.folders.data.local.FolderDao
+import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
@@ -20,7 +20,7 @@ import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 @Database(
     entities = [
         TransactionEntity::class,
-        TransactionFolderEntity::class,
+        FolderEntity::class,
         TagEntity::class,
         ConfigEntity::class
     ],
@@ -38,7 +38,7 @@ abstract class RivoDatabase : RoomDatabase() {
 
     // Dao Methods
     abstract fun transactionDao(): TransactionDao
-    abstract fun transactionFolderDao(): TransactionFolderDao
+    abstract fun folderDao(): FolderDao
     abstract fun tagsDao(): TagsDao
     abstract fun configDao(): ConfigDao
 }
