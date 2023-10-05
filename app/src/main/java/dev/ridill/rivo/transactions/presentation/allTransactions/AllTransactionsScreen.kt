@@ -324,7 +324,11 @@ private fun TagsInfoList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
             state = lazyListState
         ) {
-            items(items = tags, key = { it.tag.id }) { item ->
+            items(
+                items = tags,
+                key = { it.tag.id },
+                contentType = { "TagInfoCard" }
+            ) { item ->
                 TagInfoCard(
                     name = item.tag.name,
                     color = item.tag.color,
@@ -343,7 +347,10 @@ private fun TagsInfoList(
                 )
             }
 
-            item(key = "NewTagCard") {
+            item(
+                key = "NewTagCard",
+                contentType = "NewTagCard"
+            ) {
                 NewTagCard(
                     onClick = onNewTagClick,
                     modifier = Modifier
@@ -557,7 +564,11 @@ private fun DateFilter(
                         end = SpacingListEnd
                     )
                 ) {
-                    items(items = yearsList, key = { it }) { year ->
+                    items(
+                        items = yearsList,
+                        key = { it },
+                        contentType = { "YearChip" }
+                    ) { year ->
                         ElevatedFilterChip(
                             selected = year == selectedDate.year,
                             onClick = { onYearSelect(year) },
@@ -578,7 +589,11 @@ private fun DateFilter(
             ),
             state = monthsListState
         ) {
-            items(items = monthsList, key = { it.value }) { month ->
+            items(
+                items = monthsList,
+                key = { it.value },
+                contentType = { "MonthChip" }
+            ) { month ->
                 ElevatedFilterChip(
                     selected = month == selectedDate.month,
                     onClick = { onMonthSelect(month) },
@@ -728,7 +743,11 @@ private fun TransactionsList(
                 contentPadding = listContentPadding,
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
-                items(items = transactionsList, key = { it.id }) { transaction ->
+                items(
+                    items = transactionsList,
+                    key = { it.id },
+                    contentType = { "TransactionCard" }
+                ) { transaction ->
                     TransactionCard(
                         note = transaction.note,
                         amount = transaction.amountFormattedWithCurrency(currency),

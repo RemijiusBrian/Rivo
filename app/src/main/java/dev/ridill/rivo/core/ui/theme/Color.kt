@@ -74,6 +74,7 @@ val md_theme_dark_scrim = Color(0xFF000000)
 //val seed = Color(0xFFFFBF00)
 
 object ContentAlpha {
+    const val PERCENT_16 = 0.16f
     const val PERCENT_32 = 0.32f
     const val SUB_CONTENT = 0.72f
 }

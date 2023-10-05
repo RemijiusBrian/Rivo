@@ -145,7 +145,7 @@ fun FoldersListScreen(
                     items(
                         count = foldersList.itemCount,
                         key = foldersList.itemKey { it.id },
-                        contentType = foldersList.itemContentType { "FolderListItem" }
+                        contentType = foldersList.itemContentType { "FolderListCard" }
                     ) { index ->
                         foldersList[index]?.let { folder ->
                             FolderCard(

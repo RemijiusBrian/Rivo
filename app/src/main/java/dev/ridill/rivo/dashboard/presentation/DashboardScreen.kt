@@ -364,7 +364,11 @@ private fun SpendsOverview(
                     verticalArrangement = Arrangement.spacedBy(SpacingSmall),
                     state = listState
                 ) {
-                    items(items = recentSpends, key = { it.id }) { transaction ->
+                    items(
+                        items = recentSpends,
+                        key = { it.id },
+                        contentType = { "RecentSpendCard" }
+                    ) { transaction ->
                         RecentSpendCard(
                             note = transaction.note,
                             amount = transaction.amountFormattedWithCurrency(currency),
