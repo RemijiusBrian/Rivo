@@ -10,9 +10,9 @@
     <string name="destination_settings">Settings</string>
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_all_transactions">All Transactions</string>
-    <string name="destination_tx_folders">Folders</string>
-    <string name="destination_tx_folders_list">Folders</string>
-    <string name="destination_tx_folder_details">Folder</string>
+    <string name="destination_folders">Folders</string>
+    <string name="destination_folders_list">Folders</string>
+    <string name="destination_folder_details">Folder</string>
 
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>

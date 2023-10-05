@@ -1,8 +1,8 @@
-package dev.ridill.rivo.folders.presentation.transactionFolderDetails
+package dev.ridill.rivo.folders.presentation.folderDetails
 
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 
-interface TxFolderDetailsActions {
+interface FolderDetailsActions {
     fun onDeleteClick()
     fun onDeleteDismiss()
     fun onDeleteFolderOnlyClick()

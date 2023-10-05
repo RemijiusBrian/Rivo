@@ -23,16 +23,16 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.folders.presentation.transactionFolderDetails.RESULT_FOLDER_DELETED
-import dev.ridill.rivo.folders.presentation.transactionFolderDetails.TxFolderDetailsScreen
-import dev.ridill.rivo.folders.presentation.transactionFolderDetails.TxFolderDetailsViewModel
-import dev.ridill.rivo.folders.presentation.transactionFoldersList.ACTION_FOLDER_DETAILS
+import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
+import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
+import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
+import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 
-object TransactionFolderDetailsScreenSpec : ScreenSpec {
+object FolderDetailsScreenSpec : ScreenSpec {
     override val route: String =
-        "transaction_folder_details/{$ARG_EXIT_AFTER_CREATE}/{$ARG_TX_FOLDER_ID}?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}"
+        "folder_details/{$ARG_EXIT_AFTER_CREATE}/{$ARG_FOLDER_ID}?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}"
 
-    override val labelRes: Int = R.string.destination_tx_folder_details
+    override val labelRes: Int = R.string.destination_folder_details
 
     override val arguments: List<NamedNavArgument> = listOf(
         navArgument(ARG_EXIT_AFTER_CREATE) {
@@ -40,7 +40,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
             nullable = false
             defaultValue = false
         },
-        navArgument(ARG_TX_FOLDER_ID) {
+        navArgument(ARG_FOLDER_ID) {
             type = NavType.LongType
             nullable = false
             defaultValue = ARG_INVALID_ID_LONG
@@ -71,7 +71,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
             newValue = exitAfterClear.toString()
         )
         .replace(
-            oldValue = "{$ARG_TX_FOLDER_ID}",
+            oldValue = "{$ARG_FOLDER_ID}",
             newValue = (transactionFolderId ?: ARG_INVALID_ID_LONG).toString()
         )
         .replace(
@@ -86,7 +86,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
         )
 
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
-        savedStateHandle.get<Long>(ARG_TX_FOLDER_ID) ?: ARG_INVALID_ID_LONG
+        savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: ARG_INVALID_ID_LONG
 
     fun getTxIdsArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): List<Long> =
         savedStateHandle.get<String>(ARG_TX_IDS_LIST)?.split(TX_IDS_SEPARATOR)
@@ -96,7 +96,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
 
     @Composable
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
-        val viewModel: TxFolderDetailsViewModel = hiltViewModel(navBackStackEntry)
+        val viewModel: FolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val transactionsLazyPagingItems = viewModel.pager.collectAsLazyPagingItems()
         val nameInput = viewModel.folderNameInput.collectAsStateWithLifecycle()
@@ -107,32 +107,32 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
         LaunchedEffect(context, snackbarController, viewModel) {
             viewModel.events.collect { event ->
                 when (event) {
-                    TxFolderDetailsViewModel.TxFolderDetailsEvent.NavigateUp -> {
+                    FolderDetailsViewModel.FolderDetailsEvent.NavigateUp -> {
                         navController.navigateUp()
                     }
 
-                    is TxFolderDetailsViewModel.TxFolderDetailsEvent.ShowUiMessage -> {
+                    is FolderDetailsViewModel.FolderDetailsEvent.ShowUiMessage -> {
                         snackbarController.showSnackbar(
                             event.uiText.asString(context),
                             event.uiText.isErrorText
                         )
                     }
 
-                    TxFolderDetailsViewModel.TxFolderDetailsEvent.FolderDeleted -> {
+                    FolderDetailsViewModel.FolderDetailsEvent.FolderDeleted -> {
                         navController.navigateUpWithResult(
                             ACTION_FOLDER_DETAILS,
                             RESULT_FOLDER_DELETED
                         )
                     }
 
-                    is TxFolderDetailsViewModel.TxFolderDetailsEvent.NavigateUpWithFolderId -> {
+                    is FolderDetailsViewModel.FolderDetailsEvent.NavigateUpWithFolderId -> {
                         navController.navigateUpWithResult(
                             ACTION_NEW_FOLDER_CREATE,
                             event.folderId.toString()
                         )
                     }
 
-                    is TxFolderDetailsViewModel.TxFolderDetailsEvent.TransactionRemovedFromGroup -> {
+                    is FolderDetailsViewModel.FolderDetailsEvent.TransactionRemovedFromGroup -> {
                         snackbarController.showSnackbar(
                             message = context.getString(R.string.transaction_removed_from_folder),
                             actionLabel = context.getString(R.string.action_undo),
@@ -147,7 +147,7 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
             }
         }
 
-        TxFolderDetailsScreen(
+        FolderDetailsScreen(
             snackbarController = snackbarController,
             transactionsLazyPagingItems = transactionsLazyPagingItems,
             state = state,
@@ -167,6 +167,6 @@ object TransactionFolderDetailsScreenSpec : ScreenSpec {
 }
 
 private const val ARG_EXIT_AFTER_CREATE = "ARG_EXIT_AFTER_CREATE"
-private const val ARG_TX_FOLDER_ID = "ARG_TX_FOLDER_ID"
+private const val ARG_FOLDER_ID = "ARG_FOLDER_ID"
 private const val ARG_TX_IDS_LIST = "ARG_TX_IDS_LIST"
 private const val TX_IDS_SEPARATOR = "-"

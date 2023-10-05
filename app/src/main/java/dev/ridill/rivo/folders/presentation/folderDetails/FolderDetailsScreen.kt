@@ -1,4 +1,4 @@
-package dev.ridill.rivo.folders.presentation.transactionFolderDetails
+package dev.ridill.rivo.folders.presentation.folderDetails
 
 import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
@@ -69,7 +69,7 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.navigation.destinations.TransactionFolderDetailsScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -85,12 +85,12 @@ import java.time.LocalDate
 import kotlin.math.absoluteValue
 
 @Composable
-fun TxFolderDetailsScreen(
+fun FolderDetailsScreen(
     snackbarController: SnackbarController,
-    state: TxFolderDetailsState,
+    state: FolderDetailsState,
     transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUIModel>,
     folderName: () -> String,
-    actions: TxFolderDetailsActions,
+    actions: FolderDetailsActions,
     navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -103,7 +103,7 @@ fun TxFolderDetailsScreen(
     RivoScaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(TransactionFolderDetailsScreenSpec.labelRes)) },
+                title = { Text(stringResource(FolderDetailsScreenSpec.labelRes)) },
                 navigationIcon = {
                     if (state.editModeActive) {
                         IconButton(onClick = actions::onEditDismiss) {

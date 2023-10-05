@@ -9,7 +9,7 @@ import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.toTransactionFolderDetails
-import dev.ridill.rivo.folders.domain.model.TransactionFolderDetails
+import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
@@ -28,7 +28,7 @@ class FolderDetailsRepositoryImpl(
     private val transactionDao: TransactionDao
 ) : FolderDetailsRepository {
 
-    override fun getFolderDetailsById(id: Long): Flow<TransactionFolderDetails?> = dao
+    override fun getFolderDetailsById(id: Long): Flow<FolderDetails?> = dao
         .getFolderWithAggregateExpenditureById(id).map { it?.toTransactionFolderDetails() }
 
     override suspend fun saveFolder(

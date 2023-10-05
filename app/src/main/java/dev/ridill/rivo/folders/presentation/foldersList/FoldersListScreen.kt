@@ -1,4 +1,4 @@
-package dev.ridill.rivo.folders.presentation.transactionFoldersList
+package dev.ridill.rivo.folders.presentation.foldersList
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +46,7 @@ import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.navigation.destinations.TxFoldersListScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -54,16 +54,16 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.isNotEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
-import dev.ridill.rivo.folders.domain.model.TransactionFolderDetails
+import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
 
 @Composable
-fun TxFoldersListScreen(
+fun FoldersListScreen(
     snackbarController: SnackbarController,
-    foldersList: LazyPagingItems<TransactionFolderDetails>,
-    state: TxFoldersListState,
-    actions: TxFoldersListActions,
+    foldersList: LazyPagingItems<FolderDetails>,
+    state: FoldersListState,
+    actions: FoldersListActions,
     navigateToFolderDetails: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -71,7 +71,7 @@ fun TxFoldersListScreen(
     RivoScaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(TxFoldersListScreenSpec.labelRes)) },
+                title = { Text(stringResource(FoldersListScreenSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 scrollBehavior = topAppBarScrollBehavior,
                 actions = {
