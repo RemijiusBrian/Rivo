@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.ViewList
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -33,6 +40,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,6 +50,8 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.ListMode
+import dev.ridill.rivo.core.domain.model.SortCriteria
+import dev.ridill.rivo.core.domain.model.SortOrder
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
@@ -52,7 +63,6 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
-import dev.ridill.rivo.core.ui.util.isNotEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -75,22 +85,13 @@ fun FoldersListScreen(
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 scrollBehavior = topAppBarScrollBehavior,
                 actions = {
-                    if (foldersList.isNotEmpty()) {
-                        IconButton(onClick = actions::onListModeToggle) {
-                            Crossfade(
-                                targetState = state.listMode,
-                                label = "ListModeIcon"
-                            ) { listMode ->
-                                Icon(
-                                    imageVector = when (listMode) {
-                                        ListMode.LIST -> Icons.Rounded.ViewList
-                                        ListMode.GRID -> Icons.Rounded.GridView
-                                    },
-                                    contentDescription = stringResource(R.string.cd_toggle_list_mode)
-                                )
-                            }
-                        }
-                    }
+                    FolderListOptions(
+                        selectedSortCriteria = state.sortCriteria,
+                        selectedSortOrder = state.sortOrder,
+                        onSortOptionSelect = actions::onSortOptionSelect,
+                        selectedListMode = state.listMode,
+                        onListModeToggle = actions::onListModeToggle
+                    )
                 }
             )
         },
@@ -165,6 +166,104 @@ fun FoldersListScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FolderListOptions(
+    selectedSortCriteria: SortCriteria,
+    selectedSortOrder: SortOrder,
+    onSortOptionSelect: (SortCriteria) -> Unit,
+    selectedListMode: ListMode,
+    onListModeToggle: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SortOptionsMenu(
+            selectedSortCriteria = selectedSortCriteria,
+            selectedSortOrder = selectedSortOrder,
+            onSortOptionSelect = onSortOptionSelect
+        )
+        IconButton(onClick = onListModeToggle) {
+            Crossfade(
+                targetState = selectedListMode,
+                label = "ListModeIcon"
+            ) { listMode ->
+                Icon(
+                    imageVector = when (listMode) {
+                        ListMode.LIST -> Icons.Rounded.ViewList
+                        ListMode.GRID -> Icons.Rounded.GridView
+                    },
+                    contentDescription = stringResource(R.string.cd_toggle_list_mode)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SortOptionsMenu(
+    selectedSortCriteria: SortCriteria,
+    selectedSortOrder: SortOrder,
+    onSortOptionSelect: (SortCriteria) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        IconButton(
+            onClick = { isExpanded = !isExpanded }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Sort,
+                contentDescription = stringResource(R.string.cd_toggle_list_mode)
+            )
+        }
+
+        val sortContentDescription = stringResource(
+            R.string.cd_list_sorted,
+            stringResource(selectedSortCriteria.labelRes),
+            stringResource(selectedSortOrder.labelRes)
+        )
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false },
+            modifier = Modifier
+                .semantics {
+                    contentDescription = sortContentDescription
+                }
+        ) {
+            SortCriteria.values().forEach { criteria ->
+                val selected = criteria == selectedSortCriteria
+                val sortOptionContentDescription = stringResource(
+                    R.string.cd_sort_option,
+                    stringResource(criteria.labelRes),
+                    stringResource((!selectedSortOrder).labelRes)
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(criteria.labelRes)) },
+                    onClick = {
+                        isExpanded = false
+                        onSortOptionSelect(criteria)
+                    },
+                    trailingIcon = {
+                        if (selected) {
+                            Icon(
+                                imageVector = selectedSortOrder.icon,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .semantics {
+                            contentDescription = sortOptionContentDescription
+                        }
+                )
             }
         }
     }

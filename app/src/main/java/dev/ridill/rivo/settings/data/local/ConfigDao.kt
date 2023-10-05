@@ -17,6 +17,12 @@ interface ConfigDao : BaseDao<ConfigEntity> {
     @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.BACKUP_INTERVAL}'")
     suspend fun getBackupInterval(): String?
 
-    @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.TRANSACTION_FOLDERS_LIST_MODE}'")
-    fun getTansactionFoldersListMode(): Flow<String?>
+    @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.FOLDERS_LIST_SORT_CRITERIA}'")
+    fun getFoldersListSortCriteria(): Flow<String?>
+
+    @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.FOLDERS_LIST_SORT_ORDER}'")
+    fun getFoldersListSortOrder(): Flow<String?>
+
+    @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.FOLDERS_LIST_MODE}'")
+    fun getTFoldersListMode(): Flow<String?>
 }
