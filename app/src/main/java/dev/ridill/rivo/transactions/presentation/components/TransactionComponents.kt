@@ -23,16 +23,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.icons.Tags
+import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
@@ -42,9 +47,10 @@ fun TransactionListItem(
     note: String,
     amount: String,
     date: LocalDate,
-    tag: Tag?,
     modifier: Modifier = Modifier,
     type: TransactionType? = null,
+    tag: Tag? = null,
+    folder: TransactionFolder? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
@@ -83,7 +89,15 @@ fun TransactionListItem(
                 }
             }
         },
-        supportingContent = { tag?.let { TagIndicator(it.name, it.color) } },
+        supportingContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+            ) {
+                folder?.let { FolderIndicator(name = it.name) }
+                tag?.let { TagIndicator(it.name, it.color) }
+            }
+        },
         overlineContent = overlineContent,
         modifier = modifier,
         colors = colors,
@@ -151,17 +165,29 @@ private fun TagIndicator(
     }
 }
 
-/*@Composable
-fun ExcludedIndicator(
-    modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current
-) = Icon(
-    imageVector = Icons.Rounded.VisibilityOff,
-    contentDescription = stringResource(R.string.cd_excluded),
-    modifier = Modifier
-        .size(SmallIndicatorSize)
-        .then(modifier),
-    tint = tint
-)*/
+@Composable
+private fun FolderIndicator(
+    name: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_filled_folder),
+            contentDescription = null,
+            modifier = Modifier
+                .size(SmallIndicatorSize)
+        )
+        Text(
+            text = name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
 
 private val SmallIndicatorSize = 12.dp

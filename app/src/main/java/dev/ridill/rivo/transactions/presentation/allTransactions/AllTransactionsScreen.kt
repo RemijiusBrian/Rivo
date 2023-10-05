@@ -115,10 +115,10 @@ import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactionFolders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactionFolders.presentation.components.FolderListSearchSheet
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
-import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagColors
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
@@ -737,7 +737,8 @@ private fun TransactionsList(
                         selected = transaction.id in selectedTransactionIds,
                         onLongClick = { onTransactionLongClick(transaction.id) },
                         onClick = { onTransactionClick(transaction.id) },
-                        excluded = transaction.excluded
+                        excluded = transaction.excluded,
+                        folder = transaction.folder
                     )
                 }
             }
@@ -897,6 +898,7 @@ private fun TransactionCard(
     amount: String,
     date: LocalDate,
     type: TransactionType,
+    folder: TransactionFolder?,
     selected: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
@@ -909,6 +911,7 @@ private fun TransactionCard(
         date = date,
         type = type,
         tag = null,
+        folder = folder,
         modifier = modifier
             .fillMaxWidth()
             .combinedClickable(

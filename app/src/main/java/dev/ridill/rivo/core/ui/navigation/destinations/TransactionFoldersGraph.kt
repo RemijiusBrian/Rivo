@@ -7,7 +7,7 @@ object TransactionFoldersGraph : NavGraphSpec, BottomNavDestination {
 
     override val labelRes: Int = R.string.destination_tx_folders
 
-    override val iconRes: Int = R.drawable.ic_folder
+    override val iconRes: Int = R.drawable.ic_outline_folder
 
     override val children: List<NavDestination> = listOf(
         TxFoldersListScreenSpec,

@@ -412,8 +412,8 @@ private fun FolderIndicator(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(
-                        id = if (isLinked) R.drawable.ic_remove_folder
-                        else R.drawable.ic_move_to_folder
+                        id = if (isLinked) R.drawable.ic_outline_remove_folder
+                        else R.drawable.ic_outline_move_to_folder
                     ),
                     contentDescription = stringResource(R.string.cd_add_to_folder)
                 )

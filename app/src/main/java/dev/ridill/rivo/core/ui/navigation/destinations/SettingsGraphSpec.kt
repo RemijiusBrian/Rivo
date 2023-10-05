@@ -8,7 +8,7 @@ object SettingsGraphSpec : NavGraphSpec, BottomNavDestination {
 
     override val labelRes: Int = R.string.destination_settings
 
-    override val iconRes: Int = R.drawable.ic_settings
+    override val iconRes: Int = R.drawable.ic_outline_settings
 
     override val children: List<NavDestination> = listOf(
         SettingsScreenSpec,

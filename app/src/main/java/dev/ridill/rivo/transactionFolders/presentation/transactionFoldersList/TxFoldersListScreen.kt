@@ -99,7 +99,7 @@ fun TxFoldersListScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = { navigateToFolderDetails(null) }) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_add_folder),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_add_folder),
                     contentDescription = stringResource(R.string.cd_new_transaction_folder)
                 )
             }
