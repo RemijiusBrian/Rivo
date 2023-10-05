@@ -34,10 +34,10 @@
     <string name="cd_transaction_type_selector">Transaction type selector, set to %s</string>
     <string name="cd_transaction_type_selector_unselected">Click to change to %s</string>
     <string name="cd_enter_amount">Enter amount</string>
-    <!--    <string name="cd_save">Save</string>-->
-    <!--    <string name="cd_delete">Delete</string>-->
+    <string name="cd_delete_selected_transactions">Delete selected transactions</string>
     <string name="cd_click_to_change_transaction_date">Click to change transaction Date</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
+
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
     <string name="cd_transaction_selection_change">Select or Unselect Transaction</string>
@@ -47,6 +47,7 @@
     <string name="cd_tag_color_selected">Tag Color Selected</string>
     <string name="cd_edit_tag">Edit Tag</string>
     <string name="cd_delete_tag">Delete Tag</string>
+    <string name="cd_delete_folder">Delete Tag</string>
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_options">Options</string>

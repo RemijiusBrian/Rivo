@@ -127,11 +127,12 @@ fun TransactionListItem(
             }
         },
         overlineContent = overlineContent,
-        modifier = modifier
+        modifier = Modifier
             .semantics(mergeDescendants = true) {}
             .clearAndSetSemantics {
                 contentDescription = transactionListItemContentDescription
-            },
+            }
+            .then(modifier),
         colors = colors,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation

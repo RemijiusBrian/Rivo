@@ -120,7 +120,7 @@ fun TxFolderDetailsScreen(
                         IconButton(onClick = actions::onDeleteClick) {
                             Icon(
                                 imageVector = Icons.Rounded.DeleteForever,
-                                contentDescription = stringResource(R.string.cd_delete)
+                                contentDescription = stringResource(R.string.cd_delete_folder)
                             )
                         }
                     }
