@@ -47,9 +47,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,6 +72,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.TransactionFolder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
@@ -224,10 +222,7 @@ private fun BalanceAndBudget(
     )
     Row(
         modifier = modifier
-            .semantics(mergeDescendants = true) {}
-            .clearAndSetSemantics {
-                contentDescription = balanceAndBudgetContentDescription
-            },
+            .mergedContentDescription(balanceAndBudgetContentDescription),
         verticalAlignment = Alignment.Bottom
     ) {
         Balance(
@@ -421,10 +416,7 @@ private fun SpentAmountAndAllTransactionsButton(
         Row(
             modifier = Modifier
                 .weight(Float.One)
-                .semantics(mergeDescendants = true) {}
-                .clearAndSetSemantics {
-                    contentDescription = spentAmountContentDescription
-                }
+                .mergedContentDescription(spentAmountContentDescription)
         ) {
             VerticalNumberSpinnerContent(
                 number = amount,

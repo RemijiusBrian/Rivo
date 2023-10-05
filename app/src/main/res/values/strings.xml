@@ -29,9 +29,14 @@
     <string name="cd_transaction_list_item_tag_append">tagged as %s</string>
     <string name="cd_new_transaction_fab">Add new transaction</string>
     <string name="cd_navigate_back">Navigate Back</string>
-    <string name="cd_save">Save</string>
-    <string name="cd_delete">Delete</string>
-    <string name="cd_transaction_date">Transaction Date</string>
+    <string name="cd_delete_transaction">Delete transaction</string>
+    <string name="cd_save_transaction">Save transaction</string>
+    <string name="cd_transaction_type_selector">Transaction type selector, set to %s</string>
+    <string name="cd_transaction_type_selector_unselected">Click to change to %s</string>
+    <string name="cd_enter_amount">Enter amount</string>
+    <!--    <string name="cd_save">Save</string>-->
+    <!--    <string name="cd_delete">Delete</string>-->
+    <string name="cd_click_to_change_transaction_date">Click to change transaction Date</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
@@ -52,7 +57,7 @@
     <string name="cd_transaction_folder_created_date">Transaction Folder Created Date</string>
     <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
     <string name="cd_create_new_transaction_folder">Create New Transaction Folder</string>
-    <string name="cd_add_to_folder">Add To Folder</string>
+    <string name="cd_add_transaction_to_folder">Add transaction fo a folder</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
