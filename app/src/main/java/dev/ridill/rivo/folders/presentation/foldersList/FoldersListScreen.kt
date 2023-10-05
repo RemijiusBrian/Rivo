@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.ViewList
@@ -126,8 +126,8 @@ fun FoldersListScreen(
                         messageRes = R.string.transaction_folders_list_empty_message
                     )
                 }
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(
                         when (state.listMode) {
                             ListMode.LIST -> 1
                             ListMode.GRID -> 2
@@ -140,7 +140,7 @@ fun FoldersListScreen(
                         bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                     ),
                     horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
-                    verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+                    verticalItemSpacing = SpacingMedium
                 ) {
                     items(
                         count = foldersList.itemCount,
