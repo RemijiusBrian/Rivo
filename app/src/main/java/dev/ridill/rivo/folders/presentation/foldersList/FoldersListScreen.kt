@@ -242,7 +242,9 @@ private fun FolderCard(
                         AggregateAmountText(
                             amount = aggregateAmount,
                             type = aggregateDirection,
-                            horizontalAlignment = Alignment.End
+                            horizontalAlignment = Alignment.End,
+                            modifier = Modifier
+                                .fillMaxWidth(AMOUNT_TEXT_WIDTH_FRACTION)
                         )
                     }
                 }
@@ -279,6 +281,8 @@ private fun FolderCard(
         }
     }
 }
+
+private const val AMOUNT_TEXT_WIDTH_FRACTION = 0.50f
 
 @Composable
 private fun AggregateAmountText(

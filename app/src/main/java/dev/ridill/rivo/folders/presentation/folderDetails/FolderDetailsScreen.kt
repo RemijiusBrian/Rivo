@@ -48,12 +48,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
@@ -450,12 +452,15 @@ private fun AggregateAmount(
         VerticalNumberSpinnerContent(
             number = amount.absoluteValue,
             modifier = Modifier
-                .alignByBaseline()
+                .weight(weight = Float.One, fill = false)
+                .alignBy(LastBaseline)
         ) {
             Text(
                 text = TextFormat.currency(it, currency = currency),
                 style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
@@ -465,7 +470,7 @@ private fun AggregateAmount(
             targetState = aggregateTypeText,
             label = "AggregateType",
             modifier = Modifier
-                .alignByBaseline()
+                .alignBy(LastBaseline)
         ) { text ->
             Text(
                 text = text,

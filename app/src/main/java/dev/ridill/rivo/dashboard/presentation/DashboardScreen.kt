@@ -66,8 +66,10 @@ import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -229,6 +231,7 @@ private fun BalanceAndBudget(
             currency = currency,
             amount = balance,
             modifier = Modifier
+                .weight(weight = Float.One, fill = false)
                 .alignBy(LastBaseline)
         )
         SpacerSmall()
@@ -411,17 +414,21 @@ private fun SpentAmountAndAllTransactionsButton(
         TextFormat.currency(amount, currency)
     )
     Row(
-        modifier = modifier
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             modifier = Modifier
-                .weight(Float.One)
-                .mergedContentDescription(spentAmountContentDescription)
+                .weight(weight = Float.One, fill = false)
+                .alignBy(LastBaseline)
+                .mergedContentDescription(spentAmountContentDescription),
+            horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
         ) {
             VerticalNumberSpinnerContent(
                 number = amount,
                 modifier = Modifier
-                    .alignByBaseline()
+                    .weight(weight = Float.One, fill = false)
+                    .alignBy(LastBaseline)
             ) {
                 Text(
                     text = TextFormat.currency(amount = it, currency = currency),
@@ -432,26 +439,25 @@ private fun SpentAmountAndAllTransactionsButton(
                 )
             }
 
-            SpacerSmall()
-
             Text(
                 text = stringResource(R.string.spent_this_month),
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier
-                    .alignByBaseline(),
+                    .alignBy(LastBaseline),
                 color = contentColor.copy(
-                    alpha = 0.80f
+                    alpha = ContentAlpha.SUB_CONTENT
                 ),
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
+                maxLines = 1
             )
         }
 
         TextButton(
             onClick = onAllTransactionsClick,
             modifier = Modifier
-                .alignByBaseline()
+                .alignBy(LastBaseline)
         ) {
-            Text(text = "${stringResource(AllTransactionsScreenSpec.labelRes)} >")
+            Text("${stringResource(AllTransactionsScreenSpec.labelRes)} >")
         }
     }
 }
