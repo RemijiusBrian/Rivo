@@ -75,6 +75,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
@@ -128,14 +129,14 @@ fun TxFolderDetailsScreen(
                         IconButton(onClick = actions::onEditConfirm) {
                             Icon(
                                 imageVector = Icons.Rounded.Check,
-                                contentDescription = stringResource(R.string.cd_save_transaction_folder)
+                                contentDescription = stringResource(R.string.cd_save_folder)
                             )
                         }
                     } else {
                         IconButton(onClick = actions::onEditClick) {
                             Icon(
                                 imageVector = Icons.Rounded.Edit,
-                                contentDescription = stringResource(R.string.cd_edit_transaction_folder)
+                                contentDescription = stringResource(R.string.cd_edit_folder)
                             )
                         }
                     }
@@ -249,7 +250,7 @@ private fun FolderCreatedDate(
         SpacerSmall()
         Icon(
             imageVector = Icons.Outlined.CalendarClock,
-            contentDescription = stringResource(R.string.cd_transaction_folder_created_date)
+            contentDescription = stringResource(R.string.cd_folder_created_date)
         )
     }
 }
@@ -294,7 +295,8 @@ private fun NameField(
             unfocusedContainerColor = containerColor,
             focusedContainerColor = containerColor
         ),
-        textStyle = MaterialTheme.typography.headlineMedium
+        textStyle = MaterialTheme.typography.headlineMedium,
+        placeholder = { Text(stringResource(R.string.enter_folder_name)) }
     )
 }
 
@@ -434,8 +436,16 @@ private fun AggregateAmount(
             else -> R.string.aggregate_amount_zero
         }
     )
+    val aggregateAmountContentDescription = type?.let {
+        stringResource(
+            R.string.cd_folder_aggregate_amount_unbalanced,
+            TextFormat.currency(amount, currency),
+            aggregateTypeText
+        )
+    } ?: stringResource(R.string.cd_folder_aggregate_amount_balanced)
     Row(
         modifier = modifier
+            .mergedContentDescription(aggregateAmountContentDescription)
     ) {
         VerticalNumberSpinnerContent(
             number = amount.absoluteValue,
@@ -506,7 +516,8 @@ private fun TransactionCard(
             amount = amount,
             date = date,
             type = type,
-            tag = tag
+            tag = tag,
+            showTypeIndicator = true
         )
     }
 }
