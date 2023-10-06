@@ -56,8 +56,8 @@ android {
         create("internal") {
             dimension = "env"
             applicationIdSuffix = ".internal"
-            versionCode = 14
-            versionName = "0.5.2"
+            versionCode = 15
+            versionName = "0.5.3"
 
             buildConfigField("int", "DB_VERSION", "7")
         }
@@ -71,6 +71,7 @@ android {
         }
     }
 
+    // Rename Build Outputs
     applicationVariants.configureEach {
         val artifactName = "${rootProject.name}-${name}-code${versionCode}-v${versionName}"
 

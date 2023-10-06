@@ -51,7 +51,7 @@
     <string name="cd_create_new_folder">Create New Folder</string>
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
-<!--    <string name="cd_sort_list">Sort list</string>-->
+    <!--    <string name="cd_sort_list">Sort list</string>-->
     <string name="cd_add_transaction_to_folder">Add transaction fo a folder</string>
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
@@ -271,5 +271,5 @@
     <string name="sort_order_ascending">Ascending</string>
     <string name="sort_order_descending">Descending</string>
     <string name="backup_using_cellular">Backup using cellular data</string>
-    <string name="setting_up_transaction_auto_add">Setting up Transaction Auto Add</string>
+    <string name="setting_up_transaction_auto_add_feature">Setting up Transaction Auto Add Feature</string>
 </resources>

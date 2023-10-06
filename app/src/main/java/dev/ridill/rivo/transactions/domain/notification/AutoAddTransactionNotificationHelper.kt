@@ -101,7 +101,7 @@ class AutoAddTransactionNotificationHelper(
     fun getSMSModelDownloadForegroundNotification(): NotificationCompat.Builder =
         NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.setting_up_transaction_auto_add))
+            .setContentTitle(context.getString(R.string.setting_up_transaction_auto_add_feature))
             .setProgress(100, 0, true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
