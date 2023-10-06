@@ -2,16 +2,18 @@ package dev.ridill.rivo.core.data.db
 
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.BuildConfig
+import dev.ridill.rivo.folders.data.local.FolderDao
+import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
-import dev.ridill.rivo.folders.data.local.FolderDao
-import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
@@ -26,7 +28,8 @@ import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
     ],
     version = BuildConfig.DB_VERSION,
     autoMigrations = [
-        AutoMigration(from = 5, to = 6)
+        AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class)
     ]
 )
 @TypeConverters(DateTimeConverter::class)
@@ -41,6 +44,9 @@ abstract class RivoDatabase : RoomDatabase() {
     abstract fun folderDao(): FolderDao
     abstract fun tagsDao(): TagsDao
     abstract fun configDao(): ConfigDao
+
+    @RenameTable(fromTableName = "transaction_folder_table", toTableName = "folder_table")
+    class AutoMigrationSpec6To7 : AutoMigrationSpec
 }
 
 val Migration_1_2 = object : Migration(1, 2) {
