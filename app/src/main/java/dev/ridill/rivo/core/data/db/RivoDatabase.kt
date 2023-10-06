@@ -2,6 +2,7 @@ package dev.ridill.rivo.core.data.db
 
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.RenameColumn
 import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -29,7 +30,8 @@ import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
     version = BuildConfig.DB_VERSION,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
-        AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class)
+        AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),
+        AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class)
     ]
 )
 @TypeConverters(DateTimeConverter::class)
@@ -47,6 +49,13 @@ abstract class RivoDatabase : RoomDatabase() {
 
     @RenameTable(fromTableName = "transaction_folder_table", toTableName = "folder_table")
     class AutoMigrationSpec6To7 : AutoMigrationSpec
+
+    @RenameColumn(
+        tableName = "transaction_table",
+        fromColumnName = "transaction_type_name",
+        toColumnName = "type"
+    )
+    class AutoMigrationSpec7To8 : AutoMigrationSpec
 }
 
 val Migration_1_2 = object : Migration(1, 2) {

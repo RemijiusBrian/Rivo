@@ -23,7 +23,7 @@ import java.time.LocalDateTime
             childColumns = ["folder_id"]
         )
     ],
-    indices = [Index("tag_id"), Index("folder_id")]
+    indices = [Index("tag_id"), Index("folder_id"), Index("timestamp")]
 )
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
@@ -39,7 +39,7 @@ data class TransactionEntity(
     @ColumnInfo(name = "timestamp")
     val timestamp: LocalDateTime,
 
-    @ColumnInfo(name = "transaction_type_name", defaultValue = "DEBIT")
+    @ColumnInfo(name = "type", defaultValue = "DEBIT")
     val typeName: String,
 
     @ColumnInfo(name = "is_excluded")

@@ -20,9 +20,10 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         SELECT IFNULL(SUM(tx.amount), 0.0)
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
+        LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE strftime('%m-%Y', tx.timestamp) = strftime('%m-%Y', :monthAndYear)
-        AND (tx.is_excluded = 0 AND IFNULL(tag.is_excluded, 0) = 0)
-        AND tx.transaction_type_name = 'DEBIT'
+        AND (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0
+        AND tx.type = 'DEBIT'
     """
     )
     fun getExpenditureForMonth(monthAndYear: LocalDateTime): Flow<Double>
@@ -45,7 +46,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tx.note AS transactionNote,
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
-        tx.transaction_type_name AS transactionTypeName,
+        tx.type AS transactionTypeName,
         tx.is_excluded AS isTransactionExcluded,
         tag.id AS tagId,
         tag.name AS tagName,
@@ -60,7 +61,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
-            AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
+            AND (:transactionTypeName IS NULL OR type = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
             AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0)
@@ -82,7 +83,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         tx.note AS transactionNote,
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
-        tx.transaction_type_name AS transactionTypeName,
+        tx.type AS transactionTypeName,
         tx.is_excluded AS isTransactionExcluded,
         tag.id AS tagId,
         tag.name AS tagName,
@@ -97,7 +98,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
-            AND (:transactionTypeName IS NULL OR transaction_type_name = :transactionTypeName)
+            AND (:transactionTypeName IS NULL OR type = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
             AND (:showExcluded = 1 OR (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0)

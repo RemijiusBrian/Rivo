@@ -26,8 +26,7 @@ interface TagsDao : BaseDao<TagEntity> {
             FROM transaction_table subTx
             WHERE subTx.tag_id = tag.id
             AND strftime('%m-%Y', subTx.timestamp) = :monthAndYear
-            AND subTx.is_excluded = 0
-            AND subTx.transaction_type_name = 'DEBIT'    
+            AND subTx.type = 'DEBIT'   
         ) as amount
         FROM tag_table tag
         ORDER BY name ASC, datetime(createdTimestamp) DESC

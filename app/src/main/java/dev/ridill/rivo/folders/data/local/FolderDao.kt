@@ -16,8 +16,8 @@ interface FolderDao : BaseDao<FolderEntity> {
     @Query(
         """
         SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.transaction_type_name = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.transaction_type_name = 'CREDIT')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
         ) AS aggregateAmount
         FROM folder_table folder
         ORDER BY name ASC
@@ -29,8 +29,8 @@ interface FolderDao : BaseDao<FolderEntity> {
     @Query(
         """
         SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.transaction_type_name = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.transaction_type_name = 'CREDIT')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
         ) AS aggregateAmount
         FROM folder_table folder
         ORDER BY name DESC
@@ -42,8 +42,8 @@ interface FolderDao : BaseDao<FolderEntity> {
     @Query(
         """
         SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.transaction_type_name = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.transaction_type_name = 'CREDIT')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
         ) AS aggregateAmount
         FROM folder_table folder
         ORDER BY datetime(createdTimestamp) ASC, id ASC
@@ -55,8 +55,8 @@ interface FolderDao : BaseDao<FolderEntity> {
     @Query(
         """
         SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.transaction_type_name = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.transaction_type_name = 'CREDIT')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
         ) AS aggregateAmount
         FROM folder_table folder
         ORDER BY datetime(createdTimestamp) DESC, id DESC
@@ -68,8 +68,8 @@ interface FolderDao : BaseDao<FolderEntity> {
     @Query(
         """
         SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.transaction_type_name = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.transaction_type_name = 'CREDIT')
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
         ) AS aggregateAmount
         FROM folder_table folder
         WHERE folder.id = :id
