@@ -73,6 +73,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
@@ -213,12 +214,16 @@ fun AddEditTransactionScreen(
                 FolderIndicator(
                     folderName = state.linkedFolderName,
                     onAddToFolderClick = actions::onAddToFolderClick,
-                    onRemoveFolderClick = actions::onRemoveFromFolderClick
+                    onRemoveFolderClick = actions::onRemoveFromFolderClick,
+                    modifier = Modifier
+                        .weight(weight = Float.One, fill = false)
                 )
 
                 TransactionDate(
                     date = state.transactionDateFormatted,
-                    onDateClick = actions::onTransactionTimestampClick
+                    onDateClick = actions::onTransactionTimestampClick,
+                    modifier = Modifier
+                        .weight(weight = Float.One, fill = false)
                 )
             }
 
@@ -409,7 +414,10 @@ private fun FolderIndicator(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Crossfade(targetState = isFolderLinked, label = "FolderIcon") { isLinked ->
+        Crossfade(
+            targetState = isFolderLinked,
+            label = "FolderIcon"
+        ) { isLinked ->
             IconButton(
                 onClick = {
                     if (isLinked) onRemoveFolderClick()
@@ -438,7 +446,9 @@ private fun FolderIndicator(
             ) { text ->
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

@@ -130,8 +130,21 @@ fun TransactionListItem(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                folder?.let { FolderIndicator(name = it.name) }
-                tag?.let { TagIndicator(it.name, it.color) }
+                folder?.let {
+                    FolderIndicator(
+                        name = it.name,
+                        modifier = Modifier
+                            .weight(weight = Float.One, fill = false)
+                    )
+                }
+                tag?.let {
+                    TagIndicator(
+                        name = it.name,
+                        color = it.color,
+                        modifier = Modifier
+                            .weight(weight = Float.One, fill = false)
+                    )
+                }
             }
         },
         overlineContent = overlineContent,
