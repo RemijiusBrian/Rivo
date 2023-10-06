@@ -1,7 +1,7 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import androidx.compose.ui.graphics.Color
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
@@ -30,6 +30,6 @@ interface AddEditTransactionActions {
     fun onRemoveFromFolderClick()
     fun onFolderSearchQueryChange(query: String)
     fun onFolderSelectionDismiss()
-    fun onFolderSelect(folder: TransactionFolder)
+    fun onFolderSelect(folder: Folder)
     fun onCreateFolderClick()
 }

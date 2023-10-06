@@ -11,10 +11,10 @@ import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.relation.FolderAndAggregateAmount
-import dev.ridill.rivo.folders.data.toTransactionFolder
-import dev.ridill.rivo.folders.data.toTransactionFolderDetails
+import dev.ridill.rivo.folders.data.toFolder
+import dev.ridill.rivo.folders.data.toFolderDetails
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.model.FolderDetails
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
@@ -47,7 +47,7 @@ class FoldersListRepositoryImpl(
         }
     }
         .flow
-        .map { it.map(FolderAndAggregateAmount::toTransactionFolderDetails) }
+        .map { it.map(FolderAndAggregateAmount::toFolderDetails) }
 
     override fun getFoldersListSortCriteria(): Flow<SortCriteria> = configDao
         .getFoldersListSortCriteria().map {
@@ -95,7 +95,14 @@ class FoldersListRepositoryImpl(
         }
     }
 
-    override fun getFoldersList(searchQuery: String): Flow<List<TransactionFolder>> =
-        folderDao.getFoldersList(searchQuery)
-            .map { it.map(FolderEntity::toTransactionFolder) }
+    override fun getFoldersList(searchQuery: String): Flow<PagingData<Folder>> =
+        Pager(
+            config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
+        ) { folderDao.getFoldersList(searchQuery) }
+            .flow
+            .map { it.map(FolderEntity::toFolder) }
+
+    override suspend fun getFolderById(id: Long): Folder? = withContext(Dispatchers.IO){
+        folderDao.getFolderById(id)?.toFolder()
+    }
 }

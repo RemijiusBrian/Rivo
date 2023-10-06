@@ -1,6 +1,6 @@
 package dev.ridill.rivo.transactions.data
 
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.domain.model.Tag
@@ -33,10 +33,10 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
     )
     else null
 
-    val transactionFolder = if (folderId != null
+    val folder = if (folderId != null
         && folderName != null
         && folderCreatedTimestamp != null
-    ) TransactionFolder(
+    ) Folder(
         id = folderId,
         name = folderName,
         createdTimestamp = folderCreatedTimestamp,
@@ -51,7 +51,7 @@ fun TransactionDetails.toTransactionListItem(): TransactionListItem {
         type = TransactionType.valueOf(transactionTypeName),
         isTransactionExcluded = isTransactionExcluded,
         tag = tag,
-        folder = transactionFolder
+        folder = folder
     )
 }
 

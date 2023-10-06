@@ -16,10 +16,10 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
@@ -108,7 +108,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
     val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
-    private val foldersList = folderSearchQuery
+    val foldersList = folderSearchQuery
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             foldersListRepo.getFoldersList(query)
@@ -130,8 +130,7 @@ class AllTransactionsViewModel @Inject constructor(
         showTagInput,
         tagInputError,
         showExcludedTransactions,
-        showFolderSelection,
-        foldersList
+        showFolderSelection
     ).map { (
                 selectedDate,
                 yearsList,
@@ -148,8 +147,7 @@ class AllTransactionsViewModel @Inject constructor(
                 showTagInput,
                 tagInputError,
                 showExcludedTransactions,
-                showFolderSelection,
-                foldersList
+                showFolderSelection
             ) ->
         AllTransactionsState(
             selectedDate = selectedDate,
@@ -167,8 +165,7 @@ class AllTransactionsViewModel @Inject constructor(
             showTagInput = showTagInput,
             tagInputError = tagInputError,
             showExcludedTransactions = showExcludedTransactions,
-            showFolderSelection = showFolderSelection,
-            foldersList = foldersList
+            showFolderSelection = showFolderSelection
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
 
@@ -394,7 +391,7 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SHOW_FOLDER_SELECTION] = false
     }
 
-    override fun onTransactionFolderSelect(folder: TransactionFolder) {
+    override fun onTransactionFolderSelect(folder: Folder) {
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             transactionRepo.addTransactionsToFolderByIds(

@@ -71,6 +71,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
@@ -87,6 +88,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -104,6 +106,7 @@ fun AddEditTransactionScreen(
     tagExclusionInput: () -> Boolean?,
     isEditMode: Boolean,
     folderSearchQuery: () -> String,
+    folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit
@@ -297,7 +300,7 @@ fun AddEditTransactionScreen(
             FolderListSearchSheet(
                 searchQuery = folderSearchQuery,
                 onSearchQueryChange = actions::onFolderSearchQueryChange,
-                foldersList = state.folderList,
+                foldersList = folderList,
                 onFolderClick = actions::onFolderSelect,
                 onCreateNewClick = actions::onCreateFolderClick,
                 onDismiss = actions::onFolderSelectionDismiss

@@ -79,7 +79,10 @@ interface FolderDao : BaseDao<FolderEntity> {
     fun getFolderWithAggregateExpenditureById(id: Long): Flow<FolderAndAggregateAmount?>
 
     @Query("SELECT * FROM folder_table WHERE name LIKE '%' || :query || '%'")
-    fun getFoldersList(query: String): Flow<List<FolderEntity>>
+    fun getFoldersList(query: String): PagingSource<Int, FolderEntity>
+
+    @Query("SELECT * FROM folder_table WHERE id = :id")
+    suspend fun getFolderById(id: Long): FolderEntity?
 
     @Transaction
     suspend fun deleteFolderOnlyById(id: Long) {

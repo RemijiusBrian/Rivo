@@ -8,7 +8,7 @@ import androidx.paging.map
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.toTransactionFolderDetails
+import dev.ridill.rivo.folders.data.toFolderDetails
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
@@ -29,7 +29,7 @@ class FolderDetailsRepositoryImpl(
 ) : FolderDetailsRepository {
 
     override fun getFolderDetailsById(id: Long): Flow<FolderDetails?> = dao
-        .getFolderWithAggregateExpenditureById(id).map { it?.toTransactionFolderDetails() }
+        .getFolderWithAggregateExpenditureById(id).map { it?.toFolderDetails() }
 
     override suspend fun saveFolder(
         id: Long,

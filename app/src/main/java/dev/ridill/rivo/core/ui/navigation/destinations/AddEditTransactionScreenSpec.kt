@@ -21,6 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
@@ -96,6 +97,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
         val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
+        val folderList = viewModel.foldersList.collectAsLazyPagingItems()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
@@ -160,6 +162,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             tagColorInput = { tagInput.value?.colorCode },
             tagExclusionInput = { tagInput.value?.excluded },
             folderSearchQuery = { folderSearchQuery.value },
+            folderList = folderList,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp

@@ -2,10 +2,10 @@ package dev.ridill.rivo.folders.data
 
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.relation.FolderAndAggregateAmount
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 
-fun FolderAndAggregateAmount.toTransactionFolderDetails(): FolderDetails = FolderDetails(
+fun FolderAndAggregateAmount.toFolderDetails(): FolderDetails = FolderDetails(
     id = id,
     name = name,
     createdTimestamp = createdTimestamp,
@@ -13,7 +13,7 @@ fun FolderAndAggregateAmount.toTransactionFolderDetails(): FolderDetails = Folde
     aggregateAmount = aggregateAmount
 )
 
-fun FolderEntity.toTransactionFolder(): TransactionFolder = TransactionFolder(
+fun FolderEntity.toFolder(): Folder = Folder(
     id = id,
     name = name,
     createdTimestamp = createdTimestamp,

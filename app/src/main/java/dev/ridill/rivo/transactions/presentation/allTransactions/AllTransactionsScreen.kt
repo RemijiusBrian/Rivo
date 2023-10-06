@@ -75,7 +75,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -84,11 +83,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
@@ -102,26 +100,23 @@ import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
-import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import dev.ridill.rivo.transactions.presentation.components.TagColors
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
@@ -138,6 +133,7 @@ fun AllTransactionsScreen(
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
     folderSearchQuery: () -> String,
+    foldersList: LazyPagingItems<Folder>,
     actions: AllTransactionsActions,
     navigateUp: () -> Unit
 ) {
@@ -276,7 +272,7 @@ fun AllTransactionsScreen(
             FolderListSearchSheet(
                 searchQuery = folderSearchQuery,
                 onSearchQueryChange = actions::onTransactionFolderQueryChange,
-                foldersList = state.foldersList,
+                foldersList = foldersList,
                 onFolderClick = actions::onTransactionFolderSelect,
                 onCreateNewClick = actions::onCreateNewFolderClick,
                 onDismiss = actions::onTransactionFolderSelectionDismiss
@@ -917,7 +913,7 @@ private fun TransactionCard(
     amount: String,
     date: LocalDate,
     type: TransactionType,
-    folder: TransactionFolder?,
+    folder: Folder?,
     selected: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
@@ -944,50 +940,4 @@ private fun TransactionCard(
         tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
         excluded = excluded
     )
-}
-
-@Preview
-@Composable
-private fun PreviewAllTransactionsScreen() {
-    RivoTheme {
-        AllTransactionsScreen(
-            snackbarController = rememberSnackbarController(),
-            state = AllTransactionsState(),
-            tagNameInput = { "" },
-            tagColorInput = { TagColors.first().toArgb() },
-            actions = object : AllTransactionsActions {
-                override fun onMonthSelect(month: Month) {}
-                override fun onYearSelect(year: Int) {}
-                override fun onTagClick(tag: Tag) {}
-                override fun onNewTagClick() {}
-                override fun onTagInputNameChange(value: String) {}
-                override fun onTagInputColorSelect(color: Color) {}
-                override fun onTagInputExclusionChange(excluded: Boolean) {}
-                override fun onTagInputDismiss() {}
-                override fun onTagInputConfirm() {}
-                override fun onToggleShowExcludedTransactions(value: Boolean) {}
-                override fun onTransactionLongClick(id: Long) {}
-                override fun onTransactionClick(id: Long) {}
-                override fun onSelectionStateChange() {}
-                override fun onDismissMultiSelectionMode() {}
-                override fun onTransactionOptionClick(option: TransactionOption) {}
-                override fun onTransactionFolderQueryChange(query: String) {}
-                override fun onTransactionFolderSelectionDismiss() {}
-                override fun onTransactionFolderSelect(folder: TransactionFolder) {}
-                override fun onCreateNewFolderClick() {}
-                override fun onDeleteTransactionDismiss() {}
-                override fun onDeleteTransactionConfirm() {}
-                override fun onEditTagClick(tag: Tag) {}
-                override fun onDeleteTagClick() {}
-                override fun onDeleteTagDismiss() {}
-                override fun onDeleteTagConfirm() {}
-                override fun onDeleteTagWithTransactionsClick() {}
-                override fun onDeleteSelectedTransactionsClick() {}
-            },
-            navigateUp = {},
-            tagExclusionInput = { false },
-            isTagInputEditMode = { false },
-            folderSearchQuery = { String.Empty }
-        )
-    }
 }

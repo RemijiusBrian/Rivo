@@ -3,7 +3,7 @@ package dev.ridill.rivo.folders.presentation.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedCard
@@ -14,18 +14,24 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.folders.domain.model.Folder
 
 @Composable
 fun FolderListSearchSheet(
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
-    foldersList: List<TransactionFolder>,
-    onFolderClick: (TransactionFolder) -> Unit,
+    foldersList: LazyPagingItems<Folder>,
+    onFolderClick: (Folder) -> Unit,
     onCreateNewClick: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -37,36 +43,82 @@ fun FolderListSearchSheet(
         placeholder = stringResource(R.string.search_folder),
         modifier = modifier,
         contentPadding = PaddingValues(
-            start = SpacingMedium,
-            end = SpacingMedium,
             bottom = SpacingListEnd
         ),
-        verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
-        item(key = "CreateNewGroupItem") {
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.create_new_folder)) },
-                trailingContent = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_outline_add_folder),
-                        contentDescription = stringResource(R.string.cd_create_new_folder)
-                    )
-                },
+        item(
+            key = "CreateNewFolderItem",
+            contentType = "CreateNewFolderItem"
+        ) {
+            NewFolderItem(
+                onClick = onCreateNewClick,
                 modifier = Modifier
-                    .clickable(
-                        onClick = onCreateNewClick,
-                        role = Role.Button
-                    )
+                    .animateItemPlacement()
             )
         }
-        items(items = foldersList, key = { it.id }) { folder ->
-            OutlinedCard(onClick = { onFolderClick(folder) }) {
-                ListItem(
-                    headlineContent = { Text(folder.name) },
-                    modifier = modifier
+        items(
+            count = foldersList.itemCount,
+            key = foldersList.itemKey { it.id },
+            contentType = foldersList.itemContentType { "FolderCard" }
+        ) { index ->
+            foldersList[index]?.let { folder ->
+                FolderCard(
+                    name = folder.name,
+                    excluded = folder.excluded,
+                    onClick = { onFolderClick(folder) },
+                    modifier = Modifier
+                        .padding(horizontal = SpacingMedium)
                         .animateItemPlacement()
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NewFolderItem(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ListItem(
+        headlineContent = { Text(stringResource(R.string.create_new_folder)) },
+        trailingContent = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_add_folder),
+                contentDescription = stringResource(R.string.cd_create_new_folder)
+            )
+        },
+        modifier = Modifier
+            .clickable(
+                onClick = onClick,
+                role = Role.Button
+            )
+            .then(modifier)
+    )
+}
+
+@Composable
+private fun FolderCard(
+    name: String,
+    excluded: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedCard(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        ListItem(
+            headlineContent = {
+                Text(
+                    text = name,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textDecoration = if (excluded) TextDecoration.LineThrough
+                    else null
+                )
+            }
+        )
     }
 }

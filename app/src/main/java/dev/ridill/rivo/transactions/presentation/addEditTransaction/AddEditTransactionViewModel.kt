@@ -20,11 +20,11 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.folders.domain.model.TransactionFolder
+import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
@@ -91,16 +91,14 @@ class AddEditTransactionViewModel @Inject constructor(
     private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
 
     val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
-    private val foldersList = folderSearchQuery
+    val foldersList = folderSearchQuery
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             foldersListRepo.getFoldersList(query)
         }
-    private val linkedFolderName = combineTuple(
-        foldersList,
-        transactionFolderId
-    ).map { (folders, selectedId) ->
-        folders.find { it.id == selectedId }
+
+    private val linkedFolderName = transactionFolderId.map { selectedId ->
+        selectedId?.let { foldersListRepo.getFolderById(it) }
     }.map { it?.name }
 
     val state = combineTuple(
@@ -116,7 +114,6 @@ class AddEditTransactionViewModel @Inject constructor(
         newTagError,
         showDateTimePicker,
         showFolderSelection,
-        foldersList,
         linkedFolderName
     ).map { (
                 currency,
@@ -131,7 +128,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 newTagError,
                 showDateTimePicker,
                 showFolderSelection,
-                folderList,
                 linkedFolderName
             ) ->
         AddEditTransactionState(
@@ -147,7 +143,6 @@ class AddEditTransactionViewModel @Inject constructor(
             showDateTimePicker = showDateTimePicker,
             transactionType = transactionType,
             showFolderSelection = showFolderSelection,
-            folderList = folderList,
             linkedFolderName = linkedFolderName
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
@@ -361,7 +356,7 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[SHOW_FOLDER_SELECTION] = false
     }
 
-    override fun onFolderSelect(folder: TransactionFolder) {
+    override fun onFolderSelect(folder: Folder) {
         savedStateHandle[TRANSACTION_FOLDER_ID] = folder.id
         savedStateHandle[SHOW_FOLDER_SELECTION] = false
     }

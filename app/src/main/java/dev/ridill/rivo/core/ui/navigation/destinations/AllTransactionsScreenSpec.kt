@@ -9,6 +9,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
@@ -26,7 +27,8 @@ object AllTransactionsScreenSpec : ScreenSpec {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
-        val groupSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
+        val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
+        val foldersList = viewModel.foldersList.collectAsLazyPagingItems()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -71,7 +73,8 @@ object AllTransactionsScreenSpec : ScreenSpec {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG },
-            folderSearchQuery = { groupSearchQuery.value }
+            folderSearchQuery = { folderSearchQuery.value },
+            foldersList = foldersList
         )
     }
 }
