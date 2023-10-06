@@ -7,6 +7,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
@@ -112,7 +113,7 @@ class AllTransactionsViewModel @Inject constructor(
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             foldersListRepo.getFoldersList(query)
-        }
+        }.cachedIn(viewModelScope)
 
     val state = combineTuple(
         selectedDate,

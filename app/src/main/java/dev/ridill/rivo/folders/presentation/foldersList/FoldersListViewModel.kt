@@ -2,6 +2,7 @@ package dev.ridill.rivo.folders.presentation.foldersList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.domain.model.SortCriteria
@@ -37,7 +38,7 @@ class FoldersListViewModel @Inject constructor(
             sortCriteria = sortCriteria,
             sortOrder = sortOrder
         )
-    }
+    }.cachedIn(viewModelScope)
 
     val state = combineTuple(
         currency,

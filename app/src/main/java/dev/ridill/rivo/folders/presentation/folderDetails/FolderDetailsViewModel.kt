@@ -3,6 +3,7 @@ package dev.ridill.rivo.folders.presentation.folderDetails
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
@@ -68,9 +69,9 @@ class FolderDetailsViewModel @Inject constructor(
 
     private val editModeActive = savedStateHandle.getStateFlow(EDIT_MODE_ACTIVE, false)
 
-    val pager = folderIdFlow.flatMapLatest {
+    val transactionsList = folderIdFlow.flatMapLatest {
         repo.getPagedTransactionsInFolder(it)
-    }
+    }.cachedIn(viewModelScope)
 
     val state = combineTuple(
         folderIdFlow,

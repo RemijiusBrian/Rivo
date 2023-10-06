@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
@@ -95,7 +96,7 @@ class AddEditTransactionViewModel @Inject constructor(
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             foldersListRepo.getFoldersList(query)
-        }
+        }.cachedIn(viewModelScope)
 
     private val linkedFolderName = transactionFolderId.map { selectedId ->
         selectedId?.let { foldersListRepo.getFolderById(it) }

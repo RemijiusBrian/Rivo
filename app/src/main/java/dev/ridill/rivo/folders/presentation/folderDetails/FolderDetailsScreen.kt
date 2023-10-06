@@ -91,7 +91,7 @@ import kotlin.math.absoluteValue
 fun FolderDetailsScreen(
     snackbarController: SnackbarController,
     state: FolderDetailsState,
-    transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUIModel>,
+    transactionsList: LazyPagingItems<TransactionListItemUIModel>,
     folderName: () -> String,
     actions: FolderDetailsActions,
     navigateToAddEditTransaction: (Long?) -> Unit,
@@ -200,14 +200,14 @@ fun FolderDetailsScreen(
                         .fillMaxWidth()
                         .weight(Float.One),
                     insetPadding = paddingValues,
-                    pagingItems = transactionsLazyPagingItems,
+                    pagingItems = transactionsList,
                     onTransactionSwipeDismiss = actions::onTransactionSwipeToDismiss
                 )
             }
         }
 
         if (state.showDeleteConfirmation) {
-            if (transactionsLazyPagingItems.itemCount == 0) {
+            if (transactionsList.itemCount == 0) {
                 ConfirmationDialog(
                     titleRes = R.string.delete_transaction_folder_confirmation_title,
                     contentRes = R.string.action_irreversible_message,
@@ -408,6 +408,7 @@ private fun TransactionsInFolder(
                                                     .amountFormattedWithCurrency(currency),
                                                 date = item.transaction.date,
                                                 type = item.transaction.type,
+                                                excluded = item.transaction.excluded,
                                                 tag = item.transaction.tag,
                                                 onClick = { onTransactionClick(item.transaction.id) },
                                                 modifier = Modifier
@@ -512,6 +513,7 @@ private fun TransactionCard(
     amount: String,
     date: LocalDate,
     type: TransactionType,
+    excluded: Boolean,
     tag: Tag?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -526,7 +528,8 @@ private fun TransactionCard(
             date = date,
             type = type,
             tag = tag,
-            showTypeIndicator = true
+            showTypeIndicator = true,
+            excluded = excluded
         )
     }
 }
