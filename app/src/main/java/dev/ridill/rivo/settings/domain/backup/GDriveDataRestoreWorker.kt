@@ -1,6 +1,7 @@
 package dev.ridill.rivo.settings.domain.backup
 
 import android.content.Context
+import android.content.pm.ServiceInfo
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -61,7 +62,8 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
         setForeground(
             ForegroundInfo(
                 Random.nextInt(),
-                notificationHelper.getForegroundNotification(R.string.restoring_app_data).build()
+                notificationHelper.getForegroundNotification(R.string.restoring_app_data).build(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         )
     }

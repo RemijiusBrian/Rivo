@@ -9,6 +9,9 @@ object BuildUtil {
 
     val isDebug: Boolean get() = BuildConfig.DEBUG
 
+    val isAtLeastSdk34: Boolean
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+
     fun isDynamicColorsSupported(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 

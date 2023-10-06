@@ -103,6 +103,7 @@ class AutoAddTransactionNotificationHelper(
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.setting_up_transaction_auto_add))
             .setProgress(100, 0, true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
     private fun buildContentIntent(id: Int): PendingIntent? {
         val intent = Intent(

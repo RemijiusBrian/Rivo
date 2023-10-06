@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.domain.sms
 
 import android.content.Context
+import android.content.pm.ServiceInfo
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -22,11 +23,11 @@ class SMSModelDownloadWorker @AssistedInject constructor(
     private val notificationHelper: AutoAddTransactionNotificationHelper
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-//        startForeground()
-        logI { "Downloading SMS ML Model" }
+        startForeground()
+        logI { "Downloading ML Kit Model" }
         tryOrNull {
             smsService.downloadModelIfNeeded()
-            logI { "SMS ML Model Downloaded" }
+            logI { "ML Kit Model Downloaded" }
             Result.success()
         } ?: Result.failure()
     }
@@ -35,7 +36,8 @@ class SMSModelDownloadWorker @AssistedInject constructor(
         setForeground(
             ForegroundInfo(
                 Random.nextInt(),
-                notificationHelper.getSMSModelDownloadForegroundNotification().build()
+                notificationHelper.getSMSModelDownloadForegroundNotification().build(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         )
     }
