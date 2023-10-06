@@ -260,7 +260,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 id = currentTransactionId,
                 amount = amount,
                 note = note,
-                dateTime = transactionTimestamp.value,
+                timestamp = transactionTimestamp.value,
                 transactionType = type,
                 tagId = tagId,
                 folderId = folderId,

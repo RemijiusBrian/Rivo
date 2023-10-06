@@ -21,9 +21,21 @@ import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.TimeUnit
 
 class BackupWorkManager(
-    context: Context
+    private val context: Context
 ) {
     private val workManager = WorkManager.getInstance(context)
+
+    private val commonBackupTag: String
+        get() = "${context.packageName}.RIVO_BACKUP"
+
+    private val oneTimeBackupWorkName: String
+        get() = "${context.packageName}.ONE_TIME_G_DRIVE_BACKUP_WORK"
+
+    private val periodicBackupWorkName: String
+        get() = "${context.packageName}.PERIODIC_G_DRIVE_BACKUP_WORK"
+
+    private val oneTimeRestoreWorkName: String
+        get() = "${context.packageName}.ONE_TIME_G_DRIVE_RESTORE_WORK"
 
     companion object {
         const val WORK_INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
@@ -43,70 +55,70 @@ class BackupWorkManager(
         )
             .setConstraints(buildConstraints(runInCellular))
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACK_OFF_DELAY, TimeUnit.MINUTES)
-            .setId(PERIODIC_G_DRIVE_BACKUP_WORK.toUUID())
+            .setId(periodicBackupWorkName.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
-            .addTag(RIVO_BACKUP_TAG)
+            .addTag(commonBackupTag)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
-            PERIODIC_G_DRIVE_BACKUP_WORK,
+            periodicBackupWorkName,
             ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             workRequest
         )
     }
 
     fun getPeriodicBackupWorkInfoFlow(): Flow<WorkInfo?> = workManager
-        .getWorkInfoByIdLiveData(PERIODIC_G_DRIVE_BACKUP_WORK.toUUID())
+        .getWorkInfoByIdLiveData(periodicBackupWorkName.toUUID())
         .asFlow()
 
     fun cancelPeriodicBackupWork() {
-        workManager.cancelWorkById(PERIODIC_G_DRIVE_BACKUP_WORK.toUUID())
+        workManager.cancelWorkById(periodicBackupWorkName.toUUID())
     }
 
     fun runImmediateBackupWork() {
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-            .setId(ONE_TIME_G_DRIVE_BACKUP_WORK.toUUID())
-            .addTag(RIVO_BACKUP_TAG)
+            .setId(oneTimeBackupWorkName.toUUID())
+            .addTag(commonBackupTag)
             .build()
 
         workManager.enqueueUniqueWork(
-            ONE_TIME_G_DRIVE_BACKUP_WORK,
+            oneTimeBackupWorkName,
             ExistingWorkPolicy.REPLACE,
             workRequest
         )
     }
 
     fun getImmediateBackupWorkInfoFlow(): Flow<WorkInfo?> = workManager
-        .getWorkInfoByIdLiveData(ONE_TIME_G_DRIVE_BACKUP_WORK.toUUID())
+        .getWorkInfoByIdLiveData(oneTimeBackupWorkName.toUUID())
         .asFlow()
 
     fun runImmediateRestoreWork(details: BackupDetails) {
         val jsonData = Gson().toJson(details)
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-            .setId(ONE_TIME_G_DRIVE_RESTORE_WORK.toUUID())
+            .setId(oneTimeRestoreWorkName.toUUID())
             .setInputData(
                 workDataOf(
                     BACKUP_DETAILS_INPUT to jsonData
                 )
             )
-            .addTag(RIVO_BACKUP_TAG)
+            .addTag(commonBackupTag)
             .build()
 
         workManager.enqueueUniqueWork(
-            ONE_TIME_G_DRIVE_RESTORE_WORK,
+            oneTimeRestoreWorkName,
             ExistingWorkPolicy.REPLACE,
             workRequest
         )
     }
 
     fun getImmediateRestoreWorkInfoFlow(): Flow<WorkInfo?> = workManager
-        .getWorkInfoByIdLiveData(ONE_TIME_G_DRIVE_RESTORE_WORK.toUUID())
+        .getWorkInfoByIdLiveData(oneTimeRestoreWorkName.toUUID())
         .asFlow()
 
     fun cancelAllWorks() {
-        workManager.cancelAllWorkByTag(RIVO_BACKUP_TAG)
+        workManager.cancelAllWorkByTag(commonBackupTag)
     }
 
     private fun buildConstraints(runInCellular: Boolean): Constraints = Constraints.Builder()
@@ -118,8 +130,4 @@ class BackupWorkManager(
         .build()
 }
 
-private const val RIVO_BACKUP_TAG = "dev.ridill.rivo.RIVO_BACKUP"
-private const val ONE_TIME_G_DRIVE_BACKUP_WORK = "dev.ridill.rivo.ONE_TIME_G_DRIVE_BACKUP_WORK"
-private const val PERIODIC_G_DRIVE_BACKUP_WORK = "dev.ridill.rivo.PERIODIC_G_DRIVE_BACKUP_WORK"
-private const val ONE_TIME_G_DRIVE_RESTORE_WORK = "dev.ridill.rivo.ONE_TIME_G_DRIVE_RESTORE_WORK"
 private const val BACK_OFF_DELAY = 5L

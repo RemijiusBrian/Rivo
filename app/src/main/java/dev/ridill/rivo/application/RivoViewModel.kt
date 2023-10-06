@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,7 +20,8 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class RivoViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
-    private val receiverService: ReceiverService
+    private val receiverService: ReceiverService,
+    private val smsModelDownloadManager: SMSModelDownloadManager
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
     val showWelcomeFlow = preferences.map { it.showAppWelcomeFlow }
@@ -39,14 +41,18 @@ class RivoViewModel @Inject constructor(
 
     private fun toggleSplashScreenVisibility() = viewModelScope.launch {
         showWelcomeFlow.collect {
-            delay(1.seconds)
+            delay(SPLASH_SCREEN_DELAY_SECONDS.seconds)
             showSplashScreen.update { false }
         }
     }
 
     private fun collectTransactionAutoAdd() = viewModelScope.launch {
         preferences.map { it.autoAddTransactionEnabled }
-            .collectLatest { receiverService.toggleSmsReceiver(it) }
+            .collectLatest { enabled ->
+                receiverService.toggleSmsReceiver(enabled)
+                if (enabled)
+                    smsModelDownloadManager.downloadSMSModelIfNeeded()
+            }
     }
 
     fun onSmsPermissionCheck(granted: Boolean) = viewModelScope.launch {
@@ -57,3 +63,5 @@ class RivoViewModel @Inject constructor(
         receiverService.toggleNotificationActionReceivers(granted)
     }
 }
+
+private const val SPLASH_SCREEN_DELAY_SECONDS = 2

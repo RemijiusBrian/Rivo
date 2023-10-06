@@ -42,7 +42,7 @@ class BackupNotificationHelper(
         .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(context.getString(titleRes))
         .setProgress(100, 0, true)
-        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFAULT)
+        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
     private val channelId: String
         get() = "${context.packageName}.NOTIFICATION_CHANNEL_BACKUPS"

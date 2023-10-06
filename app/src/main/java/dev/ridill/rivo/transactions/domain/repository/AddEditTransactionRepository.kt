@@ -12,7 +12,7 @@ interface AddEditTransactionRepository {
         id: Long?,
         amount: Double,
         note: String,
-        dateTime: LocalDateTime,
+        timestamp: LocalDateTime,
         transactionType: TransactionType,
         tagId: Long?,
         folderId: Long? = null,

@@ -195,7 +195,8 @@
     <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
     <string name="tag_deleted_with_transactions">Tag deleted with transactions</string>
-    <string name="amount_spent_towards_merchant">%1$s spent towards %2$s</string>
+    <string name="amount_debited_notification_message">%1$s spent towards %2$s</string>
+    <string name="amount_credited_notification_message">%1$s received from %2$s</string>
     <string name="new_transaction_detected">New Transaction Detected</string>
     <string name="no_debits_yet">No Debits Yet</string>
     <string name="tag_name">Tag Name</string>
@@ -270,4 +271,5 @@
     <string name="sort_order_ascending">Ascending</string>
     <string name="sort_order_descending">Descending</string>
     <string name="backup_using_cellular">Backup using cellular data</string>
+    <string name="setting_up_transaction_auto_add">Setting up Transaction Auto Add</string>
 </resources>

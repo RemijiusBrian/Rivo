@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import androidx.core.app.NotificationCompat
 
 interface NotificationHelper {
+    val channelId: String
     fun registerChannelGroup()
 
     fun registerChannel()

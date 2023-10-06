@@ -28,9 +28,16 @@ class TransactionSmsService(
     private val repo: AddEditTransactionRepository,
     private val notificationHelper: AutoAddTransactionNotificationHelper,
     private val applicationScope: CoroutineScope,
-    private val context: Context
+    private val context: Context,
 ) {
     private val merchantRegex = MERCHANT_PATTERN.toRegex()
+    private val creditTextRegex = CREDIT_TEXT_PATTERN.toRegex()
+
+    suspend fun downloadModelIfNeeded() {
+        getEntityExtractor().use {
+            it.downloadModelIfNeeded().await()
+        }
+    }
 
     fun isSmsActionValid(action: String?): Boolean =
         action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION
@@ -44,24 +51,25 @@ class TransactionSmsService(
             val messages = getSmsFromIntent(data)
             for (message in messages) {
                 val content = message.messageBody
-                if (!isExpenseSMS(content)) continue
 
                 val transactionDetails = extractTransactionDetails(extractor, content)
                     ?: continue
-                if (transactionDetails.paymentDateTime.isAfter(dateTimeNow)) continue
+                val transactionDate = transactionDetails.paymentDateTime
+                if (transactionDate.isAfter(dateTimeNow)) continue
 
                 val amount = transactionDetails.amount
                 val merchant = transactionDetails.merchant
                     ?: context.getString(R.string.generic_merchant)
+                val type = transactionDetails.type
 
                 val insertedId = repo.saveTransaction(
                     id = null,
                     amount = amount,
                     note = merchant,
-                    dateTime = DateUtil.now(),
+                    timestamp = transactionDate,
                     tagId = null,
                     excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
-                    transactionType = TransactionType.DEBIT,
+                    transactionType = type,
                     folderId = null
                 )
 
@@ -69,7 +77,10 @@ class TransactionSmsService(
                     id = insertedId.toInt(),
                     title = context.getString(R.string.new_transaction_detected),
                     content = context.getString(
-                        R.string.amount_spent_towards_merchant,
+                        when (type) {
+                            TransactionType.CREDIT -> R.string.amount_credited_notification_message
+                            TransactionType.DEBIT -> R.string.amount_debited_notification_message
+                        },
                         TextFormat.currency(amount),
                         merchant
                     )
@@ -80,11 +91,6 @@ class TransactionSmsService(
 
     private fun getSmsFromIntent(intent: Intent): List<SmsMessage> =
         Telephony.Sms.Intents.getMessagesFromIntent(intent).toList()
-
-    private fun isExpenseSMS(content: String): Boolean =
-        content.contains("debited", true)
-                || content.contains("spent", true)
-                || content.contains("money transfer", true)
 
     private fun extractMerchant(content: String): String? {
         val groupValues = merchantRegex.find(content)?.groupValues ?: return null
@@ -109,43 +115,57 @@ class TransactionSmsService(
             )
             .build()
 
-        val entities = extractor.annotate(params).await()
-            .firstOrNull()
+        val annotations = extractor.annotate(params).await()
+            .ifEmpty { throw AnnotationFailedThrowable() }
+
+        val moneyEntity = annotations
+            ?.find { annotation -> annotation.entities.any { it.type == Entity.TYPE_MONEY } }
             ?.entities
-        val moneyEntity = entities
-            ?.find { it.type == Entity.TYPE_MONEY }
+            ?.firstOrNull()
             ?.asMoneyEntity()
             ?: throw MoneyExtractionFailedThrowable()
 
         val integer = moneyEntity.integerPart.orZero()
-        val fraction = ("0.${moneyEntity.fractionalPart.orZero()}").toDouble()
+        val fraction =
+            moneyEntity.fractionalPart.orZero() * 0.1 // Convert whole Int fractionPart to double 0.{fractionPart}
         val amount = integer + fraction
 
-        val paymentDateTime = entities
-            .find { it.type == Entity.TYPE_DATE_TIME }
+        val paymentDateTime = annotations
+            .find { annotation -> annotation.entities.any { it.type == Entity.TYPE_DATE_TIME } }
+            ?.entities
+            ?.firstOrNull()
             ?.asDateTimeEntity()
             ?.timestampMillis
             ?.let { DateUtil.fromMillis(it) }
             ?: throw DateExtractionFailedThrowable()
 
         val merchant = extractMerchant(content)
+        val transactionType = getTransactionType(content)
 
         TransactionDetailsFromSMS(
             amount = amount,
             merchant = merchant,
-            paymentDateTime = paymentDateTime
+            paymentDateTime = paymentDateTime,
+            type = transactionType
         )
     }
+
+    private fun getTransactionType(content: String): TransactionType =
+        if (content.contains(creditTextRegex)) TransactionType.CREDIT
+        else TransactionType.DEBIT
 }
 
 private const val MERCHANT_PATTERN =
     "(?i)(?:\\sat\\s|in\\*|to\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?)"
+private const val CREDIT_TEXT_PATTERN = "(credit(ed)?|receive(d)?)"
 
 data class TransactionDetailsFromSMS(
     val amount: Double,
     val merchant: String?,
     val paymentDateTime: LocalDateTime,
+    val type: TransactionType
 )
 
+class AnnotationFailedThrowable : Throwable("Failed to annotate data")
 class MoneyExtractionFailedThrowable : Throwable("Failed to extract money amount")
 class DateExtractionFailedThrowable : Throwable("Failed to extract date")

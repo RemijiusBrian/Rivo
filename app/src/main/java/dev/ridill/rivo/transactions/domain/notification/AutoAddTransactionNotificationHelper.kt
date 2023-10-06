@@ -27,6 +27,12 @@ class AutoAddTransactionNotificationHelper(
         registerChannel()
     }
 
+    override val channelId: String
+        get() = "${context.packageName}.NOTIFICATION_CHANNEL_TRANSACTION_AUTO_ADD"
+
+    private val summaryId: String
+        get() = "${context.packageName}.AUTO_ADDED_TRANSACTIONS_SUMMARY"
+
     override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat.Builder(NotificationHelper.Groups.TRANSACTIONS)
             .setName(context.getString(R.string.notification_channel_group_transactions_name))
@@ -36,7 +42,7 @@ class AutoAddTransactionNotificationHelper(
 
     override fun registerChannel() {
         val channel = NotificationChannelCompat
-            .Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(context.getString(R.string.notification_channel_auto_add_transactions_name))
             .setGroup(NotificationHelper.Groups.TRANSACTIONS)
             .build()
@@ -44,11 +50,10 @@ class AutoAddTransactionNotificationHelper(
     }
 
     override fun buildBaseNotification(): NotificationCompat.Builder =
-        NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
-            .setOnlyAlertOnce(true)
-            .setGroup(SUMMARY_GROUP)
+            .setGroup(summaryId)
 
     override fun postNotification(id: Int, title: String, content: String?) {
         if (!notificationManager.areNotificationsEnabled()) return
@@ -60,16 +65,14 @@ class AutoAddTransactionNotificationHelper(
                     setContentText(content)
                 }
             }
-            .setAutoCancel(true)
             .setContentIntent(buildContentIntent(id))
             .addAction(buildDeleteAction(id))
             .addAction(buildMarkExcludedAction(id))
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
             .build()
 
         val summaryNotification = buildBaseNotification()
             .setGroupSummary(true)
-            .setAutoCancel(true)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
             .build()
 
         with(notificationManager) {
@@ -90,6 +93,16 @@ class AutoAddTransactionNotificationHelper(
     override fun dismissNotification(id: Int) {
         notificationManager.cancel(id)
     }
+
+    fun cancelAllNotifications() {
+        notificationManager.cancelAll()
+    }
+
+    fun getSMSModelDownloadForegroundNotification(): NotificationCompat.Builder =
+        NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.setting_up_transaction_auto_add))
+            .setProgress(100, 0, true)
 
     private fun buildContentIntent(id: Int): PendingIntent? {
         val intent = Intent(
@@ -135,6 +148,4 @@ class AutoAddTransactionNotificationHelper(
     }
 }
 
-private const val CHANNEL_ID = "dev.ridill.rivo.CHANNEL_AUTO_ADD_Transaction_NOTIFICATIONS"
-private const val SUMMARY_GROUP = "dev.ridill.rivo.AUTO_ADDED_TransactionS"
 private const val SUMMARY_ID = Int.MAX_VALUE - 1
