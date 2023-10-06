@@ -31,7 +31,7 @@ class BackupWorkManager(
         const val BACKUP_DETAILS_INPUT = "BACKUP_DETAILS_INPUT"
     }
 
-    fun schedulePeriodicWorker(interval: BackupInterval) {
+    fun schedulePeriodicBackupWork(interval: BackupInterval, runInCellular: Boolean) {
         if (interval == BackupInterval.MANUAL) {
             cancelPeriodicBackupWork()
             return
@@ -41,10 +41,11 @@ class BackupWorkManager(
             interval.daysInterval,
             TimeUnit.DAYS
         )
-            .setConstraints(buildConstraints())
+            .setConstraints(buildConstraints(runInCellular))
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACK_OFF_DELAY, TimeUnit.MINUTES)
             .setId(PERIODIC_G_DRIVE_BACKUP_WORK.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
+            .addTag(RIVO_BACKUP_TAG)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -66,6 +67,7 @@ class BackupWorkManager(
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(ONE_TIME_G_DRIVE_BACKUP_WORK.toUUID())
+            .addTag(RIVO_BACKUP_TAG)
             .build()
 
         workManager.enqueueUniqueWork(
@@ -89,6 +91,7 @@ class BackupWorkManager(
                     BACKUP_DETAILS_INPUT to jsonData
                 )
             )
+            .addTag(RIVO_BACKUP_TAG)
             .build()
 
         workManager.enqueueUniqueWork(
@@ -102,13 +105,21 @@ class BackupWorkManager(
         .getWorkInfoByIdLiveData(ONE_TIME_G_DRIVE_RESTORE_WORK.toUUID())
         .asFlow()
 
-    private fun buildConstraints(): Constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.UNMETERED)
+    fun cancelAllWorks() {
+        workManager.cancelAllWorkByTag(RIVO_BACKUP_TAG)
+    }
+
+    private fun buildConstraints(runInCellular: Boolean): Constraints = Constraints.Builder()
+        .setRequiredNetworkType(
+            if (runInCellular) NetworkType.CONNECTED
+            else NetworkType.UNMETERED
+        )
         .setRequiresBatteryNotLow(true)
         .build()
 }
 
-private const val ONE_TIME_G_DRIVE_BACKUP_WORK = "dev.ridill.mym.ONE_TIME_G_DRIVE_BACKUP_WORK"
-private const val PERIODIC_G_DRIVE_BACKUP_WORK = "dev.ridill.mym.PERIODIC_G_DRIVE_BACKUP_WORK"
-private const val ONE_TIME_G_DRIVE_RESTORE_WORK = "dev.ridill.mym.ONE_TIME_G_DRIVE_RESTORE_WORK"
+private const val RIVO_BACKUP_TAG = "dev.ridill.rivo.RIVO_BACKUP"
+private const val ONE_TIME_G_DRIVE_BACKUP_WORK = "dev.ridill.rivo.ONE_TIME_G_DRIVE_BACKUP_WORK"
+private const val PERIODIC_G_DRIVE_BACKUP_WORK = "dev.ridill.rivo.PERIODIC_G_DRIVE_BACKUP_WORK"
+private const val ONE_TIME_G_DRIVE_RESTORE_WORK = "dev.ridill.rivo.ONE_TIME_G_DRIVE_RESTORE_WORK"
 private const val BACK_OFF_DELAY = 5L

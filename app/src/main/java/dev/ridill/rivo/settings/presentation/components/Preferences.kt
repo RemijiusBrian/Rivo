@@ -46,14 +46,7 @@ fun SimpleSettingsPreference(
         { Text(text = it) }
     },
     leadingIcon = leadingIcon?.let {
-        {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(PreferenceIconSize)
-            )
-        }
+        { PreferenceIcon(imageVector = it) }
     },
     modifier = Modifier
         .fillMaxWidth()
@@ -104,43 +97,32 @@ fun SwitchPreference(
     onValueChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     summary: String? = null,
-    leadingIcon: ImageVector? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
     contentPadding: PaddingValues = PreferenceContentPadding
-) {
-    BasicPreference(
-        titleContent = { Text(text = stringResource(titleRes)) },
-        summaryContent = summary?.let {
-            { Text(text = it) }
-        },
-        leadingIcon = leadingIcon?.let {
-            {
-                Icon(
-                    imageVector = it,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(PreferenceIconSize)
-                )
-            }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .toggleable(
-                value = value,
-                role = Role.Switch,
-                onValueChange = onValueChange
-            )
-            .then(modifier),
-        contentPadding = contentPadding,
-        trailingContent = {
-            Switch(
-                checked = value,
-                onCheckedChange = onValueChange,
-                modifier = Modifier
-                    .clearAndSetSemantics {}
-            )
-        }
-    )
-}
+) = BasicPreference(
+    titleContent = { Text(text = stringResource(titleRes)) },
+    summaryContent = summary?.let {
+        { Text(text = it) }
+    },
+    leadingIcon = leadingIcon,
+    modifier = Modifier
+        .fillMaxWidth()
+        .toggleable(
+            value = value,
+            role = Role.Switch,
+            onValueChange = onValueChange
+        )
+        .then(modifier),
+    contentPadding = contentPadding,
+    trailingContent = {
+        Switch(
+            checked = value,
+            onCheckedChange = onValueChange,
+            modifier = Modifier
+                .clearAndSetSemantics {}
+        )
+    }
+)
 
 @Composable
 fun BasicPreference(
@@ -186,7 +168,19 @@ fun BasicPreference(
 }
 
 @Composable
-fun EmptyIconSpacer() = HorizontalSpacer(spacing = PreferenceIconSize)
+fun PreferenceIcon(
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier
+) = Icon(
+    imageVector = imageVector,
+    contentDescription = null,
+    modifier = Modifier
+        .size(PreferenceIconSize)
+        .then(modifier)
+)
+
+@Composable
+fun EmptyPreferenceIconSpacer() = HorizontalSpacer(spacing = PreferenceIconSize)
 
 val PreferenceIconSize = 24.dp
 val PreferenceContentPadding = PaddingValues(

@@ -17,6 +17,9 @@ interface ConfigDao : BaseDao<ConfigEntity> {
     @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.BACKUP_INTERVAL}'")
     suspend fun getBackupInterval(): String?
 
+    @Query("SELECT IFNULL(config_value, 0) FROM config_table WHERE config_key = '${ConfigKeys.BACKUP_USING_CELLULAR}'")
+    fun getBackupUsingCellular(): Flow<Boolean?>
+
     @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.FOLDERS_LIST_SORT_CRITERIA}'")
     fun getFoldersListSortCriteria(): Flow<String?>
 
@@ -24,5 +27,5 @@ interface ConfigDao : BaseDao<ConfigEntity> {
     fun getFoldersListSortOrder(): Flow<String?>
 
     @Query("SELECT config_value FROM config_table WHERE config_key = '${ConfigKeys.FOLDERS_LIST_MODE}'")
-    fun getTFoldersListMode(): Flow<String?>
+    fun getFoldersListMode(): Flow<String?>
 }

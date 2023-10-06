@@ -78,7 +78,7 @@ class FoldersListRepositoryImpl(
     }
 
     override fun getFoldersListMode(): Flow<ListMode> = configDao
-        .getTFoldersListMode().map {
+        .getFoldersListMode().map {
             ListMode.valueOf(
                 it ?: ListMode.GRID.name
             )

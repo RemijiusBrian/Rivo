@@ -45,6 +45,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import dev.ridill.rivo.settings.presentation.components.PreferenceIcon
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 
@@ -91,7 +92,7 @@ fun SettingsScreen(
                     summary = stringResource(R.string.preference_dynamic_colors_summary),
                     value = state.dynamicColorsEnabled,
                     onValueChange = actions::onDynamicThemeEnabledChange,
-                    leadingIcon = Icons.Rounded.Palette
+                    leadingIcon = { PreferenceIcon(imageVector = Icons.Rounded.Palette) }
                 )
             }
 

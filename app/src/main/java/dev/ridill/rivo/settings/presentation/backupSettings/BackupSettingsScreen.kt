@@ -28,8 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.BackArrowButton
-import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
+import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.icons.Google
 import dev.ridill.rivo.core.ui.navigation.destinations.BackupSettingsScreenSpec
@@ -38,10 +38,11 @@ import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import dev.ridill.rivo.settings.presentation.components.BasicPreference
-import dev.ridill.rivo.settings.presentation.components.EmptyIconSpacer
+import dev.ridill.rivo.settings.presentation.components.EmptyPreferenceIconSpacer
 import dev.ridill.rivo.settings.presentation.components.PreferenceIconSize
 import dev.ridill.rivo.settings.presentation.components.SimplePreference
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
+import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 
 @Composable
 fun BackupSettingsScreen(
@@ -86,21 +87,30 @@ fun BackupSettingsScreen(
             )
 
             AnimatedVisibility(visible = state.isAccountAdded) {
-                SimplePreference(
-                    titleRes = R.string.preference_backup_interval,
-                    summary = stringResource(state.interval.labelRes),
-                    onClick = actions::onBackupIntervalPreferenceClick,
-                    leadingIcon = { EmptyIconSpacer() }
-                )
-            }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+                ) {
+                    SimplePreference(
+                        titleRes = R.string.preference_backup_interval,
+                        summary = stringResource(state.interval.labelRes),
+                        onClick = actions::onBackupIntervalPreferenceClick,
+                        leadingIcon = { EmptyPreferenceIconSpacer() }
+                    )
 
-            AnimatedVisibility(visible = state.isAccountAdded) {
-                PreviousBackupDetails(
-                    lastBackupDate = state.lastBackupDateFormatted?.asString(),
-                    lastBackupTime = state.lastBackupTimeFormatted,
-                    onBackupNowClick = actions::onBackupNowClick,
-                    isBackupRunning = state.isBackupRunning
-                )
+                    PreviousBackupDetails(
+                        lastBackupDate = state.lastBackupDateFormatted?.asString(),
+                        lastBackupTime = state.lastBackupTimeFormatted,
+                        onBackupNowClick = actions::onBackupNowClick,
+                        isBackupRunning = state.isBackupRunning
+                    )
+
+                    SwitchPreference(
+                        titleRes = R.string.backup_using_cellular,
+                        value = state.backupUsingCellular,
+                        onValueChange = actions::onBackupUsingCellularToggle,
+                        leadingIcon = { EmptyPreferenceIconSpacer() }
+                    )
+                }
             }
         }
 
@@ -153,7 +163,7 @@ fun PreviousBackupDetails(
                 fontWeight = FontWeight.SemiBold
             )
         },
-        leadingIcon = { EmptyIconSpacer() },
+        leadingIcon = { EmptyPreferenceIconSpacer() },
         summaryContent = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall),

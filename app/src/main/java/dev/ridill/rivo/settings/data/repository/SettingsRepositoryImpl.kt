@@ -6,7 +6,6 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
-import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -42,22 +41,6 @@ class SettingsRepositoryImpl(
             val entity = ConfigEntity(
                 configKey = ConfigKeys.CURRENCY_CODE,
                 configValue = code
-            )
-            dao.insert(entity)
-        }
-    }
-
-    override suspend fun getCurrentBackupInterval(): BackupInterval = withContext(Dispatchers.IO) {
-        BackupInterval.valueOf(
-            dao.getBackupInterval() ?: BackupInterval.MANUAL.name
-        )
-    }
-
-    override suspend fun updateBackupInterval(interval: BackupInterval) {
-        withContext(Dispatchers.IO) {
-            val entity = ConfigEntity(
-                configKey = ConfigKeys.BACKUP_INTERVAL,
-                configValue = interval.name
             )
             dao.insert(entity)
         }

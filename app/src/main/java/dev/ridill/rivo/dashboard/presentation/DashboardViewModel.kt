@@ -9,10 +9,11 @@ import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,7 +25,7 @@ class DashboardViewModel @Inject constructor(
     private val signInService: GoogleSignInService,
     private val preferencesManager: PreferencesManager,
     private val backupWorkManager: BackupWorkManager,
-    private val settingsRepository: SettingsRepository
+    private val backupSettingsRepo: BackupSettingsRepository
 ) : ViewModel() {
 
     private val currency = repo.getCurrencyPreference()
@@ -85,8 +86,12 @@ class DashboardViewModel @Inject constructor(
             .collectLatest { needsRestore ->
                 if (!needsRestore) return@collectLatest
 
-                val currentBackupInterval = settingsRepository.getCurrentBackupInterval()
-                backupWorkManager.schedulePeriodicWorker(currentBackupInterval)
+                val currentBackupInterval = backupSettingsRepo.getCurrentBackupInterval()
+                val runInCellular = backupSettingsRepo.getBackupUsingCellular().first()
+                backupWorkManager.schedulePeriodicBackupWork(
+                    interval = currentBackupInterval,
+                    runInCellular = runInCellular
+                )
 
                 preferencesManager.updateNeedsConfigRestore(false)
             }

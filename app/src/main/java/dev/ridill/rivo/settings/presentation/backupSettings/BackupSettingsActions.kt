@@ -8,4 +8,5 @@ interface BackupSettingsActions {
     fun onBackupIntervalSelected(interval: BackupInterval)
     fun onBackupIntervalSelectionDismiss()
     fun onBackupNowClick()
+    fun onBackupUsingCellularToggle(checked: Boolean)
 }

@@ -15,11 +15,13 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
+import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
+import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
@@ -115,6 +117,19 @@ object SettingsModule {
     fun provideBackupNotificationHelper(
         @ApplicationContext context: Context
     ): BackupNotificationHelper = BackupNotificationHelper(context)
+
+    @Provides
+    fun provideBackupSettingsRepository(
+        dao: ConfigDao,
+        signInService: GoogleSignInService,
+        preferencesManager: PreferencesManager,
+        backupWorkManager: BackupWorkManager
+    ): BackupSettingsRepository = BackupSettingsRepositoryImpl(
+        dao = dao,
+        signInService = signInService,
+        preferencesManager = preferencesManager,
+        backupWorkManager = backupWorkManager
+    )
 }
 
 @Qualifier

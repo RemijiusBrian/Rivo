@@ -1,6 +1,5 @@
 package dev.ridill.rivo.settings.presentation.backupSettings
 
-import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
@@ -9,16 +8,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ridill.rivo.R
-import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
+import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
-import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,41 +25,42 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupSettingsViewModel @Inject constructor(
-    preferencesManager: PreferencesManager,
-    private val eventBus: EventBus<BackupEvent>,
-    private val signInService: GoogleSignInService,
     private val savedStateHandle: SavedStateHandle,
-    private val backupWorkManager: BackupWorkManager,
-    private val settingsRepo: SettingsRepository
+    private val repo: BackupSettingsRepository,
+    private val eventBus: EventBus<BackupEvent>
 ) : ViewModel(), BackupSettingsActions {
 
-    private val backupAccount = MutableStateFlow<String?>(null)
-    private val isAccountAdded = backupAccount.map { !it.isNullOrEmpty() }
+    private val backupAccountEmail = repo.getBackupAccount()
+        .map { it?.email }
+        .distinctUntilChanged()
+    private val isAccountAdded = backupAccountEmail.map { !it.isNullOrEmpty() }
         .distinctUntilChanged()
 
-    private val preferences = preferencesManager.preferences
-
     private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
+    private val backupUsingCellular = repo.getBackupUsingCellular()
+        .distinctUntilChanged()
 
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
 
-    private val lastBackupDateTime = preferences.map { it.lastBackupDateTime }
+    private val lastBackupDateTime = repo.getLastBackupTime()
         .distinctUntilChanged()
 
-    private val isBackupWorkerRunning = MutableStateFlow(false)
+    private val isBackupRunning = MutableStateFlow(false)
 
     val state = combineTuple(
-        backupAccount,
+        backupAccountEmail,
         isAccountAdded,
         backupInterval,
+        backupUsingCellular,
         showBackupIntervalSelection,
         lastBackupDateTime,
-        isBackupWorkerRunning
+        isBackupRunning
     ).map { (
                 backupAccount,
                 isAccountAdded,
                 backupInterval,
+                backupUsingCellular,
                 showBackupIntervalSelection,
                 lastBackupDateTime,
                 isBackupWorkerRunning
@@ -73,6 +70,7 @@ class BackupSettingsViewModel @Inject constructor(
             isAccountAdded = isAccountAdded,
             showBackupIntervalSelection = showBackupIntervalSelection,
             interval = backupInterval,
+            backupUsingCellular = backupUsingCellular,
             lastBackupDateTime = lastBackupDateTime,
             isBackupRunning = isBackupWorkerRunning
         )
@@ -82,19 +80,17 @@ class BackupSettingsViewModel @Inject constructor(
 
     init {
         getSignedInUser()
-        collectImmediateBackupWorkState()
+        collectImmediateBackupWorkInfo()
         collectPeriodicBackupWorkInfo()
     }
 
     private fun getSignedInUser() {
-        backupAccount.update {
-            signInService.getSignedInAccount()?.email
-        }
+        repo.refreshBackupAccount()
     }
 
-    private fun collectImmediateBackupWorkState() = viewModelScope.launch {
-        backupWorkManager.getImmediateBackupWorkInfoFlow().collectLatest { info ->
-            isBackupWorkerRunning.update {
+    private fun collectImmediateBackupWorkInfo() = viewModelScope.launch {
+        repo.getImmediateBackupWorkInfo().collectLatest { info ->
+            isBackupRunning.update {
                 info?.state == WorkInfo.State.RUNNING
             }
             if (info?.state == WorkInfo.State.FAILED) {
@@ -106,13 +102,15 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
-        backupWorkManager.getPeriodicBackupWorkInfoFlow().collectLatest { info ->
-            updateBackupInterval(info)
-            isBackupWorkerRunning.update { info?.state == WorkInfo.State.RUNNING }
+        repo.getPeriodicBackupWorkInfo().collectLatest { info ->
+            isBackupRunning.update {
+                info?.state == WorkInfo.State.RUNNING
+            }
+            setBackupIntervalFromWorkInfo(info)
         }
     }
 
-    private fun updateBackupInterval(info: WorkInfo?) {
+    private fun setBackupIntervalFromWorkInfo(info: WorkInfo?) {
         val intervalTagIndex = info?.tags
             ?.indexOfFirst { it.startsWith(BackupWorkManager.WORK_INTERVAL_TAG_PREFIX) }
             ?: -1
@@ -124,35 +122,23 @@ class BackupSettingsViewModel @Inject constructor(
         val interval = BackupInterval.valueOf(
             intervalTag ?: BackupInterval.MANUAL.name
         )
-
         backupInterval.update { interval }
     }
 
     override fun onBackupAccountClick() {
         viewModelScope.launch {
-            val intent = signInService.getSignInIntent()
+            val intent = repo.getSignInIntent()
             eventBus.send(BackupEvent.LaunchGoogleSignIn(intent))
         }
     }
 
     fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
-        if (result.resultCode != Activity.RESULT_OK) {
-            backupAccount.update { null }
-            return@launch
-        }
-        val account = tryOrNull { signInService.getAccountFromIntent(result.data) }
-        backupAccount.update { account?.email }
+        when (val resource = repo.signInUser(result)) {
+            is Resource.Error -> {
+                resource.message?.let { eventBus.send(BackupEvent.ShowUiMessage(it)) }
+            }
 
-        if (account == null) {
-            eventBus.send(
-                BackupEvent.ShowUiMessage(
-                    UiText.StringResource(
-                        R.string.error_sign_in_failed,
-                        true
-                    )
-                )
-            )
-            return@launch
+            is Resource.Success -> Unit
         }
     }
 
@@ -163,13 +149,7 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupIntervalSelected(interval: BackupInterval) {
         viewModelScope.launch {
             savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
-            settingsRepo.updateBackupInterval(interval)
-            if (signInService.getSignedInAccount() == null) return@launch
-
-            if (interval == BackupInterval.MANUAL)
-                backupWorkManager.cancelPeriodicBackupWork()
-            else
-                backupWorkManager.schedulePeriodicWorker(interval)
+            repo.updateBackupInterval(interval)
         }
     }
 
@@ -178,7 +158,13 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     override fun onBackupNowClick() {
-        backupWorkManager.runImmediateBackupWork()
+        repo.runImmediateBackupJob()
+    }
+
+    override fun onBackupUsingCellularToggle(checked: Boolean) {
+        viewModelScope.launch {
+            repo.updateBackupUsingCellular(checked = checked, interval = backupInterval.value)
+        }
     }
 
     sealed class BackupEvent {

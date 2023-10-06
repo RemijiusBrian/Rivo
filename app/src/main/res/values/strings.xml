@@ -269,4 +269,5 @@
     <string name="sort_criteria_by_created">Created</string>
     <string name="sort_order_ascending">Ascending</string>
     <string name="sort_order_descending">Descending</string>
+    <string name="backup_using_cellular">Backup using cellular data</string>
 </resources>
