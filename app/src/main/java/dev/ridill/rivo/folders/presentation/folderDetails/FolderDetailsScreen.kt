@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
+import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
@@ -182,26 +183,31 @@ fun FolderDetailsScreen(
                     .align(Alignment.End)
             )
 
-            FolderCreatedDate(
+            AggregateAmountAndCreatedDate(
+                currency = state.currency,
+                aggregateAmount = state.aggregateAmount,
+                aggregateType = state.aggregateType,
                 date = state.createdTimestampFormatted,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
-                    .align(Alignment.End)
             )
 
             if (!state.isNewFolder) {
+                Divider(
+                    modifier = Modifier
+                        .padding(horizontal = SpacingMedium)
+                )
                 TransactionsInFolder(
                     currency = state.currency,
-                    aggregateAmount = state.aggregateAmount,
-                    aggregateType = state.aggregateType,
                     onTransactionClick = { navigateToAddEditTransaction(it) },
                     onNewTransactionClick = { navigateToAddEditTransaction(null) },
+                    onTransactionSwipeDismiss = actions::onTransactionSwipeToDismiss,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(Float.One),
                     insetPadding = paddingValues,
-                    pagingItems = transactionsList,
-                    onTransactionSwipeDismiss = actions::onTransactionSwipeToDismiss
+                    pagingItems = transactionsList
                 )
             }
         }
@@ -226,35 +232,6 @@ fun FolderDetailsScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun FolderCreatedDate(
-    date: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            horizontalAlignment = Alignment.End
-        ) {
-            Text(
-                text = stringResource(R.string.created),
-                style = MaterialTheme.typography.labelSmall
-            )
-            Text(
-                text = date,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        SpacerSmall()
-        Icon(
-            imageVector = Icons.Outlined.CalendarClock,
-            contentDescription = stringResource(R.string.cd_folder_created_date)
-        )
     }
 }
 
@@ -304,10 +281,64 @@ private fun NameField(
 }
 
 @Composable
-private fun TransactionsInFolder(
+private fun AggregateAmountAndCreatedDate(
     currency: Currency,
     aggregateAmount: Double,
     aggregateType: TransactionType?,
+    date: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        AggregateAmount(
+            currency = currency,
+            amount = aggregateAmount,
+            type = aggregateType,
+            modifier = Modifier
+                .weight(weight = Float.One, fill = false)
+        )
+        SpacerSmall()
+        FolderCreatedDate(
+            date = date
+        )
+    }
+}
+
+@Composable
+private fun FolderCreatedDate(
+    date: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = stringResource(R.string.created),
+                style = MaterialTheme.typography.labelSmall
+            )
+            Text(
+                text = date,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        SpacerSmall()
+        Icon(
+            imageVector = Icons.Outlined.CalendarClock,
+            contentDescription = stringResource(R.string.cd_folder_created_date)
+        )
+    }
+}
+
+@Composable
+private fun TransactionsInFolder(
+    currency: Currency,
     onTransactionClick: (Long) -> Unit,
     onNewTransactionClick: () -> Unit,
     onTransactionSwipeDismiss: (TransactionListItem) -> Unit,
@@ -328,22 +359,6 @@ private fun TransactionsInFolder(
             modifier = Modifier
                 .matchParentSize()
         ) {
-            AggregateAmount(
-                currency = currency,
-                amount = aggregateAmount,
-                type = aggregateType,
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-            )
-
-            Divider(
-                modifier = Modifier
-                    .padding(
-                        vertical = SpacingSmall,
-                        horizontal = SpacingMedium
-                    )
-            )
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -401,6 +416,7 @@ private fun TransactionsInFolder(
                                     SwipeToDismiss(
                                         state = dismissState,
                                         background = {},
+                                        directions = setOf(DismissDirection.EndToStart),
                                         dismissContent = {
                                             TransactionCard(
                                                 note = item.transaction.note,
