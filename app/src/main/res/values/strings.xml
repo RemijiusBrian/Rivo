@@ -217,7 +217,8 @@
     <string name="some_previous_budgets">Some Previous Budgets</string>
     <string name="delete_tag_with_transactions">Delete Tag and Transactions</string>
     <string name="total_expenditure">Total Expenditure</string>
-    <string name="generic_merchant">Merchant</string>
+    <string name="generic_debit_receiver">Merchant</string>
+    <string name="generic_credit_sender">Generic Sender</string>
     <string name="all_transactions">All Transactions</string>
     <string name="settings">Settings</string>
     <string name="tags">Tags</string>

@@ -30,7 +30,8 @@ class TransactionSmsService(
     private val applicationScope: CoroutineScope,
     private val context: Context,
 ) {
-    private val merchantRegex = MERCHANT_PATTERN.toRegex()
+    private val debitReceiverRegex = DEBIT_RECEIVER_PATTERN.toRegex()
+    private val creditSenderRegex = CREDIT_SENDER_PATTERN.toRegex()
     private val creditTextRegex = CREDIT_TEXT_PATTERN.toRegex()
 
     suspend fun downloadModelIfNeeded() {
@@ -54,13 +55,18 @@ class TransactionSmsService(
 
                 val transactionDetails = extractTransactionDetails(extractor, content)
                     ?: continue
-                val transactionDate = transactionDetails.paymentDateTime
+                val transactionDate = transactionDetails.paymentTimestamp
                 if (transactionDate.isAfter(dateTimeNow)) continue
 
                 val amount = transactionDetails.amount
-                val merchant = transactionDetails.merchant
-                    ?: context.getString(R.string.generic_merchant)
                 val type = transactionDetails.type
+                val merchant = transactionDetails.secondParty
+                    ?: context.getString(
+                        when (type) {
+                            TransactionType.CREDIT -> R.string.generic_credit_sender
+                            TransactionType.DEBIT -> R.string.generic_debit_receiver
+                        }
+                    )
 
                 val insertedId = repo.saveTransaction(
                     id = null,
@@ -92,13 +98,14 @@ class TransactionSmsService(
     private fun getSmsFromIntent(intent: Intent): List<SmsMessage> =
         Telephony.Sms.Intents.getMessagesFromIntent(intent).toList()
 
-    private fun extractMerchant(content: String): String? {
-        val groupValues = merchantRegex.find(content)?.groupValues ?: return null
-
-        return groupValues
-            .subList(1, groupValues.size)
-            .joinToString(String.WhiteSpace)
-    }
+    private fun extractSecondParty(content: String, type: TransactionType): String? =
+        when (type) {
+            TransactionType.CREDIT -> creditSenderRegex.find(content)?.groupValues
+            TransactionType.DEBIT -> debitReceiverRegex.find(content)?.groupValues
+        }?.let {
+            it.subList(1, it.size)
+                .joinToString(String.WhiteSpace)
+        }
 
     private fun getEntityExtractor(): EntityExtractor = EntityExtraction.getClient(
         EntityExtractorOptions.Builder(EntityExtractorOptions.ENGLISH)
@@ -139,13 +146,13 @@ class TransactionSmsService(
             ?.let { DateUtil.fromMillis(it) }
             ?: throw DateExtractionFailedThrowable()
 
-        val merchant = extractMerchant(content)
         val transactionType = getTransactionType(content)
+        val secondParty = extractSecondParty(content, transactionType)
 
         TransactionDetailsFromSMS(
             amount = amount,
-            merchant = merchant,
-            paymentDateTime = paymentDateTime,
+            secondParty = secondParty,
+            paymentTimestamp = paymentDateTime,
             type = transactionType
         )
     }
@@ -155,14 +162,16 @@ class TransactionSmsService(
         else TransactionType.DEBIT
 }
 
-private const val MERCHANT_PATTERN =
-    "(?i)(?:\\sat\\s|in\\*|to\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?)"
+private const val DEBIT_RECEIVER_PATTERN =
+    "(?i)(?:\\sat\\s|in\\*|to\\s|to\\sVPA\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?[A-Za-z0-9]*)"
+private const val CREDIT_SENDER_PATTERN =
+    "(?i)(?:\\sby\\*|\\slinked\\sto\\sVPA\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?[A-Za-z0-9]*)"
 private const val CREDIT_TEXT_PATTERN = "(credit(ed)?|receive(d)?)"
 
 data class TransactionDetailsFromSMS(
     val amount: Double,
-    val merchant: String?,
-    val paymentDateTime: LocalDateTime,
+    val secondParty: String?,
+    val paymentTimestamp: LocalDateTime,
     val type: TransactionType
 )
 
