@@ -193,6 +193,7 @@ fun AllTransactionsScreen(
                 onTagLongClick = actions::onTagLongClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.transactionMultiSelectionModeActive,
+                transactionMulitSelectionModeActive = state.transactionMultiSelectionModeActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
@@ -289,6 +290,7 @@ private fun TagsInfoList(
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onTagLongClick: (Long) -> Unit,
+    transactionMulitSelectionModeActive: Boolean,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -343,22 +345,25 @@ private fun TagsInfoList(
                         }
                         onTagLongClick(tag.id)
                     },
+                    longClickEnabled = !transactionMulitSelectionModeActive,
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
                 )
             }
 
-            item(
-                key = "NewTagCard",
-                contentType = "NewTagCard"
-            ) {
-                NewTagCard(
-                    onClick = onNewTagClick,
-                    modifier = Modifier
-                        .fillParentMaxHeight()
-                        .animateItemPlacement()
-                )
+            if (!transactionMulitSelectionModeActive) {
+                item(
+                    key = "NewTagCard",
+                    contentType = "NewTagCard"
+                ) {
+                    NewTagCard(
+                        onClick = onNewTagClick,
+                        modifier = Modifier
+                            .fillParentMaxHeight()
+                            .animateItemPlacement()
+                    )
+                }
             }
         }
         AnimatedVisibility(visible = tagAssignModeActive) {
@@ -383,6 +388,7 @@ private fun TagInfoCard(
     isSelected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    longClickEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     val transition = updateTransition(
@@ -408,7 +414,7 @@ private fun TagInfoCard(
             .width(TagInfoCardWidth * widthMultiplier)
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = onLongClick,
+                onLongClick = if (longClickEnabled) onLongClick else null,
                 onLongClickLabel = stringResource(R.string.cd_long_click_tag_to_edit)
             )
     ) {
@@ -446,13 +452,15 @@ private fun TagInfoCard(
                 )
             }
 
-            Text(
-                text = stringResource(R.string.cd_long_click_tag_to_edit),
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
-            )
+            if (longClickEnabled) {
+                Text(
+                    text = stringResource(R.string.cd_long_click_tag_to_edit),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
+                )
+            }
         }
     }
 }
