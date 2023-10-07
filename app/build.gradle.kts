@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.plugin.parcelize)
     alias(libs.plugins.com.google.dagger.hilt.android)
     alias(libs.plugins.com.google.gms.google.services)
+//    alias(libs.plugins.com.google.devtools.ksp)
 }
 
 android {
@@ -133,7 +134,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // Compose
+    // Jetpack Compose
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     implementation(libs.androidx.compose.ui)
@@ -152,9 +153,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // Lifecycle Components
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Splash Screen
@@ -163,12 +164,14 @@ dependencies {
     // Dagger Hilt
     implementation(libs.com.google.dagger.hilt.android)
     kapt(libs.com.google.dagger.hilt.android.compiler)
+//    ksp(libs.com.google.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Room Persistence
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
+//    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
 
     // Paging 3
@@ -176,8 +179,8 @@ dependencies {
     implementation(libs.androidx.paging.compose)
 
     // Work Manager
-    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.androidx.hilt.compiler)
 
     // Preferences DataStore
