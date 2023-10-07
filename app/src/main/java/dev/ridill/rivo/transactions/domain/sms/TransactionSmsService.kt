@@ -12,6 +12,7 @@ import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.WhiteSpace
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
@@ -23,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
+import java.util.Locale
 
 class TransactionSmsService(
     private val repo: AddEditTransactionRepository,
@@ -55,8 +57,9 @@ class TransactionSmsService(
 
                 val transactionDetails = extractTransactionDetails(extractor, content)
                     ?: continue
-                val transactionDate = transactionDetails.paymentTimestamp
-                if (transactionDate.isAfter(dateTimeNow)) continue
+                logD { "Transaction Details - $transactionDetails" }
+                val timestamp = transactionDetails.paymentTimestamp
+                if (timestamp.isAfter(dateTimeNow)) continue
 
                 val amount = transactionDetails.amount
                 val type = transactionDetails.type
@@ -72,10 +75,10 @@ class TransactionSmsService(
                     id = null,
                     amount = amount,
                     note = merchant,
-                    timestamp = transactionDate,
-                    tagId = null,
-                    excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
+                    timestamp = timestamp,
                     transactionType = type,
+                    excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
+                    tagId = null,
                     folderId = null
                 )
 
@@ -120,10 +123,13 @@ class TransactionSmsService(
             .setEntityTypesFilter(
                 setOf(Entity.TYPE_MONEY, Entity.TYPE_DATE_TIME)
             )
+            .setPreferredLocale(Locale.getDefault())
             .build()
 
         val annotations = extractor.annotate(params).await()
             .ifEmpty { throw AnnotationFailedThrowable() }
+
+        logD { "Annotations - $annotations" }
 
         val moneyEntity = annotations
             ?.find { annotation -> annotation.entities.any { it.type == Entity.TYPE_MONEY } }
@@ -136,8 +142,9 @@ class TransactionSmsService(
         val fraction =
             moneyEntity.fractionalPart.orZero() * 0.1 // Convert whole Int fractionPart to double 0.{fractionPart}
         val amount = integer + fraction
+        logD { "Amount - $amount" }
 
-        val paymentDateTime = annotations
+        val paymentTimestamp = annotations
             .find { annotation -> annotation.entities.any { it.type == Entity.TYPE_DATE_TIME } }
             ?.entities
             ?.firstOrNull()
@@ -145,14 +152,17 @@ class TransactionSmsService(
             ?.timestampMillis
             ?.let { DateUtil.fromMillis(it) }
             ?: throw DateExtractionFailedThrowable()
+        logD { "Payment Timestamp - $paymentTimestamp" }
 
         val transactionType = getTransactionType(content)
+        logD { "Transaction Type - $transactionType" }
         val secondParty = extractSecondParty(content, transactionType)
+        logD { "Second Party - $secondParty" }
 
         TransactionDetailsFromSMS(
             amount = amount,
             secondParty = secondParty,
-            paymentTimestamp = paymentDateTime,
+            paymentTimestamp = paymentTimestamp,
             type = transactionType
         )
     }
@@ -176,5 +186,5 @@ data class TransactionDetailsFromSMS(
 )
 
 class AnnotationFailedThrowable : Throwable("Failed to annotate data")
-class MoneyExtractionFailedThrowable : Throwable("Failed to extract money amount")
-class DateExtractionFailedThrowable : Throwable("Failed to extract date")
+class MoneyExtractionFailedThrowable : Throwable("Failed to extract money entity")
+class DateExtractionFailedThrowable : Throwable("Failed to extract date entity")
