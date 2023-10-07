@@ -12,9 +12,9 @@ androidx-junit = "1.1.5"
 espresso-core = "3.5.1"
 
 compose-bom = "2023.10.00"
-androidx-lifecycle = "2.6.2"
-
 navigation-compose = "2.7.4"
+
+androidx-lifecycle = "2.6.2"
 
 core-splashscreen = "1.0.1"
 
@@ -26,10 +26,10 @@ androidx-room = "2.5.2"
 androidx-paging = "3.2.1"
 androidx-paging-compose = "3.2.1"
 
-datastore-preferences = "1.0.0"
-
 androidx-work = "2.8.1"
 androidx-hilt-work = "1.0.0"
+
+datastore-preferences = "1.0.0"
 
 firebase-bom = "32.3.1"
 
@@ -40,12 +40,9 @@ google-mlkit-entity-extraction = "16.0.0-beta4"
 retrofit = "2.9.0"
 logging-interceptor = "4.10.0"
 
-flow-combinetuple-kt = "1.2.0"
-
-timber-logging = "5.0.1"
-
 lottie-compose = "6.1.0"
-
+flow-combinetuple-kt = "1.2.0"
+timber-logging = "5.0.1"
 keval = "0.9.0"
 
 [libraries]

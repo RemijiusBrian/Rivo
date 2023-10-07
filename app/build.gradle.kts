@@ -150,7 +150,7 @@ dependencies {
 
     // Compose Navigation
     implementation(libs.androidx.navigation.compose)
-    
+
     // Lifecycle Components
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
