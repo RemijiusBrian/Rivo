@@ -133,6 +133,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    // Compose
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     implementation(libs.androidx.compose.ui)
@@ -147,47 +148,58 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    // Compose Navigation
+    implementation(libs.androidx.navigation.compose)
+    
+    // Lifecycle Components
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
-    implementation(libs.androidx.navigation.compose)
-
+    // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
+    // Dagger Hilt
     implementation(libs.com.google.dagger.hilt.android)
     kapt(libs.com.google.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // Room Persistence
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
 
+    // Paging 3
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
+    // Work Manager
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
     kapt(libs.androidx.hilt.compiler)
 
+    // Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    implementation(libs.com.airbnb.android.lottie.compose)
-    implementation(libs.com.github.zhuinden.flow.combinetuple.kt)
-
+    // Firebase
     implementation(platform(libs.com.google.firebase.bom))
     implementation(libs.com.google.firebase.analytics.ktx)
 
+    // Google Play Services Auth
     implementation(libs.com.google.android.gms.play.services.auth)
 
+    // ML Kit Entity Extraction
     implementation(libs.com.google.mlkit.entityextraction)
 
+    // Retrofit
     implementation(libs.com.squareup.retrofit2.retrofit)
     implementation(libs.com.squareup.retrofit2.converter.gson)
     implementation(libs.com.squareup.okhhtp3.logging.interceptor)
 
+    implementation(libs.com.airbnb.android.lottie.compose)
+    implementation(libs.com.github.zhuinden.flow.combinetuple.kt)
     implementation(libs.com.jakewharton.timber)
     implementation(libs.com.notkamui.keval)
 }
