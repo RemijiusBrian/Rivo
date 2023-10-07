@@ -28,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +75,7 @@ fun NewTagChip(
 fun TagInputSheet(
     nameInput: () -> String,
     onNameChange: (String) -> Unit,
-    selectedColorCode: () -> Int?,
+    selectedColor: () -> Color?,
     onColorSelect: (Color) -> Unit,
     excluded: () -> Boolean?,
     onExclusionToggle: (Boolean) -> Unit,
@@ -142,9 +144,12 @@ fun TagInputSheet(
                 horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
                 items(items = tagColors, key = { it.toArgb() }) { color ->
+                    val selected by remember {
+                        derivedStateOf { color == selectedColor() }
+                    }
                     ColorSelector(
                         color = color,
-                        selected = color.toArgb() == selectedColorCode(),
+                        selected = selected,
                         onClick = { onColorSelect(color) },
                         modifier = Modifier
                             .animateItemPlacement()

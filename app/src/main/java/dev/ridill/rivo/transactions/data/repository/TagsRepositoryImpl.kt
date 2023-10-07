@@ -5,10 +5,11 @@ import androidx.compose.ui.graphics.toArgb
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
+import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
 import dev.ridill.rivo.transactions.data.toTag
-import dev.ridill.rivo.transactions.data.toTagWithExpenditure
+import dev.ridill.rivo.transactions.data.toTagInfo
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
+import dev.ridill.rivo.transactions.domain.model.TagInfo
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -24,14 +25,13 @@ class TagsRepositoryImpl(
     override fun getAllTags(): Flow<List<Tag>> = dao.getAllTags()
         .map { it.map(TagEntity::toTag) }
 
-    override fun getTagsWithExpenditures(
-        date: LocalDate,
-        totalExpenditure: Double
-    ): Flow<List<TagWithExpenditure>> = dao
+    override suspend fun getTagById(id: Long): Tag? = withContext(Dispatchers.IO) {
+        dao.getTagById(id)?.toTag()
+    }
+
+    override fun getTagsWithExpenditures(date: LocalDate): Flow<List<TagInfo>> = dao
         .getTagsWithExpenditureForDate(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))
-        .map { entities ->
-            entities.map { it.toTagWithExpenditure(totalExpenditure) }
-        }
+        .map { it.map(TagWithExpenditureRelation::toTagInfo) }
 
     override suspend fun assignTagToTransactions(tagId: Long, ids: List<Long>) =
         withContext(Dispatchers.IO) {

@@ -43,6 +43,7 @@ import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -93,8 +94,7 @@ fun TransactionListItem(
                 text = note,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                textDecoration = if (excluded) TextDecoration.LineThrough
-                else null,
+                textDecoration = TextDecoration.exclusion(excluded),
                 modifier = Modifier
                     .fillMaxWidth()
             )

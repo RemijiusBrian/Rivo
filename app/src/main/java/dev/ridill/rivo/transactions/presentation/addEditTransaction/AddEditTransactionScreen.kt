@@ -87,6 +87,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
@@ -102,7 +103,7 @@ fun AddEditTransactionScreen(
     amountInput: () -> String,
     noteInput: () -> String,
     tagNameInput: () -> String,
-    tagColorInput: () -> Int?,
+    tagColorInput: () -> Color?,
     tagExclusionInput: () -> Boolean?,
     isEditMode: Boolean,
     folderSearchQuery: () -> String,
@@ -260,7 +261,7 @@ fun AddEditTransactionScreen(
             TagInputSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onNewTagNameChange,
-                selectedColorCode = tagColorInput,
+                selectedColor = tagColorInput,
                 onColorSelect = actions::onNewTagColorSelect,
                 excluded = tagExclusionInput,
                 onExclusionToggle = actions::onNewTagExclusionChange,
@@ -571,8 +572,7 @@ fun TagsList(
                             textAlign = TextAlign.Center,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            textDecoration = if (tag.excluded) TextDecoration.LineThrough
-                            else null
+                            textDecoration = TextDecoration.exclusion(tag.excluded)
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(

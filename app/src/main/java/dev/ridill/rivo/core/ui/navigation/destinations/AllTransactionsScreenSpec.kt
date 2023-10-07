@@ -68,7 +68,7 @@ object AllTransactionsScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             state = state,
             tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagColorInput = { tagInput.value?.colorCode },
+            tagColorInput = { tagInput.value?.color },
             tagExclusionInput = { tagInput.value?.excluded },
             actions = viewModel,
             navigateUp = navController::navigateUp,

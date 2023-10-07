@@ -3,13 +3,12 @@ package dev.ridill.rivo.transactions.presentation.allTransactions
 import androidx.compose.ui.graphics.Color
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
-import dev.ridill.rivo.transactions.domain.model.Tag
 import java.time.Month
 
 interface AllTransactionsActions {
     fun onMonthSelect(month: Month)
     fun onYearSelect(year: Int)
-    fun onTagClick(tag: Tag)
+    fun onTagClick(tagId: Long)
     fun onNewTagClick()
     fun onTagInputNameChange(value: String)
     fun onTagInputColorSelect(color: Color)
@@ -29,7 +28,7 @@ interface AllTransactionsActions {
     fun onDeleteSelectedTransactionsClick()
     fun onDeleteTransactionDismiss()
     fun onDeleteTransactionConfirm()
-    fun onEditTagClick(tag: Tag)
+    fun onTagLongClick(tagId: Long)
     fun onDeleteTagClick()
     fun onDeleteTagDismiss()
     fun onDeleteTagConfirm()

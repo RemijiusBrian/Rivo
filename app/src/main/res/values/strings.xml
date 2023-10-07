@@ -62,6 +62,7 @@
     <string name="cd_folder_aggregate_amount_unbalanced">You have an aggregated amount of %1$s %2$s</string>
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
+    <string name="cd_long_click_tag_to_edit">Long press to edit tag</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
@@ -185,7 +186,6 @@
     <string name="enter_budget">Enter Budget</string>
     <string name="tag_your_transaction">Tag your Transaction</string>
     <string name="new_tag_chip_label">New</string>
-    <string name="percent_of_expenditure">%s Percent of expenditure</string>
     <string name="amount_worth_spent">%s worth spent</string>
     <string name="count_selected">%s Selected</string>
     <string name="click_tag_to_assign_to_selected_transactions">Click on a tag to assign it to the selected transactions</string>
@@ -198,7 +198,6 @@
     <string name="amount_debited_notification_message">%1$s spent towards %2$s</string>
     <string name="amount_credited_notification_message">%1$s received from %2$s</string>
     <string name="new_transaction_detected">New Transaction Detected</string>
-    <string name="no_debits_yet">No Debits Yet</string>
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>
     <string name="update_failed">Update failed</string>

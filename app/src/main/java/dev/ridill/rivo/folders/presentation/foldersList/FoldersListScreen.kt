@@ -62,6 +62,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.FolderDetails
@@ -326,8 +327,7 @@ private fun FolderCard(
                                 style = nameStyle,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                textDecoration = if (excluded) TextDecoration.LineThrough
-                                else null
+                                textDecoration = TextDecoration.exclusion(excluded)
                             )
 
                             Text(
@@ -358,8 +358,7 @@ private fun FolderCard(
                             style = nameStyle,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            textDecoration = if (excluded) TextDecoration.LineThrough
-                            else null
+                            textDecoration = TextDecoration.exclusion(excluded)
                         )
 
                         Text(

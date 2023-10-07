@@ -159,7 +159,7 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             noteInput = { note.value },
             isEditMode = isEditMode,
             tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagColorInput = { tagInput.value?.colorCode },
+            tagColorInput = { tagInput.value?.color },
             tagExclusionInput = { tagInput.value?.excluded },
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,

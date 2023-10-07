@@ -36,12 +36,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowLeft
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -51,7 +49,6 @@ import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -65,6 +62,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,15 +70,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -88,7 +88,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
-import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
@@ -96,7 +95,6 @@ import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
@@ -110,15 +108,16 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
-import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagWithExpenditure
+import dev.ridill.rivo.transactions.domain.model.TagInfo
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -130,7 +129,7 @@ fun AllTransactionsScreen(
     state: AllTransactionsState,
     isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
-    tagColorInput: () -> Int?,
+    tagColorInput: () -> Color?,
     tagExclusionInput: () -> Boolean?,
     folderSearchQuery: () -> String,
     foldersList: LazyPagingItems<Folder>,
@@ -189,9 +188,9 @@ fun AllTransactionsScreen(
             TagsInfoList(
                 currency = state.currency,
                 tags = state.tagsWithExpenditures,
-                selectedTagId = state.selectedTag?.id,
+                selectedTagId = state.selectedTagId,
                 onTagClick = actions::onTagClick,
-                onTagEditClick = actions::onEditTagClick,
+                onTagLongClick = actions::onTagLongClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.transactionMultiSelectionModeActive,
                 modifier = Modifier
@@ -207,7 +206,7 @@ fun AllTransactionsScreen(
             )
 
             TransactionsList(
-                selectedTagName = state.selectedTag?.name,
+                selectedTagName = state.selectedTagName,
                 currency = state.currency,
                 transactionsList = state.transactionList,
                 totalExpenditure = state.totalExpenditure,
@@ -256,7 +255,7 @@ fun AllTransactionsScreen(
             TagInputSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onTagInputNameChange,
-                selectedColorCode = tagColorInput,
+                selectedColor = tagColorInput,
                 onColorSelect = actions::onTagInputColorSelect,
                 excluded = tagExclusionInput,
                 onExclusionToggle = actions::onTagInputExclusionChange,
@@ -286,10 +285,10 @@ private const val TAGS_LIST_HEIGHT_FRACTION = 0.20f
 @Composable
 private fun TagsInfoList(
     currency: Currency,
-    tags: List<TagWithExpenditure>,
+    tags: List<TagInfo>,
     selectedTagId: Long?,
-    onTagClick: (Tag) -> Unit,
-    onTagEditClick: (Tag) -> Unit,
+    onTagClick: (Long) -> Unit,
+    onTagLongClick: (Long) -> Unit,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -302,6 +301,8 @@ private fun TagsInfoList(
             lazyListState.scrollToItem(0)
         }
     }
+    val hapticFeedback = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
 
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
@@ -322,21 +323,26 @@ private fun TagsInfoList(
         ) {
             items(
                 items = tags,
-                key = { it.tag.id },
+                key = { it.id },
                 contentType = { "TagInfoCard" }
-            ) { item ->
+            ) { tag ->
+                val selected = tag.id == selectedTagId
                 TagInfoCard(
-                    name = item.tag.name,
-                    color = item.tag.color,
-                    amount = TextFormat.currency(
-                        amount = item.expenditure,
+                    name = tag.name,
+                    color = tag.color,
+                    isExcluded = tag.excluded,
+                    expenditureAmount = TextFormat.currency(
+                        amount = tag.expenditure,
                         currency = currency
                     ),
-                    isExcluded = item.tag.excluded,
-                    percentOfTotalExpenditure = item.percentOfTotalExpenditure,
-                    isSelected = item.tag.id == selectedTagId,
-                    onClick = { onTagClick(item.tag) },
-                    onEditClick = { onTagEditClick(item.tag) },
+                    isSelected = selected,
+                    onClick = { onTagClick(tag.id) },
+                    onLongClick = {
+                        scope.launch {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        onTagLongClick(tag.id)
+                    },
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
@@ -372,118 +378,80 @@ private fun TagsInfoList(
 private fun TagInfoCard(
     name: String,
     color: Color,
-    amount: String,
     isExcluded: Boolean,
-    percentOfTotalExpenditure: Float,
+    expenditureAmount: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    onEditClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val transition = updateTransition(
         targetState = isSelected,
         label = "IsSelectedTransition"
     )
-    val percent by animateFloatAsState(
-        targetValue = if (isExcluded) Float.Zero else percentOfTotalExpenditure,
-        label = "AnimatedPercentOfTotal"
-    )
-    val widthFactor by transition.animateFloat(
-        label = "TagInfoCardWidthFactor",
-        targetValueByState = { if (it) 2f else 1f }
-    )
     val textScale by transition.animateFloat(
         label = "TextScale",
-        targetValueByState = { if (it) 1f else 0.8f }
+        targetValueByState = { if (it) 1f else 0.72f }
+    )
+    val widthMultiplier by transition.animateFloat(
+        label = "TagInfoCardWidthMultiplier",
+        targetValueByState = { if (it) 2f else 1f }
     )
     val contentColor = remember(color) { color.contentColor() }
 
     Card(
-        onClick = onClick,
-        modifier = Modifier
-            .width(TagInfoCardWidth * widthFactor)
-            .then(modifier),
         colors = CardDefaults.cardColors(
             containerColor = color,
             contentColor = contentColor
-        )
+        ),
+        modifier = modifier
+            .width(TagInfoCardWidth * widthMultiplier)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = stringResource(R.string.cd_long_click_tag_to_edit)
+            )
     ) {
         Column(
-            modifier = Modifier
+            modifier
+                .fillMaxSize()
                 .padding(SpacingMedium),
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            Column(
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleLarge
+                    .copy(
+                        fontWeight = FontWeight.SemiBold,
+                        textMotion = TextMotion.Animated,
+                        lineBreak = LineBreak.Heading
+                    ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = TextDecoration.exclusion(isExcluded),
                 modifier = Modifier
-                    .weight(Float.One)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.titleLarge
-                            .copy(
-                                fontWeight = FontWeight.SemiBold,
-                                textMotion = TextMotion.Animated,
-                                lineBreak = LineBreak.Heading
-                            ),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(Float.One)
-                            .graphicsLayer {
-                                scaleX = textScale
-                                scaleY = textScale
-                                transformOrigin = TransformOrigin(0f, 0f)
-                            },
-                    )
-                    if (isSelected) {
-                        IconButton(onClick = onEditClick) {
-                            Icon(
-                                imageVector = Icons.Outlined.Edit,
-                                contentDescription = stringResource(R.string.cd_edit_tag),
-                                modifier = Modifier
-                                    .size(ButtonDefaults.IconSize)
-                            )
-                        }
+                    .graphicsLayer {
+                        scaleX = textScale
+                        scaleY = textScale
+                        transformOrigin = TransformOrigin(0f, 0f)
                     }
-                }
+            )
 
-                if (isSelected) {
-                    Text(
-                        text = stringResource(R.string.amount_worth_spent, amount),
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+            if (isSelected) {
+                Text(
+                    text = stringResource(R.string.amount_worth_spent, expenditureAmount),
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             Text(
-                text = if (isExcluded) stringResource(R.string.excluded)
-                else if (percent.isNaN() || percent <= Float.Zero) stringResource(R.string.no_debits_yet)
-                else stringResource(
-                    R.string.percent_of_expenditure,
-                    TextFormat.percent(percent)
-                ),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    textMotion = TextMotion.Animated
-                ),
-                color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT),
-                overflow = TextOverflow.Ellipsis
-            )
-
-            SpacerExtraSmall()
-
-            LinearProgressIndicator(
-                progress = percent,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                color = color,
-                strokeCap = StrokeCap.Round
+                text = stringResource(R.string.cd_long_click_tag_to_edit),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
             )
         }
     }
@@ -513,7 +481,7 @@ private fun NewTagCard(
     }
 }
 
-private val TagInfoCardWidth = 120.dp
+private val TagInfoCardWidth = 116.dp
 
 @Composable
 private fun DateFilter(
