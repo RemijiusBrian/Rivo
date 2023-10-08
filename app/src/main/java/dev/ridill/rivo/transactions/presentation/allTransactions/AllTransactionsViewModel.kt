@@ -21,6 +21,7 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
@@ -64,14 +65,24 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val showExcludedTransactions = transactionRepo.getShowExcludedTransactions()
 
+    private val transactionTypeFilter = savedStateHandle
+        .getStateFlow<TransactionType?>(TRANSACTION_TYPE_FILTER, null)
+
     private val transactionList = combineTuple(
         selectedDate,
         selectedTagId,
+        transactionTypeFilter,
         showExcludedTransactions
-    ).flatMapLatest { (date, tagId, showExcluded) ->
+    ).flatMapLatest { (
+                          date,
+                          tagId,
+                          transactionType,
+                          showExcluded
+                      ) ->
         transactionRepo.getTransactionsForDateByTag(
             date = date,
             tagId = tagId,
+            transactionType = transactionType,
             showExcluded = showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
@@ -121,6 +132,7 @@ class AllTransactionsViewModel @Inject constructor(
         tagsWithExpenditures,
         selectedTagId,
         selectedTagName,
+        transactionTypeFilter,
         transactionList,
         selectedTransactionIds,
         transactionSelectionState,
@@ -139,6 +151,7 @@ class AllTransactionsViewModel @Inject constructor(
                 tagsWithExpenditures,
                 selectedTagId,
                 selectedTagName,
+                transactionTypeFilter,
                 transactionList,
                 selectedTransactionIds,
                 transactionSelectionState,
@@ -158,6 +171,7 @@ class AllTransactionsViewModel @Inject constructor(
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTagId = selectedTagId,
             selectedTagName = selectedTagName,
+            selectedTransactionTypeFilter = transactionTypeFilter,
             transactionList = transactionList,
             selectedTransactionIds = selectedTransactionIds,
             transactionSelectionState = transactionSelectionState,
@@ -263,6 +277,10 @@ class AllTransactionsViewModel @Inject constructor(
     private fun hideAndClearTagInput() {
         savedStateHandle[SHOW_TAG_INPUT] = false
         savedStateHandle[TAG_INPUT] = null
+    }
+
+    override fun onTransactionTypeFilterSelect(type: TransactionType?) {
+        savedStateHandle[TRANSACTION_TYPE_FILTER] = type
     }
 
     override fun onToggleShowExcludedTransactions(value: Boolean) {
@@ -505,6 +523,7 @@ class AllTransactionsViewModel @Inject constructor(
 private const val SELECTED_DATE = "SELECTED_DATE"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
 private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
+private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
 private const val TRANSACTION_MULTI_SELECTION_MODE_ACTIVE =
     "TRANSACTION_MULTI_SELECTION_MODE_ACTIVE"
 private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"

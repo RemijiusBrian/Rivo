@@ -8,6 +8,7 @@ import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
 import dev.ridill.rivo.transactions.data.toTransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -40,14 +41,16 @@ class AllTransactionsRepositoryImpl(
             }
 
     override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =
-        dao.getExpenditureForMonth(date.atStartOfDay())
+        dao.getAmountSum(date.atStartOfDay())
 
     override fun getTransactionsForDateByTag(
         date: LocalDate,
         tagId: Long?,
+        transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>> = dao.getTransactionsList(
         monthAndYear = date.atStartOfDay(),
+        transactionTypeName = transactionType?.name,
         tagId = tagId,
         showExcluded = showExcluded
     ).map { it.map(TransactionDetails::toTransactionListItem) }
@@ -69,7 +72,8 @@ class AllTransactionsRepositoryImpl(
             dao.setFolderIdToTransactionsByIds(transactionIds = transactionIds, folderId = folderId)
         }
 
-    override suspend fun removeTransactionsFromFolders(ids: List<Long>) = withContext(Dispatchers.IO) {
-        dao.removeFolderFromTransactionsByIds(ids)
-    }
+    override suspend fun removeTransactionsFromFolders(ids: List<Long>) =
+        withContext(Dispatchers.IO) {
+            dao.removeFolderFromTransactionsByIds(ids)
+        }
 }

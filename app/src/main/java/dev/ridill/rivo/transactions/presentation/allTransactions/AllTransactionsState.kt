@@ -8,6 +8,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactions.domain.model.TagInfo
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
 
 data class AllTransactionsState(
@@ -18,6 +19,7 @@ data class AllTransactionsState(
     val tagsWithExpenditures: List<TagInfo> = emptyList(),
     val selectedTagId: Long? = null,
     val selectedTagName: String? = null,
+    val selectedTransactionTypeFilter: TransactionType? = null,
     val transactionList: List<TransactionListItem> = emptyList(),
     val selectedTransactionIds: List<Long> = emptyList(),
     val transactionSelectionState: ToggleableState = ToggleableState.Off,

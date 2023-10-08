@@ -2,6 +2,7 @@ package dev.ridill.rivo.transactions.domain.repository
 
 import android.icu.util.Currency
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -13,6 +14,7 @@ interface AllTransactionsRepository {
     fun getTransactionsForDateByTag(
         date: LocalDate,
         tagId: Long?,
+        transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>>
 
