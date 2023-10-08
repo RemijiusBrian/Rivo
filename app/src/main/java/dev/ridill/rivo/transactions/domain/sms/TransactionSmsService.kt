@@ -35,6 +35,7 @@ class TransactionSmsService(
     private val debitReceiverRegex = DEBIT_RECEIVER_PATTERN.toRegex()
     private val creditSenderRegex = CREDIT_SENDER_PATTERN.toRegex()
     private val creditTextRegex = CREDIT_TEXT_PATTERN.toRegex()
+    private val debitTextPattern = DEBIT_TEXT_PATTERN.toRegex()
 
     suspend fun downloadModelIfNeeded() {
         getEntityExtractor().use {
@@ -168,7 +169,10 @@ class TransactionSmsService(
     }
 
     private fun getTransactionType(content: String): TransactionType =
-        if (content.contains(creditTextRegex)) TransactionType.CREDIT
+        if (
+            content.contains(creditTextRegex)
+            && !content.contains(debitTextPattern)
+        ) TransactionType.CREDIT
         else TransactionType.DEBIT
 }
 
@@ -176,13 +180,14 @@ private const val DEBIT_RECEIVER_PATTERN =
     "(?i)(?:\\sat\\s|in\\*|to\\s|to\\sVPA\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?[A-Za-z0-9]*)"
 private const val CREDIT_SENDER_PATTERN =
     "(?i)(?:\\sby\\*|\\slinked\\sto\\sVPA\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?[A-Za-z0-9]*)"
-private const val CREDIT_TEXT_PATTERN = "(credit(ed)?|receive(d)?)"
+private const val CREDIT_TEXT_PATTERN = "(?i)(credit(ed)?|receive(d)?)"
+private const val DEBIT_TEXT_PATTERN = "(?i)debit(ed)?"
 
 data class TransactionDetailsFromSMS(
     val amount: Double,
-    val secondParty: String?,
     val paymentTimestamp: LocalDateTime,
-    val type: TransactionType
+    val type: TransactionType,
+    val secondParty: String?
 )
 
 class AnnotationFailedThrowable : Throwable("Failed to annotate data")
