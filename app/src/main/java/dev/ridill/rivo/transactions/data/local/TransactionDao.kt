@@ -21,12 +21,15 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         FROM transaction_table tx
         LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id
         LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
-        WHERE strftime('%m-%Y', tx.timestamp) = strftime('%m-%Y', :monthAndYear)
-        AND (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0
-        AND tx.type = 'DEBIT'
+        WHERE (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0
+        AND (:monthAndYear IS NULL OR strftime('%m-%Y', tx.timestamp) = strftime('%m-%Y', :monthAndYear))
+        AND (:typeName IS NULL OR tx.type = :typeName)
     """
     )
-    fun getExpenditureForMonth(monthAndYear: LocalDateTime): Flow<Double>
+    fun getAmountSum(
+        monthAndYear: LocalDateTime? = null,
+        typeName: String? = null
+    ): Flow<Double>
 
     @Query(
         """
