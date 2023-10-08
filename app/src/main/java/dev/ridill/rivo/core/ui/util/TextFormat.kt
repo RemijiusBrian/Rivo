@@ -9,6 +9,9 @@ import dev.ridill.rivo.core.domain.util.tryOrNull
 import java.util.Locale
 
 object TextFormat {
+    fun numberFormat(locale: Locale = LocaleUtil.defaultLocale): NumberFormat =
+        NumberFormat.getNumberInstance(locale)
+
     fun currency(
         amount: Double,
         currency: Currency = LocaleUtil.defaultCurrency,
@@ -36,12 +39,6 @@ object TextFormat {
             setCurrency(currency)
         }
         .format(amount)
-
-    fun percent(
-        value: Float,
-        locale: Locale = Locale.getDefault()
-    ): String = NumberFormat.getPercentInstance(locale)
-        .format(value)
 
     fun number(
         value: Double,

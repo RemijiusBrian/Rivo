@@ -75,6 +75,7 @@ import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
@@ -343,7 +344,8 @@ private fun AmountInput(
             unfocusedBorderColor = Color.Transparent,
             errorBorderColor = Color.Transparent,
             disabledBorderColor = Color.Transparent
-        )
+        ),
+        visualTransformation = remember { AmountVisualTransformation() }
     )
 }
 
