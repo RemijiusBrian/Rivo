@@ -193,7 +193,7 @@ fun AllTransactionsScreen(
                 onTagLongClick = actions::onTagLongClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.transactionMultiSelectionModeActive,
-                transactionMulitSelectionModeActive = state.transactionMultiSelectionModeActive,
+                transactionMultiSelectionModeActive = state.transactionMultiSelectionModeActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
@@ -290,7 +290,7 @@ private fun TagsInfoList(
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onTagLongClick: (Long) -> Unit,
-    transactionMulitSelectionModeActive: Boolean,
+    transactionMultiSelectionModeActive: Boolean,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -345,14 +345,14 @@ private fun TagsInfoList(
                         }
                         onTagLongClick(tag.id)
                     },
-                    longClickEnabled = !transactionMulitSelectionModeActive,
+                    longClickEnabled = !transactionMultiSelectionModeActive,
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
                 )
             }
 
-            if (!transactionMulitSelectionModeActive) {
+            if (!transactionMultiSelectionModeActive) {
                 item(
                     key = "NewTagCard",
                     contentType = "NewTagCard"
@@ -368,7 +368,7 @@ private fun TagsInfoList(
         }
         AnimatedVisibility(visible = tagAssignModeActive) {
             Text(
-                text = stringResource(R.string.click_tag_to_assign_to_selected_transactions),
+                text = stringResource(R.string.tap_tag_to_assign_to_selected_transactions),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium),

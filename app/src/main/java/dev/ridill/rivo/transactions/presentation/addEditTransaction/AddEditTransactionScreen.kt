@@ -537,7 +537,7 @@ private fun ExclusionToggle(
         modifier = modifier
     ) {
         LabelledSwitch(
-            labelRes = R.string.exclude_from_expenditure_ques,
+            labelRes = R.string.mark_excluded_question,
             checked = excluded,
             onCheckedChange = onToggle
         )
