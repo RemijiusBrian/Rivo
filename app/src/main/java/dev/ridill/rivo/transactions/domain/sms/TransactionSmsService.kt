@@ -64,18 +64,25 @@ class TransactionSmsService(
 
                 val amount = transactionDetails.amount
                 val type = transactionDetails.type
-                val merchant = transactionDetails.secondParty
+                val secondParty = transactionDetails.secondParty
                     ?: context.getString(
                         when (type) {
                             TransactionType.CREDIT -> R.string.generic_credit_sender
                             TransactionType.DEBIT -> R.string.generic_debit_receiver
                         }
                     )
+                val note = context.getString(
+                    when (type) {
+                        TransactionType.CREDIT -> R.string.received_from_sender
+                        TransactionType.DEBIT -> R.string.spent_towards_receiver
+                    },
+                    secondParty
+                )
 
                 val insertedId = repo.saveTransaction(
                     id = null,
                     amount = amount,
-                    note = merchant,
+                    note = note,
                     timestamp = timestamp,
                     transactionType = type,
                     excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
@@ -92,7 +99,7 @@ class TransactionSmsService(
                             TransactionType.DEBIT -> R.string.amount_debited_notification_message
                         },
                         TextFormat.currency(amount),
-                        merchant
+                        secondParty
                     )
                 )
             }
