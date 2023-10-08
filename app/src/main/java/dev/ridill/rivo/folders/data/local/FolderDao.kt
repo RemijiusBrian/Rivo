@@ -72,6 +72,32 @@ interface FolderDao : BaseDao<FolderEntity> {
         - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
         ) AS aggregateAmount
         FROM folder_table folder
+        ORDER BY aggregateAmount ASC
+    """
+    )
+    fun getFoldersWithAggregateExpenditureSortedByAggregateAsc(): PagingSource<Int, FolderAndAggregateAmount>
+
+    @Transaction
+    @Query(
+        """
+        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
+        ) AS aggregateAmount
+        FROM folder_table folder
+        ORDER BY aggregateAmount DESC
+    """
+    )
+    fun getFoldersWithAggregateExpenditureSortedByAggregateDesc(): PagingSource<Int, FolderAndAggregateAmount>
+
+    @Transaction
+    @Query(
+        """
+        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
+        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
+        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
+        ) AS aggregateAmount
+        FROM folder_table folder
         WHERE folder.id = :id
         ORDER BY datetime(createdTimestamp) DESC, id DESC
     """
