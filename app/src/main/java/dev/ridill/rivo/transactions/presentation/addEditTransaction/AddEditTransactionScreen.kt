@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -85,6 +86,7 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
@@ -424,7 +426,7 @@ private fun FolderIndicator(
             targetState = isFolderLinked,
             label = "FolderIcon"
         ) { isLinked ->
-            IconButton(
+            FilledTonalIconButton(
                 onClick = {
                     if (isLinked) onRemoveFolderClick()
                     else onAddToFolderClick()
@@ -446,16 +448,21 @@ private fun FolderIndicator(
                 textDecoration = TextDecoration.Underline,
                 fontWeight = FontWeight.SemiBold
             )
-            Crossfade(
-                targetState = folderName ?: stringResource(R.string.add_to_folder),
-                label = "FolderNameContent"
-            ) { text ->
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            TextButton(
+                onClick = onAddToFolderClick,
+                contentPadding = PaddingValues(horizontal = SpacingExtraSmall)
+            ) {
+                Crossfade(
+                    targetState = folderName ?: stringResource(R.string.add_to_folder),
+                    label = "FolderNameContent"
+                ) { text ->
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
