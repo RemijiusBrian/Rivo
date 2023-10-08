@@ -7,8 +7,8 @@ enum class TransactionOption(
     @StringRes val labelRes: Int
 ) {
     UNTAG(R.string.transaction_option_untag),
-    MARK_AS_EXCLUDED(R.string.transaction_option_mark_excluded),
-    MARK_AS_INCLUDED(R.string.transaction_option_mark_included),
+    MARK_EXCLUDED(R.string.transaction_option_mark_excluded),
+    UN_MARK_EXCLUDED(R.string.transaction_option_un_mark_excluded),
     ADD_TO_FOLDER(R.string.transaction_option_add_to_folder),
     REMOVE_FROM_FOLDERS(R.string.transaction_option_remove_from_folders),
 }

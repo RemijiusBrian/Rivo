@@ -227,10 +227,10 @@
     <string name="hide_excluded_transactions">Hide Excluded</string>
     <string name="show_excluded_transactions">Show Excluded</string>
     <string name="transaction_option_untag">Remove Tag</string>
-    <string name="transaction_option_mark_excluded">Exclude from expenditure</string>
-    <string name="transaction_option_mark_included">Include in expenditure</string>
+    <string name="transaction_option_mark_excluded">Mark Excluded</string>
+    <string name="transaction_option_un_mark_excluded">Un-Mark Excluded</string>
     <string name="transaction_option_add_to_folder">Add to Folder</string>
-    <string name="transaction_option_remove_from_folders">Remove from folders</string>
+    <string name="transaction_option_remove_from_folders">Remove from Folders</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="excluded">Excluded</string>

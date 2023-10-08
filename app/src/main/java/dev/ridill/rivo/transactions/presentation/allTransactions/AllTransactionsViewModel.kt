@@ -333,11 +333,11 @@ class AllTransactionsViewModel @Inject constructor(
                     unTagTransactions(selectedTransactionIds)
                 }
 
-                TransactionOption.MARK_AS_EXCLUDED -> {
+                TransactionOption.MARK_EXCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, true)
                 }
 
-                TransactionOption.MARK_AS_INCLUDED -> {
+                TransactionOption.UN_MARK_EXCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
 
