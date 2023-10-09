@@ -7,9 +7,9 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
@@ -89,7 +89,7 @@ class SettingsViewModel @Inject constructor(
                 monthlyBudget,
                 budgetInputError,
                 showMonthlyBudgetInput,
-                currencyCode,
+                currentCurrency,
                 showCurrencySelection,
                 currencyList,
                 autoAddTransactionEnabled,
@@ -100,10 +100,10 @@ class SettingsViewModel @Inject constructor(
             dynamicColorsEnabled = dynamicColorsEnabled,
             showAppThemeSelection = showAppThemeSelection,
             currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
-                ?.let { TextFormat.currency(it) }.orEmpty(),
+                ?.let { TextFormat.number(it) }.orEmpty(),
             showBudgetInput = showMonthlyBudgetInput,
             budgetInputError = budgetInputError,
-            currentCurrency = currencyCode,
+            currentCurrency = currentCurrency,
             showCurrencySelection = showCurrencySelection,
             currencyList = currencyList,
             autoAddTransactionEnabled = autoAddTransactionEnabled,

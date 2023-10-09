@@ -51,6 +51,20 @@ object TextFormat {
         }
         .format(value)
 
+    fun number(
+        value: Long,
+        locale: Locale = LocaleUtil.defaultLocale,
+        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
+        isGroupingUsed: Boolean = true
+    ): String = NumberFormat.getNumberInstance(locale)
+        .apply {
+            maximumFractionDigits = maxFractionDigits
+            minimumFractionDigits = minFractionDigits
+            this.isGroupingUsed = isGroupingUsed
+        }
+        .format(value)
+
     fun compactNumber(
         value: Double,
         locale: Locale = LocaleUtil.defaultLocale,

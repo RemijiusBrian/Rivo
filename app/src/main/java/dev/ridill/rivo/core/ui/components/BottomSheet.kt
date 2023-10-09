@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
@@ -61,7 +62,10 @@ fun ValueInputSheet(
     label: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     @StringRes actionLabel: Int = R.string.action_confirm,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
 ) = ValueInputSheet(
     title = {
@@ -94,6 +98,9 @@ fun ValueInputSheet(
     label = label,
     keyboardOptions = keyboardOptions,
     keyboardActions = keyboardActions,
+    visualTransformation = visualTransformation,
+    prefix = prefix,
+    suffix = suffix,
     contentAfterTextField = contentAfterTextField
 )
 
@@ -113,6 +120,9 @@ fun ValueInputSheet(
     label: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     val isInputEmpty by remember {
@@ -163,7 +173,10 @@ fun ValueInputSheet(
                             )
                         }
                     }
-                }
+                },
+                visualTransformation = visualTransformation,
+                prefix = prefix,
+                suffix = suffix
             )
 
             contentAfterTextField?.invoke(this)

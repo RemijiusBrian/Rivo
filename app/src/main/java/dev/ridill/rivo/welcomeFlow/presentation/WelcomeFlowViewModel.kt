@@ -33,11 +33,12 @@ class WelcomeFlowViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val backupRepository: BackupRepository
 ) : ViewModel(), WelcomeFlowActions {
-    val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
-
     val restoreState = savedStateHandle.getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
 
     val availableBackup = savedStateHandle.getStateFlow<BackupDetails?>(AVAILABLE_BACKUP, null)
+
+    val currency = settingsRepository.getCurrencyPreference()
+    val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
 
     val events = eventBus.eventFlow
 

@@ -1,5 +1,6 @@
 package dev.ridill.rivo.welcomeFlow.presentation
 
+import android.icu.util.Currency
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -42,9 +43,10 @@ import dev.ridill.rivo.welcomeFlow.presentation.components.WelcomeMessagePage
 fun WelcomeFlowScreen(
     snackbarController: SnackbarController,
     pagerState: PagerState,
-    budgetInput: () -> String,
     restoreState: WorkInfo.State?,
     availableBackup: BackupDetails?,
+    currency: Currency,
+    budgetInput: () -> String,
     actions: WelcomeFlowActions
 ) {
     RivoScaffold(
@@ -88,6 +90,7 @@ fun WelcomeFlowScreen(
 
                     WelcomeFlowPage.SET_BUDGET.ordinal -> {
                         SetBudgetPage(
+                            currency = currency,
                             input = budgetInput,
                             onInputChange = actions::onBudgetInputChange,
                             onContinueClick = actions::onSetBudgetContinue
