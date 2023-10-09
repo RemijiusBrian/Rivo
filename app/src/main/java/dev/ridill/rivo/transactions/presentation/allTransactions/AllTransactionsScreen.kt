@@ -281,7 +281,7 @@ fun AllTransactionsScreen(
     }
 }
 
-private const val TAGS_LIST_HEIGHT_FRACTION = 0.20f
+private const val TAGS_LIST_HEIGHT_FRACTION = 0.16f
 
 @Composable
 private fun TagsInfoList(
