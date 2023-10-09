@@ -49,10 +49,6 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val currency = transactionRepo.getCurrencyPreference()
 
-    private val totalExpenditure = selectedDate.flatMapLatest { date ->
-        transactionRepo.getTotalExpenditureForDate(date)
-    }.distinctUntilChanged()
-
     private val tagsWithExpenditures = selectedDate.flatMapLatest { date ->
         tagsRepo.getTagsWithExpenditures(date = date)
     }
@@ -67,6 +63,16 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val transactionTypeFilter = savedStateHandle
         .getStateFlow<TransactionType?>(TRANSACTION_TYPE_FILTER, null)
+
+    private val totalAmount = combineTuple(
+        selectedDate,
+        transactionTypeFilter
+    ).flatMapLatest { (date, type) ->
+        transactionRepo.getAmountSumForDate(
+            date = date,
+            type = type ?: TransactionType.DEBIT
+        )
+    }.distinctUntilChanged()
 
     private val transactionList = combineTuple(
         selectedDate,
@@ -128,7 +134,7 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         yearsList,
         currency,
-        totalExpenditure,
+        totalAmount,
         tagsWithExpenditures,
         selectedTagId,
         selectedTagName,
@@ -147,7 +153,7 @@ class AllTransactionsViewModel @Inject constructor(
                 selectedDate,
                 yearsList,
                 currency,
-                totalExpenditure,
+                totalAmount,
                 tagsWithExpenditures,
                 selectedTagId,
                 selectedTagName,
@@ -167,7 +173,7 @@ class AllTransactionsViewModel @Inject constructor(
             selectedDate = selectedDate,
             yearsList = yearsList,
             currency = currency,
-            totalExpenditure = totalExpenditure,
+            totalAmount = totalAmount,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTagId = selectedTagId,
             selectedTagName = selectedTagName,

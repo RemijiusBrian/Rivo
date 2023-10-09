@@ -10,7 +10,10 @@ interface AllTransactionsRepository {
     fun getCurrencyPreference(): Flow<Currency>
     suspend fun deleteTransactionsByIds(ids: List<Long>)
     fun getTransactionYearsList(paddingCount: Int = DEFAULT_YEAR_LIST_PADDING): Flow<List<Int>>
-    fun getTotalExpenditureForDate(date: LocalDate): Flow<Double>
+    fun getAmountSumForDate(
+        date: LocalDate,
+        type: TransactionType
+    ): Flow<Double>
     fun getTransactionsForDateByTag(
         date: LocalDate,
         tagId: Long?,

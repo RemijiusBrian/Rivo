@@ -14,7 +14,7 @@ import java.time.LocalDate
 data class AllTransactionsState(
     val selectedDate: LocalDate = DateUtil.now().toLocalDate(),
     val yearsList: List<Int> = emptyList(),
-    val totalExpenditure: Double = Double.Zero,
+    val totalAmount: Double = Double.Zero,
     val currency: Currency = LocaleUtil.defaultCurrency,
     val tagsWithExpenditures: List<TagInfo> = emptyList(),
     val selectedTagId: Long? = null,

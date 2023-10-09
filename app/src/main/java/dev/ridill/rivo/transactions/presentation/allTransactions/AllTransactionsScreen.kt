@@ -210,8 +210,9 @@ fun AllTransactionsScreen(
             TransactionsList(
                 selectedTagName = state.selectedTagName,
                 currency = state.currency,
+                typeFilter = state.selectedTransactionTypeFilter,
+                totalSumAmount = state.totalAmount,
                 transactionsList = state.transactionList,
-                totalExpenditure = state.totalExpenditure,
                 selectedTransactionIds = state.selectedTransactionIds,
                 selectionState = state.transactionSelectionState,
                 multiSelectionModeActive = state.transactionMultiSelectionModeActive,
@@ -648,9 +649,10 @@ private fun DateIndicator(
 @Composable
 private fun TransactionsList(
     currency: Currency,
+    totalSumAmount: Double,
+    typeFilter: TransactionType?,
     selectedTagName: String?,
     transactionsList: List<TransactionListItem>,
-    totalExpenditure: Double,
     selectedTransactionIds: List<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
@@ -683,9 +685,10 @@ private fun TransactionsList(
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             ) {
-                TotalExpenditureAmount(
-                    expenditure = totalExpenditure,
+                TotalSumAmount(
+                    sumAmount = totalSumAmount,
                     currency = currency,
+                    type = typeFilter ?: TransactionType.DEBIT,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -759,7 +762,7 @@ private fun TransactionListHeader(
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
                 .padding(horizontal = SpacingMedium)
-                .weight(weight = Float.One, fill = false)
+                .weight(Float.One)
         ) { ListLabel(text = it) }
 
         TransactionListOptions(
@@ -853,9 +856,10 @@ private fun TransactionListOptions(
 }
 
 @Composable
-private fun TotalExpenditureAmount(
+private fun TotalSumAmount(
     currency: Currency,
-    expenditure: Double,
+    sumAmount: Double,
+    type: TransactionType,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -863,14 +867,21 @@ private fun TotalExpenditureAmount(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Text(
-            text = stringResource(R.string.total_expenditure),
-            style = MaterialTheme.typography.titleLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Crossfade(targetState = type, label = "TotalAmountLabel") { txType ->
+            Text(
+                text = stringResource(
+                    id = when (txType) {
+                        TransactionType.CREDIT -> R.string.total_credits
+                        TransactionType.DEBIT -> R.string.total_debits
+                    }
+                ),
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
         SpacerSmall()
-        VerticalNumberSpinnerContent(expenditure) { amount ->
+        VerticalNumberSpinnerContent(sumAmount) { amount ->
             Text(
                 text = TextFormat.currency(amount = amount, currency = currency),
                 style = MaterialTheme.typography.headlineMedium,
