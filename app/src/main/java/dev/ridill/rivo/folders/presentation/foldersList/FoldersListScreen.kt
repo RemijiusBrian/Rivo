@@ -125,7 +125,7 @@ fun FoldersListScreen(
                 if (foldersList.isEmpty()) {
                     EmptyListIndicator(
                         resId = R.raw.lottie_empty_list_ghost,
-                        messageRes = R.string.transaction_folders_list_empty_message
+                        messageRes = R.string.folders_list_empty_message
                     )
                 }
                 LazyVerticalStaggeredGrid(

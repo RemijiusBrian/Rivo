@@ -674,7 +674,10 @@ private fun TransactionsList(
         contentAlignment = Alignment.Center
     ) {
         if (isListEmpty) {
-            EmptyListIndicator(resId = R.raw.lottie_empty_list_ghost)
+            EmptyListIndicator(
+                resId = R.raw.lottie_empty_list_ghost,
+                messageRes = R.string.all_transactions_list_empty_message
+            )
         }
         Column(
             modifier = Modifier
