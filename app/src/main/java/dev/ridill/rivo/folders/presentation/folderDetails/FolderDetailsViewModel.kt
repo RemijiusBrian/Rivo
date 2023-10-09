@@ -15,9 +15,9 @@ import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -194,9 +194,9 @@ class FolderDetailsViewModel @Inject constructor(
                 excluded = excluded
             )
             folderIdFlow.update { insertedId }
-            if (isNewFolder.value) {
-                val txIdsListToAdd = FolderDetailsScreenSpec
-                    .getTxIdsArgFromSavedStateHandle(savedStateHandle)
+            val txIdsListToAdd = FolderDetailsScreenSpec
+                .getTxIdsArgFromSavedStateHandle(savedStateHandle)
+            if (txIdsListToAdd.isNotEmpty()) {
                 repo.addTransactionsToFolderByIds(
                     folderId = insertedId,
                     transactionIds = txIdsListToAdd
