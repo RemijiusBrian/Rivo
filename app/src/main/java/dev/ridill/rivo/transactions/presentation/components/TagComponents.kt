@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
@@ -42,6 +45,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
@@ -50,26 +56,57 @@ import dev.ridill.rivo.core.ui.components.ValueInputSheet
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.core.ui.util.exclusion
 
 @Composable
 fun NewTagChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
-) {
-    InputChip(
-        selected = false,
-        onClick = onClick,
-        label = { Text(stringResource(R.string.new_tag_chip_label)) },
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = stringResource(R.string.cd_create_new_tag)
-            )
-        },
-        modifier = modifier
-    )
-}
+) = InputChip(
+    selected = false,
+    onClick = onClick,
+    label = { Text(stringResource(R.string.new_tag_chip_label)) },
+    trailingIcon = {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(R.string.cd_create_new_tag)
+        )
+    },
+    modifier = modifier
+)
+
+@Composable
+fun TagChip(
+    name: String,
+    color: Color,
+    excluded: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) = FilterChip(
+    selected = selected,
+    onClick = onClick,
+    label = {
+        Text(
+            text = name,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            textDecoration = TextDecoration.exclusion(excluded)
+        )
+    },
+    colors = FilterChipDefaults.filterChipColors(
+        selectedContainerColor = color,
+        selectedLabelColor = color.contentColor()
+    ),
+    modifier = Modifier
+        .widthIn(max = TagChipMaxWidth)
+        .then(modifier)
+)
+
+private val TagChipMaxWidth = 150.dp
 
 @Composable
 fun TagInputSheet(

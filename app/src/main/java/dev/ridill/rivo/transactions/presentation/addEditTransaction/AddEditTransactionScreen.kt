@@ -25,8 +25,6 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,7 +67,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
@@ -89,8 +86,6 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.core.ui.theme.contentColor
-import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
@@ -98,6 +93,7 @@ import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
 import dev.ridill.rivo.transactions.presentation.components.NewTagChip
+import dev.ridill.rivo.transactions.presentation.components.TagChip
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 
 @Composable
@@ -571,23 +567,12 @@ fun TagsList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
             tagsList.forEach { tag ->
-                val selected = tag.id == selectedTagId
-                FilterChip(
-                    selected = selected,
-                    onClick = { onTagClick(tag.id) },
-                    label = {
-                        Text(
-                            text = tag.name,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            textDecoration = TextDecoration.exclusion(tag.excluded)
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = tag.color,
-                        selectedLabelColor = tag.color.contentColor()
-                    )
+                TagChip(
+                    name = tag.name,
+                    color = tag.color,
+                    excluded = tag.excluded,
+                    selected = tag.id == selectedTagId,
+                    onClick = { onTagClick(tag.id) }
                 )
             }
 

@@ -752,7 +752,6 @@ private fun TransactionListHeader(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Crossfade(
@@ -760,9 +759,8 @@ private fun TransactionListHeader(
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
                 .padding(horizontal = SpacingMedium)
-        ) { tag ->
-            ListLabel(text = tag)
-        }
+                .weight(weight = Float.One, fill = false)
+        ) { ListLabel(text = it) }
 
         TransactionListOptions(
             showExcludedTransactions = showExcludedTransactions,
