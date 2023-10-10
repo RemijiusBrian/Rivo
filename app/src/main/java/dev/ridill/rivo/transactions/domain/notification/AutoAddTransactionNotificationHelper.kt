@@ -53,6 +53,7 @@ class AutoAddTransactionNotificationHelper(
         NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
             .setGroup(summaryId)
 
     override fun postNotification(id: Int, title: String, content: String?) {
