@@ -162,7 +162,8 @@ class TransactionSmsService(
             ?: throw DateExtractionFailedThrowable()
         logD { "Payment Timestamp - $paymentTimestamp" }
 
-        val transactionType = getTransactionType(content)
+        val transactionType = extractTransactionType(content)
+            ?: throw InvalidTransactionTypeThrowable()
         logD { "Transaction Type - $transactionType" }
         val secondParty = extractSecondParty(content, transactionType)
         logD { "Second Party - $secondParty" }
@@ -175,12 +176,14 @@ class TransactionSmsService(
         )
     }
 
-    private fun getTransactionType(content: String): TransactionType =
-        if (
-            content.contains(creditTextRegex)
-            && !content.contains(debitTextPattern)
-        ) TransactionType.CREDIT
-        else TransactionType.DEBIT
+    private fun extractTransactionType(content: String): TransactionType? = when (true) {
+        (content.contains(creditTextRegex)
+                && !content.contains(debitTextPattern)) -> TransactionType.CREDIT
+
+        (content.contains(debitTextPattern)) -> TransactionType.CREDIT
+
+        else -> null
+    }
 }
 
 private const val DEBIT_RECEIVER_PATTERN =
@@ -188,7 +191,7 @@ private const val DEBIT_RECEIVER_PATTERN =
 private const val CREDIT_SENDER_PATTERN =
     "(?i)(?:\\sby\\*|\\slinked\\sto\\sVPA\\s)([A-Za-z0-9]*\\s?-?\\s?[A-Za-z0-9]*\\s?-?\\.?[A-Za-z0-9]*)"
 private const val CREDIT_TEXT_PATTERN = "(?i)(credit(ed)?|receive(d)?)"
-private const val DEBIT_TEXT_PATTERN = "(?i)debit(ed)?"
+private const val DEBIT_TEXT_PATTERN = "(?i)(debit(ed)|spent|sent)?"
 
 data class TransactionDetailsFromSMS(
     val amount: Double,
@@ -200,3 +203,4 @@ data class TransactionDetailsFromSMS(
 class AnnotationFailedThrowable : Throwable("Failed to annotate data")
 class MoneyExtractionFailedThrowable : Throwable("Failed to extract money entity")
 class DateExtractionFailedThrowable : Throwable("Failed to extract date entity")
+class InvalidTransactionTypeThrowable : Throwable("Unable to identify transaction type")
