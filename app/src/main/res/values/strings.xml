@@ -218,6 +218,8 @@
     <string name="backing_up_app_data">Backing up app data</string>
     <string name="some_previous_budgets">Some Previous Budgets</string>
     <string name="delete_tag_with_transactions">Delete Tag and Transactions</string>
+    <string name="debits">Debits</string>
+    <string name="credits">Credits</string>
     <string name="total_debits">Total Debits</string>
     <string name="total_credits">Total Credits</string>
     <string name="generic_debit_receiver">Merchant</string>

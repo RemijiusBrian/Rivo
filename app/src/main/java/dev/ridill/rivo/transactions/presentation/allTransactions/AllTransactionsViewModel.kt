@@ -74,11 +74,12 @@ class AllTransactionsViewModel @Inject constructor(
         selectedTagId,
         transactionTypeFilter
     ).map { (tagId, type) ->
-        if (type != null) {
-            UiText.StringResource(type.labelRes)
+        if (type != null) when (type) {
+            TransactionType.CREDIT -> UiText.StringResource(R.string.credits)
+            TransactionType.DEBIT -> UiText.StringResource(R.string.debits)
         } else if (tagId != null) {
-            tagsRepo.getTagById(tagId)?.let { UiText.DynamicString(it.name) }
-        } else null
+            UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
+        } else UiText.StringResource(R.string.all_transactions)
     }.distinctUntilChanged()
 
     private val transactionList = combineTuple(

@@ -655,7 +655,7 @@ private fun TransactionsList(
     currency: Currency,
     totalSumAmount: Double,
     typeFilter: TransactionType?,
-    listLabel: UiText?,
+    listLabel: UiText,
     transactionsList: List<TransactionListItem>,
     selectedTransactionIds: List<Long>,
     selectionState: ToggleableState,
@@ -752,7 +752,7 @@ private fun TransactionsList(
 
 @Composable
 private fun TransactionListHeader(
-    listLabel: UiText?,
+    listLabel: UiText,
     showExcludedTransactions: Boolean,
     onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
@@ -768,7 +768,7 @@ private fun TransactionListHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Crossfade(
-            targetState = listLabel?.asString() ?: stringResource(R.string.all_transactions),
+            targetState = listLabel.asString(),
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
                 .padding(horizontal = SpacingMedium)
