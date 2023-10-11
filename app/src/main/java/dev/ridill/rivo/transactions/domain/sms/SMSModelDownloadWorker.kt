@@ -8,9 +8,10 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.notification.MiscNotificationHelper
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
@@ -20,7 +21,7 @@ class SMSModelDownloadWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val smsService: TransactionSmsService,
-    private val notificationHelper: AutoAddTransactionNotificationHelper
+    private val notificationHelper: MiscNotificationHelper
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForeground()
@@ -36,7 +37,8 @@ class SMSModelDownloadWorker @AssistedInject constructor(
         setForeground(
             ForegroundInfo(
                 Random.nextInt(),
-                notificationHelper.getSMSModelDownloadForegroundNotification().build(),
+                notificationHelper.buildForegroundServiceNotification(R.string.setting_up_transaction_auto_add_feature)
+                    .build(),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         )

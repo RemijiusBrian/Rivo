@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.domain.notification
+package dev.ridill.rivo.core.domain.notification
 
 import android.content.Context
 import androidx.annotation.StringRes
@@ -7,9 +7,8 @@ import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.notification.NotificationHelper
 
-class BackupNotificationHelper(
+class MiscNotificationHelper(
     private val context: Context
 ) {
     private val notificationManager = NotificationManagerCompat.from(context)
@@ -18,6 +17,9 @@ class BackupNotificationHelper(
         registerChannelGroup()
         registerChannel()
     }
+
+    private val channelId: String
+        get() = "${context.packageName}.NOTIFICATION_CHANNEL_MISC"
 
     private fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
@@ -29,21 +31,18 @@ class BackupNotificationHelper(
 
     private fun registerChannel() {
         val channel = NotificationChannelCompat
-            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
-            .setName(context.getString(R.string.notification_channel_backups_name))
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName(context.getString(R.string.notification_channel_misc_name))
             .setGroup(NotificationHelper.Groups.others(context))
             .build()
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun getForegroundNotification(
+    fun buildForegroundServiceNotification(
         @StringRes titleRes: Int
     ): NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(context.getString(titleRes))
         .setProgress(100, 0, true)
         .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-
-    private val channelId: String
-        get() = "${context.packageName}.NOTIFICATION_CHANNEL_BACKUPS"
 }

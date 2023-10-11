@@ -1,6 +1,7 @@
 package dev.ridill.rivo.core.domain.notification
 
 import android.app.PendingIntent
+import android.content.Context
 import androidx.core.app.NotificationCompat
 
 interface NotificationHelper {
@@ -16,8 +17,11 @@ interface NotificationHelper {
     fun dismissNotification(id: Int)
 
     object Groups {
-        const val TRANSACTIONS = "dev.ridill.mym.CHANNEL_GROUP_TRANSACTIONS"
-        const val OTHERS = "dev.ridill.mym.CHANNEL_GROUP_OTHERS"
+        fun transactions(context: Context): String =
+            "${context.packageName}.NOTIFICATION_CHANNEL_GROUP_TRANSACTIONS"
+
+        fun others(context: Context): String =
+            "${context.packageName}.NOTIFICATION_CHANNEL_GROUP_OTHERS"
     }
 
     object Utils {
