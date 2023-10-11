@@ -79,7 +79,7 @@
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
-    <string name="error_invalid_transaction_folder_name">Please enter a valid note</string>
+    <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
