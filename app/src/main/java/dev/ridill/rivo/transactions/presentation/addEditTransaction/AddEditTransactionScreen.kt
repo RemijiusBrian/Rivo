@@ -3,11 +3,12 @@ package dev.ridill.rivo.transactions.presentation.addEditTransaction
 import android.icu.util.Currency
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -60,6 +61,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -83,7 +85,6 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
@@ -441,25 +442,23 @@ private fun FolderIndicator(
             Text(
                 text = stringResource(R.string.transaction_folder_indicator_label),
                 style = MaterialTheme.typography.bodySmall,
-                textDecoration = TextDecoration.Underline,
                 fontWeight = FontWeight.SemiBold
             )
-            TextButton(
-                onClick = onAddToFolderClick,
-                contentPadding = PaddingValues(horizontal = SpacingExtraSmall)
-            ) {
-                Crossfade(
-                    targetState = folderName ?: stringResource(R.string.add_to_folder),
-                    label = "FolderNameContent"
-                ) { text ->
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+            Text(
+                text = folderName ?: stringResource(R.string.add_to_folder),
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .clickable(
+                        onClick = onAddToFolderClick,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClickLabel = stringResource(R.string.cd_click_to_change_folder),
+                        role = Role.Button
                     )
-                }
-            }
+            )
         }
     }
 }

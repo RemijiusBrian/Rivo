@@ -52,7 +52,6 @@
     <string name="cd_create_new_folder">Create New Folder</string>
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
-    <!--    <string name="cd_sort_list">Sort list</string>-->
     <string name="cd_add_transaction_to_folder">Add transaction fo a folder</string>
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
@@ -68,6 +67,8 @@
     <string name="cd_clear">Clear</string>
     <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
+    <string name="cd_slice_transaction">Slice Transaction</string>
+    <string name="cd_click_to_change_folder">Click to change folder</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
