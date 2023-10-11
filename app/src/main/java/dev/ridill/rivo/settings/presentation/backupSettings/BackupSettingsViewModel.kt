@@ -88,13 +88,21 @@ class BackupSettingsViewModel @Inject constructor(
         repo.refreshBackupAccount()
     }
 
+    private var hasBackupJobRunThisSession: Boolean = false
     private fun collectImmediateBackupWorkInfo() = viewModelScope.launch {
         repo.getImmediateBackupWorkInfo().collectLatest { info ->
-            isBackupRunning.update {
-                info?.state == WorkInfo.State.RUNNING
+            val isRunning = info?.state == WorkInfo.State.RUNNING
+            isBackupRunning.update { isRunning }
+            if (isRunning) {
+                hasBackupJobRunThisSession = true
             }
-            if (info?.state == WorkInfo.State.FAILED) {
-                info.outputData.getString(BackupWorkManager.KEY_MESSAGE)?.let {
+
+            // if check to prevent showing message without running backup job at least once.
+            // hasBackupJobRunThisSession boolean is set to true when backup job is running.
+            // Without this check WorkInfo output message will be shown everytime user arrives at screen
+            // Even if backup was run long back
+            if (hasBackupJobRunThisSession) {
+                info?.outputData?.getString(BackupWorkManager.KEY_MESSAGE)?.let {
                     eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(it)))
                 }
             }
