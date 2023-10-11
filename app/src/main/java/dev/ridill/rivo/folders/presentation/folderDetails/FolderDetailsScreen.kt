@@ -73,7 +73,6 @@ import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
-import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -507,10 +506,7 @@ private fun TransactionDateSeparator(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer
-                    .copy(alpha = ContentAlpha.PERCENT_16)
-            )
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(
                 vertical = SpacingSmall,
                 horizontal = SpacingMedium
