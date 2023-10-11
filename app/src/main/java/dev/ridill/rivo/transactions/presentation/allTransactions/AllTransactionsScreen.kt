@@ -72,11 +72,13 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
@@ -108,6 +110,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
@@ -208,10 +211,10 @@ fun AllTransactionsScreen(
             )
 
             TransactionsList(
-                selectedTagName = state.selectedTagName,
                 currency = state.currency,
                 typeFilter = state.selectedTransactionTypeFilter,
                 totalSumAmount = state.totalAmount,
+                listLabel = state.transactionListLabel,
                 transactionsList = state.transactionList,
                 selectedTransactionIds = state.selectedTransactionIds,
                 selectionState = state.transactionSelectionState,
@@ -225,11 +228,12 @@ fun AllTransactionsScreen(
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                 ),
                 showExcludedTransactions = state.showExcludedTransactions,
+                onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
                 onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
                 onDeleteSelectedTransactions = actions::onDeleteSelectedTransactionsClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(Float.One)
+                    .weight(Float.One),
             )
         }
 
@@ -651,17 +655,18 @@ private fun TransactionsList(
     currency: Currency,
     totalSumAmount: Double,
     typeFilter: TransactionType?,
-    selectedTagName: String?,
+    listLabel: UiText?,
     transactionsList: List<TransactionListItem>,
     selectedTransactionIds: List<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
+    onToggleTransactionTypeFilter: () -> Unit,
+    showExcludedTransactions: Boolean,
     onTransactionOptionClick: (TransactionOption) -> Unit,
     multiSelectionModeActive: Boolean,
     onTransactionLongClick: (Long) -> Unit,
     onTransactionClick: (Long) -> Unit,
     listContentPadding: PaddingValues,
-    showExcludedTransactions: Boolean,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     onDeleteSelectedTransactions: () -> Unit,
     modifier: Modifier = Modifier
@@ -706,7 +711,8 @@ private fun TransactionsList(
             )
 
             TransactionListHeader(
-                selectedTagName = selectedTagName,
+                listLabel = listLabel,
+                onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
                 showExcludedTransactions = showExcludedTransactions,
                 onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
                 multiSelectionModeActive = multiSelectionModeActive,
@@ -746,8 +752,9 @@ private fun TransactionsList(
 
 @Composable
 private fun TransactionListHeader(
-    selectedTagName: String?,
+    listLabel: UiText?,
     showExcludedTransactions: Boolean,
+    onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     multiSelectionState: ToggleableState,
@@ -761,7 +768,7 @@ private fun TransactionListHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Crossfade(
-            targetState = selectedTagName ?: stringResource(R.string.all_transactions),
+            targetState = listLabel?.asString() ?: stringResource(R.string.all_transactions),
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
                 .padding(horizontal = SpacingMedium)
@@ -770,6 +777,7 @@ private fun TransactionListHeader(
 
         TransactionListOptions(
             showExcludedTransactions = showExcludedTransactions,
+            onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
             onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
             multiSelectionModeActive = multiSelectionModeActive,
             onTransactionOptionClick = onTransactionOptionClick,
@@ -783,6 +791,7 @@ private fun TransactionListHeader(
 @Composable
 private fun TransactionListOptions(
     showExcludedTransactions: Boolean,
+    onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     onTransactionOptionClick: (TransactionOption) -> Unit,
@@ -798,6 +807,14 @@ private fun TransactionListOptions(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
+        AnimatedVisibility(visible = !multiSelectionModeActive) {
+            IconButton(onClick = onToggleTransactionTypeFilter) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_funnel_dollar),
+                    contentDescription = stringResource(R.string.cd_filter_transactions_by_type)
+                )
+            }
+        }
         AnimatedVisibility(visible = multiSelectionModeActive) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

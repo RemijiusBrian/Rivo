@@ -63,6 +63,7 @@
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
     <string name="cd_long_click_tag_to_edit">Long press to edit tag</string>
+    <string name="cd_filter_transactions_by_type">Filter transactions by type</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>

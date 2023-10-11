@@ -54,10 +54,6 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
-    private val selectedTagName = selectedTagId
-        .map { id -> id?.let { tagsRepo.getTagById(it) } }
-        .map { it?.name }
-        .distinctUntilChanged()
 
     private val showExcludedTransactions = transactionRepo.getShowExcludedTransactions()
 
@@ -72,6 +68,17 @@ class AllTransactionsViewModel @Inject constructor(
             date = date,
             type = type ?: TransactionType.DEBIT
         )
+    }.distinctUntilChanged()
+
+    private val transactionListLabel = combineTuple(
+        selectedTagId,
+        transactionTypeFilter
+    ).map { (tagId, type) ->
+        if (type != null) {
+            UiText.StringResource(type.labelRes)
+        } else if (tagId != null) {
+            tagsRepo.getTagById(tagId)?.let { UiText.DynamicString(it.name) }
+        } else null
     }.distinctUntilChanged()
 
     private val transactionList = combineTuple(
@@ -137,8 +144,8 @@ class AllTransactionsViewModel @Inject constructor(
         totalAmount,
         tagsWithExpenditures,
         selectedTagId,
-        selectedTagName,
         transactionTypeFilter,
+        transactionListLabel,
         transactionList,
         selectedTransactionIds,
         transactionSelectionState,
@@ -156,8 +163,8 @@ class AllTransactionsViewModel @Inject constructor(
                 totalAmount,
                 tagsWithExpenditures,
                 selectedTagId,
-                selectedTagName,
                 transactionTypeFilter,
+                transactionListLabel,
                 transactionList,
                 selectedTransactionIds,
                 transactionSelectionState,
@@ -176,9 +183,9 @@ class AllTransactionsViewModel @Inject constructor(
             totalAmount = totalAmount,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTagId = selectedTagId,
-            selectedTagName = selectedTagName,
             selectedTransactionTypeFilter = transactionTypeFilter,
             transactionList = transactionList,
+            transactionListLabel = transactionListLabel,
             selectedTransactionIds = selectedTransactionIds,
             transactionSelectionState = transactionSelectionState,
             transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
@@ -285,8 +292,12 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[TAG_INPUT] = null
     }
 
-    override fun onTransactionTypeFilterSelect(type: TransactionType?) {
-        savedStateHandle[TRANSACTION_TYPE_FILTER] = type
+    override fun onTransactionTypeFilterToggle() {
+        savedStateHandle[TRANSACTION_TYPE_FILTER] = when (transactionTypeFilter.value) {
+            TransactionType.CREDIT -> null
+            TransactionType.DEBIT -> TransactionType.CREDIT
+            null -> TransactionType.DEBIT
+        }
     }
 
     override fun onToggleShowExcludedTransactions(value: Boolean) {

@@ -3,7 +3,6 @@ package dev.ridill.rivo.transactions.presentation.allTransactions
 import androidx.compose.ui.graphics.Color
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
-import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.Month
 
 interface AllTransactionsActions {
@@ -16,7 +15,7 @@ interface AllTransactionsActions {
     fun onTagInputExclusionChange(excluded: Boolean)
     fun onTagInputDismiss()
     fun onTagInputConfirm()
-    fun onTransactionTypeFilterSelect(type: TransactionType?)
+    fun onTransactionTypeFilterToggle()
     fun onToggleShowExcludedTransactions(value: Boolean)
     fun onTransactionLongClick(id: Long)
     fun onTransactionClick(id: Long)
