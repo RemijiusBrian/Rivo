@@ -311,6 +311,7 @@ class AllTransactionsViewModel @Inject constructor(
             if (transactionMultiSelectionModeActive.value) dismissMultiSelectionMode()
             else {
                 savedStateHandle[SELECTED_TAG_ID] = null
+                savedStateHandle[TRANSACTION_TYPE_FILTER] = null
                 enableMultiSelectionModeWithId(id)
             }
             eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
