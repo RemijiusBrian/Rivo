@@ -16,6 +16,7 @@ import dev.ridill.rivo.transactions.data.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.data.repository.AllTransactionsRepositoryImpl
 import dev.ridill.rivo.transactions.data.repository.TagsRepositoryImpl
 import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
+import dev.ridill.rivo.transactions.domain.notification.AutoAddTxSetupNotificationHelper
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
@@ -79,6 +80,11 @@ object TransactionModule {
     fun provideTransactionNotificationHelper(
         @ApplicationContext context: Context
     ): AutoAddTransactionNotificationHelper = AutoAddTransactionNotificationHelper(context)
+
+    @Provides
+    fun provideAutoAddTxSetupNotificationHelper(
+        @ApplicationContext context: Context
+    ): AutoAddTxSetupNotificationHelper = AutoAddTxSetupNotificationHelper(context)
 
     @Provides
     fun provideTransactionSMSModelDownloadManager(

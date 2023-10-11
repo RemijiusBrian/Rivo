@@ -17,9 +17,9 @@
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
     <string name="notification_channel_auto_add_transactions_name">Transactions added from SMS</string>
+    <string name="notification_channel_auto_add_transaction_setup_name">Transactions Auto-Add Setup</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
-    <string name="notification_channel_misc_name">Miscellaneous</string>
 
     <!-- Content Description -->
     <string name="cd_balance_and_budget_amounts">You have a balance of %1$s from your budget of %2$s</string>

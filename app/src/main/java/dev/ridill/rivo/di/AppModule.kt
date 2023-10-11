@@ -18,7 +18,6 @@ import dev.ridill.rivo.core.data.db.Migration_1_2
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.data.preferences.PreferencesManagerImpl
-import dev.ridill.rivo.core.domain.notification.MiscNotificationHelper
 import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import kotlinx.coroutines.CoroutineScope
@@ -71,11 +70,6 @@ object AppModule {
     fun provideReceiverService(
         @ApplicationContext context: Context
     ): ReceiverService = ReceiverService(context)
-
-    @Provides
-    fun provideMiscNotificationHelper(
-        @ApplicationContext context: Context
-    ): MiscNotificationHelper = MiscNotificationHelper(context)
 }
 
 @Qualifier

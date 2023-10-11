@@ -19,7 +19,6 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenS
 class AutoAddTransactionNotificationHelper(
     private val context: Context
 ) : NotificationHelper {
-
     private val notificationManager = NotificationManagerCompat.from(context)
 
     init {
