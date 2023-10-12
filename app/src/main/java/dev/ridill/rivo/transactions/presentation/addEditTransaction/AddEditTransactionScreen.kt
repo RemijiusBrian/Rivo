@@ -2,11 +2,9 @@ package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import android.icu.util.Currency
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,9 +29,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -49,8 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -82,9 +74,9 @@ import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.TabSelector
+import dev.ridill.rivo.core.ui.components.TabSelectorItem
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
-import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
@@ -469,65 +461,40 @@ private fun TransactionTypeSelector(
     onValueChange: (TransactionType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedIndex by remember(selectedType) {
-        derivedStateOf {
-            TransactionType.values().indexOf(selectedType)
-        }
-    }
-    val indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-        .copy(alpha = ContentAlpha.PERCENT_32)
     val typeSelectorContentDescription = stringResource(
         R.string.cd_transaction_type_selector,
         stringResource(selectedType.labelRes)
     )
-    TabRow(
-        selectedTabIndex = selectedIndex,
-        modifier = Modifier
-            .clip(CircleShape)
-            .border(
-                width = BorderWidthStandard,
-                color = indicatorColor,
-                shape = CircleShape
-            )
+    TabSelector(
+        values = { TransactionType.values().toList() },
+        selectedItem = { selectedType },
+        modifier = modifier
             .semantics {
                 contentDescription = typeSelectorContentDescription
             }
-            .then(modifier),
-        indicator = {
-            Box(
-                modifier = Modifier
-                    .tabIndicatorOffset(it[selectedIndex])
-                    .fillMaxSize()
-                    .drawBehind {
-                        drawRoundRect(color = indicatorColor)
-                    }
+    ) { type ->
+        val selected = selectedType == type
+        val transactionTypeSelectorContentDescription = if (!selected)
+            stringResource(
+                R.string.cd_transaction_type_selector_unselected,
+                stringResource(type.labelRes)
             )
-        },
-        divider = {}
-    ) {
-        TransactionType.values().forEach { type ->
-            val selected = selectedType == type
-            val transactionTypeSelectorContentDescription = if (!selected)
-                stringResource(
-                    R.string.cd_transaction_type_selector_unselected,
-                    stringResource(type.labelRes)
+        else null
+        TabSelectorItem(
+            selected = selected,
+            onClick = { onValueChange(type) },
+            text = {
+                Text(
+                    text = stringResource(type.labelRes),
+                    overflow = TextOverflow.Ellipsis
                 )
-            else null
-            Tab(
-                selected = selected,
-                onClick = { onValueChange(type) },
-                text = {
-                    Text(
-                        text = stringResource(type.labelRes),
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                modifier = Modifier
-                    .mergedContentDescription(transactionTypeSelectorContentDescription),
-                selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                unselectedContentColor = LocalContentColor.current
-            )
-        }
+            },
+            modifier = Modifier
+                .mergedContentDescription(transactionTypeSelectorContentDescription),
+            selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unselectedContentColor = LocalContentColor.current
+        )
+
     }
 }
 
