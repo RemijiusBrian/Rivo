@@ -12,7 +12,7 @@ import dev.ridill.rivo.folders.data.toFolderDetails
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
@@ -52,7 +52,7 @@ class FolderDetailsRepositoryImpl(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
     ) { transactionDao.getTransactionsListPaginated(folderId = folderId) }
         .flow
-        .map { it.map(TransactionDetails::toTransactionListItem) }
+        .map { it.map(TransactionDetailsView::toTransactionListItem) }
         .map { pagingData ->
             pagingData.map { TransactionListItemUIModel.TransactionItem(it) }
         }

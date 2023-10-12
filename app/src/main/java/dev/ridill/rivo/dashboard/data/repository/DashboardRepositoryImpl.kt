@@ -5,7 +5,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -36,5 +36,5 @@ class DashboardRepositoryImpl(
             monthAndYear = DateUtil.now(),
             transactionTypeName = TransactionType.DEBIT.name,
             showExcluded = false
-        ).map { it.map(TransactionDetails::toTransactionListItem) }
+        ).map { it.map(TransactionDetailsView::toTransactionListItem) }
 }

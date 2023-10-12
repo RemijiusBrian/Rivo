@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
@@ -19,6 +20,7 @@ import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
+import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 
 @Database(
     entities = [
@@ -26,6 +28,10 @@ import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
         FolderEntity::class,
         TagEntity::class,
         ConfigEntity::class
+    ],
+    views = [
+        TransactionDetailsView::class,
+        FolderAndAggregateAmountView::class
     ],
     version = BuildConfig.DB_VERSION,
     autoMigrations = [
@@ -43,8 +49,8 @@ abstract class RivoDatabase : RoomDatabase() {
 
     // Dao Methods
     abstract fun transactionDao(): TransactionDao
-    abstract fun folderDao(): FolderDao
     abstract fun tagsDao(): TagsDao
+    abstract fun folderDao(): FolderDao
     abstract fun configDao(): ConfigDao
 
     @RenameTable(fromTableName = "transaction_folder_table", toTableName = "folder_table")

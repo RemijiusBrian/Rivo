@@ -1,11 +1,11 @@
 package dev.ridill.rivo.folders.data
 
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.local.relation.FolderAndAggregateAmount
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 
-fun FolderAndAggregateAmount.toFolderDetails(): FolderDetails = FolderDetails(
+fun FolderAndAggregateAmountView.toFolderDetails(): FolderDetails = FolderDetails(
     id = id,
     name = name,
     createdTimestamp = createdTimestamp,

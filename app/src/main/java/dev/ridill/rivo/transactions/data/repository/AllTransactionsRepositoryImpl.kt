@@ -5,7 +5,7 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -56,7 +56,7 @@ class AllTransactionsRepositoryImpl(
         transactionTypeName = transactionType?.name,
         tagId = tagId,
         showExcluded = showExcluded
-    ).map { it.map(TransactionDetails::toTransactionListItem) }
+    ).map { it.map(TransactionDetailsView::toTransactionListItem) }
 
     override fun getShowExcludedTransactions(): Flow<Boolean> =
         preferencesManager.preferences.map { it.showExcludedTransactions }
