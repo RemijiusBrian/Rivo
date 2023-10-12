@@ -25,8 +25,8 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 @Database(
     entities = [
         TransactionEntity::class,
-        FolderEntity::class,
         TagEntity::class,
+        FolderEntity::class,
         ConfigEntity::class
     ],
     views = [
@@ -37,7 +37,8 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),
-        AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class)
+        AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class),
+        AutoMigration(from = 8, to = 9)
     ]
 )
 @TypeConverters(DateTimeConverter::class)
