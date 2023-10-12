@@ -6,103 +6,39 @@ import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.local.relation.FolderAndAggregateAmount
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FolderDao : BaseDao<FolderEntity> {
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        ORDER BY name ASC
-    """
-    )
-    fun getFoldersWithAggregateExpenditureSortedByNameAsc(): PagingSource<Int, FolderAndAggregateAmount>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view ORDER BY name ASC")
+    fun getFoldersWithAggregateExpenditureSortedByNameAsc(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        ORDER BY name DESC
-    """
-    )
-    fun getFoldersWithAggregateExpenditureSortedByNameDesc(): PagingSource<Int, FolderAndAggregateAmount>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view ORDER BY name DESC")
+    fun getFoldersWithAggregateExpenditureSortedByNameDesc(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        ORDER BY datetime(createdTimestamp) ASC, id ASC
-    """
-    )
-    fun getFoldersWithAggregateExpenditureSortedByCreatedAsc(): PagingSource<Int, FolderAndAggregateAmount>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view ORDER BY datetime(createdTimestamp) ASC, id ASC")
+    fun getFoldersWithAggregateExpenditureSortedByCreatedAsc(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        ORDER BY datetime(createdTimestamp) DESC, id DESC
-    """
-    )
-    fun getFoldersWithAggregateExpenditureSortedByCreatedDesc(): PagingSource<Int, FolderAndAggregateAmount>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view ORDER BY datetime(createdTimestamp) DESC, id DESC")
+    fun getFoldersWithAggregateExpenditureSortedByCreatedDesc(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        ORDER BY aggregateAmount ASC
-    """
-    )
-    fun getFoldersWithAggregateExpenditureSortedByAggregateAsc(): PagingSource<Int, FolderAndAggregateAmount>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view ORDER BY aggregateAmount ASC")
+    fun getFoldersWithAggregateExpenditureSortedByAggregateAsc(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        ORDER BY aggregateAmount DESC
-    """
-    )
-    fun getFoldersWithAggregateExpenditureSortedByAggregateDesc(): PagingSource<Int, FolderAndAggregateAmount>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view ORDER BY aggregateAmount DESC")
+    fun getFoldersWithAggregateExpenditureSortedByAggregateDesc(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query(
-        """
-        SELECT folder.id, folder.name, folder.created_timestamp AS createdTimestamp, folder.is_excluded as excluded,
-        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')
-        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')
-        ) AS aggregateAmount
-        FROM folder_table folder
-        WHERE folder.id = :id
-        ORDER BY datetime(createdTimestamp) DESC, id DESC
-    """
-    )
-    fun getFolderWithAggregateExpenditureById(id: Long): Flow<FolderAndAggregateAmount?>
+    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE id = :id ORDER BY datetime(createdTimestamp) DESC, id DESC")
+    fun getFolderWithAggregateExpenditureById(id: Long): Flow<FolderAndAggregateAmountView?>
 
     @Query("SELECT * FROM folder_table WHERE name LIKE '%' || :query || '%'")
     fun getFoldersList(query: String): PagingSource<Int, FolderEntity>

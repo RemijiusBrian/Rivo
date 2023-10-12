@@ -9,7 +9,7 @@ import dev.ridill.rivo.core.domain.model.SortOrder
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.local.relation.FolderAndAggregateAmount
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
 import dev.ridill.rivo.folders.data.toFolder
 import dev.ridill.rivo.folders.data.toFolderDetails
 import dev.ridill.rivo.folders.domain.model.Folder
@@ -52,7 +52,7 @@ class FoldersListRepositoryImpl(
         }
     }
         .flow
-        .map { it.map(FolderAndAggregateAmount::toFolderDetails) }
+        .map { it.map(FolderAndAggregateAmountView::toFolderDetails) }
 
     override fun getFoldersListSortCriteria(): Flow<FolderSortCriteria> = configDao
         .getFoldersListSortCriteria().map {
