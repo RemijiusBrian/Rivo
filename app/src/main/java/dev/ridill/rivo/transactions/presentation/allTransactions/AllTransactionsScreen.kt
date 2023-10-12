@@ -928,18 +928,16 @@ private fun TransactionCard(
     selected: Boolean,
     excluded: Boolean,
     modifier: Modifier = Modifier
-) {
-    TransactionListItem(
-        note = note,
-        amount = amount,
-        date = date,
-        type = type,
-        showTypeIndicator = true,
-        tag = null,
-        folder = folder,
-        modifier = modifier
-            .fillMaxWidth(),
-        tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
-        excluded = excluded
-    )
-}
+) = TransactionListItem(
+    note = note,
+    amount = amount,
+    date = date,
+    type = type,
+    showTypeIndicator = true,
+    tag = null,
+    folder = folder,
+    modifier = modifier
+        .fillMaxWidth(),
+    tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
+    excluded = excluded
+)
