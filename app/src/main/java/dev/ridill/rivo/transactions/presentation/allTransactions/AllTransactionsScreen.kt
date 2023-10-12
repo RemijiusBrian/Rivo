@@ -904,7 +904,8 @@ private fun TotalSumAmount(
         VerticalNumberSpinnerContent(sumAmount) { amount ->
             Text(
                 text = TextFormat.currency(amount = amount, currency = currency),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium
+                    .copy(lineBreak = LineBreak.Heading),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold
