@@ -38,10 +38,6 @@ object AllTransactionsScreenSpec : ScreenSpec {
         LaunchedEffect(viewModel, context, snackbarController) {
             viewModel.events.collect { event ->
                 when (event) {
-                    is AllTransactionsViewModel.AllTransactionsEvent.NavigateToAddEditTransactionScreen -> {
-                        navController.navigate(AddEditTransactionScreenSpec.routeWithArg(event.transactionId))
-                    }
-
                     is AllTransactionsViewModel.AllTransactionsEvent.ShowUiMessage -> {
                         snackbarController.showSnackbar(
                             event.uiText.asString(context),
@@ -74,7 +70,10 @@ object AllTransactionsScreenSpec : ScreenSpec {
             navigateUp = navController::navigateUp,
             isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG },
             folderSearchQuery = { folderSearchQuery.value },
-            foldersList = foldersList
+            foldersList = foldersList,
+            navigateToAddEditTransaction = {
+                navController.navigate(AddEditTransactionScreenSpec.routeWithArg(it))
+            }
         )
     }
 }

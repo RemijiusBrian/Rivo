@@ -18,7 +18,7 @@ interface AllTransactionsActions {
     fun onTransactionTypeFilterToggle()
     fun onToggleShowExcludedTransactions(value: Boolean)
     fun onTransactionLongClick(id: Long)
-    fun onTransactionClick(id: Long)
+    fun onTransactionSelectionChange(id: Long)
     fun onSelectionStateChange()
     fun onDismissMultiSelectionMode()
     fun onTransactionOptionClick(option: TransactionOption)
