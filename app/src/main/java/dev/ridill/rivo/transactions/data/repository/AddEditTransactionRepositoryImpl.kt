@@ -1,6 +1,8 @@
 package dev.ridill.rivo.transactions.data.repository
 
+import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.toTransaction
@@ -15,8 +17,11 @@ import java.time.LocalDateTime
 import kotlin.math.roundToLong
 
 class AddEditTransactionRepositoryImpl(
-    private val dao: TransactionDao
+    private val dao: TransactionDao,
+    private val settingsRepo: SettingsRepository
 ) : AddEditTransactionRepository {
+    override fun getCurrencyPreference(): Flow<Currency> = settingsRepo.getCurrencyPreference()
+
     override suspend fun getTransactionById(id: Long): Transaction? = withContext(Dispatchers.IO) {
         dao.getTransactionById(id)?.toTransaction()
     }

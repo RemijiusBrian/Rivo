@@ -23,7 +23,6 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -42,7 +41,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val transactionRepo: AddEditTransactionRepository,
     private val tagsRepo: TagsRepository,
     private val foldersListRepo: FoldersListRepository,
-    settingsRepo: SettingsRepository,
     private val eventBus: EventBus<AddEditTransactionEvent>,
     private val evalService: ExpEvalService
 ) : ViewModel(), AddEditTransactionActions {
@@ -56,7 +54,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
-    private val currency = settingsRepo.getCurrencyPreference()
+    private val currency = transactionRepo.getCurrencyPreference()
 
     val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
     val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")

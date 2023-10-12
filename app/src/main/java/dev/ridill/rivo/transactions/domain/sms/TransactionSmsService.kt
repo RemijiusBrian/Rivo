@@ -21,6 +21,7 @@ import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotifi
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
@@ -30,7 +31,7 @@ class TransactionSmsService(
     private val repo: AddEditTransactionRepository,
     private val notificationHelper: AutoAddTransactionNotificationHelper,
     private val applicationScope: CoroutineScope,
-    private val context: Context,
+    private val context: Context
 ) {
     private val debitReceiverRegex = DEBIT_RECEIVER_PATTERN.toRegex()
     private val creditSenderRegex = CREDIT_SENDER_PATTERN.toRegex()
@@ -51,6 +52,7 @@ class TransactionSmsService(
             extractor.downloadModelIfNeeded().await()
             if (!extractor.isModelDownloaded.await()) return@launch
 
+            val currency = repo.getCurrencyPreference().first()
             val dateTimeNow = DateUtil.now()
             val messages = getSmsFromIntent(data)
             for (message in messages) {
@@ -98,7 +100,7 @@ class TransactionSmsService(
                             TransactionType.CREDIT -> R.string.amount_credited_notification_message
                             TransactionType.DEBIT -> R.string.amount_debited_notification_message
                         },
-                        TextFormat.currency(amount),
+                        TextFormat.currency(amount, currency),
                         secondParty
                     )
                 )

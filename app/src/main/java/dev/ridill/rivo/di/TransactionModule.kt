@@ -38,8 +38,12 @@ object TransactionModule {
 
     @Provides
     fun provideAddEditTransactionRepository(
-        dao: TransactionDao
-    ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(dao)
+        dao: TransactionDao,
+        settingsRepo: SettingsRepository
+    ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(
+        dao = dao,
+        settingsRepo = settingsRepo
+    )
 
     @Provides
     fun provideTagsRepository(dao: TagsDao): TagsRepository = TagsRepositoryImpl(dao)
