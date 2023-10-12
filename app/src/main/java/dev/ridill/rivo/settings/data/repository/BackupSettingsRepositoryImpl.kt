@@ -9,7 +9,6 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
-import dev.ridill.rivo.core.domain.util.toInt
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.local.ConfigDao
@@ -24,7 +23,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
@@ -101,39 +99,16 @@ class BackupSettingsRepositoryImpl(
                 backupWorkManager.cancelPeriodicBackupWork()
                 return@withContext
             }
-            val runInCellular = getBackupUsingCellular().first()
-
             if (interval == BackupInterval.MANUAL)
                 backupWorkManager.cancelPeriodicBackupWork()
             else
-                backupWorkManager.schedulePeriodicBackupWork(
-                    interval = interval,
-                    runInCellular = runInCellular
-                )
+                backupWorkManager.schedulePeriodicBackupWork(interval)
         }
 
 
     override fun runImmediateBackupJob() {
         backupWorkManager.runImmediateBackupWork()
     }
-
-    override fun getBackupUsingCellular(): Flow<Boolean> = dao.getBackupUsingCellular()
-        .map { it == true }
-        .distinctUntilChanged()
-
-    override suspend fun updateBackupUsingCellular(checked: Boolean, interval: BackupInterval) =
-        withContext(Dispatchers.IO) {
-            val entity = ConfigEntity(
-                configKey = ConfigKeys.BACKUP_USING_CELLULAR,
-                configValue = checked.toInt().toString()
-            )
-            dao.insert(entity)
-
-            backupWorkManager.schedulePeriodicBackupWork(
-                interval = interval,
-                runInCellular = checked
-            )
-        }
 
     override suspend fun getCurrentBackupInterval(): BackupInterval =
         BackupInterval.valueOf(

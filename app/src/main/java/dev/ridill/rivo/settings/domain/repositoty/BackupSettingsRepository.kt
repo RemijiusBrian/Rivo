@@ -20,7 +20,5 @@ interface BackupSettingsRepository {
     fun getPeriodicBackupWorkInfo(): Flow<WorkInfo?>
     suspend fun updateBackupInterval(interval: BackupInterval)
     fun runImmediateBackupJob()
-    fun getBackupUsingCellular(): Flow<Boolean>
-    suspend fun updateBackupUsingCellular(checked: Boolean, interval: BackupInterval)
     suspend fun getCurrentBackupInterval(): BackupInterval
 }

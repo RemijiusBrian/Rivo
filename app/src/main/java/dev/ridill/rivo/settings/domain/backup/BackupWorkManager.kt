@@ -43,7 +43,7 @@ class BackupWorkManager(
         const val BACKUP_DETAILS_INPUT = "BACKUP_DETAILS_INPUT"
     }
 
-    fun schedulePeriodicBackupWork(interval: BackupInterval, runInCellular: Boolean) {
+    fun schedulePeriodicBackupWork(interval: BackupInterval) {
         if (interval == BackupInterval.MANUAL) {
             cancelPeriodicBackupWork()
             return
@@ -53,7 +53,7 @@ class BackupWorkManager(
             interval.daysInterval,
             TimeUnit.DAYS
         )
-            .setConstraints(buildConstraints(runInCellular))
+            .setConstraints(buildConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACK_OFF_DELAY, TimeUnit.MINUTES)
             .setId(periodicBackupWorkName.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
@@ -121,11 +121,8 @@ class BackupWorkManager(
         workManager.cancelAllWorkByTag(commonBackupTag)
     }
 
-    private fun buildConstraints(runInCellular: Boolean): Constraints = Constraints.Builder()
-        .setRequiredNetworkType(
-            if (runInCellular) NetworkType.CONNECTED
-            else NetworkType.UNMETERED
-        )
+    private fun buildConstraints(): Constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
         .setRequiresBatteryNotLow(true)
         .build()
 }

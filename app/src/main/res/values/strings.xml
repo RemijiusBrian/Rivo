@@ -280,7 +280,6 @@
     <string name="folder_sort_criteria_by_aggregate">Aggregate Amount</string>
     <string name="sort_order_ascending">Ascending</string>
     <string name="sort_order_descending">Descending</string>
-    <string name="backup_using_cellular">Backup using cellular data</string>
     <string name="setting_up_transaction_auto_add_feature">Setting up Transaction Auto Add Feature</string>
     <string name="received_from_sender">Received from %s</string>
     <string name="spent_towards_receiver">Spent towards %s</string>

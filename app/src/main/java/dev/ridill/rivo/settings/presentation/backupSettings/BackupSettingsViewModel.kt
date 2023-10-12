@@ -37,8 +37,6 @@ class BackupSettingsViewModel @Inject constructor(
         .distinctUntilChanged()
 
     private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
-    private val backupUsingCellular = repo.getBackupUsingCellular()
-        .distinctUntilChanged()
 
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
@@ -52,7 +50,6 @@ class BackupSettingsViewModel @Inject constructor(
         backupAccountEmail,
         isAccountAdded,
         backupInterval,
-        backupUsingCellular,
         showBackupIntervalSelection,
         lastBackupDateTime,
         isBackupRunning
@@ -60,7 +57,6 @@ class BackupSettingsViewModel @Inject constructor(
                 backupAccount,
                 isAccountAdded,
                 backupInterval,
-                backupUsingCellular,
                 showBackupIntervalSelection,
                 lastBackupDateTime,
                 isBackupWorkerRunning
@@ -70,7 +66,6 @@ class BackupSettingsViewModel @Inject constructor(
             isAccountAdded = isAccountAdded,
             showBackupIntervalSelection = showBackupIntervalSelection,
             interval = backupInterval,
-            backupUsingCellular = backupUsingCellular,
             lastBackupDateTime = lastBackupDateTime,
             isBackupRunning = isBackupWorkerRunning
         )
@@ -167,12 +162,6 @@ class BackupSettingsViewModel @Inject constructor(
 
     override fun onBackupNowClick() {
         repo.runImmediateBackupJob()
-    }
-
-    override fun onBackupUsingCellularToggle(checked: Boolean) {
-        viewModelScope.launch {
-            repo.updateBackupUsingCellular(checked = checked, interval = backupInterval.value)
-        }
     }
 
     sealed class BackupEvent {
