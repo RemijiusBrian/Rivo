@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
-import dev.ridill.rivo.core.ui.components.ValueInputSheet
+import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -134,7 +134,7 @@ fun TagInputSheet(
         }
     }
 
-    ValueInputSheet(
+    OutlinedTextFieldSheet(
         title = {
             Row(
                 modifier = Modifier
@@ -163,7 +163,16 @@ fun TagInputSheet(
         inputValue = nameInput,
         onValueChange = onNameChange,
         onDismiss = onDismiss,
-        text = if (!isEditMode()) stringResource(R.string.new_tag_input_text) else null,
+        text = {
+            if (!isEditMode()) {
+                Text(
+                    text = stringResource(R.string.new_tag_input_text),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(horizontal = SpacingMedium)
+                )
+            }
+        },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             capitalization = KeyboardCapitalization.Words,

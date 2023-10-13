@@ -1,26 +1,26 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import android.icu.util.Currency
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -30,11 +30,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -46,11 +44,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -62,19 +60,22 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
@@ -82,14 +83,16 @@ import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.TabSelector
+import dev.ridill.rivo.core.ui.components.TabSelectorItem
+import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
-import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
+import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
@@ -185,6 +188,7 @@ fun AddEditTransactionScreen(
                 currency = state.currency,
                 amount = amountInput,
                 onAmountChange = actions::onAmountChange,
+                onTransformClick = actions::onTransformAmountClick,
                 modifier = Modifier
                     .focusRequester(amountFocusRequester)
             )
@@ -279,13 +283,11 @@ fun AddEditTransactionScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         datePickerState.selectedDateMillis?.let {
-                            val dateTime =
-                                DateUtil.dateFromMillisWithTime(it, state.transactionTimestamp)
+                            val dateTime = DateUtil
+                                .dateFromMillisWithTime(it, state.transactionTimestamp)
                             actions.onTransactionTimestampSelectionConfirm(dateTime)
                         }
-                    }) {
-                        Text(stringResource(R.string.action_ok))
-                    }
+                    }) { Text(stringResource(R.string.action_ok)) }
                 },
                 dismissButton = {
                     TextButton(onClick = actions::onTransactionTimestampSelectionDismiss) {
@@ -307,6 +309,15 @@ fun AddEditTransactionScreen(
                 onDismiss = actions::onFolderSelectionDismiss
             )
         }
+
+        if (state.showTransformationInput) {
+            AmountTransformationSheet(
+                onDismiss = actions::onTransformAmountDismiss,
+                selectedTransformation = state.selectedAmountTransformation,
+                onTransformationSelect = actions::onAmounTransformationSelect,
+                onTransformClick = actions::onAmountTransformationConfirm
+            )
+        }
     }
 }
 
@@ -315,14 +326,18 @@ private fun AmountInput(
     currency: Currency,
     amount: () -> String,
     onAmountChange: (String) -> Unit,
+    onTransformClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val amountContentDescription = stringResource(R.string.cd_enter_amount)
+    val showTransformButton by remember {
+        derivedStateOf { amount().toDoubleOrNull().orZero() > Double.Zero }
+    }
     MinWidthOutlinedTextField(
         value = amount,
         onValueChange = onAmountChange,
         modifier = modifier
-            .clearAndSetSemantics {
+            .semantics {
                 contentDescription = amountContentDescription
             },
         prefix = { Text(currency.symbol) },
@@ -344,7 +359,17 @@ private fun AmountInput(
             errorBorderColor = Color.Transparent,
             disabledBorderColor = Color.Transparent
         ),
-        visualTransformation = remember { AmountVisualTransformation() }
+        visualTransformation = remember { AmountVisualTransformation() },
+        trailingIcon = {
+            AnimatedVisibility(visible = showTransformButton) {
+                IconButton(onClick = onTransformClick) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_gears),
+                        contentDescription = stringResource(R.string.cd_transform_amount)
+                    )
+                }
+            }
+        }
     )
 }
 
@@ -469,65 +494,40 @@ private fun TransactionTypeSelector(
     onValueChange: (TransactionType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedIndex by remember(selectedType) {
-        derivedStateOf {
-            TransactionType.values().indexOf(selectedType)
-        }
-    }
-    val indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-        .copy(alpha = ContentAlpha.PERCENT_32)
     val typeSelectorContentDescription = stringResource(
         R.string.cd_transaction_type_selector,
         stringResource(selectedType.labelRes)
     )
-    TabRow(
-        selectedTabIndex = selectedIndex,
-        modifier = Modifier
-            .clip(CircleShape)
-            .border(
-                width = BorderWidthStandard,
-                color = indicatorColor,
-                shape = CircleShape
-            )
+    TabSelector(
+        values = { TransactionType.values().toList() },
+        selectedItem = { selectedType },
+        modifier = modifier
             .semantics {
                 contentDescription = typeSelectorContentDescription
             }
-            .then(modifier),
-        indicator = {
-            Box(
-                modifier = Modifier
-                    .tabIndicatorOffset(it[selectedIndex])
-                    .fillMaxSize()
-                    .drawBehind {
-                        drawRoundRect(color = indicatorColor)
-                    }
+    ) { type ->
+        val selected = selectedType == type
+        val transactionTypeSelectorContentDescription = if (!selected)
+            stringResource(
+                R.string.cd_transaction_type_selector_unselected,
+                stringResource(type.labelRes)
             )
-        },
-        divider = {}
-    ) {
-        TransactionType.values().forEach { type ->
-            val selected = selectedType == type
-            val transactionTypeSelectorContentDescription = if (!selected)
-                stringResource(
-                    R.string.cd_transaction_type_selector_unselected,
-                    stringResource(type.labelRes)
+        else null
+        TabSelectorItem(
+            selected = selected,
+            onClick = { onValueChange(type) },
+            text = {
+                Text(
+                    text = stringResource(type.labelRes),
+                    overflow = TextOverflow.Ellipsis
                 )
-            else null
-            Tab(
-                selected = selected,
-                onClick = { onValueChange(type) },
-                text = {
-                    Text(
-                        text = stringResource(type.labelRes),
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                modifier = Modifier
-                    .mergedContentDescription(transactionTypeSelectorContentDescription),
-                selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                unselectedContentColor = LocalContentColor.current
-            )
-        }
+            },
+            modifier = Modifier
+                .mergedContentDescription(transactionTypeSelectorContentDescription),
+            selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unselectedContentColor = LocalContentColor.current
+        )
+
     }
 }
 
@@ -578,4 +578,59 @@ fun TagsList(
             NewTagChip(onClick = onNewTagClick)
         }
     }
+}
+
+@Composable
+private fun AmountTransformationSheet(
+    onDismiss: () -> Unit,
+    selectedTransformation: AmountTransformation,
+    onTransformationSelect: (AmountTransformation) -> Unit,
+    onTransformClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val input = rememberSaveable { mutableStateOf(String.Empty) }
+    val keyboardOptions = remember {
+        KeyboardOptions(
+            keyboardType = KeyboardType.Decimal,
+            imeAction = ImeAction.Done
+        )
+    }
+    val labelRes = remember(selectedTransformation) {
+        when (selectedTransformation) {
+            AmountTransformation.DIVIDE_BY -> R.string.enter_divider
+            AmountTransformation.MULTIPLIER -> R.string.enter_multiplier
+            AmountTransformation.PERCENT -> R.string.enter_percent
+        }
+    }
+    TextFieldSheet(
+        title = { Text(stringResource(R.string.transform_amount)) },
+        inputValue = { input.value },
+        onValueChange = { input.value = it },
+        onDismiss = onDismiss,
+        text = {
+            TabSelector(
+                values = { AmountTransformation.values().toList() },
+                selectedItem = { selectedTransformation },
+            ) { transformation ->
+                TabSelectorItem(
+                    selected = transformation == selectedTransformation,
+                    onClick = { onTransformationSelect(transformation) },
+                    text = { Text(stringResource(transformation.labelRes)) }
+                )
+            }
+        },
+        actionButton = {
+            Button(onClick = { onTransformClick(input.value) }) {
+                Text(text = stringResource(R.string.transform))
+            }
+        },
+        modifier = modifier,
+        keyboardOptions = keyboardOptions,
+        contentPadding = PaddingValues(horizontal = SpacingMedium),
+        label = stringResource(labelRes),
+        suffix = { Text(selectedTransformation.symbol) },
+        textStyle = LocalTextStyle.current
+            .copy(textAlign = TextAlign.End),
+        showClearOption = false
+    )
 }

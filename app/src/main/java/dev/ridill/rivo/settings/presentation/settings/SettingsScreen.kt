@@ -40,7 +40,7 @@ import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.ValueInputSheet
+import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -209,7 +209,7 @@ fun BudgetInputSheet(
     placeholder: String = ""
 ) {
     var input by remember { mutableStateOf("") }
-    ValueInputSheet(
+    OutlinedTextFieldSheet(
         titleRes = R.string.monthly_budget_input_title,
         inputValue = { input },
         onValueChange = { input = it },

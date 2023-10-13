@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,11 +25,15 @@ import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -38,16 +44,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.UiText
 
 @Composable
-fun ValueInputSheet(
+fun OutlinedTextFieldSheet(
     @StringRes titleRes: Int,
     inputValue: () -> String,
     onValueChange: (String) -> Unit,
@@ -55,6 +64,7 @@ fun ValueInputSheet(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     text: String? = null,
+    textStyle: TextStyle = LocalTextStyle.current,
     focusRequester: FocusRequester = remember { FocusRequester() },
     errorMessage: UiText? = null,
     singleLine: Boolean = true,
@@ -67,7 +77,7 @@ fun ValueInputSheet(
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
     contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
-) = ValueInputSheet(
+) = OutlinedTextFieldSheet(
     title = {
         Text(
             text = stringResource(titleRes),
@@ -90,7 +100,16 @@ fun ValueInputSheet(
         }
     },
     modifier = modifier,
-    text = text,
+    text = text?.let {
+        {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
+            )
+        }
+    },
     focusRequester = focusRequester,
     errorMessage = errorMessage,
     singleLine = singleLine,
@@ -101,18 +120,20 @@ fun ValueInputSheet(
     visualTransformation = visualTransformation,
     prefix = prefix,
     suffix = suffix,
+    textStyle = textStyle,
     contentAfterTextField = contentAfterTextField
 )
 
 @Composable
-fun ValueInputSheet(
+fun OutlinedTextFieldSheet(
     title: @Composable () -> Unit,
     inputValue: () -> String,
     onValueChange: (String) -> Unit,
     onDismiss: () -> Unit,
     actionButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    text: String? = null,
+    text: @Composable (() -> Unit)? = null,
+    textStyle: TextStyle = LocalTextStyle.current,
     focusRequester: FocusRequester = remember { FocusRequester() },
     errorMessage: UiText? = null,
     singleLine: Boolean = true,
@@ -123,6 +144,7 @@ fun ValueInputSheet(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(),
     contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     val isInputEmpty by remember {
@@ -137,17 +159,11 @@ fun ValueInputSheet(
             verticalArrangement = Arrangement.spacedBy(SpacingMedium),
             modifier = Modifier
                 .padding(vertical = SpacingMedium)
+                .padding(contentPadding)
         ) {
             title()
 
-            text?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(horizontal = SpacingMedium)
-                )
-            }
+            text?.invoke()
 
             OutlinedTextField(
                 value = inputValue(),
@@ -176,12 +192,105 @@ fun ValueInputSheet(
                 },
                 visualTransformation = visualTransformation,
                 prefix = prefix,
-                suffix = suffix
+                suffix = suffix,
+                textStyle = textStyle
             )
 
             contentAfterTextField?.invoke(this)
 
-            actionButton()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.End)
+            ) {
+                actionButton()
+            }
+        }
+    }
+}
+
+@Composable
+fun TextFieldSheet(
+    title: @Composable () -> Unit,
+    inputValue: () -> String,
+    onValueChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    actionButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    text: @Composable (() -> Unit)? = null,
+    textStyle: TextStyle = LocalTextStyle.current,
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    errorMessage: UiText? = null,
+    singleLine: Boolean = true,
+    placeholder: String? = null,
+    label: String? = null,
+    showClearOption: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(),
+    textFieldColors: TextFieldColors = TextFieldDefaults.colors(),
+    contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
+) {
+    val isInputEmpty by remember {
+        derivedStateOf { inputValue().isEmpty() }
+    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        modifier = modifier
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SpacingMedium),
+            modifier = Modifier
+                .padding(vertical = SpacingMedium)
+                .padding(contentPadding)
+        ) {
+            title()
+
+            text?.invoke()
+
+            TextField(
+                value = inputValue(),
+                onValueChange = onValueChange,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingMedium)
+                    .focusRequester(focusRequester),
+                keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
+                label = label?.let { { Text(it) } },
+                supportingText = { errorMessage?.let { Text(it.asString()) } },
+                isError = errorMessage != null,
+                placeholder = placeholder?.let { { Text(it) } },
+                singleLine = singleLine,
+                trailingIcon = {
+                    if (showClearOption && !isInputEmpty) {
+                        IconButton(onClick = { onValueChange(String.Empty) }) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = stringResource(R.string.cd_clear)
+                            )
+                        }
+                    }
+                },
+                visualTransformation = visualTransformation,
+                prefix = prefix,
+                suffix = suffix,
+                textStyle = textStyle,
+                colors = textFieldColors
+            )
+
+            contentAfterTextField?.invoke(this)
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.End)
+            ) {
+                actionButton()
+            }
         }
     }
 }
@@ -260,10 +369,13 @@ fun ListSearchSheet(
         derivedStateOf { searchQuery().isEmpty() }
     }
 
+    val shape = remember { RoundedCornerShape(Dp.Zero) }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        modifier = modifier
+        modifier = modifier,
+        shape = shape
     ) {
         SearchBar(
             query = searchQuery(),
