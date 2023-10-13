@@ -2,6 +2,7 @@ package dev.ridill.rivo.transactions.domain.model
 
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.Empty
 import java.time.LocalDateTime
 
 data class Transaction(
@@ -17,8 +18,8 @@ data class Transaction(
     companion object {
         val DEFAULT = Transaction(
             id = RivoDatabase.DEFAULT_ID_LONG,
-            amount = "",
-            note = "",
+            amount = String.Empty,
+            note = String.Empty,
             timestamp = DateUtil.now(),
             type = TransactionType.DEBIT,
             tagId = null,

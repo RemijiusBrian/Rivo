@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.transactions.presentation.components.TagColors
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
@@ -23,7 +24,7 @@ data class Tag(
     companion object {
         val NEW = Tag(
             id = RivoDatabase.DEFAULT_ID_LONG,
-            name = "",
+            name = String.Empty,
             colorCode = TagColors.first().toArgb(),
             createdTimestamp = DateUtil.now(),
             excluded = false
