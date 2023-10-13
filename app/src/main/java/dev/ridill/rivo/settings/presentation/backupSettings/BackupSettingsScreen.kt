@@ -42,7 +42,6 @@ import dev.ridill.rivo.settings.presentation.components.EmptyPreferenceIconSpace
 import dev.ridill.rivo.settings.presentation.components.PreferenceIconSize
 import dev.ridill.rivo.settings.presentation.components.SimplePreference
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
-import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 
 @Composable
 fun BackupSettingsScreen(
@@ -102,13 +101,6 @@ fun BackupSettingsScreen(
                         lastBackupTime = state.lastBackupTimeFormatted,
                         onBackupNowClick = actions::onBackupNowClick,
                         isBackupRunning = state.isBackupRunning
-                    )
-
-                    SwitchPreference(
-                        titleRes = R.string.backup_using_cellular,
-                        value = state.backupUsingCellular,
-                        onValueChange = actions::onBackupUsingCellularToggle,
-                        leadingIcon = { EmptyPreferenceIconSpacer() }
                     )
                 }
             }

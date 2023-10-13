@@ -11,7 +11,7 @@ inline fun <T> tryOrNull(
 ): T? = try {
     tryBlock()
 } catch (t: Throwable) {
-    logE(t)
+    logE(t) { "tryOrNull Error" }
     null
 }
 

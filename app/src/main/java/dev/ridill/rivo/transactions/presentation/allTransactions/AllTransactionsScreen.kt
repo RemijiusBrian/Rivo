@@ -14,6 +14,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,7 +61,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,10 +69,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
@@ -80,7 +81,6 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
@@ -106,6 +106,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
@@ -115,7 +116,6 @@ import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -132,6 +132,7 @@ fun AllTransactionsScreen(
     folderSearchQuery: () -> String,
     foldersList: LazyPagingItems<Folder>,
     actions: AllTransactionsActions,
+    navigateToAddEditTransaction: (Long) -> Unit,
     navigateUp: () -> Unit
 ) {
     BackHandler(
@@ -172,13 +173,14 @@ fun AllTransactionsScreen(
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
+        val localLayoutDirection = LocalLayoutDirection.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr)
+                    start = paddingValues.calculateStartPadding(localLayoutDirection),
+                    end = paddingValues.calculateEndPadding(localLayoutDirection)
                 )
                 .padding(top = SpacingMedium),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
@@ -191,7 +193,6 @@ fun AllTransactionsScreen(
                 onTagLongClick = actions::onTagLongClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.transactionMultiSelectionModeActive,
-                transactionMultiSelectionModeActive = state.transactionMultiSelectionModeActive,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
@@ -205,22 +206,25 @@ fun AllTransactionsScreen(
             )
 
             TransactionsList(
-                selectedTagName = state.selectedTagName,
                 currency = state.currency,
+                typeFilter = state.selectedTransactionTypeFilter,
+                totalSumAmount = state.totalAmount,
+                listLabel = state.transactionListLabel,
                 transactionsList = state.transactionList,
-                totalExpenditure = state.totalExpenditure,
                 selectedTransactionIds = state.selectedTransactionIds,
                 selectionState = state.transactionSelectionState,
                 multiSelectionModeActive = state.transactionMultiSelectionModeActive,
                 onSelectionStateChange = actions::onSelectionStateChange,
                 onTransactionOptionClick = actions::onTransactionOptionClick,
+                onTransactionClick = navigateToAddEditTransaction,
                 onTransactionLongClick = actions::onTransactionLongClick,
-                onTransactionClick = actions::onTransactionClick,
+                onTransactionSelectionChange = actions::onTransactionSelectionChange,
                 listContentPadding = PaddingValues(
                     top = SpacingSmall,
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                 ),
                 showExcludedTransactions = state.showExcludedTransactions,
+                onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
                 onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
                 onDeleteSelectedTransactions = actions::onDeleteSelectedTransactionsClick,
                 modifier = Modifier
@@ -279,7 +283,7 @@ fun AllTransactionsScreen(
     }
 }
 
-private const val TAGS_LIST_HEIGHT_FRACTION = 0.20f
+private const val TAGS_LIST_HEIGHT_FRACTION = 0.16f
 
 @Composable
 private fun TagsInfoList(
@@ -288,7 +292,6 @@ private fun TagsInfoList(
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onTagLongClick: (Long) -> Unit,
-    transactionMultiSelectionModeActive: Boolean,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     modifier: Modifier = Modifier
@@ -301,8 +304,6 @@ private fun TagsInfoList(
             lazyListState.scrollToItem(0)
         }
     }
-    val hapticFeedback = LocalHapticFeedback.current
-    val scope = rememberCoroutineScope()
 
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
@@ -331,42 +332,32 @@ private fun TagsInfoList(
                     name = tag.name,
                     color = tag.color,
                     isExcluded = tag.excluded,
-                    expenditureAmount = TextFormat.currency(
-                        amount = tag.expenditure,
-                        currency = currency
-                    ),
+                    expenditureAmount = TextFormat.currency(tag.expenditure, currency),
                     isSelected = selected,
                     onClick = { onTagClick(tag.id) },
-                    onLongClick = {
-                        scope.launch {
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                        }
-                        onTagLongClick(tag.id)
-                    },
-                    longClickEnabled = !transactionMultiSelectionModeActive,
+                    onLongClick = { onTagLongClick(tag.id) },
+                    longClickEnabled = !tagAssignModeActive,
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
                 )
             }
 
-            if (!transactionMultiSelectionModeActive) {
-                item(
-                    key = "NewTagCard",
-                    contentType = "NewTagCard"
-                ) {
-                    NewTagCard(
-                        onClick = onNewTagClick,
-                        modifier = Modifier
-                            .fillParentMaxHeight()
-                            .animateItemPlacement()
-                    )
-                }
+            item(
+                key = "NewTagCard",
+                contentType = "NewTagCard"
+            ) {
+                NewTagCard(
+                    onClick = onNewTagClick,
+                    modifier = Modifier
+                        .fillParentMaxHeight()
+                        .animateItemPlacement()
+                )
             }
         }
-        AnimatedVisibility(visible = tagAssignModeActive) {
+        AnimatedVisibility(visible = tagAssignModeActive && tags.isNotEmpty()) {
             Text(
-                text = stringResource(R.string.click_tag_to_assign_to_selected_transactions),
+                text = stringResource(R.string.tap_tag_to_assign_to_selected_transactions),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium),
@@ -403,6 +394,16 @@ private fun TagInfoCard(
     )
     val contentColor = remember(color) { color.contentColor() }
 
+    val clickableModifier = if (longClickEnabled) Modifier.clickable(
+        onClick = onClick,
+        onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions)
+    )
+    else Modifier.combinedClickable(
+        onClick = onClick,
+        onLongClick = onLongClick,
+        onLongClickLabel = stringResource(R.string.cd_long_press_tag_to_edit)
+    )
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = color,
@@ -410,11 +411,7 @@ private fun TagInfoCard(
         ),
         modifier = modifier
             .width(TagInfoCardWidth * widthMultiplier)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = if (longClickEnabled) onLongClick else null,
-                onLongClickLabel = stringResource(R.string.cd_long_click_tag_to_edit)
-            )
+            .then(clickableModifier)
     ) {
         Column(
             modifier
@@ -452,7 +449,7 @@ private fun TagInfoCard(
 
             if (longClickEnabled) {
                 Text(
-                    text = stringResource(R.string.cd_long_click_tag_to_edit),
+                    text = stringResource(R.string.cd_long_press_tag_to_edit),
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -646,18 +643,21 @@ private fun DateIndicator(
 @Composable
 private fun TransactionsList(
     currency: Currency,
-    selectedTagName: String?,
+    totalSumAmount: Double,
+    typeFilter: TransactionType?,
+    listLabel: UiText,
     transactionsList: List<TransactionListItem>,
-    totalExpenditure: Double,
     selectedTransactionIds: List<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
+    onToggleTransactionTypeFilter: () -> Unit,
+    showExcludedTransactions: Boolean,
     onTransactionOptionClick: (TransactionOption) -> Unit,
     multiSelectionModeActive: Boolean,
-    onTransactionLongClick: (Long) -> Unit,
     onTransactionClick: (Long) -> Unit,
+    onTransactionLongClick: (Long) -> Unit,
+    onTransactionSelectionChange: (Long) -> Unit,
     listContentPadding: PaddingValues,
-    showExcludedTransactions: Boolean,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     onDeleteSelectedTransactions: () -> Unit,
     modifier: Modifier = Modifier
@@ -670,7 +670,10 @@ private fun TransactionsList(
         contentAlignment = Alignment.Center
     ) {
         if (isListEmpty) {
-            EmptyListIndicator(resId = R.raw.lottie_empty_list_ghost)
+            EmptyListIndicator(
+                resId = R.raw.lottie_empty_list_ghost,
+                messageRes = R.string.all_transactions_list_empty_message
+            )
         }
         Column(
             modifier = Modifier
@@ -681,9 +684,10 @@ private fun TransactionsList(
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             ) {
-                TotalExpenditureAmount(
-                    expenditure = totalExpenditure,
+                TotalSumAmount(
+                    sumAmount = totalSumAmount,
                     currency = currency,
+                    type = typeFilter ?: TransactionType.DEBIT,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -698,7 +702,8 @@ private fun TransactionsList(
             )
 
             TransactionListHeader(
-                selectedTagName = selectedTagName,
+                listLabel = listLabel,
+                onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
                 showExcludedTransactions = showExcludedTransactions,
                 onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
                 multiSelectionModeActive = multiSelectionModeActive,
@@ -719,16 +724,29 @@ private fun TransactionsList(
                     key = { it.id },
                     contentType = { "TransactionCard" }
                 ) { transaction ->
+                    val clickableModifier = if (multiSelectionModeActive) Modifier
+                        .clickable(
+                            onClick = { onTransactionSelectionChange(transaction.id) },
+                            onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction)
+                        )
+                    else Modifier
+                        .combinedClickable(
+                            role = Role.Button,
+                            onClick = { onTransactionClick(transaction.id) },
+                            onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
+                            onLongClick = { onTransactionLongClick(transaction.id) },
+                            onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
+                        )
                     TransactionCard(
                         note = transaction.note,
                         amount = transaction.amountFormattedWithCurrency(currency),
                         date = transaction.date,
                         type = transaction.type,
                         selected = transaction.id in selectedTransactionIds,
-                        onLongClick = { onTransactionLongClick(transaction.id) },
-                        onClick = { onTransactionClick(transaction.id) },
                         excluded = transaction.excluded,
-                        folder = transaction.folder
+                        folder = transaction.folder,
+                        modifier = clickableModifier
+                            .animateItemPlacement()
                     )
                 }
             }
@@ -738,8 +756,9 @@ private fun TransactionsList(
 
 @Composable
 private fun TransactionListHeader(
-    selectedTagName: String?,
+    listLabel: UiText,
     showExcludedTransactions: Boolean,
+    onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     multiSelectionState: ToggleableState,
@@ -750,20 +769,19 @@ private fun TransactionListHeader(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Crossfade(
-            targetState = selectedTagName ?: stringResource(R.string.all_transactions),
+            targetState = listLabel.asString(),
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
                 .padding(horizontal = SpacingMedium)
-        ) { tag ->
-            ListLabel(text = tag)
-        }
+                .weight(Float.One)
+        ) { ListLabel(text = it) }
 
         TransactionListOptions(
             showExcludedTransactions = showExcludedTransactions,
+            onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
             onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
             multiSelectionModeActive = multiSelectionModeActive,
             onTransactionOptionClick = onTransactionOptionClick,
@@ -777,6 +795,7 @@ private fun TransactionListHeader(
 @Composable
 private fun TransactionListOptions(
     showExcludedTransactions: Boolean,
+    onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     onTransactionOptionClick: (TransactionOption) -> Unit,
@@ -792,6 +811,14 @@ private fun TransactionListOptions(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
+        AnimatedVisibility(visible = !multiSelectionModeActive) {
+            IconButton(onClick = onToggleTransactionTypeFilter) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_funnel_dollar),
+                    contentDescription = stringResource(R.string.cd_filter_transactions_by_type)
+                )
+            }
+        }
         AnimatedVisibility(visible = multiSelectionModeActive) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -853,9 +880,10 @@ private fun TransactionListOptions(
 }
 
 @Composable
-private fun TotalExpenditureAmount(
+private fun TotalSumAmount(
     currency: Currency,
-    expenditure: Double,
+    sumAmount: Double,
+    type: TransactionType,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -863,17 +891,25 @@ private fun TotalExpenditureAmount(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Text(
-            text = stringResource(R.string.total_expenditure),
-            style = MaterialTheme.typography.titleLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Crossfade(targetState = type, label = "TotalAmountLabel") { txType ->
+            Text(
+                text = stringResource(
+                    id = when (txType) {
+                        TransactionType.CREDIT -> R.string.total_credits
+                        TransactionType.DEBIT -> R.string.total_debits
+                    }
+                ),
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
         SpacerSmall()
-        VerticalNumberSpinnerContent(expenditure) { amount ->
+        VerticalNumberSpinnerContent(sumAmount) { amount ->
             Text(
                 text = TextFormat.currency(amount = amount, currency = currency),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium
+                    .copy(lineBreak = LineBreak.Heading),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold
@@ -890,29 +926,18 @@ private fun TransactionCard(
     type: TransactionType,
     folder: Folder?,
     selected: Boolean,
-    onLongClick: () -> Unit,
-    onClick: () -> Unit,
     excluded: Boolean,
     modifier: Modifier = Modifier
-) {
-    TransactionListItem(
-        note = note,
-        amount = amount,
-        date = date,
-        type = type,
-        showTypeIndicator = true,
-        tag = null,
-        folder = folder,
-        modifier = modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                role = Role.Button,
-                onClick = onClick,
-                onClickLabel = stringResource(R.string.cd_transaction_selection_change),
-                onLongClick = onLongClick,
-                onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
-            ),
-        tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
-        excluded = excluded
-    )
-}
+) = TransactionListItem(
+    note = note,
+    amount = amount,
+    date = date,
+    type = type,
+    showTypeIndicator = true,
+    tag = null,
+    folder = folder,
+    modifier = modifier
+        .fillMaxWidth(),
+    tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
+    excluded = excluded
+)

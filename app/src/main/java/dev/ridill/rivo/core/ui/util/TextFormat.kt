@@ -12,7 +12,7 @@ object TextFormat {
     fun currency(
         amount: Double,
         currency: Currency = LocaleUtil.defaultCurrency,
-        locale: Locale = Locale.getDefault(),
+        locale: Locale = LocaleUtil.defaultLocale,
         maxFractionDigits: Int = currency.defaultFractionDigits,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
     ): String = NumberFormat.getCurrencyInstance(locale)
@@ -26,7 +26,7 @@ object TextFormat {
     fun currency(
         amount: Long,
         currency: Currency = LocaleUtil.defaultCurrency,
-        locale: Locale = Locale.getDefault(),
+        locale: Locale = LocaleUtil.defaultLocale,
         maxFractionDigits: Int = currency.defaultFractionDigits,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
     ): String = NumberFormat.getCurrencyInstance(locale)
@@ -37,15 +37,23 @@ object TextFormat {
         }
         .format(amount)
 
-    fun percent(
-        value: Float,
-        locale: Locale = Locale.getDefault()
-    ): String = NumberFormat.getPercentInstance(locale)
+    fun number(
+        value: Double,
+        locale: Locale = LocaleUtil.defaultLocale,
+        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
+        isGroupingUsed: Boolean = true
+    ): String = NumberFormat.getNumberInstance(locale)
+        .apply {
+            maximumFractionDigits = maxFractionDigits
+            minimumFractionDigits = minFractionDigits
+            this.isGroupingUsed = isGroupingUsed
+        }
         .format(value)
 
     fun number(
-        value: Double,
-        locale: Locale = Locale.getDefault(),
+        value: Long,
+        locale: Locale = LocaleUtil.defaultLocale,
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
         isGroupingUsed: Boolean = true
@@ -59,7 +67,7 @@ object TextFormat {
 
     fun compactNumber(
         value: Double,
-        locale: Locale = Locale.getDefault(),
+        locale: Locale = LocaleUtil.defaultLocale,
         currency: Currency = LocaleUtil.defaultCurrency,
         compactStyle: CompactStyle = CompactStyle.SHORT,
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
@@ -76,7 +84,7 @@ object TextFormat {
 
     fun parseNumber(
         value: String,
-        locale: Locale = Locale.getDefault()
+        locale: Locale = LocaleUtil.defaultLocale
     ): Double? = tryOrNull {
         NumberFormat.getNumberInstance(locale)
             .parse(value)

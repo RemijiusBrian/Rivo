@@ -5,9 +5,10 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -39,18 +40,23 @@ class AllTransactionsRepositoryImpl(
                 }
             }
 
-    override fun getTotalExpenditureForDate(date: LocalDate): Flow<Double> =
-        dao.getExpenditureForMonth(date.atStartOfDay())
+    override fun getAmountSumForDate(date: LocalDate, type: TransactionType): Flow<Double> =
+        dao.getAmountSum(
+            monthAndYear = date.atStartOfDay(),
+            typeName = type.name
+        )
 
     override fun getTransactionsForDateByTag(
         date: LocalDate,
         tagId: Long?,
+        transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>> = dao.getTransactionsList(
         monthAndYear = date.atStartOfDay(),
+        transactionTypeName = transactionType?.name,
         tagId = tagId,
         showExcluded = showExcluded
-    ).map { it.map(TransactionDetails::toTransactionListItem) }
+    ).map { it.map(TransactionDetailsView::toTransactionListItem) }
 
     override fun getShowExcludedTransactions(): Flow<Boolean> =
         preferencesManager.preferences.map { it.showExcludedTransactions }
@@ -69,7 +75,8 @@ class AllTransactionsRepositoryImpl(
             dao.setFolderIdToTransactionsByIds(transactionIds = transactionIds, folderId = folderId)
         }
 
-    override suspend fun removeTransactionsFromFolders(ids: List<Long>) = withContext(Dispatchers.IO) {
-        dao.removeFolderFromTransactionsByIds(ids)
-    }
+    override suspend fun removeTransactionsFromFolders(ids: List<Long>) =
+        withContext(Dispatchers.IO) {
+            dao.removeFolderFromTransactionsByIds(ids)
+        }
 }

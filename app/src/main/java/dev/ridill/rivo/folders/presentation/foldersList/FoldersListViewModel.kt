@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ridill.rivo.core.domain.model.SortCriteria
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -59,7 +59,7 @@ class FoldersListViewModel @Inject constructor(
         )
     }.asStateFlow(viewModelScope, FoldersListState())
 
-    override fun onSortOptionSelect(criteria: SortCriteria) {
+    override fun onSortOptionSelect(criteria: FolderSortCriteria) {
         viewModelScope.launch {
             val state = state.value
             val sortOrder = if (criteria == state.sortCriteria) !state.sortOrder

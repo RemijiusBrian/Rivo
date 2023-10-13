@@ -19,7 +19,6 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenS
 class AutoAddTransactionNotificationHelper(
     private val context: Context
 ) : NotificationHelper {
-
     private val notificationManager = NotificationManagerCompat.from(context)
 
     init {
@@ -34,7 +33,8 @@ class AutoAddTransactionNotificationHelper(
         get() = "${context.packageName}.AUTO_ADDED_TRANSACTIONS_SUMMARY"
 
     override fun registerChannelGroup() {
-        val group = NotificationChannelGroupCompat.Builder(NotificationHelper.Groups.TRANSACTIONS)
+        val group = NotificationChannelGroupCompat
+            .Builder(NotificationHelper.Groups.transactions(context))
             .setName(context.getString(R.string.notification_channel_group_transactions_name))
             .build()
         notificationManager.createNotificationChannelGroup(group)
@@ -44,7 +44,7 @@ class AutoAddTransactionNotificationHelper(
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(context.getString(R.string.notification_channel_auto_add_transactions_name))
-            .setGroup(NotificationHelper.Groups.TRANSACTIONS)
+            .setGroup(NotificationHelper.Groups.transactions(context))
             .build()
         notificationManager.createNotificationChannel(channel)
     }
@@ -53,6 +53,7 @@ class AutoAddTransactionNotificationHelper(
         NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
             .setGroup(summaryId)
 
     override fun postNotification(id: Int, title: String, content: String?) {
@@ -97,13 +98,6 @@ class AutoAddTransactionNotificationHelper(
     fun cancelAllNotifications() {
         notificationManager.cancelAll()
     }
-
-    fun getSMSModelDownloadForegroundNotification(): NotificationCompat.Builder =
-        NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.setting_up_transaction_auto_add_feature))
-            .setProgress(100, 0, true)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
     private fun buildContentIntent(id: Int): PendingIntent? {
         val intent = Intent(

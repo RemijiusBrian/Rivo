@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
+import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
@@ -39,7 +40,7 @@ import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.ValueInputSheet
+import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -105,13 +106,18 @@ fun SettingsScreen(
 
             Divider(
                 modifier = Modifier
-                    .padding(vertical = 12.dp)
+                    .padding(vertical = PreferenceDividerVerticalPadding)
             )
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_budget,
                 summary = state.currentMonthlyBudget.takeIf { it.isNotEmpty() }
-                    ?.let { stringResource(R.string.preference_current_budget_summary, it) }
+                    ?.let {
+                        stringResource(
+                            R.string.preference_current_budget_summary,
+                            "${state.currentCurrency.symbol}$it"
+                        )
+                    }
                     ?: stringResource(R.string.preference_set_budget_summary),
                 onClick = actions::onMonthlyBudgetPreferenceClick
             )
@@ -137,7 +143,7 @@ fun SettingsScreen(
 
             Divider(
                 modifier = Modifier
-                    .padding(vertical = 12.dp)
+                    .padding(vertical = PreferenceDividerVerticalPadding)
             )
 
             SimpleSettingsPreference(
@@ -159,6 +165,7 @@ fun SettingsScreen(
 
         if (state.showBudgetInput) {
             BudgetInputSheet(
+                currency = state.currentCurrency,
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
                 placeholder = state.currentMonthlyBudget,
@@ -190,8 +197,11 @@ fun SettingsScreen(
     }
 }
 
+private val PreferenceDividerVerticalPadding = 12.dp
+
 @Composable
 fun BudgetInputSheet(
+    currency: Currency,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -199,7 +209,7 @@ fun BudgetInputSheet(
     placeholder: String = ""
 ) {
     var input by remember { mutableStateOf("") }
-    ValueInputSheet(
+    OutlinedTextFieldSheet(
         titleRes = R.string.monthly_budget_input_title,
         inputValue = { input },
         onValueChange = { input = it },
@@ -212,7 +222,9 @@ fun BudgetInputSheet(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
-        errorMessage = errorMessage
+        errorMessage = errorMessage,
+        visualTransformation = remember { AmountVisualTransformation() },
+        prefix = { Text(currency.symbol) }
     )
 }
 

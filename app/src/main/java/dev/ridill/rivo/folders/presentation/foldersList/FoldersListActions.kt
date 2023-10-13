@@ -1,8 +1,8 @@
 package dev.ridill.rivo.folders.presentation.foldersList
 
-import dev.ridill.rivo.core.domain.model.SortCriteria
+import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
 
 interface FoldersListActions {
-    fun onSortOptionSelect(criteria: SortCriteria)
+    fun onSortOptionSelect(criteria: FolderSortCriteria)
     fun onListModeToggle()
 }

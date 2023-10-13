@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
@@ -69,11 +70,11 @@ import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
-import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -352,7 +353,8 @@ private fun TransactionsInFolder(
     ) {
         if (pagingItems.isEmpty()) {
             EmptyListIndicator(
-                resId = R.raw.lottie_empty_list_ghost
+                resId = R.raw.lottie_empty_list_ghost,
+                messageRes = R.string.transactions_in_folder_list_empty_message
             )
         }
         Column(
@@ -475,14 +477,15 @@ private fun AggregateAmount(
         ) {
             Text(
                 text = TextFormat.currency(it, currency = currency),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineLarge
+                    .copy(lineBreak = LineBreak.Heading),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }
 
-        SpacerSmall()
+        SpacerExtraSmall()
 
         Crossfade(
             targetState = aggregateTypeText,
@@ -506,10 +509,7 @@ private fun TransactionDateSeparator(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer
-                    .copy(alpha = ContentAlpha.PERCENT_16)
-            )
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(
                 vertical = SpacingSmall,
                 horizontal = SpacingMedium

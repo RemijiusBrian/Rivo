@@ -1,5 +1,6 @@
 package dev.ridill.rivo.welcomeFlow.presentation.components
 
+import android.icu.util.Currency
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.SpacerExtraLarge
 import dev.ridill.rivo.core.ui.components.SpacerSmall
@@ -35,6 +37,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 
 @Composable
 fun SetBudgetPage(
+    currency: Currency,
     input: () -> String,
     onInputChange: (String) -> Unit,
     onContinueClick: () -> Unit,
@@ -57,7 +60,8 @@ fun SetBudgetPage(
                 .padding(vertical = SpacingMedium)
         )
         SpacerExtraLarge()
-        LimitInput(
+        BudgetInput(
+            currency = currency,
             input = input,
             onValueChange = onInputChange
         )
@@ -84,7 +88,8 @@ fun SetBudgetPage(
 }
 
 @Composable
-private fun LimitInput(
+private fun BudgetInput(
+    currency: Currency,
     input: () -> String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -121,7 +126,9 @@ private fun LimitInput(
             ),
             shape = MaterialTheme.shapes.medium,
             placeholder = { Text(stringResource(R.string.enter_budget)) },
-            supportingText = { Text(stringResource(R.string.you_can_change_budget_later_in_settings)) }
+            supportingText = { Text(stringResource(R.string.you_can_change_budget_later_in_settings)) },
+            visualTransformation = remember { AmountVisualTransformation() },
+            prefix = { Text(currency.symbol) }
         )
     }
 }

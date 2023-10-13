@@ -2,7 +2,7 @@ package dev.ridill.rivo.transactions.data
 
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
-import dev.ridill.rivo.transactions.data.local.relations.TransactionDetails
+import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
@@ -19,7 +19,7 @@ fun TransactionEntity.toTransaction(): Transaction = Transaction(
     excluded = isExcluded
 )
 
-fun TransactionDetails.toTransactionListItem(): TransactionListItem {
+fun TransactionDetailsView.toTransactionListItem(): TransactionListItem {
     val tag = if (tagId != null
         && tagName != null
         && tagColorCode != null

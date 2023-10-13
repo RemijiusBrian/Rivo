@@ -21,11 +21,13 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -48,36 +50,63 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val currency = transactionRepo.getCurrencyPreference()
 
-    private val totalExpenditure = selectedDate.flatMapLatest { date ->
-        transactionRepo.getTotalExpenditureForDate(date)
-    }.distinctUntilChanged()
-
     private val tagsWithExpenditures = selectedDate.flatMapLatest { date ->
         tagsRepo.getTagsWithExpenditures(date = date)
     }
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
-    private val selectedTagName = selectedTagId
-        .map { id -> id?.let { tagsRepo.getTagById(it) } }
-        .map { it?.name }
-        .distinctUntilChanged()
 
     private val showExcludedTransactions = transactionRepo.getShowExcludedTransactions()
+
+    private val transactionTypeFilter = savedStateHandle
+        .getStateFlow<TransactionType?>(TRANSACTION_TYPE_FILTER, null)
+
+    private val totalAmount = combineTuple(
+        selectedDate,
+        transactionTypeFilter
+    ).flatMapLatest { (date, type) ->
+        transactionRepo.getAmountSumForDate(
+            date = date,
+            type = type ?: TransactionType.DEBIT
+        )
+    }.distinctUntilChanged()
+
+    private val transactionListLabel = combineTuple(
+        selectedTagId,
+        transactionTypeFilter
+    ).map { (tagId, type) ->
+        if (type != null) when (type) {
+            TransactionType.CREDIT -> UiText.StringResource(R.string.credits)
+            TransactionType.DEBIT -> UiText.StringResource(R.string.debits)
+        } else if (tagId != null) {
+            UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
+        } else UiText.StringResource(R.string.all_transactions)
+    }.distinctUntilChanged()
 
     private val transactionList = combineTuple(
         selectedDate,
         selectedTagId,
+        transactionTypeFilter,
         showExcludedTransactions
-    ).flatMapLatest { (date, tagId, showExcluded) ->
+    ).flatMapLatest { (
+                          date,
+                          tagId,
+                          transactionType,
+                          showExcluded
+                      ) ->
         transactionRepo.getTransactionsForDateByTag(
             date = date,
             tagId = tagId,
+            transactionType = transactionType,
             showExcluded = showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
 
     private val selectedTransactionIds = savedStateHandle
         .getStateFlow<List<Long>>(SELECTED_TRANSACTION_IDS, emptyList())
+    private val transactionMultiSelectionModeActive = selectedTransactionIds
+        .map { it.isNotEmpty() }
+        .distinctUntilChanged()
 
     private val transactionSelectionState = combineTuple(
         transactionList,
@@ -91,8 +120,6 @@ class AllTransactionsViewModel @Inject constructor(
     }.distinctUntilChanged()
         .asStateFlow(viewModelScope, ToggleableState.Off)
 
-    private val transactionMultiSelectionModeActive = savedStateHandle
-        .getStateFlow(TRANSACTION_MULTI_SELECTION_MODE_ACTIVE, false)
 
     private val showDeleteTransactionConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_TRANSACTION_CONFIRMATION, false)
@@ -117,10 +144,11 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         yearsList,
         currency,
-        totalExpenditure,
+        totalAmount,
         tagsWithExpenditures,
         selectedTagId,
-        selectedTagName,
+        transactionTypeFilter,
+        transactionListLabel,
         transactionList,
         selectedTransactionIds,
         transactionSelectionState,
@@ -135,10 +163,11 @@ class AllTransactionsViewModel @Inject constructor(
                 selectedDate,
                 yearsList,
                 currency,
-                totalExpenditure,
+                totalAmount,
                 tagsWithExpenditures,
                 selectedTagId,
-                selectedTagName,
+                transactionTypeFilter,
+                transactionListLabel,
                 transactionList,
                 selectedTransactionIds,
                 transactionSelectionState,
@@ -154,11 +183,12 @@ class AllTransactionsViewModel @Inject constructor(
             selectedDate = selectedDate,
             yearsList = yearsList,
             currency = currency,
-            totalExpenditure = totalExpenditure,
+            totalAmount = totalAmount,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTagId = selectedTagId,
-            selectedTagName = selectedTagName,
+            selectedTransactionTypeFilter = transactionTypeFilter,
             transactionList = transactionList,
+            transactionListLabel = transactionListLabel,
             selectedTransactionIds = selectedTransactionIds,
             transactionSelectionState = transactionSelectionState,
             transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
@@ -196,15 +226,17 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     override fun onTagClick(tagId: Long) {
-        if (transactionMultiSelectionModeActive.value) viewModelScope.launch {
-            val selectedIds = selectedTransactionIds.value
-            tagsRepo.assignTagToTransactions(tagId, selectedIds)
-            dismissMultiSelectionMode()
-            savedStateHandle[SELECTED_TAG_ID] = tagId
-            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
-        } else {
-            savedStateHandle[SELECTED_TAG_ID] = tagId
-                .takeIf { it != selectedTagId.value }
+        viewModelScope.launch {
+            if (transactionMultiSelectionModeActive.first()) {
+                val selectedIds = selectedTransactionIds.value
+                tagsRepo.assignTagToTransactions(tagId, selectedIds)
+                dismissMultiSelectionMode()
+                savedStateHandle[SELECTED_TAG_ID] = tagId
+                eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
+            } else {
+                savedStateHandle[SELECTED_TAG_ID] = tagId
+                    .takeIf { it != selectedTagId.value }
+            }
         }
     }
 
@@ -265,6 +297,14 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[TAG_INPUT] = null
     }
 
+    override fun onTransactionTypeFilterToggle() {
+        savedStateHandle[TRANSACTION_TYPE_FILTER] = when (transactionTypeFilter.value) {
+            TransactionType.CREDIT -> null
+            TransactionType.DEBIT -> TransactionType.CREDIT
+            null -> TransactionType.DEBIT
+        }
+    }
+
     override fun onToggleShowExcludedTransactions(value: Boolean) {
         viewModelScope.launch {
             transactionRepo.toggleShowExcludedTransactions(value)
@@ -273,26 +313,19 @@ class AllTransactionsViewModel @Inject constructor(
 
     override fun onTransactionLongClick(id: Long) {
         viewModelScope.launch {
-            if (transactionMultiSelectionModeActive.value) dismissMultiSelectionMode()
-            else {
-                savedStateHandle[SELECTED_TAG_ID] = null
-                enableMultiSelectionModeWithId(id)
-            }
+            savedStateHandle[SELECTED_TAG_ID] = null
+            savedStateHandle[TRANSACTION_TYPE_FILTER] = null
+            enableMultiSelectionModeWithId(id)
             eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
         }
     }
 
-    override fun onTransactionClick(id: Long) {
-        if (transactionMultiSelectionModeActive.value) {
-            val selectedIds = selectedTransactionIds.value
-            if (id in selectedIds) {
-                savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds - id
-                if (selectedTransactionIds.value.isEmpty()) dismissMultiSelectionMode()
-            } else {
-                savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds + id
-            }
-        } else viewModelScope.launch {
-            eventBus.send(AllTransactionsEvent.NavigateToAddEditTransactionScreen(id))
+    override fun onTransactionSelectionChange(id: Long) {
+        val selectedIds = selectedTransactionIds.value
+        if (id in selectedIds) {
+            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds - id
+        } else {
+            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds + id
         }
     }
 
@@ -316,13 +349,11 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     private fun dismissMultiSelectionMode() {
-        savedStateHandle[TRANSACTION_MULTI_SELECTION_MODE_ACTIVE] = false
         savedStateHandle[SELECTED_TRANSACTION_IDS] = emptyList<Long>()
     }
 
     private fun enableMultiSelectionModeWithId(id: Long) {
         savedStateHandle[SELECTED_TRANSACTION_IDS] = listOf(id)
-        savedStateHandle[TRANSACTION_MULTI_SELECTION_MODE_ACTIVE] = true
     }
 
     override fun onTransactionOptionClick(option: TransactionOption) {
@@ -333,11 +364,11 @@ class AllTransactionsViewModel @Inject constructor(
                     unTagTransactions(selectedTransactionIds)
                 }
 
-                TransactionOption.MARK_AS_EXCLUDED -> {
+                TransactionOption.MARK_EXCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, true)
                 }
 
-                TransactionOption.MARK_AS_INCLUDED -> {
+                TransactionOption.UN_MARK_EXCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
 
@@ -450,6 +481,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     override fun onTagLongClick(tagId: Long) {
         viewModelScope.launch {
+            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.TextHandleMove))
             savedStateHandle[TAG_INPUT] = tagsRepo.getTagById(tagId)
             savedStateHandle[SHOW_TAG_INPUT] = tagInput.value != null
         }
@@ -492,9 +524,6 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     sealed class AllTransactionsEvent {
-        data class NavigateToAddEditTransactionScreen(val transactionId: Long) :
-            AllTransactionsEvent()
-
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent()
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent()
         data class NavigateToFolderDetailsWithIds(val transactionIds: List<Long>) :
@@ -505,8 +534,7 @@ class AllTransactionsViewModel @Inject constructor(
 private const val SELECTED_DATE = "SELECTED_DATE"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
 private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
-private const val TRANSACTION_MULTI_SELECTION_MODE_ACTIVE =
-    "TRANSACTION_MULTI_SELECTION_MODE_ACTIVE"
+private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
 private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"
 private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
 private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"

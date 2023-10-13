@@ -14,22 +14,21 @@ import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.domain.util.ifInfinite
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -42,7 +41,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val transactionRepo: AddEditTransactionRepository,
     private val tagsRepo: TagsRepository,
     private val foldersListRepo: FoldersListRepository,
-    settingsRepo: SettingsRepository,
     private val eventBus: EventBus<AddEditTransactionEvent>,
     private val evalService: ExpEvalService
 ) : ViewModel(), AddEditTransactionActions {
@@ -56,9 +54,15 @@ class AddEditTransactionViewModel @Inject constructor(
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
-    private val currency = settingsRepo.getCurrencyPreference()
+    private val currency = transactionRepo.getCurrencyPreference()
 
     val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
+
+    private val amountTransformation = savedStateHandle
+        .getStateFlow(SELECTED_AMOUNT_TRANSFORMATION, AmountTransformation.DIVIDE_BY)
+    private val showAmountTransformationInput = savedStateHandle
+        .getStateFlow(SHOW_AMOUNT_TRANSFORMATION_INPUT, false)
+
     val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")
 
     private val tagsList = tagsRepo.getAllTags()
@@ -93,7 +97,6 @@ class AddEditTransactionViewModel @Inject constructor(
 
     val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
     val foldersList = folderSearchQuery
-        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             foldersListRepo.getFoldersList(query)
         }.cachedIn(viewModelScope)
@@ -105,6 +108,8 @@ class AddEditTransactionViewModel @Inject constructor(
     val state = combineTuple(
         currency,
         amountRecommendations,
+        amountTransformation,
+        showAmountTransformationInput,
         tagsList,
         selectedTagId,
         transactionTimestamp,
@@ -119,6 +124,8 @@ class AddEditTransactionViewModel @Inject constructor(
     ).map { (
                 currency,
                 amountRecommendations,
+                selectedAmountTransformation,
+                showAmountTransformationInput,
                 tagsList,
                 selectedTagId,
                 transactionTimestamp,
@@ -144,7 +151,9 @@ class AddEditTransactionViewModel @Inject constructor(
             showDateTimePicker = showDateTimePicker,
             transactionType = transactionType,
             showFolderSelection = showFolderSelection,
-            linkedFolderName = linkedFolderName
+            linkedFolderName = linkedFolderName,
+            showTransformationInput = showAmountTransformationInput,
+            selectedAmountTransformation = selectedAmountTransformation
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -217,6 +226,32 @@ class AddEditTransactionViewModel @Inject constructor(
 
     override fun onTransactionExclusionToggle(excluded: Boolean) {
         savedStateHandle[IS_TRANSACTION_EXCLUDED] = excluded
+    }
+
+    override fun onTransformAmountClick() {
+        savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = true
+    }
+
+    override fun onTransformAmountDismiss() {
+        savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = false
+    }
+
+    override fun onAmounTransformationSelect(criteria: AmountTransformation) {
+        savedStateHandle[SELECTED_AMOUNT_TRANSFORMATION] = criteria
+    }
+
+    override fun onAmountTransformationConfirm(value: String) {
+        val amount = amountInput.value.toDoubleOrNull() ?: return
+        val transformedAmount = when (amountTransformation.value) {
+            AmountTransformation.DIVIDE_BY -> amount / value.toDoubleOrNull().orZero()
+            AmountTransformation.MULTIPLIER -> amount * value.toDoubleOrNull().orZero()
+            AmountTransformation.PERCENT -> amount * (value.toFloatOrNull().orZero() / 100f)
+        }
+        savedStateHandle[AMOUNT_INPUT] = TextFormat.number(
+            value = transformedAmount.ifInfinite { Double.Zero },
+            isGroupingUsed = false
+        )
+        savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = false
     }
 
     override fun onSaveClick() {
@@ -402,6 +437,8 @@ private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
 private const val TRANSACTION_TYPE = "TRANSACTION_TYPE"
 private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
 private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
+private const val SHOW_AMOUNT_TRANSFORMATION_INPUT = "SHOW_AMOUNT_TRANSFORMATION_INPUT"
+private const val SELECTED_AMOUNT_TRANSFORMATION = "SELECTED_AMOUNT_TRANSFORMATION"
 
 const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"
 const val RESULT_TRANSACTION_UPDATED = "RESULT_TRANSACTION_UPDATED"

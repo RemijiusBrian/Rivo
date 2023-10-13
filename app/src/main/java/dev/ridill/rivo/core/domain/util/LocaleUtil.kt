@@ -10,7 +10,7 @@ object LocaleUtil {
     val defaultCurrency: Currency
         get() = Currency.getInstance(defaultLocale)
 
-    val availableLocales: List<Locale>
+    private val availableLocales: List<Locale>
         get() = Locale.getAvailableLocales()
             .toList()
 

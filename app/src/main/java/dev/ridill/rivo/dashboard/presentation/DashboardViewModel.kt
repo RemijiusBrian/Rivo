@@ -14,7 +14,6 @@ import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotifi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -90,11 +89,7 @@ class DashboardViewModel @Inject constructor(
                 if (!needsRestore) return@collectLatest
 
                 val currentBackupInterval = backupSettingsRepo.getCurrentBackupInterval()
-                val runInCellular = backupSettingsRepo.getBackupUsingCellular().first()
-                backupWorkManager.schedulePeriodicBackupWork(
-                    interval = currentBackupInterval,
-                    runInCellular = runInCellular
-                )
+                backupWorkManager.schedulePeriodicBackupWork(currentBackupInterval)
 
                 preferencesManager.updateNeedsConfigRestore(false)
             }

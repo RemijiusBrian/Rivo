@@ -21,7 +21,7 @@ class BackupNotificationHelper(
 
     private fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
-            .Builder(NotificationHelper.Groups.OTHERS)
+            .Builder(NotificationHelper.Groups.others(context))
             .setName(context.getString(R.string.notification_channel_group_others_name))
             .build()
         notificationManager.createNotificationChannelGroup(group)
@@ -31,7 +31,7 @@ class BackupNotificationHelper(
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(context.getString(R.string.notification_channel_backups_name))
-            .setGroup(NotificationHelper.Groups.OTHERS)
+            .setGroup(NotificationHelper.Groups.others(context))
             .build()
         notificationManager.createNotificationChannel(channel)
     }

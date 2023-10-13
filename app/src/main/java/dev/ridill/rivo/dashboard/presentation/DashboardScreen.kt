@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import dev.ridill.rivo.R
@@ -281,7 +282,8 @@ private fun Balance(
         VerticalNumberSpinnerContent(number = amount) {
             Text(
                 text = TextFormat.currency(amount = it, currency = currency),
-                style = MaterialTheme.typography.displayLarge,
+                style = MaterialTheme.typography.displayLarge
+                    .copy(lineBreak = LineBreak.Heading),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.primary

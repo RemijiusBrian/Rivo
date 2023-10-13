@@ -11,8 +11,7 @@ data class BackupSettingsState(
     val interval: BackupInterval = BackupInterval.MANUAL,
     val showBackupIntervalSelection: Boolean = false,
     val isBackupRunning: Boolean = false,
-    val lastBackupDateTime: LocalDateTime? = null,
-    val backupUsingCellular: Boolean = false
+    val lastBackupDateTime: LocalDateTime? = null
 ) {
     val lastBackupDateFormatted: UiText?
         get() = lastBackupDateTime?.let { DateUtil.Formatters.prettyDateAgo(it.toLocalDate()) }

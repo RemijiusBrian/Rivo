@@ -50,7 +50,6 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.ListMode
-import dev.ridill.rivo.core.domain.model.SortCriteria
 import dev.ridill.rivo.core.domain.model.SortOrder
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
@@ -66,6 +65,7 @@ import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.FolderDetails
+import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
 
@@ -125,7 +125,7 @@ fun FoldersListScreen(
                 if (foldersList.isEmpty()) {
                     EmptyListIndicator(
                         resId = R.raw.lottie_empty_list_ghost,
-                        messageRes = R.string.transaction_folders_list_empty_message
+                        messageRes = R.string.folders_list_empty_message
                     )
                 }
                 LazyVerticalStaggeredGrid(
@@ -174,9 +174,9 @@ fun FoldersListScreen(
 
 @Composable
 private fun FolderListOptions(
-    selectedSortCriteria: SortCriteria,
+    selectedSortCriteria: FolderSortCriteria,
     selectedSortOrder: SortOrder,
-    onSortOptionSelect: (SortCriteria) -> Unit,
+    onSortOptionSelect: (FolderSortCriteria) -> Unit,
     selectedListMode: ListMode,
     onListModeToggle: () -> Unit,
     modifier: Modifier = Modifier
@@ -209,9 +209,9 @@ private fun FolderListOptions(
 
 @Composable
 private fun SortOptionsMenu(
-    selectedSortCriteria: SortCriteria,
+    selectedSortCriteria: FolderSortCriteria,
     selectedSortOrder: SortOrder,
-    onSortOptionSelect: (SortCriteria) -> Unit,
+    onSortOptionSelect: (FolderSortCriteria) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -239,7 +239,7 @@ private fun SortOptionsMenu(
                     contentDescription = sortContentDescription
                 }
         ) {
-            SortCriteria.values().forEach { criteria ->
+            FolderSortCriteria.values().forEach { criteria ->
                 val selected = criteria == selectedSortCriteria
                 val sortOptionContentDescription = stringResource(
                     R.string.cd_sort_option,

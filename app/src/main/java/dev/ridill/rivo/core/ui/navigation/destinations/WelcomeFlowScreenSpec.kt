@@ -15,6 +15,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.util.restartApplication
@@ -32,9 +33,10 @@ object WelcomeFlowScreenSpec : ScreenSpec {
         val pagerState = rememberPagerState(
             pageCount = { WelcomeFlowPage.values().size }
         )
-        val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
         val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
         val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
+        val currency by viewModel.currency.collectAsStateWithLifecycle(initialValue = LocaleUtil.defaultCurrency)
+        val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -96,9 +98,10 @@ object WelcomeFlowScreenSpec : ScreenSpec {
         WelcomeFlowScreen(
             snackbarController = snackbarController,
             pagerState = pagerState,
-            budgetInput = { budgetInput.value },
             restoreState = restoreState,
             availableBackup = availableBackup,
+            currency = currency,
+            budgetInput = { budgetInput.value },
             actions = viewModel
         )
     }

@@ -14,8 +14,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.MIGRATION_3_4
-import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.db.Migration_1_2
+import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.data.preferences.PreferencesManagerImpl
 import dev.ridill.rivo.core.domain.service.ExpEvalService

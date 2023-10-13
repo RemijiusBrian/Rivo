@@ -17,6 +17,7 @@
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
     <string name="notification_channel_auto_add_transactions_name">Transactions added from SMS</string>
+    <string name="notification_channel_auto_add_transaction_setup_name">Transactions Auto-Add Setup</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
 
@@ -51,21 +52,25 @@
     <string name="cd_create_new_folder">Create New Folder</string>
     <string name="cd_show_years_list">Show Years List</string>
     <string name="cd_toggle_list_mode">Toggle between list and grid view</string>
-    <!--    <string name="cd_sort_list">Sort list</string>-->
     <string name="cd_add_transaction_to_folder">Add transaction fo a folder</string>
     <string name="cd_action_continue">Continue</string>
     <string name="cd_create_new_tag">Create New Tag</string>
     <string name="cd_transaction_selection_change">Select or Unselect Transaction</string>
+    <string name="cd_tap_to_edit_transaction">Tap to edit transaction</string>
     <string name="cd_long_press_to_toggle_selection">Long Press To Toggle Selection</string>
     <string name="cd_clear_transaction_selection">Clear Transaction Selection</string>
     <string name="cd_folder_aggregate_amount_balanced">Your credits and debits are balanced</string>
     <string name="cd_folder_aggregate_amount_unbalanced">You have an aggregated amount of %1$s %2$s</string>
     <string name="cd_select_tag_color">Select Tag Color</string>
     <string name="cd_tag_color_selected">Tag Color Selected</string>
-    <string name="cd_long_click_tag_to_edit">Long press to edit tag</string>
+    <string name="cd_tap_tag_to_filter_transactions">Tap tag to filter transactions</string>
+    <string name="cd_long_press_tag_to_edit">Long press to edit tag</string>
+    <string name="cd_filter_transactions_by_type">Filter transactions by type</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
+    <string name="cd_transform_amount">Transform Amount</string>
+    <string name="cd_click_to_change_folder">Click to change folder</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -78,7 +83,7 @@
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
-    <string name="error_invalid_transaction_folder_name">Please enter a valid note</string>
+    <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -188,7 +193,7 @@
     <string name="new_tag_chip_label">New</string>
     <string name="amount_worth_spent">%s worth spent</string>
     <string name="count_selected">%s Selected</string>
-    <string name="click_tag_to_assign_to_selected_transactions">Click on a tag to assign it to the selected transactions</string>
+    <string name="tap_tag_to_assign_to_selected_transactions">Tap on a tag to assign it to the selected transactions</string>
     <string name="tag_assigned_to_transactions">Tag assigned to transactions</string>
     <string name="transactions_untagged">Transactions Untagged</string>
     <string name="transactions_deleted">Transactions Deleted</string>
@@ -216,7 +221,10 @@
     <string name="backing_up_app_data">Backing up app data</string>
     <string name="some_previous_budgets">Some Previous Budgets</string>
     <string name="delete_tag_with_transactions">Delete Tag and Transactions</string>
-    <string name="total_expenditure">Total Expenditure</string>
+    <string name="debits">Debits</string>
+    <string name="credits">Credits</string>
+    <string name="total_debits">Total Debits</string>
+    <string name="total_credits">Total Credits</string>
     <string name="generic_debit_receiver">Merchant</string>
     <string name="generic_credit_sender">Generic Sender</string>
     <string name="all_transactions">All Transactions</string>
@@ -226,14 +234,13 @@
     <string name="search_currency">Search Currency</string>
     <string name="hide_excluded_transactions">Hide Excluded</string>
     <string name="show_excluded_transactions">Show Excluded</string>
-    <string name="transaction_option_untag">Remove Tag</string>
-    <string name="transaction_option_mark_excluded">Exclude from expenditure</string>
-    <string name="transaction_option_mark_included">Include in expenditure</string>
+    <string name="transaction_option_untag">Untag</string>
+    <string name="transaction_option_mark_excluded">Mark Excluded</string>
+    <string name="transaction_option_un_mark_excluded">Un-mark Excluded</string>
     <string name="transaction_option_add_to_folder">Add to Folder</string>
-    <string name="transaction_option_remove_from_folders">Remove from folders</string>
+    <string name="transaction_option_remove_from_folders">Remove from Folders</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
-    <string name="exclude_from_expenditure_ques">Exclude From Expenditure?</string>
     <string name="excluded">Excluded</string>
     <string name="start_budgeting">Start Budgeting</string>
     <string name="do_not_restore">Don\'t Restore</string>
@@ -254,8 +261,10 @@
     <string name="balanced">Balanced</string>
     <string name="transaction_type_label_credit">Credit</string>
     <string name="transaction_type_label_debit">Debit</string>
-    <string name="transaction_folders_list_empty_message">You don\'t have any Folders yet</string>
     <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
+    <string name="all_transactions_list_empty_message">You don\'t have any transactions yet</string>
+    <string name="folders_list_empty_message">You don\'t have any Folders yet</string>
+    <string name="transactions_in_folder_list_empty_message">There aren\'t any transactions in this folder</string>
     <string name="search_folder">Search Folder</string>
     <string name="create_new_folder">Create New Folder</string>
     <string name="transactions_removed_from_their_folders">Transactions removed from their folders</string>
@@ -266,10 +275,20 @@
     <string name="transaction_folder_indicator_label">Folder</string>
     <string name="transaction_removed_from_folder">Transaction removed from folder</string>
     <string name="enter_folder_name">Enter Folder Name</string>
-    <string name="sort_criteria_by_name">Name</string>
-    <string name="sort_criteria_by_created">Created</string>
+    <string name="folder_sort_criteria_by_name">Name</string>
+    <string name="folder_sort_criteria_by_created">Created</string>
+    <string name="folder_sort_criteria_by_aggregate">Aggregate Amount</string>
     <string name="sort_order_ascending">Ascending</string>
     <string name="sort_order_descending">Descending</string>
-    <string name="backup_using_cellular">Backup using cellular data</string>
     <string name="setting_up_transaction_auto_add_feature">Setting up Transaction Auto Add Feature</string>
+    <string name="received_from_sender">Received from %s</string>
+    <string name="spent_towards_receiver">Spent towards %s</string>
+    <string name="amount_transformation_label_divide_by">Divide By</string>
+    <string name="amount_transformation_label_multiplier">Multiplier</string>
+    <string name="amount_transformation_label_percent">Percent</string>
+    <string name="transform_amount">Transform Amount</string>
+    <string name="transform">Transform</string>
+    <string name="enter_divider">Enter Divider</string>
+    <string name="enter_multiplier">Enter Multiplier</string>
+    <string name="enter_percent">Enter Percent</string>
 </resources>
