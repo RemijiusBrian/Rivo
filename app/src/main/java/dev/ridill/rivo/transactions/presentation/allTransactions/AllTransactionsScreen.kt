@@ -14,7 +14,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -66,7 +65,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -101,6 +99,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
+import dev.ridill.rivo.core.ui.theme.ElevationLevel4
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -466,22 +465,23 @@ private fun NewTagCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .width(TagInfoCardWidth)
-            .clip(CardDefaults.shape)
-            .clickable(
-                role = Role.Button,
-                onClick = onClick,
-                onClickLabel = stringResource(R.string.cd_create_new_tag)
-            )
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
+    Surface(
+        onClick = onClick,
+        shape = CardDefaults.shape,
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = ElevationLevel4
     ) {
-        Icon(
-            imageVector = Icons.Rounded.Add,
-            contentDescription = null
-        )
+        Box(
+            modifier = Modifier
+                .width(TagInfoCardWidth),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = stringResource(R.string.cd_create_new_tag)
+            )
+        }
     }
 }
 
