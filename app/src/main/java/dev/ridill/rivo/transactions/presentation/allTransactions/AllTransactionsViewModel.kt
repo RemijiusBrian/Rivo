@@ -312,8 +312,6 @@ class AllTransactionsViewModel @Inject constructor(
 
     override fun onTransactionLongClick(id: Long) {
         viewModelScope.launch {
-            savedStateHandle[SELECTED_TAG_ID] = null
-            savedStateHandle[TRANSACTION_TYPE_FILTER] = null
             enableMultiSelectionModeWithId(id)
             eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
         }
