@@ -166,7 +166,15 @@ class AddEditTransactionViewModel @Inject constructor(
     private fun onInit() = viewModelScope.launch {
         val transaction = transactionRepo.getTransactionById(transactionIdArg)
             ?: Transaction.DEFAULT
-        savedStateHandle[AMOUNT_INPUT] = transaction.amount
+        savedStateHandle[AMOUNT_INPUT] = TextFormat.parseNumber(transaction.amount)
+            ?.let {
+                TextFormat.number(
+                    value = it,
+                    isGroupingUsed = false,
+                    maxFractionDigits = Int.MAX_VALUE
+                )
+            }
+            .orEmpty()
         savedStateHandle[NOTE_INPUT] = transaction.note
         savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.timestamp
         savedStateHandle[TRANSACTION_TYPE] = transaction.type
