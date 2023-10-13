@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import dev.ridill.rivo.core.domain.util.LocaleUtil
+import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.TextFormat
 import java.util.Locale
 
@@ -18,13 +19,15 @@ class AmountVisualTransformation(
             TextFormat.number(value = it, locale = locale)
         }.orEmpty()
             .let { formatted ->
-                formatted.padStart(
-                    length = maxOf(
-                        formatted.length + formatted.count { !it.isDigit() },
-                        text.length
-                    ),
-                    padChar = '0'
-                )
+                val prefixZeroCount = text.takeWhile { it == '0' }.count()
+                val padCount = formatted.length + prefixZeroCount
+                    .takeIf { formatted != "0" }
+                    .orZero()
+                // Formatted amount padded with prefix 0s
+                // to prevent app crash due to failed offset mapping
+                // as prefix 0s are removed in formatted string
+
+                formatted.padStart(padCount, '0')
             }
 
         return TransformedText(
