@@ -14,7 +14,6 @@ import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.ifInfinite
@@ -30,7 +29,6 @@ import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -99,7 +97,6 @@ class AddEditTransactionViewModel @Inject constructor(
 
     val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
     val foldersList = folderSearchQuery
-        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             foldersListRepo.getFoldersList(query)
         }.cachedIn(viewModelScope)
