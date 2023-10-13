@@ -15,11 +15,17 @@ class AmountVisualTransformation(
         val containsInvalidChars = text.any { !it.isDigit() }
         val formatted = if (containsInvalidChars) text.text
         else text.text.toDoubleOrNull()?.let {
-            TextFormat.number(
-                value = it,
-                locale = locale
-            )
+            TextFormat.number(value = it, locale = locale)
         }.orEmpty()
+            .let { formatted ->
+                formatted.padStart(
+                    length = maxOf(
+                        formatted.length + formatted.count { !it.isDigit() },
+                        text.length
+                    ),
+                    padChar = '0'
+                )
+            }
 
         return TransformedText(
             text = AnnotatedString(formatted),
