@@ -189,10 +189,11 @@ fun AllTransactionsScreen(
                 currency = state.currency,
                 tags = state.tagsWithExpenditures,
                 selectedTagId = state.selectedTagId,
-                onTagClick = actions::onTagClick,
+                onTagSelect = actions::onTagSelect,
                 onTagLongClick = actions::onTagLongClick,
                 onNewTagClick = actions::onNewTagClick,
                 tagAssignModeActive = state.transactionMultiSelectionModeActive,
+                onAssignToTransactions = actions::onAssignTagToTransactions,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
@@ -290,10 +291,11 @@ private fun TagsInfoList(
     currency: Currency,
     tags: List<TagInfo>,
     selectedTagId: Long?,
-    onTagClick: (Long) -> Unit,
+    onTagSelect: (Long) -> Unit,
     onTagLongClick: (Long) -> Unit,
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
+    onAssignToTransactions: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
@@ -334,9 +336,10 @@ private fun TagsInfoList(
                     isExcluded = tag.excluded,
                     expenditureAmount = TextFormat.currency(tag.expenditure, currency),
                     isSelected = selected,
-                    onClick = { onTagClick(tag.id) },
+                    onSelect = { onTagSelect(tag.id) },
                     onLongClick = { onTagLongClick(tag.id) },
-                    longClickEnabled = !tagAssignModeActive,
+                    tagAssignModeActive = tagAssignModeActive,
+                    onAssignToTransactions = { onAssignToTransactions(tag.id) },
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
@@ -375,9 +378,10 @@ private fun TagInfoCard(
     isExcluded: Boolean,
     expenditureAmount: String,
     isSelected: Boolean,
-    onClick: () -> Unit,
+    onSelect: () -> Unit,
     onLongClick: () -> Unit,
-    longClickEnabled: Boolean,
+    tagAssignModeActive: Boolean,
+    onAssignToTransactions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val transition = updateTransition(
@@ -394,12 +398,13 @@ private fun TagInfoCard(
     )
     val contentColor = remember(color) { color.contentColor() }
 
-    val clickableModifier = if (longClickEnabled) Modifier.clickable(
-        onClick = onClick,
-        onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions)
+    val clickableModifier = if (tagAssignModeActive) Modifier.clickable(
+        onClick = onAssignToTransactions,
+        onClickLabel = stringResource(R.string.cd_tap_tag_to_assign_to_transactions)
     )
     else Modifier.combinedClickable(
-        onClick = onClick,
+        onClick = onSelect,
+        onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions),
         onLongClick = onLongClick,
         onLongClickLabel = stringResource(R.string.cd_long_press_tag_to_edit)
     )
@@ -447,7 +452,7 @@ private fun TagInfoCard(
                 )
             }
 
-            if (longClickEnabled) {
+            if (!tagAssignModeActive) {
                 Text(
                     text = stringResource(R.string.cd_long_press_tag_to_edit),
                     style = MaterialTheme.typography.labelMedium,

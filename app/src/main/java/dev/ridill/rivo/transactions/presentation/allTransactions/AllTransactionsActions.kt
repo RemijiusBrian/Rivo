@@ -8,8 +8,9 @@ import java.time.Month
 interface AllTransactionsActions {
     fun onMonthSelect(month: Month)
     fun onYearSelect(year: Int)
-    fun onTagClick(tagId: Long)
+    fun onTagSelect(tagId: Long)
     fun onNewTagClick()
+    fun onAssignTagToTransactions(tagId: Long)
     fun onTagInputNameChange(value: String)
     fun onTagInputColorSelect(color: Color)
     fun onTagInputExclusionChange(excluded: Boolean)

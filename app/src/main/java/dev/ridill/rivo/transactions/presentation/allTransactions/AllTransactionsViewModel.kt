@@ -27,7 +27,6 @@ import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -225,24 +224,24 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
     }
 
-    override fun onTagClick(tagId: Long) {
-        viewModelScope.launch {
-            if (transactionMultiSelectionModeActive.first()) {
-                val selectedIds = selectedTransactionIds.value
-                tagsRepo.assignTagToTransactions(tagId, selectedIds)
-                dismissMultiSelectionMode()
-                savedStateHandle[SELECTED_TAG_ID] = tagId
-                eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
-            } else {
-                savedStateHandle[SELECTED_TAG_ID] = tagId
-                    .takeIf { it != selectedTagId.value }
-            }
-        }
+    override fun onTagSelect(tagId: Long) {
+        savedStateHandle[SELECTED_TAG_ID] = tagId
+            .takeIf { it != selectedTagId.value }
     }
 
     override fun onNewTagClick() {
         savedStateHandle[TAG_INPUT] = Tag.NEW
         savedStateHandle[SHOW_TAG_INPUT] = true
+    }
+
+    override fun onAssignTagToTransactions(tagId: Long) {
+        viewModelScope.launch {
+            val selectedIds = selectedTransactionIds.value
+            tagsRepo.assignTagToTransactions(tagId, selectedIds)
+            dismissMultiSelectionMode()
+            savedStateHandle[SELECTED_TAG_ID] = tagId
+            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
+        }
     }
 
     override fun onTagInputNameChange(value: String) {
