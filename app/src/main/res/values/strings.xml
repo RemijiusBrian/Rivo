@@ -69,7 +69,7 @@
     <string name="cd_clear">Clear</string>
     <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
-    <string name="cd_slice_transaction">Slice Transaction</string>
+    <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
 
     <!-- Error Messages -->
@@ -284,4 +284,12 @@
     <string name="setting_up_transaction_auto_add_feature">Setting up Transaction Auto Add Feature</string>
     <string name="received_from_sender">Received from %s</string>
     <string name="spent_towards_receiver">Spent towards %s</string>
+    <string name="amount_transformation_label_divide_by">Divide By</string>
+    <string name="amount_transformation_label_multiplier">Multiplier</string>
+    <string name="amount_transformation_label_percent">Percent</string>
+    <string name="transform_amount">Transform Amount</string>
+    <string name="transform">Transform</string>
+    <string name="enter_divider">Enter Divider</string>
+    <string name="enter_multiplier">Enter Multiplier</string>
+    <string name="enter_percent">Enter Percent</string>
 </resources>
