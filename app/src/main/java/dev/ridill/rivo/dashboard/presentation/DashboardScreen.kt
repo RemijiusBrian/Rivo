@@ -69,6 +69,7 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
@@ -129,7 +130,8 @@ fun DashboardScreen(
                             contentDescription = stringResource(R.string.cd_new_transaction_fab)
                         )
                     }
-                }
+                },
+                tonalElevation = ElevationLevel1
             )
         },
         snackbarController = snackbarController
