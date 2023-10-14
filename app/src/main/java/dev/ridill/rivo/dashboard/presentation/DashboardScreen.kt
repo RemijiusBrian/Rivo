@@ -28,6 +28,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
@@ -129,7 +130,8 @@ fun DashboardScreen(
                             contentDescription = stringResource(R.string.cd_new_transaction_fab)
                         )
                     }
-                }
+                },
+                tonalElevation = ElevationLevel1
             )
         },
         snackbarController = snackbarController
@@ -311,7 +313,8 @@ private fun SpendsOverview(
         shape = MaterialTheme.shapes.medium
             .copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         modifier = modifier,
-        tonalElevation = ElevationLevel1
+//        tonalElevation = ElevationLevel1,
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = Modifier
@@ -478,20 +481,21 @@ private fun RecentSpendCard(
     folder: Folder?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
+) = Card(
+    onClick = onClick,
+    modifier = modifier
 ) {
-    Card(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        TransactionListItem(
-            note = note,
-            amount = amount,
-            date = date,
-            type = type,
-            tag = tag,
-            folder = folder
+    TransactionListItem(
+        note = note,
+        amount = amount,
+        date = date,
+        type = type,
+        tag = tag,
+        folder = folder,
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
-    }
+    )
 }
 
 @Preview(showBackground = true)

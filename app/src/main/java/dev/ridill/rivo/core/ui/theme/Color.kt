@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
 val PrimaryBrandColor = Color(0xFFFFBF00)
-val SecondaryYellow = Color(0xFFFFCC33)
+//val SecondaryYellow = Color(0xFFFFCC33)
 //val TertiaryRed = Color(0xFFFF4000)
 
 val DarkGray = Color(0xFF121212)

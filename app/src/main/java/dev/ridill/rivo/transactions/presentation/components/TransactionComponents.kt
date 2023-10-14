@@ -1,8 +1,8 @@
 package dev.ridill.rivo.transactions.presentation.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,17 +13,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -41,6 +40,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.icons.Tags
+import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.exclusion
@@ -164,28 +164,33 @@ fun TransactionListItem(
 fun TransactionDate(
     date: LocalDate,
     modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.small,
     containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
-    contentColor: Color = contentColorFor(containerColor)
+    contentColor: Color = contentColorFor(containerColor),
+    tonalElevation: Dp = ElevationLevel0,
+    contentPadding: PaddingValues = PaddingValues(SpacingSmall)
 ) {
     val dateFormatted = remember(date) {
         date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
             .replace(" ", "\n")
     }
-    Box(
-        modifier = Modifier
-            .widthIn(min = DateContainerMinWidth)
-            .clip(MaterialTheme.shapes.small)
-            .background(containerColor)
-            .padding(SpacingSmall)
-            .then(modifier),
-        contentAlignment = Alignment.Center
+    Surface(
+        shape = shape,
+        color = containerColor,
+        contentColor = contentColor,
+        tonalElevation = tonalElevation
     ) {
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
+        Box(
+            modifier = Modifier
+                .widthIn(min = DateContainerMinWidth)
+                .padding(contentPadding)
+                .then(modifier),
+            contentAlignment = Alignment.Center
+        ) {
             Text(
                 text = dateFormatted,
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = LocalContentColor.current
+                textAlign = TextAlign.Center
             )
         }
     }
