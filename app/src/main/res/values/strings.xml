@@ -140,7 +140,7 @@
     <string name="preference_backup">Backup</string>
     <string name="preference_backup_summary">Backup your transactions</string>
     <string name="preference_title_google_drive">Google Drive</string>
-    <string name="preference_google_drive_backup_message">MYM uses Google Drive to backup up your data. You can restore your data when you install the app.</string>
+    <string name="preference_google_drive_backup_message">%s uses Google Drive to backup up your data. You can restore your data when you install the app.</string>
     <string name="preference_google_account">Google Account</string>
     <string name="click_to_sign_in_to_google_account">Click to sign in to your Google account</string>
     <string name="preference_backup_interval">Backup Interval</string>

@@ -124,7 +124,14 @@ private fun BackupInfoText(
 ) {
     BasicPreference(
         titleContent = { Text(stringResource(R.string.preference_title_google_drive)) },
-        summaryContent = { Text(stringResource(R.string.preference_google_drive_backup_message)) },
+        summaryContent = {
+            Text(
+                text = stringResource(
+                    R.string.preference_google_drive_backup_message,
+                    stringResource(R.string.app_name)
+                )
+            )
+        },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Rounded.AddToDrive,
