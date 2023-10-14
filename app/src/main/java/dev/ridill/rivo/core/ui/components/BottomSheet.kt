@@ -144,7 +144,6 @@ fun OutlinedTextFieldSheet(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(),
     contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     val isInputEmpty by remember {
@@ -159,7 +158,6 @@ fun OutlinedTextFieldSheet(
             verticalArrangement = Arrangement.spacedBy(SpacingMedium),
             modifier = Modifier
                 .padding(vertical = SpacingMedium)
-                .padding(contentPadding)
         ) {
             title()
 
@@ -229,7 +227,6 @@ fun TextFieldSheet(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(),
     textFieldColors: TextFieldColors = TextFieldDefaults.colors(),
     contentAfterTextField: @Composable (ColumnScope.() -> Unit)? = null
 ) {
@@ -245,7 +242,6 @@ fun TextFieldSheet(
             verticalArrangement = Arrangement.spacedBy(SpacingMedium),
             modifier = Modifier
                 .padding(vertical = SpacingMedium)
-                .padding(contentPadding)
         ) {
             title()
 
@@ -288,6 +284,7 @@ fun TextFieldSheet(
             Box(
                 modifier = Modifier
                     .align(Alignment.End)
+                    .padding(horizontal = SpacingMedium)
             ) {
                 actionButton()
             }

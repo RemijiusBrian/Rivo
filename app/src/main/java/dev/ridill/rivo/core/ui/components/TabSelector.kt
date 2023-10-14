@@ -40,14 +40,13 @@ fun <T> TabSelector(
     }
     TabRow(
         selectedTabIndex = selectedIndex,
-        modifier = Modifier
+        modifier = modifier
             .clip(shape)
             .border(
                 width = BorderWidthStandard,
                 color = indicatorColor,
                 shape = shape
-            )
-            .then(modifier),
+            ),
         indicator = { tabPositions ->
             Box(
                 modifier = Modifier

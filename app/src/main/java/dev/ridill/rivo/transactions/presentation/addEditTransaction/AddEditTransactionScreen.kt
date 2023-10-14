@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -603,7 +602,13 @@ private fun AmountTransformationSheet(
         }
     }
     TextFieldSheet(
-        title = { Text(stringResource(R.string.transform_amount)) },
+        title = {
+            Text(
+                text = stringResource(R.string.transform_amount),
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
+            )
+        },
         inputValue = { input.value },
         onValueChange = { input.value = it },
         onDismiss = onDismiss,
@@ -611,6 +616,8 @@ private fun AmountTransformationSheet(
             TabSelector(
                 values = { AmountTransformation.values().toList() },
                 selectedItem = { selectedTransformation },
+                modifier = Modifier
+                    .padding(horizontal = SpacingMedium)
             ) { transformation ->
                 TabSelectorItem(
                     selected = transformation == selectedTransformation,
@@ -626,7 +633,6 @@ private fun AmountTransformationSheet(
         },
         modifier = modifier,
         keyboardOptions = keyboardOptions,
-        contentPadding = PaddingValues(horizontal = SpacingMedium),
         label = stringResource(labelRes),
         suffix = { Text(selectedTransformation.symbol) },
         textStyle = LocalTextStyle.current
