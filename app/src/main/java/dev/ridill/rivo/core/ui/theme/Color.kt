@@ -8,7 +8,9 @@ val PrimaryBrandColor = Color(0xFFFFBF00)
 //val TertiaryRed = Color(0xFFFF4000)
 
 val DarkGray = Color(0xFF121212)
-val DarkGrayVariant = Color(0xFF242424)
+val DarkGrayVariant = Color(0xFF191919)
+
+val LightGray = Color(0xFFFAF9F6)
 
 val md_theme_light_primary = Color(0xFF795900)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
