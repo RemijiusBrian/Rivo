@@ -55,9 +55,10 @@ class SettingsViewModel @Inject constructor(
     val currencySearchQuery = savedStateHandle
         .getStateFlow(CURRENCY_SEARCH_QUERY, "")
 
+    private val allCurrenciesList = LocaleUtil.currencyList
     private val currencyList = currencySearchQuery
         .map { query ->
-            LocaleUtil.currencyList.filter { currency ->
+            allCurrenciesList.filter { currency ->
                 query.isEmpty()
                         || currency.displayName.contains(query, true)
                         || currency.currencyCode.contains(query, true)
