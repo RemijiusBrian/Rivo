@@ -113,7 +113,13 @@ private fun RestoreBackupActions(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = onRestoreClick) {
+        Button(
+            onClick = onRestoreClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        ) {
             Text(stringResource(R.string.restore))
         }
 
