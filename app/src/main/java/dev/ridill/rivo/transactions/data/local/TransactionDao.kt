@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.TransactionAmountLimits
@@ -23,7 +24,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0
         AND tx.type = :typeName
-        AND (:monthAndYear IS NULL OR strftime('%m-%Y', tx.timestamp) = strftime('%m-%Y', :monthAndYear))
+        AND (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', tx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
     """
     )
     fun getAmountSum(
@@ -46,7 +47,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Query(
         """
         SELECT * FROM transaction_details_view
-        WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
+        WHERE (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
@@ -66,7 +67,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Query(
         """
         SELECT * FROM transaction_details_view
-        WHERE (:monthAndYear IS NULL OR strftime('%m-%Y', transactionTimestamp) = strftime('%m-%Y', :monthAndYear))
+        WHERE (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
@@ -82,7 +83,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         showExcluded: Boolean = true
     ): PagingSource<Int, TransactionDetailsView>
 
-    @Query("SELECT DISTINCT(strftime('%Y', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
+    @Query("SELECT DISTINCT(strftime('${UtilConstants.DB_YEAR_FORMAT}', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
     fun getYearsFromTransactions(): Flow<List<Int>>
 
     @Query("UPDATE transaction_table SET is_excluded = :exclude WHERE id IN (:ids)")

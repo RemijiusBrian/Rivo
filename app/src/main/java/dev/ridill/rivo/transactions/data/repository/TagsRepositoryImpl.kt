@@ -2,7 +2,6 @@ package dev.ridill.rivo.transactions.data.repository
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
@@ -30,7 +29,7 @@ class TagsRepositoryImpl(
     }
 
     override fun getTagsWithExpenditures(date: LocalDate): Flow<List<TagInfo>> = dao
-        .getTagsWithExpenditureForDate(date.format(DateUtil.Formatters.MM_yyyy_dbFormat))
+        .getTagsWithExpenditureForDate(date.atStartOfDay())
         .map { it.map(TagWithExpenditureRelation::toTagInfo) }
 
     override suspend fun assignTagToTransactions(tagId: Long, ids: List<Long>) =

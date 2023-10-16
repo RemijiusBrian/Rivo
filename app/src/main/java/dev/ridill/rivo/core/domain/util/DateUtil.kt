@@ -55,9 +55,6 @@ object DateUtil {
         .toLocalDateTime()
 
     object Formatters {
-        val MM_yyyy_dbFormat: DateTimeFormatter
-            get() = DateTimeFormatter.ofPattern("MM-yyyy")
-
         val localizedTimeShort: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 

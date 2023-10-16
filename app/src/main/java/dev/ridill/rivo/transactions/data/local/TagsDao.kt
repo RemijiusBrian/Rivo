@@ -4,9 +4,11 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface TagsDao : BaseDao<TagEntity> {
@@ -28,7 +30,7 @@ interface TagsDao : BaseDao<TagEntity> {
         (SELECT IFNULL(SUM(subTx.amount), 0.0)
             FROM transaction_table subTx
             WHERE subTx.tag_id = tag.id
-            AND strftime('%m-%Y', subTx.timestamp) = :monthAndYear
+            AND strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', subTx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date)
             AND subTx.type = 'DEBIT'   
         ) as amount
         FROM tag_table tag
@@ -36,7 +38,7 @@ interface TagsDao : BaseDao<TagEntity> {
     """
     )
     fun getTagsWithExpenditureForDate(
-        monthAndYear: String
+        date: LocalDateTime
     ): Flow<List<TagWithExpenditureRelation>>
 
     @Query("UPDATE transaction_table SET tag_id = :tagId WHERE id IN (:ids)")
