@@ -190,7 +190,7 @@ dependencies {
     implementation(platform(libs.com.google.firebase.bom))
     implementation(libs.com.google.firebase.analytics.ktx)
 
-    // Google Play Services Auth
+    // Google Play Services
     implementation(libs.com.google.android.gms.play.services.auth)
 
     // ML Kit Entity Extraction
