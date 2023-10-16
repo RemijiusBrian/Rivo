@@ -281,11 +281,8 @@ fun AddEditTransactionScreen(
                 onDismissRequest = actions::onTransactionTimestampSelectionDismiss,
                 confirmButton = {
                     TextButton(onClick = {
-                        datePickerState.selectedDateMillis?.let {
-                            val dateTime = DateUtil
-                                .dateFromMillisWithTime(it, state.transactionTimestamp)
-                            actions.onTransactionTimestampSelectionConfirm(dateTime)
-                        }
+                        datePickerState.selectedDateMillis
+                            ?.let(actions::onTransactionTimestampSelectionConfirm)
                     }) { Text(stringResource(R.string.action_ok)) }
                 },
                 dismissButton = {

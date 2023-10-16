@@ -44,18 +44,15 @@ object DateUtil {
 
     fun dateFromMillisWithTime(
         millis: Long,
-        time: LocalDateTime,
+        time: LocalDateTime = now(),
         zoneId: ZoneId = ZoneId.systemDefault()
-    ): LocalDateTime {
-        val date = Instant.ofEpochMilli(millis)
-            .atZone(zoneId)
-            .toLocalDate()
-
-        return time
-            .withDayOfMonth(date.dayOfMonth)
-            .withMonth(date.monthValue)
-            .withYear(date.year)
-    }
+    ): LocalDateTime = Instant.ofEpochMilli(millis)
+        .atZone(zoneId)
+        .withHour(time.hour)
+        .withMinute(time.minute)
+        .withSecond(time.second)
+        .withNano(time.nano)
+        .toLocalDateTime()
 
     object Formatters {
         val MM_yyyy_dbFormat: DateTimeFormatter

@@ -32,7 +32,6 @@ import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -223,8 +222,9 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
-    override fun onTransactionTimestampSelectionConfirm(dateTime: LocalDateTime) {
-        savedStateHandle[TRANSACTION_TIMESTAMP] = dateTime
+    override fun onTransactionTimestampSelectionConfirm(millis: Long) {
+        savedStateHandle[TRANSACTION_TIMESTAMP] = DateUtil
+            .dateFromMillisWithTime(millis, transactionTimestamp.value)
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
