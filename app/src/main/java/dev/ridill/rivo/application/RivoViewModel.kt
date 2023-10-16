@@ -64,4 +64,4 @@ class RivoViewModel @Inject constructor(
     }
 }
 
-private const val SPLASH_SCREEN_DELAY_SECONDS = 2
+private const val SPLASH_SCREEN_DELAY_SECONDS = 1
