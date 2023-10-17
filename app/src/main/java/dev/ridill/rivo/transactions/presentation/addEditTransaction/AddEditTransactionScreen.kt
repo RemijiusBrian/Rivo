@@ -562,6 +562,7 @@ fun TagsList(
             modifier = Modifier,
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
+            NewTagChip(onClick = onNewTagClick)
             tagsList.forEach { tag ->
                 TagChip(
                     name = tag.name,
@@ -571,8 +572,6 @@ fun TagsList(
                     onClick = { onTagClick(tag.id) }
                 )
             }
-
-            NewTagChip(onClick = onNewTagClick)
         }
     }
 }

@@ -324,6 +324,18 @@ private fun TagsInfoList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
             state = lazyListState
         ) {
+            item(
+                key = "NewTagCard",
+                contentType = "NewTagCard"
+            ) {
+                NewTagCard(
+                    onClick = onNewTagClick,
+                    modifier = Modifier
+                        .fillParentMaxHeight()
+                        .animateItemPlacement()
+                )
+            }
+            
             items(
                 items = tags,
                 key = { it.id },
@@ -340,18 +352,6 @@ private fun TagsInfoList(
                     onLongClick = { onTagLongClick(tag.id) },
                     tagAssignModeActive = tagAssignModeActive,
                     onAssignToTransactions = { onAssignToTransactions(tag.id) },
-                    modifier = Modifier
-                        .fillParentMaxHeight()
-                        .animateItemPlacement()
-                )
-            }
-
-            item(
-                key = "NewTagCard",
-                contentType = "NewTagCard"
-            ) {
-                NewTagCard(
-                    onClick = onNewTagClick,
                     modifier = Modifier
                         .fillParentMaxHeight()
                         .animateItemPlacement()
