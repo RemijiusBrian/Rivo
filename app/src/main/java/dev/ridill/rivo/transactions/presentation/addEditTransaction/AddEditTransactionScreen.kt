@@ -200,6 +200,7 @@ fun AddEditTransactionScreen(
 
             if (!isEditMode) {
                 AmountRecommendationsRow(
+                    currency = state.currency,
                     recommendations = state.amountRecommendations,
                     onRecommendationClick = {
                         actions.onRecommendedAmountClick(it)
