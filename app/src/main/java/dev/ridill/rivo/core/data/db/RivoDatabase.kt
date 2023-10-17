@@ -7,14 +7,11 @@ import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
 import dev.ridill.rivo.settings.data.local.ConfigDao
-import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
@@ -63,35 +60,4 @@ abstract class RivoDatabase : RoomDatabase() {
         toColumnName = "type"
     )
     class AutoMigrationSpec7To8 : AutoMigrationSpec
-}
-
-val Migration_1_2 = object : Migration(1, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL(
-            """
-            CREATE TABLE MiscConfigEntity(
-            configKey TEXT PRIMARY KEY NOT NULL,
-            configValue TEXT NOT NULL
-            )
-        """.trimIndent()
-        )
-        val cursor = database
-            .query("SELECT IFNULL(amount, 0) as amount FROM BudgetEntity WHERE isCurrent = 1")
-        cursor.moveToFirst()
-        val currentBudget = cursor.getLong(0)
-
-        database.execSQL("INSERT INTO MiscConfigEntity VALUES('${ConfigKeys.BUDGET_AMOUNT}', '$currentBudget')")
-        database.execSQL("DROP TABLE BudgetEntity")
-    }
-}
-
-val MIGRATION_3_4 = object : Migration(3, 4) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL(
-            """
-            ALTER TABLE ExpenseEntity
-            ADD COLUMN isExcludedFromExpenditure INTEGER NOT NULL DEFAULT 0
-        """.trimIndent()
-        )
-    }
 }
