@@ -71,7 +71,7 @@ fun NewTagChip(
     trailingIcon = {
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = stringResource(R.string.cd_create_new_tag)
+            contentDescription = stringResource(R.string.create_new_tag)
         )
     },
     modifier = modifier

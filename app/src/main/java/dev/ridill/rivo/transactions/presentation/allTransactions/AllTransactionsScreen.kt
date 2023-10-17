@@ -39,6 +39,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -52,6 +53,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TriStateCheckbox
@@ -92,6 +94,7 @@ import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
@@ -99,7 +102,6 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
-import dev.ridill.rivo.core.ui.theme.ElevationLevel4
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -310,11 +312,29 @@ private fun TagsInfoList(
     Column(
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
-        ListLabel(
-            text = stringResource(R.string.tags),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(horizontal = SpacingMedium)
-        )
+                .fillMaxWidth()
+        ) {
+            ListLabel(
+                text = stringResource(R.string.tags),
+                modifier = Modifier
+                    .weight(Float.One)
+                    .padding(horizontal = SpacingMedium),
+            )
+            SpacerSmall()
+            TextButton(onClick = onNewTagClick) {
+                Text(text = stringResource(R.string.create_new_tag))
+                Spacer(spacing = ButtonDefaults.IconSpacing)
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(ButtonDefaults.IconSize)
+                )
+            }
+        }
         LazyRow(
             modifier = modifier,
             contentPadding = PaddingValues(
@@ -324,18 +344,6 @@ private fun TagsInfoList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
             state = lazyListState
         ) {
-            item(
-                key = "NewTagCard",
-                contentType = "NewTagCard"
-            ) {
-                NewTagCard(
-                    onClick = onNewTagClick,
-                    modifier = Modifier
-                        .fillParentMaxHeight()
-                        .animateItemPlacement()
-                )
-            }
-            
             items(
                 items = tags,
                 key = { it.id },
@@ -461,31 +469,6 @@ private fun TagInfoCard(
                     color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun NewTagCard(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        onClick = onClick,
-        shape = CardDefaults.shape,
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        tonalElevation = ElevationLevel4
-    ) {
-        Box(
-            modifier = Modifier
-                .width(TagInfoCardWidth),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Add,
-                contentDescription = stringResource(R.string.cd_create_new_tag)
-            )
         }
     }
 }
