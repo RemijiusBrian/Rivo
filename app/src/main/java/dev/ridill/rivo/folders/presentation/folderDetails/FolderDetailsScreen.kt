@@ -409,7 +409,7 @@ private fun TransactionsInFolder(
                                 ) {
                                     val dismissState = rememberDismissState(
                                         confirmValueChange = {
-                                            if (it == DismissValue.DismissedToStart) {
+                                            if (it == DismissValue.DismissedToEnd) {
                                                 onTransactionSwipeDismiss(item.transaction)
                                             }
                                             true
@@ -418,7 +418,7 @@ private fun TransactionsInFolder(
                                     SwipeToDismiss(
                                         state = dismissState,
                                         background = {},
-                                        directions = setOf(DismissDirection.EndToStart),
+                                        directions = setOf(DismissDirection.StartToEnd),
                                         dismissContent = {
                                             TransactionCard(
                                                 note = item.transaction.note,
