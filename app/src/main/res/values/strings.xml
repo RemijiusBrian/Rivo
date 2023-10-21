@@ -263,6 +263,7 @@
     <string name="transaction_type_label_credit">Credit</string>
     <string name="transaction_type_label_debit">Debit</string>
     <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
+    <string name="tags_list_empty_message">No tags created yet</string>
     <string name="all_transactions_list_empty_message">You don\'t have any transactions yet</string>
     <string name="folders_list_empty_message">You don\'t have any Folders yet</string>
     <string name="transactions_in_folder_list_empty_message">There aren\'t any transactions in this folder</string>

@@ -301,10 +301,13 @@ private fun TagsInfoList(
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
+    val isTagsEmpty by remember {
+        derivedStateOf { tags.isEmpty() }
+    }
 
     // Prevent tags list starting of at last index
-    LaunchedEffect(lazyListState, tags) {
-        if (tags.isNotEmpty()) {
+    LaunchedEffect(lazyListState, isTagsEmpty) {
+        if (isTagsEmpty) {
             lazyListState.scrollToItem(0)
         }
     }
@@ -335,35 +338,48 @@ private fun TagsInfoList(
                 )
             }
         }
-        LazyRow(
+        Box(
             modifier = modifier,
-            contentPadding = PaddingValues(
-                start = SpacingMedium,
-                end = SpacingListEnd
-            ),
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
-            state = lazyListState
+            contentAlignment = Alignment.Center
         ) {
-            items(
-                items = tags,
-                key = { it.id },
-                contentType = { "TagInfoCard" }
-            ) { tag ->
-                val selected = tag.id == selectedTagId
-                TagInfoCard(
-                    name = tag.name,
-                    color = tag.color,
-                    isExcluded = tag.excluded,
-                    expenditureAmount = TextFormat.currency(tag.expenditure, currency),
-                    isSelected = selected,
-                    onSelect = { onTagSelect(tag.id) },
-                    onLongClick = { onTagLongClick(tag.id) },
-                    tagAssignModeActive = tagAssignModeActive,
-                    onAssignToTransactions = { onAssignToTransactions(tag.id) },
-                    modifier = Modifier
-                        .fillParentMaxHeight()
-                        .animateItemPlacement()
+            if (isTagsEmpty) {
+                Text(
+                    text = stringResource(R.string.tags_list_empty_message),
+                    color = LocalContentColor.current
+                        .copy(alpha = ContentAlpha.SUB_CONTENT)
                 )
+            }
+            LazyRow(
+                modifier = Modifier
+                    .matchParentSize(),
+                contentPadding = PaddingValues(
+                    start = SpacingMedium,
+                    end = SpacingListEnd
+                ),
+                horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                state = lazyListState
+            ) {
+                items(
+                    items = tags,
+                    key = { it.id },
+                    contentType = { "TagInfoCard" }
+                ) { tag ->
+                    val selected = tag.id == selectedTagId
+                    TagInfoCard(
+                        name = tag.name,
+                        color = tag.color,
+                        isExcluded = tag.excluded,
+                        expenditureAmount = TextFormat.currency(tag.expenditure, currency),
+                        isSelected = selected,
+                        onSelect = { onTagSelect(tag.id) },
+                        onLongClick = { onTagLongClick(tag.id) },
+                        tagAssignModeActive = tagAssignModeActive,
+                        onAssignToTransactions = { onAssignToTransactions(tag.id) },
+                        modifier = Modifier
+                            .fillParentMaxHeight()
+                            .animateItemPlacement()
+                    )
+                }
             }
         }
         AnimatedVisibility(visible = tagAssignModeActive && tags.isNotEmpty()) {
