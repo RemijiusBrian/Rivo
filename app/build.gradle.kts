@@ -57,8 +57,8 @@ android {
         create("internal") {
             dimension = "env"
             applicationIdSuffix = ".internal"
-            versionCode = 21
-            versionName = "0.6.1"
+            versionCode = 22
+            versionName = "0.6.2"
 
             buildConfigField("int", "DB_VERSION", "9")
         }
