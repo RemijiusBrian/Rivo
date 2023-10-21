@@ -48,10 +48,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -75,6 +77,7 @@ import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
+import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -417,7 +420,19 @@ private fun TransactionsInFolder(
                                     )
                                     SwipeToDismiss(
                                         state = dismissState,
-                                        background = {},
+                                        background = {
+                                            Box(
+                                                contentAlignment = Alignment.CenterStart,
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(horizontal = SpacingLarge)
+                                            ) {
+                                                Icon(
+                                                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
+                                                    contentDescription = stringResource(R.string.cd_remove_from_folder)
+                                                )
+                                            }
+                                        },
                                         directions = setOf(DismissDirection.StartToEnd),
                                         dismissContent = {
                                             TransactionCard(
