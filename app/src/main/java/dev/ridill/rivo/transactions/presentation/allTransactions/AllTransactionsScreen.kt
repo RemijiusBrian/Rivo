@@ -301,13 +301,13 @@ private fun TagsInfoList(
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
-    val isTagsEmpty by remember {
+    val isTagsEmpty by remember(tags) {
         derivedStateOf { tags.isEmpty() }
     }
 
     // Prevent tags list starting of at last index
     LaunchedEffect(lazyListState, isTagsEmpty) {
-        if (isTagsEmpty) {
+        if (!isTagsEmpty) {
             lazyListState.scrollToItem(0)
         }
     }
