@@ -28,7 +28,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
@@ -69,6 +68,7 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
@@ -311,7 +311,8 @@ private fun SpendsOverview(
         shape = MaterialTheme.shapes.medium
             .copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceVariant
+//        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = ElevationLevel1
     ) {
         Column(
             modifier = Modifier
@@ -488,10 +489,7 @@ private fun RecentSpendCard(
         date = date,
         type = type,
         tag = tag,
-        folder = folder,
-        colors = ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        folder = folder
     )
 }
 
