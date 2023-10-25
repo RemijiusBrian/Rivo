@@ -182,7 +182,7 @@ class TransactionSmsService(
         (content.contains(creditTextRegex)
                 && !content.contains(debitTextPattern)) -> TransactionType.CREDIT
 
-        (content.contains(debitTextPattern)) -> TransactionType.CREDIT
+        (content.contains(debitTextPattern)) -> TransactionType.DEBIT
 
         else -> null
     }
