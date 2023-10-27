@@ -87,7 +87,7 @@ object DateUtil {
                 return UiText.StringResource(R.string.today)
 
             if (daysDiff <= 3)
-                return UiText.PluralResource(R.plurals.days_past, daysDiff)
+                return UiText.PluralResource(R.plurals.days_past, daysDiff, daysDiff.toString())
 
             return UiText.DynamicString(date.format(localizedDateLong))
         }
