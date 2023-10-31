@@ -18,6 +18,7 @@
 <img src="https://github.com/RemijiusBrian/Rivo/assets/69680701/6122cd3b-f43d-4f64-8168-977744b6bfe0" width="200" height="400">
 <img src="https://github.com/RemijiusBrian/Rivo/assets/69680701/ba05ae7f-cf1b-4b1a-b021-b70b4c64bb89" width="200" height="400">
 <img src="https://github.com/RemijiusBrian/Rivo/assets/69680701/9687aeda-a8ff-4746-8547-272a9f79a910" width="200" height="400">
+
 #### Dark Theme
 <img src="https://github.com/RemijiusBrian/Rivo/assets/69680701/1991e6b4-401a-48da-9758-cd67f1360bcc" width="200" height="400">
 <img src="https://github.com/RemijiusBrian/Rivo/assets/69680701/992acb02-984e-4b82-98be-de9ea5199aed" width="200" height="400">
