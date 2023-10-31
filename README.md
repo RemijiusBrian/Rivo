@@ -16,7 +16,12 @@
 
 ## About The Project
 
-![Screen Shot](images/screenshot.png)
+![Light Dashboard](images/Screenshot_Light_Dashboard.png)
+![Dark Dashboard](images/Screenshot_Dark_Dashboard.png)
+![Light Add/Edit Transaction](images/Screenshot_Light_AddEditTransaction.png)
+![Dark Add/Edit Transaction](images/Screenshot_Dark_AddEditTransaction.png)
+![Light All Transactions](images/Screenshot_Light_AllTransactions.png)
+![Dark All Transactions](images/Screenshot_Dark_AddEditTransaction.png)
 
 Rivo is a user-friendly Android application designed to empower individuals in managing their finances effectively. With Rivo, users can effortlessly track and control their expenses, helping them maintain financial discipline and achieve their financial goals. This mobile app provides a comprehensive expense tracking and budget management solution, allowing users to take control of their financial well-being.
 
