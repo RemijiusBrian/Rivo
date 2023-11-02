@@ -7,7 +7,6 @@ import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
-import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
@@ -30,7 +29,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionDetailsView::class,
         FolderAndAggregateAmountView::class
     ],
-    version = BuildConfig.DB_VERSION,
+    version = 9,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),

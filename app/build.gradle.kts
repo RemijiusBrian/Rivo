@@ -5,11 +5,10 @@ import java.util.Locale
 plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
-    alias(libs.plugins.org.jetbrains.kotlin.kapt)
     alias(libs.plugins.org.jetbrains.kotlin.plugin.parcelize)
     alias(libs.plugins.com.google.dagger.hilt.android)
     alias(libs.plugins.com.google.gms.google.services)
-//    alias(libs.plugins.com.google.devtools.ksp)
+    alias(libs.plugins.com.google.devtools.ksp)
 }
 
 android {
@@ -29,12 +28,6 @@ android {
         }
 
         buildConfigField("String", "GOOGLE_APIS_BASE_URL", "\"https://www.googleapis.com/\"")
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += "room.schemaLocation" to "$projectDir/schemas"
-            }
-        }
     }
 
     buildTypes {
@@ -59,16 +52,12 @@ android {
             applicationIdSuffix = ".internal"
             versionCode = 23
             versionName = "0.6.3"
-
-            buildConfigField("int", "DB_VERSION", "9")
         }
 
         create("production") {
             dimension = "env"
             versionCode = 1
             versionName = "0.0.1"
-
-            buildConfigField("int", "DB_VERSION", "1")
         }
     }
 
@@ -105,7 +94,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.8"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
@@ -163,15 +152,13 @@ dependencies {
 
     // Dagger Hilt
     implementation(libs.com.google.dagger.hilt.android)
-    kapt(libs.com.google.dagger.hilt.android.compiler)
-//    ksp(libs.com.google.dagger.hilt.android.compiler)
+    ksp(libs.com.google.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Room Persistence
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-//    ksp(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
 
     // Paging 3
@@ -181,7 +168,7 @@ dependencies {
     // Work Manager
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.work.runtime.ktx)
-    kapt(libs.androidx.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
     // Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
@@ -207,6 +194,6 @@ dependencies {
     implementation(libs.com.notkamui.keval)
 }
 
-kapt {
-    correctErrorTypes = true
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
