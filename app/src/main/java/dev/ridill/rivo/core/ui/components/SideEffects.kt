@@ -2,11 +2,14 @@ package dev.ridill.rivo.core.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun OnLifecycleEventEffect(
@@ -55,3 +58,17 @@ fun OnLifecycleResumeEffect(
     lifecycleOwner = lifecycleOwner,
     block = block
 )
+
+@Composable
+fun <T> CollectFlowEffect(
+    flow: Flow<T>,
+    vararg keys: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onCollect: suspend (T) -> Unit
+) {
+    LaunchedEffect(flow, lifecycleOwner.lifecycle, *keys) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            flow.collect(onCollect)
+        }
+    }
+}

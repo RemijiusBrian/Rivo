@@ -1,7 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -12,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
@@ -35,31 +35,29 @@ object AllTransactionsScreenSpec : ScreenSpec {
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        LaunchedEffect(viewModel, context, snackbarController) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    is AllTransactionsViewModel.AllTransactionsEvent.ShowUiMessage -> {
-                        snackbarController.showSnackbar(
-                            event.uiText.asString(context),
-                            event.uiText.isErrorText
-                        )
-                    }
+        CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
+            when (event) {
+                is AllTransactionsViewModel.AllTransactionsEvent.ShowUiMessage -> {
+                    snackbarController.showSnackbar(
+                        event.uiText.asString(context),
+                        event.uiText.isErrorText
+                    )
+                }
 
-                    is AllTransactionsViewModel.AllTransactionsEvent.ProvideHapticFeedback -> {
-                        hapticFeedback.performHapticFeedback(event.type)
-                    }
+                is AllTransactionsViewModel.AllTransactionsEvent.ProvideHapticFeedback -> {
+                    hapticFeedback.performHapticFeedback(event.type)
+                }
 
-                    is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
-                        val route = FolderDetailsScreenSpec.routeWithArgs(
-                            transactionFolderId = null,
-                            txIds = event.transactionIds
-                        )
-                        navController.navigate(route)
-                    }
+                is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
+                    val route = FolderDetailsScreenSpec.routeWithArgs(
+                        transactionFolderId = null,
+                        txIds = event.transactionIds
+                    )
+                    navController.navigate(route)
                 }
             }
         }
-
+        
         AllTransactionsScreen(
             snackbarController = snackbarController,
             state = state,

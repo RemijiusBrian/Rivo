@@ -7,7 +7,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
@@ -23,6 +22,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
@@ -110,58 +110,62 @@ object AddEditTransactionScreenSpec : ScreenSpec {
             onResult = viewModel::onCreateFolderResult
         )
 
-        LaunchedEffect(viewModel, snackbarController, context) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    AddEditTransactionViewModel.AddEditTransactionEvent.TransactionAdded -> {
-                        navController.navigateUpWithResult(
-                            DASHBOARD_ACTION_RESULT,
-                            RESULT_TRANSACTION_ADDED
-                        )
-                    }
+        CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
+            when (event) {
+                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionAdded -> {
+                    navController.navigateUpWithResult(
+                        DASHBOARD_ACTION_RESULT,
+                        RESULT_TRANSACTION_ADDED
+                    )
+                }
 
-                    AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
-                        navController.navigateUpWithResult(
-                            DASHBOARD_ACTION_RESULT,
-                            RESULT_TRANSACTION_DELETED
-                        )
-                    }
+                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
+                    navController.navigateUpWithResult(
+                        DASHBOARD_ACTION_RESULT,
+                        RESULT_TRANSACTION_DELETED
+                    )
+                }
 
-                    AddEditTransactionViewModel.AddEditTransactionEvent.TransactionUpdated -> {
-                        navController.navigateUpWithResult(
-                            DASHBOARD_ACTION_RESULT,
-                            RESULT_TRANSACTION_UPDATED
-                        )
-                    }
+                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionUpdated -> {
+                    navController.navigateUpWithResult(
+                        DASHBOARD_ACTION_RESULT,
+                        RESULT_TRANSACTION_UPDATED
+                    )
+                }
 
-                    is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
-                        snackbarController.showSnackbar(
-                            message = event.uiText.asString(context),
-                            isError = event.uiText.isErrorText
-                        )
-                    }
+                is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
+                    snackbarController.showSnackbar(
+                        message = event.uiText.asString(context),
+                        isError = event.uiText.isErrorText
+                    )
+                }
 
-                    AddEditTransactionViewModel.AddEditTransactionEvent.NavigateToFolderDetailsForCreation -> {
-                        navController.navigate(
-                            FolderDetailsScreenSpec.routeWithArgs(
-                                transactionFolderId = null,
-                                exitAfterClear = true
-                            )
+                AddEditTransactionViewModel.AddEditTransactionEvent.NavigateToFolderDetailsForCreation -> {
+                    navController.navigate(
+                        FolderDetailsScreenSpec.routeWithArgs(
+                            transactionFolderId = null,
+                            exitAfterClear = true
                         )
-                    }
+                    )
                 }
             }
         }
 
         AddEditTransactionScreen(
             snackbarController = snackbarController,
-            amountInput = { amount.value },
-            noteInput = { note.value },
+            amountInput =
+            { amount.value },
+            noteInput =
+            { note.value },
             isEditMode = isEditMode,
-            tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagColorInput = { tagInput.value?.color },
-            tagExclusionInput = { tagInput.value?.excluded },
-            folderSearchQuery = { folderSearchQuery.value },
+            tagNameInput =
+            { tagInput.value?.name.orEmpty() },
+            tagColorInput =
+            { tagInput.value?.color },
+            tagExclusionInput =
+            { tagInput.value?.excluded },
+            folderSearchQuery =
+            { folderSearchQuery.value },
             folderList = folderList,
             state = state,
             actions = viewModel,

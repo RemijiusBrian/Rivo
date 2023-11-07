@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -16,6 +15,7 @@ import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
+import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.util.restartApplication
@@ -57,40 +57,38 @@ object WelcomeFlowScreenSpec : ScreenSpec {
             }
         )
 
-        LaunchedEffect(viewModel, snackbarController, context) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    is WelcomeFlowViewModel.WelcomeFlowEvent.NavigateToPage -> {
-                        if (!pagerState.isScrollInProgress)
-                            pagerState.animateScrollToPage(event.page.ordinal)
-                    }
+        CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
+            when (event) {
+                is WelcomeFlowViewModel.WelcomeFlowEvent.NavigateToPage -> {
+                    if (!pagerState.isScrollInProgress)
+                        pagerState.animateScrollToPage(event.page.ordinal)
+                }
 
-                    WelcomeFlowViewModel.WelcomeFlowEvent.LaunchNotificationPermissionRequest -> {
-                        notificationPermissionLauncher?.launchRequest()
-                    }
+                WelcomeFlowViewModel.WelcomeFlowEvent.LaunchNotificationPermissionRequest -> {
+                    notificationPermissionLauncher?.launchRequest()
+                }
 
-                    is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
-                        snackbarController.showSnackbar(
-                            event.uiText.asString(context),
-                            event.uiText.isErrorText
-                        )
-                    }
+                is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
+                    snackbarController.showSnackbar(
+                        event.uiText.asString(context),
+                        event.uiText.isErrorText
+                    )
+                }
 
-                    WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
-                        navController.navigate(DashboardScreenSpec.route) {
-                            popUpTo(route) {
-                                inclusive = true
-                            }
+                WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
+                    navController.navigate(DashboardScreenSpec.route) {
+                        popUpTo(route) {
+                            inclusive = true
                         }
                     }
+                }
 
-                    is WelcomeFlowViewModel.WelcomeFlowEvent.LaunchGoogleSignIn -> {
-                        signInLauncher.launch(event.intent)
-                    }
+                is WelcomeFlowViewModel.WelcomeFlowEvent.LaunchGoogleSignIn -> {
+                    signInLauncher.launch(event.intent)
+                }
 
-                    WelcomeFlowViewModel.WelcomeFlowEvent.RestartApplication -> {
-                        context.restartApplication()
-                    }
+                WelcomeFlowViewModel.WelcomeFlowEvent.RestartApplication -> {
+                    context.restartApplication()
                 }
             }
         }

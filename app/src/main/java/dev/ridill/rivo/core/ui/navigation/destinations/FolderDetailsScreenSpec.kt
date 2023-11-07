@@ -7,7 +7,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,6 +20,7 @@ import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.orFalse
+import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
@@ -104,45 +104,43 @@ object FolderDetailsScreenSpec : ScreenSpec {
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
-        LaunchedEffect(context, snackbarController, viewModel) {
-            viewModel.events.collect { event ->
-                when (event) {
-                    FolderDetailsViewModel.FolderDetailsEvent.NavigateUp -> {
-                        navController.navigateUp()
-                    }
+        CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
+            when (event) {
+                FolderDetailsViewModel.FolderDetailsEvent.NavigateUp -> {
+                    navController.navigateUp()
+                }
 
-                    is FolderDetailsViewModel.FolderDetailsEvent.ShowUiMessage -> {
-                        snackbarController.showSnackbar(
-                            event.uiText.asString(context),
-                            event.uiText.isErrorText
-                        )
-                    }
+                is FolderDetailsViewModel.FolderDetailsEvent.ShowUiMessage -> {
+                    snackbarController.showSnackbar(
+                        event.uiText.asString(context),
+                        event.uiText.isErrorText
+                    )
+                }
 
-                    FolderDetailsViewModel.FolderDetailsEvent.FolderDeleted -> {
-                        navController.navigateUpWithResult(
-                            ACTION_FOLDER_DETAILS,
-                            RESULT_FOLDER_DELETED
-                        )
-                    }
+                FolderDetailsViewModel.FolderDetailsEvent.FolderDeleted -> {
+                    navController.navigateUpWithResult(
+                        ACTION_FOLDER_DETAILS,
+                        RESULT_FOLDER_DELETED
+                    )
+                }
 
-                    is FolderDetailsViewModel.FolderDetailsEvent.NavigateUpWithFolderId -> {
-                        navController.navigateUpWithResult(
-                            ACTION_NEW_FOLDER_CREATE,
-                            event.folderId.toString()
-                        )
-                    }
+                is FolderDetailsViewModel.FolderDetailsEvent.NavigateUpWithFolderId -> {
+                    navController.navigateUpWithResult(
+                        ACTION_NEW_FOLDER_CREATE,
+                        event.folderId.toString()
+                    )
+                }
 
-                    is FolderDetailsViewModel.FolderDetailsEvent.TransactionRemovedFromGroup -> {
-                        snackbarController.showSnackbar(
-                            message = context.getString(R.string.transaction_removed_from_folder),
-                            actionLabel = context.getString(R.string.action_undo),
-                            onSnackbarResult = {
-                                if (it == SnackbarResult.ActionPerformed) {
-                                    viewModel.onRemoveTransactionUndo(event.transaction)
-                                }
+                is FolderDetailsViewModel.FolderDetailsEvent.TransactionRemovedFromGroup -> {
+                    snackbarController.showSnackbar(
+                        message = context.getString(R.string.transaction_removed_from_folder),
+                        actionLabel = context.getString(R.string.action_undo),
+                        onSnackbarResult = {
+                            if (it == SnackbarResult.ActionPerformed) {
+                                viewModel.onRemoveTransactionUndo(event.transaction)
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }
