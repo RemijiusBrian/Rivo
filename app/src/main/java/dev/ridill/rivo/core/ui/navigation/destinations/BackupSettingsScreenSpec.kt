@@ -20,7 +20,7 @@ import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 
-object BackupSettingsScreenSpec : ScreenSpec {
+data object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
 
     override val labelRes: Int = R.string.destination_backup_settings

@@ -16,7 +16,7 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
 
-object AllTransactionsScreenSpec : ScreenSpec {
+data object AllTransactionsScreenSpec : ScreenSpec {
 
     override val route: String = "all_transactions"
 
@@ -57,7 +57,7 @@ object AllTransactionsScreenSpec : ScreenSpec {
                 }
             }
         }
-        
+
         AllTransactionsScreen(
             snackbarController = snackbarController,
             state = state,

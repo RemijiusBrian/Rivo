@@ -22,7 +22,7 @@ import dev.ridill.rivo.core.ui.util.launchAppSettings
 import dev.ridill.rivo.settings.presentation.settings.SettingsScreen
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 
-object SettingsScreenSpec : ScreenSpec {
+data object SettingsScreenSpec : ScreenSpec {
 
     override val route: String = "settings"
 

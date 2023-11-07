@@ -17,7 +17,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANS
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_UPDATED
 
-object DashboardScreenSpec : ScreenSpec {
+data object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
 
     override val labelRes: Int = R.string.destination_dashboard

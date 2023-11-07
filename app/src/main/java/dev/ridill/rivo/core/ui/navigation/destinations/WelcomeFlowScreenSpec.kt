@@ -23,7 +23,7 @@ import dev.ridill.rivo.welcomeFlow.domain.model.WelcomeFlowPage
 import dev.ridill.rivo.welcomeFlow.presentation.WelcomeFlowScreen
 import dev.ridill.rivo.welcomeFlow.presentation.WelcomeFlowViewModel
 
-object WelcomeFlowScreenSpec : ScreenSpec {
+data object WelcomeFlowScreenSpec : ScreenSpec {
     override val route: String = "welcome_flow"
     override val labelRes: Int = R.string.destination_welcome_flow
 

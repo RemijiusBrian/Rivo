@@ -16,7 +16,7 @@ import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
 
-object FoldersListScreenSpec : ScreenSpec {
+data object FoldersListScreenSpec : ScreenSpec {
     override val route: String = "folders_list"
 
     override val labelRes: Int = R.string.destination_folders_list

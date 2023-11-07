@@ -33,7 +33,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANS
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_UPDATED
 
-object AddEditTransactionScreenSpec : ScreenSpec {
+data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String =
         "add_edit_transaction/{$ARG_TRANSACTION_ID}?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}"
 

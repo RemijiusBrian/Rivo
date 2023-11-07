@@ -28,7 +28,7 @@ import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
 import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
 import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 
-object FolderDetailsScreenSpec : ScreenSpec {
+data object FolderDetailsScreenSpec : ScreenSpec {
     override val route: String =
         "folder_details/{$ARG_EXIT_AFTER_CREATE}/{$ARG_FOLDER_ID}?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}"
 
