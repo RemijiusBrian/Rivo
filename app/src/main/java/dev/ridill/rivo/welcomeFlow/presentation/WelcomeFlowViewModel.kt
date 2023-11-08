@@ -1,6 +1,7 @@
 package dev.ridill.rivo.welcomeFlow.presentation
 
 import android.content.Intent
+import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,7 @@ import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
@@ -107,23 +109,20 @@ class WelcomeFlowViewModel @Inject constructor(
         }
     }
 
-    fun onSignInResult(intent: Intent?) = viewModelScope.launch {
-        val account = signInService.getAccountFromIntent(intent)
-        if (account == null) {
-            eventBus.send(
-                WelcomeFlowEvent.ShowUiMessage(
-                    UiText.StringResource(
-                        R.string.error_sign_in_failed,
-                        true
-                    )
-                )
-            )
-            return@launch
+    fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
+        when (val resource = signInService.getAccountFromSignInResult(result)) {
+            is Resource.Error -> {
+                resource.message?.let { eventBus.send(WelcomeFlowEvent.ShowUiMessage(it)) }
+            }
+
+            is Resource.Success -> {
+                checkForBackup()
+            }
         }
-        checkForBackup()
     }
 
     private suspend fun checkForBackup() {
+        logI { "Running Backup Check" }
         when (val resource = backupRepository.checkForBackup()) {
             is Resource.Error -> {
                 eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
@@ -180,11 +179,11 @@ class WelcomeFlowViewModel @Inject constructor(
 
     sealed class WelcomeFlowEvent {
         data class NavigateToPage(val page: WelcomeFlowPage) : WelcomeFlowEvent()
-        object WelcomeFlowConcluded : WelcomeFlowEvent()
+        data object WelcomeFlowConcluded : WelcomeFlowEvent()
         data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
-        object LaunchNotificationPermissionRequest : WelcomeFlowEvent()
+        data object LaunchNotificationPermissionRequest : WelcomeFlowEvent()
         data class LaunchGoogleSignIn(val intent: Intent) : WelcomeFlowEvent()
-        object RestartApplication : WelcomeFlowEvent()
+        data object RestartApplication : WelcomeFlowEvent()
     }
 }
 

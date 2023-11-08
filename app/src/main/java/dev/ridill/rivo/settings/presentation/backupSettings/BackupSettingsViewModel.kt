@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
@@ -110,6 +111,7 @@ class BackupSettingsViewModel @Inject constructor(
                 info?.state == WorkInfo.State.RUNNING
             }
             setBackupIntervalFromWorkInfo(info)
+            logD { "Backup Work Info - $info" }
         }
     }
 

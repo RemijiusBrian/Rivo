@@ -1,7 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
-import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.pager.rememberPagerState
@@ -50,11 +49,7 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
 
         val signInLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    viewModel.onSignInResult(result.data)
-                }
-            }
+            onResult = viewModel::onSignInResult
         )
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->

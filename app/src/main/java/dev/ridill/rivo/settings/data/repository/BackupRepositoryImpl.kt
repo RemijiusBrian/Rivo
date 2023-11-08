@@ -7,7 +7,9 @@ import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.model.SimpleResource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.logE
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.MEDIA_PART_KEY
@@ -31,11 +33,13 @@ class BackupRepositoryImpl(
 ) : BackupRepository {
     override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
         try {
+            logI { "Checking For Backup" }
             val token = signInService.getAccessToken()
             val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
                 ?: throw NoBackupFoundThrowable()
 
             val backupDetails = backupFile.toBackupDetails()
+            logD { "Backup Found - $backupDetails" }
             Resource.Success(backupDetails)
         } catch (t: NoBackupFoundThrowable) {
             logE(t)
@@ -48,6 +52,7 @@ class BackupRepositoryImpl(
 
     override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
         try {
+            logI { "Performing Data Backup" }
             val backupFile = backupService.buildBackupFile()
             val metadataMap = mapOf(
                 "name" to backupFile.name,
@@ -63,12 +68,14 @@ class BackupRepositoryImpl(
                 fileBody
             )
 
+            logD { "Backup file generated - $backupFile" }
             val token = signInService.getAccessToken()
             gDriveApi.uploadFile(
                 token = token,
                 metadata = metadataPart,
                 file = mediaPart
             )
+            logI { "Backup file uploaded" }
 
             preferencesManager.updateLastBackupTimestamp(DateUtil.now())
             gDriveApi.getOtherFilesInDrive(token).files
@@ -76,9 +83,11 @@ class BackupRepositoryImpl(
                 .forEach { file ->
                     gDriveApi.deleteFile(token, file.id)
                 }
-
+            logI { "Cleaned up Drive" }
             backupService.clearLocalCache()
+            logI { "Cleaned up local cache" }
 
+            logI { "Backup Completed" }
             Resource.Success(
                 data = Unit,
                 message = UiText.StringResource(R.string.backup_complete)
@@ -99,13 +108,16 @@ class BackupRepositoryImpl(
         details: BackupDetails
     ): SimpleResource = withContext(Dispatchers.IO) {
         try {
+            logI { "Restoring Backup" }
             val token = signInService.getAccessToken()
             val response = gDriveApi.downloadFile(token, details.id)
             val fileBody = response.body()
                 ?: throw BackupDownloadFailedThrowable()
+            logI { "Downloaded backup data" }
 
             backupService.restoreBackupFile(fileBody.byteStream())
             details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
+            logI { "Backup Restored" }
             Resource.Success(Unit)
         } catch (t: BackupDownloadFailedThrowable) {
             logE(t)

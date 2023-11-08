@@ -1,7 +1,9 @@
 package dev.ridill.rivo.core.domain.service
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.activity.result.ActivityResult
 import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.auth.UserRecoverableAuthException
@@ -10,8 +12,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
+import com.google.android.gms.common.api.Status
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.tryOrNull
+import dev.ridill.rivo.core.domain.model.Resource
+import dev.ridill.rivo.core.domain.util.logD
+import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.core.ui.util.UiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -35,10 +41,34 @@ class GoogleSignInService(
     fun getSignedInAccount(): GoogleSignInAccount? =
         GoogleSignIn.getLastSignedInAccount(context)
 
-    suspend fun getAccountFromIntent(intent: Intent?): GoogleSignInAccount? = tryOrNull {
-        val account = GoogleSignIn.getSignedInAccountFromIntent(intent).await()
-        account
-    }
+    suspend fun getAccountFromSignInResult(result: ActivityResult): Resource<GoogleSignInAccount> =
+        try {
+            if (result.resultCode != Activity.RESULT_OK) {
+                logI { "SignIn Failed" }
+                logD {
+                    "SignIn Status - ${
+                        result.data?.extras?.getParcelable<Status>(KEY_GOOGLE_SIGN_IN_STATUS)
+                    }"
+                }
+                throw GoogleSignInFailedException()
+            }
+
+            val account = GoogleSignIn.getSignedInAccountFromIntent(result.data).await()
+            if (account == null) {
+                logI { "SignIn Failed" }
+                throw GoogleSignInFailedException()
+            }
+
+            logD { "SignIn Success - $account" }
+            Resource.Success(account)
+        } catch (t: Throwable) {
+            Resource.Error(
+                UiText.StringResource(
+                    R.string.error_sign_in_failed,
+                    true
+                )
+            )
+        }
 
     @Throws(
         IOException::class,
@@ -58,3 +88,7 @@ class GoogleSignInService(
         "Bearer $token"
     }
 }
+
+private const val KEY_GOOGLE_SIGN_IN_STATUS = "googleSignInStatus"
+
+class GoogleSignInFailedException : Throwable("SignIn Failed")

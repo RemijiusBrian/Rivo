@@ -9,7 +9,6 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
-import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
@@ -66,19 +65,9 @@ class BackupSettingsRepositoryImpl(
                 )
             }
 
-            val account = tryOrNull { signInService.getAccountFromIntent(result.data) }
-            if (account == null) {
-                backupWorkManager.cancelAllWorks()
-                Resource.Error(
-                    UiText.StringResource(
-                        R.string.error_sign_in_failed,
-                        true
-                    )
-                )
-            } else {
-                _backupAccount.update { account }
-                Resource.Success(account)
-            }
+            val resource = signInService.getAccountFromSignInResult(result)
+            _backupAccount.update { resource.data }
+            resource
         }
 
     override fun getImmediateBackupWorkInfo(): Flow<WorkInfo?> =
@@ -99,10 +88,7 @@ class BackupSettingsRepositoryImpl(
                 backupWorkManager.cancelPeriodicBackupWork()
                 return@withContext
             }
-            if (interval == BackupInterval.MANUAL)
-                backupWorkManager.cancelPeriodicBackupWork()
-            else
-                backupWorkManager.schedulePeriodicBackupWork(interval)
+            backupWorkManager.schedulePeriodicBackupWork(interval)
         }
 
 

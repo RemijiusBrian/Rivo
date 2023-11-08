@@ -2,7 +2,6 @@ package dev.ridill.rivo.settings.domain.backup
 
 import android.content.Context
 import androidx.lifecycle.asFlow
-import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -54,7 +53,6 @@ class BackupWorkManager(
             TimeUnit.DAYS
         )
             .setConstraints(buildConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, BACK_OFF_DELAY, TimeUnit.MINUTES)
             .setId(periodicBackupWorkName.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
             .addTag(commonBackupTag)
@@ -126,5 +124,3 @@ class BackupWorkManager(
         .setRequiresBatteryNotLow(true)
         .build()
 }
-
-private const val BACK_OFF_DELAY = 5L
