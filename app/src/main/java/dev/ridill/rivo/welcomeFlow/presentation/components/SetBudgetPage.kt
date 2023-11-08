@@ -128,7 +128,12 @@ private fun BudgetInput(
             placeholder = { Text(stringResource(R.string.enter_budget)) },
             supportingText = { Text(stringResource(R.string.you_can_change_budget_later_in_settings)) },
             visualTransformation = remember { AmountVisualTransformation() },
-            prefix = { Text(currency.symbol) }
+            prefix = {
+                Text(
+                    text = currency.symbol,
+                    color = contentColor
+                )
+            }
         )
     }
 }
