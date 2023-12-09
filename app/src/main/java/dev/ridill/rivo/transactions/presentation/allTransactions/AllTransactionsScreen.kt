@@ -499,7 +499,7 @@ private fun DateFilter(
     onYearSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val monthsList = remember { Month.values() }
+    val monthsList = remember { Month.entries.toTypedArray() }
 
     val monthsListState = rememberLazyListState()
 
