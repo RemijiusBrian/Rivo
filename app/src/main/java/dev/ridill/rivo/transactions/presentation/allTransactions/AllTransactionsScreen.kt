@@ -853,7 +853,7 @@ private fun TransactionListOptions(
                 onDismissRequest = { menuExpanded = false }
             ) {
                 if (multiSelectionModeActive) {
-                    TransactionOption.values().forEach { option ->
+                    TransactionOption.entries.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(stringResource(option.labelRes)) },
                             onClick = {

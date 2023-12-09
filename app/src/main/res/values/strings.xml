@@ -70,6 +70,7 @@
     <string name="cd_clear">Clear</string>
     <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
+    <string name="cd_folders_list_option_toggle">Folders list options</string>
     <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
 
@@ -294,4 +295,6 @@
     <string name="enter_multiplier">Enter Multiplier</string>
     <string name="enter_percent">Enter Percent</string>
     <string name="create_new_tag">Create New Tag</string>
+    <string name="folder_list_option_hide_balanced">Hide Balanced</string>
+    <string name="folder_list_option_show_balanced">Show Balanced</string>
 </resources>

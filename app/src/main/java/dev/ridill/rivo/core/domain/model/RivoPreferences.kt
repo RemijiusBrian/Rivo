@@ -10,5 +10,6 @@ data class RivoPreferences(
     val lastBackupDateTime: LocalDateTime?,
     val needsConfigRestore: Boolean,
     val autoAddTransactionEnabled: Boolean,
-    val showExcludedTransactions: Boolean
+    val showExcludedTransactions: Boolean,
+    val showBalancedFolders: Boolean
 )

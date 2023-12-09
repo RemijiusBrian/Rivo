@@ -496,7 +496,7 @@ private fun TransactionTypeSelector(
         stringResource(selectedType.labelRes)
     )
     TabSelector(
-        values = { TransactionType.values().toList() },
+        values = { TransactionType.entries },
         selectedItem = { selectedType },
         modifier = modifier
             .semantics {
@@ -611,7 +611,7 @@ private fun AmountTransformationSheet(
         onDismiss = onDismiss,
         text = {
             TabSelector(
-                values = { AmountTransformation.values().toList() },
+                values = { AmountTransformation.entries },
                 selectedItem = { selectedTransformation },
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)

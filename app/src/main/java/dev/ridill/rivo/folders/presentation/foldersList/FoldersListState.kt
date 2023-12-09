@@ -10,5 +10,6 @@ data class FoldersListState(
     val currency: Currency = LocaleUtil.defaultCurrency,
     val sortCriteria: FolderSortCriteria = FolderSortCriteria.BY_AGGREGATE,
     val sortOrder: SortOrder = SortOrder.DESCENDING,
-    val listMode: ListMode = ListMode.GRID
+    val listMode: ListMode = ListMode.GRID,
+    val showBalancedFolders: Boolean = false
 )

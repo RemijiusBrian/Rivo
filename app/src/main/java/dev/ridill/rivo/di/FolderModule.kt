@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.repository.FolderDetailsRepositoryImpl
@@ -25,10 +26,12 @@ object FolderModule {
     @Provides
     fun provideFoldersListRepository(
         txFolderDao: FolderDao,
-        configDao: ConfigDao
+        configDao: ConfigDao,
+        preferencesManager: PreferencesManager
     ): FoldersListRepository = FoldersListRepositoryImpl(
         folderDao = txFolderDao,
-        configDao = configDao
+        configDao = configDao,
+        preferencesManager = preferencesManager
     )
 
     @Provides

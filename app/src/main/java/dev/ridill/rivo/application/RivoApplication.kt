@@ -14,9 +14,13 @@ class RivoApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
     override fun onCreate() {
         super.onCreate()
-
         setupTimber()
     }
 
@@ -25,9 +29,4 @@ class RivoApplication : Application(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
         }
     }
-
-    override fun getWorkManagerConfiguration(): Configuration =
-        Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
 }

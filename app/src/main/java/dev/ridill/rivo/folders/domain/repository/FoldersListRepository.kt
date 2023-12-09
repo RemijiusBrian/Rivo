@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.Flow
 interface FoldersListRepository {
     fun getFoldersWithAggregateList(
         sortCriteria: FolderSortCriteria,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
+        showBalanced: Boolean
     ): Flow<PagingData<FolderDetails>>
 
     fun getFoldersListSortCriteria(): Flow<FolderSortCriteria>
@@ -20,6 +21,8 @@ interface FoldersListRepository {
     suspend fun updateFoldersListSort(criteria: FolderSortCriteria, order: SortOrder)
     fun getFoldersListMode(): Flow<ListMode>
     suspend fun updateFoldersListMode(listMode: ListMode)
+    fun getShowBalancedFolders(): Flow<Boolean>
+    suspend fun toggleShowBalancedFolders()
     fun getFoldersList(searchQuery: String = String.Empty): Flow<PagingData<Folder>>
     suspend fun getFolderById(id: Long): Folder?
 }

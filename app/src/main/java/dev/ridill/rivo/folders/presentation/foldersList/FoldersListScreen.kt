@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.ViewList
@@ -66,6 +67,7 @@ import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
+import dev.ridill.rivo.folders.domain.model.FoldersListOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
 
@@ -91,7 +93,9 @@ fun FoldersListScreen(
                         selectedSortOrder = state.sortOrder,
                         onSortOptionSelect = actions::onSortOptionSelect,
                         selectedListMode = state.listMode,
-                        onListModeToggle = actions::onListModeToggle
+                        onListModeToggle = actions::onListModeToggle,
+                        showBalancedFolders = state.showBalancedFolders,
+                        onOptionSelect = actions::onListOptionSelect
                     )
                 }
             )
@@ -179,6 +183,8 @@ private fun FolderListOptions(
     onSortOptionSelect: (FolderSortCriteria) -> Unit,
     selectedListMode: ListMode,
     onListModeToggle: () -> Unit,
+    showBalancedFolders: Boolean,
+    onOptionSelect: (FoldersListOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -204,6 +210,10 @@ private fun FolderListOptions(
                 )
             }
         }
+        FoldersListOptions(
+            showBalancedFolders = showBalancedFolders,
+            onOptionSelect = onOptionSelect
+        )
     }
 }
 
@@ -239,7 +249,7 @@ private fun SortOptionsMenu(
                     contentDescription = sortContentDescription
                 }
         ) {
-            FolderSortCriteria.values().forEach { criteria ->
+            FolderSortCriteria.entries.forEach { criteria ->
                 val selected = criteria == selectedSortCriteria
                 val sortOptionContentDescription = stringResource(
                     R.string.cd_sort_option,
@@ -264,6 +274,45 @@ private fun SortOptionsMenu(
                         .semantics {
                             contentDescription = sortOptionContentDescription
                         }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FoldersListOptions(
+    showBalancedFolders: Boolean,
+    onOptionSelect: (FoldersListOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        IconButton(onClick = { expanded = !expanded }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = stringResource(R.string.cd_folders_list_option_toggle)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            FoldersListOption.entries.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(
+                                id = if (showBalancedFolders) R.string.folder_list_option_hide_balanced
+                                else R.string.folder_list_option_show_balanced
+                            )
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onOptionSelect(option)
+                    }
                 )
             }
         }

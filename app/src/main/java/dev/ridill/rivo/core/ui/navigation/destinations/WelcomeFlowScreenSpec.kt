@@ -30,7 +30,7 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
         val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
         val pagerState = rememberPagerState(
-            pageCount = { WelcomeFlowPage.values().size }
+            pageCount = { WelcomeFlowPage.entries.size }
         )
         val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
         val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()

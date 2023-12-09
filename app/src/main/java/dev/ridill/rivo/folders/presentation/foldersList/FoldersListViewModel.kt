@@ -7,6 +7,7 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
+import dev.ridill.rivo.folders.domain.model.FoldersListOption
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,14 +30,18 @@ class FoldersListViewModel @Inject constructor(
         .distinctUntilChanged()
     private val listMode = repo.getFoldersListMode()
         .distinctUntilChanged()
+    private val showBalancedFolders = repo.getShowBalancedFolders()
+        .distinctUntilChanged()
 
     val folderListPagingData = combineTuple(
         sortCriteria,
-        sortOrder
-    ).flatMapLatest { (sortCriteria, sortOrder) ->
+        sortOrder,
+        showBalancedFolders
+    ).flatMapLatest { (sortCriteria, sortOrder, showBalanced) ->
         repo.getFoldersWithAggregateList(
             sortCriteria = sortCriteria,
-            sortOrder = sortOrder
+            sortOrder = sortOrder,
+            showBalanced = showBalanced
         )
     }.cachedIn(viewModelScope)
 
@@ -44,18 +49,21 @@ class FoldersListViewModel @Inject constructor(
         currency,
         sortCriteria,
         sortOrder,
-        listMode
+        listMode,
+        showBalancedFolders
     ).map { (
                 currency,
                 sortCriteria,
                 sortOrder,
-                listMode
+                listMode,
+                showBalancedFolders
             ) ->
         FoldersListState(
             currency = currency,
             sortCriteria = sortCriteria,
             sortOrder = sortOrder,
-            listMode = listMode
+            listMode = listMode,
+            showBalancedFolders = showBalancedFolders
         )
     }.asStateFlow(viewModelScope, FoldersListState())
 
@@ -73,6 +81,16 @@ class FoldersListViewModel @Inject constructor(
         viewModelScope.launch {
             val newListMode = !state.value.listMode
             repo.updateFoldersListMode(newListMode)
+        }
+    }
+
+    override fun onListOptionSelect(option: FoldersListOption) {
+        viewModelScope.launch {
+            when (option) {
+                FoldersListOption.SHOW_HIDE_BALANCED -> {
+                    repo.toggleShowBalancedFolders()
+                }
+            }
         }
     }
 }
