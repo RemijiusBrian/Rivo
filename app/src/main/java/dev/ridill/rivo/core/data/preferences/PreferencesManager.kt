@@ -19,4 +19,5 @@ interface PreferencesManager {
     suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
     suspend fun updateAutoAddTransactionEnabled(enabled: Boolean)
     suspend fun updateShowExcludedTransactions(show: Boolean)
+    suspend fun updateShowBalancedFolders(show: Boolean)
 }

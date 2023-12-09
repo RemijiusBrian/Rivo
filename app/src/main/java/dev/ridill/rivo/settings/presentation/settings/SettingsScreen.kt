@@ -36,11 +36,11 @@ import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
+import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -156,7 +156,7 @@ fun SettingsScreen(
         if (state.showAppThemeSelection) {
             RadioOptionListDialog(
                 titleRes = R.string.choose_theme,
-                options = AppTheme.values(),
+                options = AppTheme.entries.toTypedArray(),
                 currentOption = state.appTheme,
                 onDismiss = actions::onAppThemeSelectionDismiss,
                 onOptionSelect = actions::onAppThemeSelectionConfirm

@@ -499,7 +499,7 @@ private fun DateFilter(
     onYearSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val monthsList = remember { Month.values() }
+    val monthsList = remember { Month.entries.toTypedArray() }
 
     val monthsListState = rememberLazyListState()
 
@@ -853,7 +853,7 @@ private fun TransactionListOptions(
                 onDismissRequest = { menuExpanded = false }
             ) {
                 if (multiSelectionModeActive) {
-                    TransactionOption.values().forEach { option ->
+                    TransactionOption.entries.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(stringResource(option.labelRes)) },
                             onClick = {

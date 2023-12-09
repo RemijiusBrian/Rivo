@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.ListMode
 import dev.ridill.rivo.core.domain.model.SortOrder
 import dev.ridill.rivo.core.domain.util.UtilConstants
@@ -21,33 +22,46 @@ import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class FoldersListRepositoryImpl(
     private val folderDao: FolderDao,
-    private val configDao: ConfigDao
+    private val configDao: ConfigDao,
+    private val preferencesManager: PreferencesManager
 ) : FoldersListRepository {
     override fun getFoldersWithAggregateList(
         sortCriteria: FolderSortCriteria,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
+        showBalanced: Boolean
     ): Flow<PagingData<FolderDetails>> = Pager(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
     ) {
         when (sortCriteria) {
             FolderSortCriteria.BY_NAME -> when (sortOrder) {
-                SortOrder.ASCENDING -> folderDao.getFoldersWithAggregateExpenditureSortedByNameAsc()
-                SortOrder.DESCENDING -> folderDao.getFoldersWithAggregateExpenditureSortedByNameDesc()
+                SortOrder.ASCENDING -> folderDao
+                    .getFoldersWithAggregateExpenditureSortedByNameAsc(showBalanced)
+
+                SortOrder.DESCENDING -> folderDao
+                    .getFoldersWithAggregateExpenditureSortedByNameDesc(showBalanced)
             }
 
             FolderSortCriteria.BY_CREATED -> when (sortOrder) {
-                SortOrder.ASCENDING -> folderDao.getFoldersWithAggregateExpenditureSortedByCreatedAsc()
-                SortOrder.DESCENDING -> folderDao.getFoldersWithAggregateExpenditureSortedByCreatedDesc()
+                SortOrder.ASCENDING -> folderDao
+                    .getFoldersWithAggregateExpenditureSortedByCreatedAsc(showBalanced)
+
+                SortOrder.DESCENDING -> folderDao
+                    .getFoldersWithAggregateExpenditureSortedByCreatedDesc(showBalanced)
             }
 
             FolderSortCriteria.BY_AGGREGATE -> when (sortOrder) {
-                SortOrder.ASCENDING -> folderDao.getFoldersWithAggregateExpenditureSortedByAggregateAsc()
-                SortOrder.DESCENDING -> folderDao.getFoldersWithAggregateExpenditureSortedByAggregateDesc()
+                SortOrder.ASCENDING -> folderDao
+                    .getFoldersWithAggregateExpenditureSortedByAggregateAsc(showBalanced)
+
+                SortOrder.DESCENDING -> folderDao
+                    .getFoldersWithAggregateExpenditureSortedByAggregateDesc(showBalanced)
             }
         }
     }
@@ -98,6 +112,14 @@ class FoldersListRepositoryImpl(
                 )
             )
         }
+    }
+
+    override fun getShowBalancedFolders(): Flow<Boolean> = preferencesManager.preferences
+        .map { it.showBalancedFolders }
+        .distinctUntilChanged()
+
+    override suspend fun toggleShowBalancedFolders() {
+        preferencesManager.updateShowBalancedFolders(getShowBalancedFolders().first().not())
     }
 
     override fun getFoldersList(searchQuery: String): Flow<PagingData<Folder>> =
