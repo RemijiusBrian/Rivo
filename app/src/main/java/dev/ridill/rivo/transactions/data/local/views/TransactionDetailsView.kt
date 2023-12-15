@@ -6,10 +6,21 @@ import java.time.LocalDateTime
 @DatabaseView(
     value = """SELECT tx.id AS transactionId,
         tx.note AS transactionNote,
-        tx.amount AS transactionAmount,
+        (CASE 
+            WHEN tx.type = 'DEBIT' THEN tx.amount + (
+                (SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.aggregate_with_tx_id = tx.id AND tx1.type = 'DEBIT')
+                - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.aggregate_with_tx_id = tx.id AND tx2.type = 'CREDIT')
+                )
+            WHEN tx.type = 'CREDIT' THEN tx.amount - (
+                (SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.aggregate_with_tx_id = tx.id AND tx1.type = 'DEBIT')
+                - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.aggregate_with_tx_id = tx.id AND tx2.type = 'CREDIT')
+                )
+            ELSE tx.amount
+        END) AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
         tx.type AS transactionTypeName,
         tx.is_excluded AS isTransactionExcluded,
+        tx.aggregate_with_tx_id AS aggregateWithTxId,
         tag.id AS tagId,
         tag.name AS tagName,
         tag.color_code AS tagColorCode,
@@ -32,6 +43,7 @@ data class TransactionDetailsView(
     val transactionTimestamp: LocalDateTime,
     val transactionTypeName: String,
     val isTransactionExcluded: Boolean,
+    val aggregateWithTxId: Long?,
     val tagId: Long?,
     val tagName: String?,
     val tagColorCode: Int?,

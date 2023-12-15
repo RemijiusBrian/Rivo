@@ -18,7 +18,8 @@ interface AddEditTransactionRepository {
         transactionType: TransactionType,
         tagId: Long?,
         folderId: Long? = null,
-        excluded: Boolean = false
+        excluded: Boolean = false,
+        aggregateWithTxId: Long? = null
     ): Long
 
     suspend fun deleteTransaction(id: Long)

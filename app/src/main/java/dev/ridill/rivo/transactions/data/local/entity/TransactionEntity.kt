@@ -49,5 +49,8 @@ data class TransactionEntity(
     val tagId: Long?,
 
     @ColumnInfo(name = "folder_id")
-    val folderId: Long?
+    val folderId: Long?,
+
+    @ColumnInfo(name = "aggregate_with_tx_id")
+    val aggregateWithTxId: Long?
 )

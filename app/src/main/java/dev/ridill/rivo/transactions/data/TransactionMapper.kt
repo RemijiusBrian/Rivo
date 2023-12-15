@@ -51,7 +51,8 @@ fun TransactionDetailsView.toTransactionListItem(): TransactionListItem {
         type = TransactionType.valueOf(transactionTypeName),
         isTransactionExcluded = isTransactionExcluded,
         tag = tag,
-        folder = folder
+        folder = folder,
+        aggregateWithTxId = aggregateWithTxId
     )
 }
 
@@ -63,5 +64,6 @@ fun TransactionListItem.toEntity(): TransactionEntity = TransactionEntity(
     typeName = type.name,
     isExcluded = isTransactionExcluded,
     tagId = tag?.id,
-    folderId = folder?.id
+    folderId = folder?.id,
+    aggregateWithTxId = aggregateWithTxId
 )

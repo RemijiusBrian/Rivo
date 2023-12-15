@@ -45,7 +45,8 @@ class AddEditTransactionRepositoryImpl(
         transactionType: TransactionType,
         tagId: Long?,
         folderId: Long?,
-        excluded: Boolean
+        excluded: Boolean,
+        aggregateWithTxId: Long?
     ): Long = withContext(Dispatchers.IO) {
         val entity = TransactionEntity(
             id = id ?: Long.Zero,
@@ -55,7 +56,8 @@ class AddEditTransactionRepositoryImpl(
             typeName = transactionType.name,
             tagId = tagId,
             isExcluded = excluded,
-            folderId = folderId
+            folderId = folderId,
+            aggregateWithTxId = aggregateWithTxId
         )
         dao.insert(entity).first()
     }

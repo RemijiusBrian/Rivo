@@ -29,12 +29,13 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionDetailsView::class,
         FolderAndAggregateAmountView::class
     ],
-    version = 9,
+    version = 10,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),
         AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class),
-        AutoMigration(from = 8, to = 9)
+        AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10)
     ]
 )
 @TypeConverters(DateTimeConverter::class)

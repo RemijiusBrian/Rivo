@@ -41,10 +41,11 @@ class AllTransactionsRepositoryImpl(
             }
 
     override fun getAmountSumForDate(date: LocalDate, type: TransactionType): Flow<Double> =
-        dao.getAmountSum(
+        dao.getTransactionsList(
             monthAndYear = date.atStartOfDay(),
-            typeName = type.name
-        )
+            transactionTypeName = type.name
+        ).map { entities -> entities.sumOf { it.transactionAmount } }
+            .distinctUntilChanged()
 
     override fun getTransactionsForDateByTag(
         date: LocalDate,

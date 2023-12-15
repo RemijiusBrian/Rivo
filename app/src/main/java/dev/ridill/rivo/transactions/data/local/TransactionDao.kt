@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Dao
 interface TransactionDao : BaseDao<TransactionEntity> {
 
-    @Transaction
+    /*@Transaction
     @Query(
         """
         SELECT IFNULL(SUM(tx.amount), 0.0)
@@ -30,7 +30,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     fun getAmountSum(
         typeName: String,
         monthAndYear: LocalDateTime? = null
-    ): Flow<Double>
+    ): Flow<Double>*/
 
     @Query(
         """
@@ -100,4 +100,10 @@ interface TransactionDao : BaseDao<TransactionEntity> {
 
     @Query("UPDATE transaction_table SET folder_id = NULL WHERE id IN (:ids)")
     suspend fun removeFolderFromTransactionsByIds(ids: List<Long>)
+
+    @Query("SELECT * FROM transaction_table WHERE aggregate_with_tx_id = :txId")
+    fun getAggregatedTransactionsForId(txId: Long): Flow<List<TransactionEntity>>
+
+    @Query("UPDATE transaction_table SET aggregate_with_tx_id = :aggregateTxId WHERE id = :txId")
+    suspend fun setAggregateWithIdForTx(txId: Long, aggregateTxId: Long)
 }
