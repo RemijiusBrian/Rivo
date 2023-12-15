@@ -29,6 +29,7 @@ import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -57,7 +58,7 @@ class AddEditTransactionViewModel @Inject constructor(
 
     val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
 
-    private val amountTransformation = savedStateHandle
+    private val selectedAmountTransformation = savedStateHandle
         .getStateFlow(SELECTED_AMOUNT_TRANSFORMATION, AmountTransformation.DIVIDE_BY)
     private val showAmountTransformationInput = savedStateHandle
         .getStateFlow(SHOW_AMOUNT_TRANSFORMATION_INPUT, false)
@@ -78,6 +79,12 @@ class AddEditTransactionViewModel @Inject constructor(
 
     private val isTransactionExcluded = savedStateHandle
         .getStateFlow(IS_TRANSACTION_EXCLUDED, false)
+
+    private val aggregateWithTransactionId = savedStateHandle
+        .getStateFlow<Long?>(AGGREGATE_WITH_TX_ID, null)
+    private val isAggregatedWith = aggregateWithTransactionId
+        .map { it != null }
+        .distinctUntilChanged()
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
@@ -107,13 +114,14 @@ class AddEditTransactionViewModel @Inject constructor(
     val state = combineTuple(
         currency,
         amountRecommendations,
-        amountTransformation,
+        selectedAmountTransformation,
         showAmountTransformationInput,
         tagsList,
         selectedTagId,
         transactionTimestamp,
         transactionType,
         isTransactionExcluded,
+        isAggregatedWith,
         showDeleteConfirmation,
         showNewTagInput,
         newTagError,
@@ -130,6 +138,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 transactionTimestamp,
                 transactionType,
                 isTransactionExcluded,
+                isAggregatedWith,
                 showDeleteConfirmation,
                 showNewTagInput,
                 newTagError,
@@ -152,7 +161,8 @@ class AddEditTransactionViewModel @Inject constructor(
             showFolderSelection = showFolderSelection,
             linkedFolderName = linkedFolderName,
             showTransformationInput = showAmountTransformationInput,
-            selectedAmountTransformation = selectedAmountTransformation
+            selectedAmountTransformation = selectedAmountTransformation,
+            isAggregatedWith = isAggregatedWith
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -250,7 +260,7 @@ class AddEditTransactionViewModel @Inject constructor(
 
     override fun onAmountTransformationConfirm(value: String) {
         val amount = amountInput.value.toDoubleOrNull() ?: return
-        val transformedAmount = when (amountTransformation.value) {
+        val transformedAmount = when (selectedAmountTransformation.value) {
             AmountTransformation.DIVIDE_BY -> amount / value.toDoubleOrNull().orZero()
             AmountTransformation.MULTIPLIER -> amount * value.toDoubleOrNull().orZero()
             AmountTransformation.PERCENT -> amount * (value.toFloatOrNull().orZero() / 100f)
@@ -422,11 +432,11 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     sealed class AddEditTransactionEvent {
-        object TransactionAdded : AddEditTransactionEvent()
-        object TransactionUpdated : AddEditTransactionEvent()
-        object TransactionDeleted : AddEditTransactionEvent()
+        data object TransactionAdded : AddEditTransactionEvent()
+        data object TransactionUpdated : AddEditTransactionEvent()
+        data object TransactionDeleted : AddEditTransactionEvent()
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
-        object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
+        data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
     }
 }
 
@@ -443,6 +453,7 @@ private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
 private const val TRANSACTION_TYPE = "TRANSACTION_TYPE"
+private const val AGGREGATE_WITH_TX_ID = "AGGREGATE_WITH_TX_ID"
 private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
 private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
 private const val SHOW_AMOUNT_TRANSFORMATION_INPUT = "SHOW_AMOUNT_TRANSFORMATION_INPUT"

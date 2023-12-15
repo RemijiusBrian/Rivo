@@ -214,8 +214,8 @@ class SettingsViewModel @Inject constructor(
 
     sealed class SettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
-        object RequestSMSPermission : SettingsEvent()
-        object LaunchAppSettings : SettingsEvent()
+        data object RequestSMSPermission : SettingsEvent()
+        data object LaunchAppSettings : SettingsEvent()
     }
 }
 

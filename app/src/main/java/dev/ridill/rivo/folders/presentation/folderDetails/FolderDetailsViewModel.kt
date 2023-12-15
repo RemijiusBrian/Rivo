@@ -241,9 +241,9 @@ class FolderDetailsViewModel @Inject constructor(
     }
 
     sealed class FolderDetailsEvent {
-        object NavigateUp : FolderDetailsEvent()
+        data object NavigateUp : FolderDetailsEvent()
         data class ShowUiMessage(val uiText: UiText) : FolderDetailsEvent()
-        object FolderDeleted : FolderDetailsEvent()
+        data object FolderDeleted : FolderDetailsEvent()
         data class NavigateUpWithFolderId(val folderId: Long) : FolderDetailsEvent()
         data class TransactionRemovedFromGroup(val transaction: TransactionListItem) :
             FolderDetailsEvent()
