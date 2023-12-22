@@ -440,7 +440,6 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 }
 
-
 private const val AMOUNT_INPUT = "AMOUNT_INPUT"
 private const val NOTE_INPUT = "NOTE_INPUT"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
