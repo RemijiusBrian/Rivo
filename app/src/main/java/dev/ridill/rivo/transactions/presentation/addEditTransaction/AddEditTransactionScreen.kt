@@ -477,7 +477,62 @@ private fun FolderIndicator(
                         onClick = onAddToFolderClick,
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() },
-                        onClickLabel = stringResource(R.string.cd_click_to_change_folder),
+                        onClickLabel = stringResource(R.string.cd_tap_to_change_folder),
+                        role = Role.Button
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun AggregateWithTransactionIndicator(
+    isAggregated: Boolean,
+    onClearClick: () -> Unit,
+    onAggregateClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Crossfade(
+            targetState = isAggregated,
+            label = "AggregateIcon"
+        ) { isLinked ->
+            FilledTonalIconButton(
+                onClick = {
+                    if (isLinked) onClearClick()
+                    else onAggregateClick()
+                }
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(
+                        id = if (isLinked) R.drawable.ic_rounded_link_horizontal_slash
+                        else R.drawable.ic_rounded_link_horizontal
+                    ),
+                    contentDescription = stringResource(R.string.cd_add_transaction_to_folder)
+                )
+            }
+        }
+        Column {
+            Text(
+                text = stringResource(R.string.aggregate_with_label),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = stringResource(R.string.aggregate_with_another_transaction),
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .clickable(
+                        onClick = onAggregateClick,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClickLabel = stringResource(R.string.cd_tap_to_change_aggregate_transaction),
                         role = Role.Button
                     )
             )

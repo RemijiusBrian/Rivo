@@ -72,7 +72,8 @@
     <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
     <string name="cd_folders_list_option_toggle">Folders list options</string>
     <string name="cd_transform_amount">Transform Amount</string>
-    <string name="cd_click_to_change_folder">Click to change folder</string>
+    <string name="cd_tap_to_change_folder">Tap to change folder</string>
+    <string name="cd_tap_to_change_aggregate_transaction">Tap to change aggregate transaction</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -297,4 +298,6 @@
     <string name="create_new_tag">Create New Tag</string>
     <string name="folder_list_option_hide_balanced">Hide Balanced</string>
     <string name="folder_list_option_show_balanced">Show Balanced</string>
+    <string name="aggregate_with_label">Aggregate</string>
+    <string name="aggregate_with_another_transaction">Aggregate with another transaction</string>
 </resources>
