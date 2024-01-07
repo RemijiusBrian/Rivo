@@ -1,6 +1,6 @@
 [versions]
 agp = "8.2.1"
-org-jetbrains-kotlin-android = "1.9.20"
+kotlin = "1.9.21"
 google-services = "4.4.0"
 com-google-devtools-ksp = "1.9.20-1.0.14"
 
@@ -122,10 +122,10 @@ com-notkamui-keval = { group = "com.notkamui.libs", name = "keval", version.ref 
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
-org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
 com-google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
-org-jetbrains-kotlin-plugin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "org-jetbrains-kotlin-android" }
+org-jetbrains-kotlin-plugin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools-ksp" }
 
 [bundles]
