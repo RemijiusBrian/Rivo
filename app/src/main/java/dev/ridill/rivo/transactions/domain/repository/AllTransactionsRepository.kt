@@ -9,11 +9,12 @@ import java.time.LocalDate
 interface AllTransactionsRepository {
     fun getCurrencyPreference(): Flow<Currency>
     suspend fun deleteTransactionsByIds(ids: List<Long>)
-    fun getTransactionYearsList(paddingCount: Int = DEFAULT_YEAR_LIST_PADDING): Flow<List<Int>>
+    fun getTransactionYearsList(): Flow<List<Int>>
     fun getAmountSumForDate(
         date: LocalDate,
         type: TransactionType
     ): Flow<Double>
+
     fun getTransactionsForDateByTag(
         date: LocalDate,
         tagId: Long?,
@@ -27,5 +28,3 @@ interface AllTransactionsRepository {
     suspend fun addTransactionsToFolderByIds(transactionIds: List<Long>, folderId: Long)
     suspend fun removeTransactionsFromFolders(ids: List<Long>)
 }
-
-private const val DEFAULT_YEAR_LIST_PADDING = 5
