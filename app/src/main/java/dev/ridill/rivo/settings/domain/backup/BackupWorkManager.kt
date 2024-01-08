@@ -25,7 +25,7 @@ class BackupWorkManager(
     private val workManager = WorkManager.getInstance(context)
 
     private val commonBackupTag: String
-        get() = "${context.packageName}.RIVO_BACKUP"
+        get() = "${context.packageName}.BACKUP"
 
     private val oneTimeBackupWorkName: String
         get() = "${context.packageName}.ONE_TIME_G_DRIVE_BACKUP_WORK"
@@ -122,5 +122,6 @@ class BackupWorkManager(
     private fun buildConstraints(): Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .setRequiresBatteryNotLow(true)
+        .setRequiresDeviceIdle(false)
         .build()
 }
