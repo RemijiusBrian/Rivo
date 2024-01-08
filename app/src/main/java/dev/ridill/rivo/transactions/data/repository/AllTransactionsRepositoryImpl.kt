@@ -28,17 +28,9 @@ class AllTransactionsRepositoryImpl(
         dao.deleteMultipleTransactionsById(ids)
     }
 
-    override fun getTransactionYearsList(paddingCount: Int): Flow<List<Int>> =
+    override fun getTransactionYearsList(): Flow<List<Int>> =
         dao.getYearsFromTransactions()
-            .map { years ->
-                if (years.size >= paddingCount) years
-                else {
-                    val difference = paddingCount - years.size
-                    val latestYear = years.lastOrNull() ?: (DateUtil.now().year - 1)
-                    val paddingYears = ((latestYear + 1)..(latestYear + difference))
-                    years + paddingYears
-                }
-            }
+            .map { it.ifEmpty { listOf(DateUtil.now().year) } }
 
     override fun getAmountSumForDate(date: LocalDate, type: TransactionType): Flow<Double> =
         dao.getAmountSum(
