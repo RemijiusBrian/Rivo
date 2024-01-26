@@ -51,7 +51,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     )
 
     override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = AUTO_ADDED_TRANSACTION_URI_PATTERN }
+        navDeepLink { uriPattern = AUTO_ADDED_TRANSACTION_URI_PATTERN },
+        navDeepLink { uriPattern = ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI }
     )
 
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
@@ -178,5 +179,7 @@ const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
 private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
 private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
     "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"
+private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI =
+    "$DEEP_LINK_URI/add_transaction_shortcut"
 
 const val ACTION_NEW_FOLDER_CREATE = "ACTION_NEW_FOLDER_CREATE"

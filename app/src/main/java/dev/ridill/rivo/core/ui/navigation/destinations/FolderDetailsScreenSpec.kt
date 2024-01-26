@@ -14,9 +14,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.orFalse
@@ -50,6 +52,10 @@ data object FolderDetailsScreenSpec : ScreenSpec {
             nullable = true
             defaultValue = null
         }
+    )
+
+    override val deepLinks: List<NavDeepLink> = listOf(
+        navDeepLink { uriPattern = ADD_FOLDER_SHORTCUT_DEEPLINK_URI }
     )
 
     fun getExitAfterCreateArg(savedStateHandle: SavedStateHandle): Boolean =
@@ -168,3 +174,6 @@ private const val ARG_EXIT_AFTER_CREATE = "ARG_EXIT_AFTER_CREATE"
 private const val ARG_FOLDER_ID = "ARG_FOLDER_ID"
 private const val ARG_TX_IDS_LIST = "ARG_TX_IDS_LIST"
 private const val TX_IDS_SEPARATOR = "-"
+
+private const val ADD_FOLDER_SHORTCUT_DEEPLINK_URI =
+    "$DEEP_LINK_URI/add_folder_shortcut"
