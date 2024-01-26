@@ -31,6 +31,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <!-- Expense SMS Receivers -->
@@ -59,5 +63,4 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove" />
     </application>
-
 </manifest>
