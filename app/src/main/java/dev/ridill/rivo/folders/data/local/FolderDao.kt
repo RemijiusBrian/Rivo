@@ -37,13 +37,13 @@ interface FolderDao : BaseDao<FolderEntity> {
     ): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY aggregateAmount ASC")
+    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY ABS(aggregateAmount) ASC")
     fun getFoldersWithAggregateExpenditureSortedByAggregateAsc(
         showBalanced: Boolean
     ): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY aggregateAmount DESC")
+    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY ABS(aggregateAmount) DESC")
     fun getFoldersWithAggregateExpenditureSortedByAggregateDesc(
         showBalanced: Boolean
     ): PagingSource<Int, FolderAndAggregateAmountView>
