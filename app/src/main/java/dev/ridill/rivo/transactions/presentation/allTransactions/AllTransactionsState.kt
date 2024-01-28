@@ -22,7 +22,7 @@ data class AllTransactionsState(
     val selectedTransactionTypeFilter: TransactionType? = null,
     val transactionListLabel: UiText = UiText.DynamicString(String.Empty),
     val transactionList: List<TransactionListItem> = emptyList(),
-    val selectedTransactionIds: List<Long> = emptyList(),
+    val selectedTransactionIds: Set<Long> = emptySet(),
     val transactionSelectionState: ToggleableState = ToggleableState.Off,
     val transactionMultiSelectionModeActive: Boolean = false,
     val showDeleteTransactionConfirmation: Boolean = false,

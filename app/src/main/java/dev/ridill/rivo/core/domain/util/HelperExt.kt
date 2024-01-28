@@ -29,4 +29,17 @@ val String.Companion.WhiteSpace: String get() = " "
 fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())
 
 fun Boolean?.orFalse(): Boolean = this ?: false
-fun Boolean.toInt(): Int = if (this) 1 else 0
+
+fun Set<Long>.addOrRemoveUpTo(
+    pointerKey: Long?,
+    previousPointerKey: Long?,
+    initialKey: Long?
+): Set<Long> = if (pointerKey == null || previousPointerKey == null || initialKey == null) {
+    this
+} else {
+    this
+        .minus(initialKey..previousPointerKey)
+        .minus(previousPointerKey..initialKey)
+        .plus(initialKey..pointerKey)
+        .plus(pointerKey..initialKey)
+}
