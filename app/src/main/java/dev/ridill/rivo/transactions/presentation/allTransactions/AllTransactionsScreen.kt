@@ -16,6 +16,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,11 +32,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowLeft
+import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -61,6 +65,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -68,11 +73,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -84,9 +94,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.addOrRemoveUpTo
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
@@ -126,6 +139,7 @@ import java.util.Locale
 @Composable
 fun AllTransactionsScreen(
     snackbarController: SnackbarController,
+    hapticFeedback: HapticFeedback,
     state: AllTransactionsState,
     isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
@@ -137,6 +151,9 @@ fun AllTransactionsScreen(
     navigateToAddEditTransaction: (Long) -> Unit,
     navigateUp: () -> Unit
 ) {
+    val transactionsListState = rememberLazyListState()
+    var autoScrollSpeed by remember { mutableFloatStateOf(0f) }
+
     BackHandler(
         enabled = state.transactionMultiSelectionModeActive,
         onBack = actions::onDismissMultiSelectionMode
@@ -220,8 +237,7 @@ fun AllTransactionsScreen(
                 onSelectionStateChange = actions::onSelectionStateChange,
                 onTransactionOptionClick = actions::onTransactionOptionClick,
                 onTransactionClick = navigateToAddEditTransaction,
-                onTransactionLongClick = actions::onTransactionLongClick,
-                onTransactionSelectionChange = actions::onTransactionSelectionChange,
+                onSelectedTxIdsChange = actions::onSelectedTxIdsChange,
                 listContentPadding = PaddingValues(
                     top = SpacingSmall,
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
@@ -232,7 +248,10 @@ fun AllTransactionsScreen(
                 onDeleteSelectedTransactions = actions::onDeleteSelectedTransactionsClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(Float.One)
+                    .weight(Float.One),
+                listState = transactionsListState,
+                setAutoScrollSpeed = { autoScrollSpeed = it },
+                hapticFeedback = hapticFeedback
             )
         }
 
@@ -499,7 +518,7 @@ private fun DateFilter(
     onYearSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val monthsList = remember { Month.entries.toTypedArray() }
+    val monthsList = remember { Month.values() }
 
     val monthsListState = rememberLazyListState()
 
@@ -635,7 +654,7 @@ private fun DateIndicator(
                 }
             }
             Icon(
-                imageVector = Icons.Default.ArrowLeft,
+                imageVector = Icons.AutoMirrored.Filled.ArrowLeft,
                 contentDescription = stringResource(R.string.cd_show_years_list),
                 modifier = Modifier
                     .rotate(selectedIndicatorRotation)
@@ -646,12 +665,14 @@ private fun DateIndicator(
 
 @Composable
 private fun TransactionsList(
+    listState: LazyListState,
+    setAutoScrollSpeed: (Float) -> Unit,
     currency: Currency,
     totalSumAmount: Double,
     typeFilter: TransactionType?,
     listLabel: UiText,
     transactionsList: List<TransactionListItem>,
-    selectedTransactionIds: List<Long>,
+    selectedTransactionIds: Set<Long>,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onToggleTransactionTypeFilter: () -> Unit,
@@ -659,12 +680,12 @@ private fun TransactionsList(
     onTransactionOptionClick: (TransactionOption) -> Unit,
     multiSelectionModeActive: Boolean,
     onTransactionClick: (Long) -> Unit,
-    onTransactionLongClick: (Long) -> Unit,
-    onTransactionSelectionChange: (Long) -> Unit,
+    onSelectedTxIdsChange: (Set<Long>) -> Unit,
     listContentPadding: PaddingValues,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     onDeleteSelectedTransactions: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hapticFeedback: HapticFeedback
 ) {
     val isListEmpty by remember(transactionsList) {
         derivedStateOf { transactionsList.isEmpty() }
@@ -721,7 +742,17 @@ private fun TransactionsList(
 
             LazyColumn(
                 contentPadding = listContentPadding,
-                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+                verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+                state = listState,
+                modifier = Modifier
+                    .transactionListDragHandler(
+                        lazyListState = listState,
+                        selectedIds = { selectedTransactionIds },
+                        autoScrollThreshold = with(LocalDensity.current) { AutoScrollThreshold.toPx() },
+                        setSelectedIds = onSelectedTxIdsChange,
+                        setAutoScrollSpeed = setAutoScrollSpeed,
+                        hapticController = hapticFeedback
+                    )
             ) {
                 items(
                     items = transactionsList,
@@ -729,18 +760,26 @@ private fun TransactionsList(
                     contentType = { "TransactionCard" }
                 ) { transaction ->
                     val clickableModifier = if (multiSelectionModeActive) Modifier
-                        .clickable(
-                            onClick = { onTransactionSelectionChange(transaction.id) },
-                            onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction)
+                        .toggleable(
+                            value = transaction.id in selectedTransactionIds,
+                            onValueChange = {
+                                if (it) {
+                                    onSelectedTxIdsChange(selectedTransactionIds + transaction.id)
+                                } else {
+                                    onSelectedTxIdsChange(selectedTransactionIds - transaction.id)
+                                }
+                            },
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
                         )
-                    else Modifier
-                        .combinedClickable(
-                            role = Role.Button,
-                            onClick = { onTransactionClick(transaction.id) },
-                            onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
-                            onLongClick = { onTransactionLongClick(transaction.id) },
-                            onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
-                        )
+                    else Modifier.combinedClickable(
+                        role = Role.Button,
+                        onClick = { onTransactionClick(transaction.id) },
+                        onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
+                        onLongClick = { onSelectedTxIdsChange(selectedTransactionIds + transaction.id) },
+                        onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
+                    )
+
                     TransactionCard(
                         note = transaction.note,
                         amount = transaction.amountFormattedWithCurrency(currency),
@@ -749,7 +788,16 @@ private fun TransactionsList(
                         selected = transaction.id in selectedTransactionIds,
                         excluded = transaction.excluded,
                         folder = transaction.folder,
-                        modifier = clickableModifier
+                        modifier = Modifier
+                            /*.semantics {
+                                if (!multiSelectionModeActive) {
+                                    onLongClick("select") {
+                                        onSelectedTxIdsChange(selectedTransactionIds + transaction.id)
+                                        true
+                                    }
+                                }
+                            }*/
+                            .then(clickableModifier)
                             .animateItemPlacement()
                     )
                 }
@@ -757,6 +805,76 @@ private fun TransactionsList(
         }
     }
 }
+
+private val AutoScrollThreshold = 40.dp
+
+fun Modifier.transactionListDragHandler(
+    lazyListState: LazyListState,
+    selectedIds: () -> Set<Long>,
+    hapticController: HapticFeedback,
+    autoScrollThreshold: Float,
+    setSelectedIds: (Set<Long>) -> Unit = {},
+    setAutoScrollSpeed: (Float) -> Unit = {}
+): Modifier = this.then(
+    pointerInput(autoScrollThreshold, setSelectedIds, setAutoScrollSpeed) {
+        fun txIdAtOffset(hitPoint: Offset): Long? = lazyListState
+            .layoutInfo
+            .visibleItemsInfo
+            .find { itemInfo ->
+                val itemTopOffset = itemInfo.index * itemInfo.size
+                val itemBottomOffset = itemTopOffset + itemInfo.size
+                val hitPointY = hitPoint.round().y
+
+                hitPointY in itemTopOffset..itemBottomOffset
+            }?.key as? Long
+
+        var initialTxId: Long? = null
+        var currentTxId: Long? = null
+        detectDragGesturesAfterLongPress(
+            onDragStart = { offset ->
+                hapticController.performHapticFeedback(HapticFeedbackType.LongPress)
+                txIdAtOffset(offset)?.let { id ->
+                    if (!selectedIds().contains(id)) {
+                        initialTxId = id
+                        currentTxId = id
+                        setSelectedIds(selectedIds() + id)
+                    }
+                }
+            },
+            onDragCancel = {
+                setAutoScrollSpeed(Float.Zero)
+                initialTxId = null
+            },
+            onDragEnd = {
+                setAutoScrollSpeed(Float.Zero)
+                initialTxId = null
+            },
+            onDrag = { change, _ ->
+                if (initialTxId != null) {
+                    val distFromBottom =
+                        lazyListState.layoutInfo.viewportSize.height - change.position.y
+                    val distFromTop = change.position.y
+                    setAutoScrollSpeed(
+                        when {
+                            distFromBottom < autoScrollThreshold -> autoScrollThreshold - distFromBottom
+                            distFromTop < autoScrollThreshold -> -(autoScrollThreshold - distFromTop)
+                            else -> Float.Zero
+                        }
+                    )
+
+                    txIdAtOffset(change.position)?.let { pointerTxId ->
+                        if (currentTxId != pointerTxId) {
+                            setSelectedIds(
+                                selectedIds().addOrRemoveUpTo(pointerTxId, currentTxId, initialTxId)
+                            )
+                            currentTxId = pointerTxId
+                        }
+                    }
+                }
+            }
+        )
+    }
+)
 
 @Composable
 private fun TransactionListHeader(

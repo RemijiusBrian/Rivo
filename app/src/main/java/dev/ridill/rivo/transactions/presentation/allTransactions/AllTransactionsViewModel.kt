@@ -16,6 +16,7 @@ import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
@@ -102,7 +103,7 @@ class AllTransactionsViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, emptyList())
 
     private val selectedTransactionIds = savedStateHandle
-        .getStateFlow<List<Long>>(SELECTED_TRANSACTION_IDS, emptyList())
+        .getStateFlow<Set<Long>>(SELECTED_TRANSACTION_IDS, emptySet())
     private val transactionMultiSelectionModeActive = selectedTransactionIds
         .map { it.isNotEmpty() }
         .distinctUntilChanged()
@@ -204,6 +205,11 @@ class AllTransactionsViewModel @Inject constructor(
 
     init {
         refreshSelectedIdsListOnTransactionListChange()
+        viewModelScope.launch {
+            selectedTransactionIds.collectLatest {
+                logD { "Selected Tx Ids - $it" }
+            }
+        }
     }
 
     private fun refreshSelectedIdsListOnTransactionListChange() = viewModelScope.launch {
@@ -211,6 +217,7 @@ class AllTransactionsViewModel @Inject constructor(
             val ids = list.map { it.id }
             savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value
                 .filter { it in ids }
+                .toSet()
         }
     }
 
@@ -237,7 +244,7 @@ class AllTransactionsViewModel @Inject constructor(
     override fun onAssignTagToTransactions(tagId: Long) {
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
-            tagsRepo.assignTagToTransactions(tagId, selectedIds)
+            tagsRepo.assignTagToTransactions(tagId, selectedIds.toList())
             dismissMultiSelectionMode()
             savedStateHandle[SELECTED_TAG_ID] = tagId
             eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
@@ -310,30 +317,20 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    override fun onTransactionLongClick(id: Long) {
-        viewModelScope.launch {
-            enableMultiSelectionModeWithId(id)
-            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
-        }
-    }
-
-    override fun onTransactionSelectionChange(id: Long) {
-        val selectedIds = selectedTransactionIds.value
-        if (id in selectedIds) {
-            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds - id
-        } else {
-            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedIds + id
-        }
+    override fun onSelectedTxIdsChange(ids: Set<Long>) {
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = ids
     }
 
     override fun onSelectionStateChange() {
         when (transactionSelectionState.value) {
             ToggleableState.On -> {
-                savedStateHandle[SELECTED_TRANSACTION_IDS] = emptyList<Long>()
+                savedStateHandle[SELECTED_TRANSACTION_IDS] = emptySet<Long>()
             }
 
             else -> {
-                savedStateHandle[SELECTED_TRANSACTION_IDS] = transactionList.value.map { it.id }
+                savedStateHandle[SELECTED_TRANSACTION_IDS] = transactionList.value
+                    .map { it.id }
+                    .toSet()
             }
         }
     }
@@ -346,11 +343,7 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     private fun dismissMultiSelectionMode() {
-        savedStateHandle[SELECTED_TRANSACTION_IDS] = emptyList<Long>()
-    }
-
-    private fun enableMultiSelectionModeWithId(id: Long) {
-        savedStateHandle[SELECTED_TRANSACTION_IDS] = listOf(id)
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = emptySet<Long>()
     }
 
     override fun onTransactionOptionClick(option: TransactionOption) {
@@ -380,15 +373,15 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun unTagTransactions(ids: List<Long>) {
-        tagsRepo.untagTransactions(ids)
+    private suspend fun unTagTransactions(ids: Set<Long>) {
+        tagsRepo.untagTransactions(ids.toList())
         dismissMultiSelectionMode()
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_untagged)))
     }
 
-    private suspend fun toggleTransactionExclusion(ids: List<Long>, excluded: Boolean) {
+    private suspend fun toggleTransactionExclusion(ids: Set<Long>, excluded: Boolean) {
         transactionRepo.toggleTransactionExclusionByIds(
-            ids = ids,
+            ids = ids.toList(),
             excluded = excluded
         )
         dismissMultiSelectionMode()
@@ -407,8 +400,8 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SHOW_FOLDER_SELECTION] = true
     }
 
-    private suspend fun removeTransactionsFromFolders(ids: List<Long>) {
-        transactionRepo.removeTransactionsFromFolders(ids)
+    private suspend fun removeTransactionsFromFolders(ids: Set<Long>) {
+        transactionRepo.removeTransactionsFromFolders(ids.toList())
         dismissMultiSelectionMode()
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_removed_from_their_folders)))
     }
@@ -425,7 +418,7 @@ class AllTransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             transactionRepo.addTransactionsToFolderByIds(
-                transactionIds = selectedIds,
+                transactionIds = selectedIds.toList(),
                 folderId = folder.id
             )
             savedStateHandle[SHOW_FOLDER_SELECTION] = false
@@ -445,7 +438,7 @@ class AllTransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             savedStateHandle[SHOW_FOLDER_SELECTION] = false
-            eventBus.send(AllTransactionsEvent.NavigateToFolderDetailsWithIds(selectedIds))
+            eventBus.send(AllTransactionsEvent.NavigateToFolderDetailsWithIds(selectedIds.toList()))
             dismissMultiSelectionMode()
         }
     }
@@ -472,8 +465,8 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun deleteTransactions(ids: List<Long>) {
-        transactionRepo.deleteTransactionsByIds(ids)
+    private suspend fun deleteTransactions(ids: Set<Long>) {
+        transactionRepo.deleteTransactionsByIds(ids.toList())
     }
 
     override fun onTagLongClick(tagId: Long) {
