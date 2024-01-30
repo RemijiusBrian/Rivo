@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.GridView
-import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -203,7 +203,7 @@ private fun FolderListOptions(
             ) { listMode ->
                 Icon(
                     imageVector = when (listMode) {
-                        ListMode.LIST -> Icons.Rounded.ViewList
+                        ListMode.LIST -> Icons.AutoMirrored.Rounded.ViewList
                         ListMode.GRID -> Icons.Rounded.GridView
                     },
                     contentDescription = stringResource(R.string.cd_toggle_list_mode)
@@ -231,7 +231,7 @@ private fun SortOptionsMenu(
             onClick = { isExpanded = !isExpanded }
         ) {
             Icon(
-                imageVector = Icons.Default.Sort,
+                imageVector = Icons.AutoMirrored.Filled.Sort,
                 contentDescription = stringResource(R.string.cd_toggle_list_mode)
             )
         }
