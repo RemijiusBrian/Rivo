@@ -43,3 +43,7 @@ fun Set<Long>.addOrRemoveUpTo(
         .plus(initialKey..pointerKey)
         .plus(pointerKey..initialKey)
 }
+
+fun <T> Set<T>.addOrRemove(element: T): Set<T> =
+    if (element in this) this - element
+    else this + element

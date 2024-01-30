@@ -99,7 +99,6 @@ import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.core.domain.util.addOrRemoveUpTo
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
@@ -237,7 +236,8 @@ fun AllTransactionsScreen(
                 onSelectionStateChange = actions::onSelectionStateChange,
                 onTransactionOptionClick = actions::onTransactionOptionClick,
                 onTransactionClick = navigateToAddEditTransaction,
-                onSelectedTxIdsChange = actions::onSelectedTxIdsChange,
+                onTxLongPress = actions::onTransactionLongPress,
+                onTxSelectionChange = actions::onTransactionSelectionChange,
                 listContentPadding = PaddingValues(
                     top = SpacingSmall,
                     bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
@@ -680,7 +680,8 @@ private fun TransactionsList(
     onTransactionOptionClick: (TransactionOption) -> Unit,
     multiSelectionModeActive: Boolean,
     onTransactionClick: (Long) -> Unit,
-    onSelectedTxIdsChange: (Set<Long>) -> Unit,
+    onTxLongPress: (Long) -> Unit,
+    onTxSelectionChange: (Long) -> Unit,
     listContentPadding: PaddingValues,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     onDeleteSelectedTransactions: () -> Unit,
@@ -749,7 +750,8 @@ private fun TransactionsList(
                         lazyListState = listState,
                         selectedIds = { selectedTransactionIds },
                         autoScrollThreshold = with(LocalDensity.current) { AutoScrollThreshold.toPx() },
-                        setSelectedIds = onSelectedTxIdsChange,
+                        onDragStart = onTxLongPress,
+                        onTxPointed = onTxSelectionChange,
                         setAutoScrollSpeed = setAutoScrollSpeed,
                         hapticController = hapticFeedback
                     )
@@ -762,13 +764,7 @@ private fun TransactionsList(
                     val clickableModifier = if (multiSelectionModeActive) Modifier
                         .toggleable(
                             value = transaction.id in selectedTransactionIds,
-                            onValueChange = {
-                                if (it) {
-                                    onSelectedTxIdsChange(selectedTransactionIds + transaction.id)
-                                } else {
-                                    onSelectedTxIdsChange(selectedTransactionIds - transaction.id)
-                                }
-                            },
+                            onValueChange = { onTxSelectionChange(transaction.id) },
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }
                         )
@@ -776,7 +772,7 @@ private fun TransactionsList(
                         role = Role.Button,
                         onClick = { onTransactionClick(transaction.id) },
                         onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
-                        onLongClick = { onSelectedTxIdsChange(selectedTransactionIds + transaction.id) },
+                        onLongClick = { onTxLongPress(transaction.id) },
                         onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
                     )
 
@@ -813,10 +809,11 @@ fun Modifier.transactionListDragHandler(
     selectedIds: () -> Set<Long>,
     hapticController: HapticFeedback,
     autoScrollThreshold: Float,
-    setSelectedIds: (Set<Long>) -> Unit = {},
+    onDragStart: (Long) -> Unit = {},
+    onTxPointed: (Long) -> Unit = {},
     setAutoScrollSpeed: (Float) -> Unit = {}
 ): Modifier = this.then(
-    pointerInput(autoScrollThreshold, setSelectedIds, setAutoScrollSpeed) {
+    pointerInput(autoScrollThreshold, onDragStart, onTxPointed, setAutoScrollSpeed) {
         fun txIdAtOffset(hitPoint: Offset): Long? = lazyListState
             .layoutInfo
             .visibleItemsInfo
@@ -837,7 +834,7 @@ fun Modifier.transactionListDragHandler(
                     if (!selectedIds().contains(id)) {
                         initialTxId = id
                         currentTxId = id
-                        setSelectedIds(selectedIds() + id)
+                        onDragStart(id)
                     }
                 }
             },
@@ -864,9 +861,7 @@ fun Modifier.transactionListDragHandler(
 
                     txIdAtOffset(change.position)?.let { pointerTxId ->
                         if (currentTxId != pointerTxId) {
-                            setSelectedIds(
-                                selectedIds().addOrRemoveUpTo(pointerTxId, currentTxId, initialTxId)
-                            )
+                            onTxPointed(pointerTxId)
                             currentTxId = pointerTxId
                         }
                     }

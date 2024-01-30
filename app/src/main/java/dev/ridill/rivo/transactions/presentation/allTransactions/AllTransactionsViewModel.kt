@@ -15,8 +15,8 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.UtilConstants
+import dev.ridill.rivo.core.domain.util.addOrRemove
 import dev.ridill.rivo.core.domain.util.asStateFlow
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
@@ -205,11 +205,6 @@ class AllTransactionsViewModel @Inject constructor(
 
     init {
         refreshSelectedIdsListOnTransactionListChange()
-        viewModelScope.launch {
-            selectedTransactionIds.collectLatest {
-                logD { "Selected Tx Ids - $it" }
-            }
-        }
     }
 
     private fun refreshSelectedIdsListOnTransactionListChange() = viewModelScope.launch {
@@ -317,8 +312,12 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    override fun onSelectedTxIdsChange(ids: Set<Long>) {
-        savedStateHandle[SELECTED_TRANSACTION_IDS] = ids
+    override fun onTransactionLongPress(id: Long) {
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value + id
+    }
+
+    override fun onTransactionSelectionChange(id: Long) {
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value.addOrRemove(id)
     }
 
     override fun onSelectionStateChange() {
