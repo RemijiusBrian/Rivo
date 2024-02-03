@@ -32,11 +32,38 @@ class AllTransactionsRepositoryImpl(
         dao.getYearsFromTransactions()
             .map { it.ifEmpty { listOf(DateUtil.now().year) } }
 
-    override fun getAmountSumForDate(date: LocalDate, type: TransactionType): Flow<Double> =
-        dao.getAmountSum(
-            monthAndYear = date.atStartOfDay(),
-            typeName = type.name
-        )
+    override fun getAmountSumForDate(
+        selectedTxIds: Set<Long>,
+        date: LocalDate,
+        type: TransactionType?,
+        addExcluded: Boolean
+    ): Flow<Double> = if (selectedTxIds.isNotEmpty()) dao.getTransactionsByIds(selectedTxIds)
+        .map { entities ->
+            val debits = entities
+                .filter { it.transactionTypeName == TransactionType.DEBIT.name }
+                .sumOf { it.transactionAmount }
+            val credits = entities
+                .filter { it.transactionTypeName == TransactionType.CREDIT.name }
+                .sumOf { it.transactionAmount }
+            debits - credits
+        }
+    else dao.getTransactionsList(
+        monthAndYear = date.atStartOfDay(),
+        transactionTypeName = type?.name,
+        showExcluded = addExcluded
+    ).map { entities ->
+        if (type == null) {
+            val debits = entities
+                .filter { it.transactionTypeName == TransactionType.DEBIT.name }
+                .sumOf { it.transactionAmount }
+            val credits = entities
+                .filter { it.transactionTypeName == TransactionType.CREDIT.name }
+                .sumOf { it.transactionAmount }
+            debits - credits
+        } else {
+            entities.sumOf { it.transactionAmount }
+        }
+    }
 
     override fun getTransactionsForDateByTag(
         date: LocalDate,

@@ -79,6 +79,7 @@
     <string name="cd_folders_list_option_toggle">Folders list options</string>
     <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
+    <string name="cd_total_transaction_sum">%1$s amounts to %2$s</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -231,8 +232,9 @@
     <string name="delete_tag_with_transactions">Delete Tag and Transactions</string>
     <string name="debits">Debits</string>
     <string name="credits">Credits</string>
-    <string name="total_debits">Total Debits</string>
-    <string name="total_credits">Total Credits</string>
+    <string name="total">Total</string>
+    <string name="selected_aggregate">Selected Agg</string>
+    <string name="aggregate">Aggregate</string>
     <string name="generic_debit_receiver">Merchant</string>
     <string name="generic_credit_sender">Generic Sender</string>
     <string name="all_transactions">All Transactions</string>
