@@ -61,30 +61,6 @@ class AllTransactionsViewModel @Inject constructor(
     private val transactionTypeFilter = savedStateHandle
         .getStateFlow<TransactionType?>(TRANSACTION_TYPE_FILTER, null)
 
-    private val totalAmount = combineTuple(
-        selectedDate,
-        transactionTypeFilter,
-        showExcludedTransactions
-    ).flatMapLatest { (date, type, addExcluded) ->
-        transactionRepo.getAmountSumForDate(
-            date = date,
-            type = type,
-            addExcluded = addExcluded
-        )
-    }.distinctUntilChanged()
-
-    private val transactionListLabel = combineTuple(
-        selectedTagId,
-        transactionTypeFilter
-    ).map { (tagId, type) ->
-        if (type != null) when (type) {
-            TransactionType.CREDIT -> UiText.StringResource(R.string.credits)
-            TransactionType.DEBIT -> UiText.StringResource(R.string.debits)
-        } else if (tagId != null) {
-            UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
-        } else UiText.StringResource(R.string.all_transactions)
-    }.distinctUntilChanged()
-
     private val transactionList = combineTuple(
         selectedDate,
         selectedTagId,
@@ -121,6 +97,32 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
         .asStateFlow(viewModelScope, ToggleableState.Off)
+
+    private val totalAmount = combineTuple(
+        selectedTransactionIds,
+        selectedDate,
+        transactionTypeFilter,
+        showExcludedTransactions
+    ).flatMapLatest { (selectedTxIds, date, type, addExcluded) ->
+        transactionRepo.getAmountSumForDate(
+            selectedTxIds = selectedTxIds,
+            date = date,
+            type = type,
+            addExcluded = addExcluded
+        )
+    }.distinctUntilChanged()
+
+    private val transactionListLabel = combineTuple(
+        selectedTagId,
+        transactionTypeFilter
+    ).map { (tagId, type) ->
+        if (type != null) when (type) {
+            TransactionType.CREDIT -> UiText.StringResource(R.string.credits)
+            TransactionType.DEBIT -> UiText.StringResource(R.string.debits)
+        } else if (tagId != null) {
+            UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
+        } else UiText.StringResource(R.string.all_transactions)
+    }.distinctUntilChanged()
 
 
     private val showDeleteTransactionConfirmation = savedStateHandle

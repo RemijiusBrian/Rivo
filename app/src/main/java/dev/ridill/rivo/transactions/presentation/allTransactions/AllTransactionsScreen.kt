@@ -710,19 +710,15 @@ private fun TransactionsList(
             modifier = Modifier
                 .matchParentSize()
         ) {
-            AnimatedVisibility(
-                visible = !multiSelectionModeActive,
+            TotalSumAmount(
+                multiSelectionModeActive = multiSelectionModeActive,
+                sumAmount = totalSumAmount,
+                currency = currency,
+                type = typeFilter,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
-            ) {
-                TotalSumAmount(
-                    sumAmount = totalSumAmount,
-                    currency = currency,
-                    type = typeFilter,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
+            )
 
             Divider(
                 modifier = Modifier
@@ -1003,6 +999,7 @@ private fun TransactionListOptions(
 
 @Composable
 private fun TotalSumAmount(
+    multiSelectionModeActive: Boolean,
     currency: Currency,
     sumAmount: Double,
     type: TransactionType?,
@@ -1016,8 +1013,11 @@ private fun TotalSumAmount(
     val sumContentDescription = stringResource(
         R.string.cd_total_transaction_sum,
         stringResource(
-            id = if (type == null) R.string.aggregate
-            else R.string.total
+            id = when {
+                multiSelectionModeActive -> R.string.selected_aggregate
+                type == null -> R.string.aggregate
+                else -> R.string.total
+            }
         ),
         TextFormat.currency(amount = sumAmount.absoluteValue, currency = currency)
     )
@@ -1033,8 +1033,11 @@ private fun TotalSumAmount(
         Crossfade(targetState = type, label = "TotalAmountLabel") { txType ->
             Text(
                 text = stringResource(
-                    id = if (txType == null) R.string.aggregate
-                    else R.string.total
+                    id = when {
+                        multiSelectionModeActive -> R.string.selected_aggregate
+                        txType == null -> R.string.aggregate
+                        else -> R.string.total
+                    }
                 ),
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,

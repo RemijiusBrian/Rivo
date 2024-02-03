@@ -67,6 +67,18 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Query(
         """
         SELECT * FROM transaction_details_view
+        WHERE transactionId in (:ids)
+        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
+    """
+    )
+    fun getTransactionsByIds(
+        ids: Set<Long>
+    ): Flow<List<TransactionDetailsView>>
+
+    @Transaction
+    @Query(
+        """
+        SELECT * FROM transaction_details_view
         WHERE (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
