@@ -1006,8 +1006,12 @@ private fun TotalSumAmount(
     modifier: Modifier = Modifier
 ) {
     val arrowRotationDeg by animateFloatAsState(
-        targetValue = if (sumAmount >= Double.Zero) Float.Zero
-        else 180f,
+        targetValue = when (type) {
+            TransactionType.CREDIT -> 180f
+            TransactionType.DEBIT -> Float.Zero
+            null -> if (sumAmount >= Double.Zero) Float.Zero
+            else 180f
+        },
         label = "ArrowRotationDegree"
     )
     val sumContentDescription = stringResource(
