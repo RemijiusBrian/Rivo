@@ -12,7 +12,8 @@ interface AllTransactionsRepository {
     fun getTransactionYearsList(): Flow<List<Int>>
     fun getAmountSumForDate(
         date: LocalDate,
-        type: TransactionType
+        type: TransactionType?,
+        addExcluded: Boolean
     ): Flow<Double>
 
     fun getTransactionsForDateByTag(

@@ -63,11 +63,13 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val totalAmount = combineTuple(
         selectedDate,
-        transactionTypeFilter
-    ).flatMapLatest { (date, type) ->
+        transactionTypeFilter,
+        showExcludedTransactions
+    ).flatMapLatest { (date, type, addExcluded) ->
         transactionRepo.getAmountSumForDate(
             date = date,
-            type = type ?: TransactionType.DEBIT
+            type = type,
+            addExcluded = addExcluded
         )
     }.distinctUntilChanged()
 

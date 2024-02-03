@@ -39,6 +39,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -87,6 +88,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
@@ -134,6 +138,7 @@ import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 @Composable
 fun AllTransactionsScreen(
@@ -713,7 +718,7 @@ private fun TransactionsList(
                 TotalSumAmount(
                     sumAmount = totalSumAmount,
                     currency = currency,
-                    type = typeFilter ?: TransactionType.DEBIT,
+                    type = typeFilter,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -1000,21 +1005,36 @@ private fun TransactionListOptions(
 private fun TotalSumAmount(
     currency: Currency,
     sumAmount: Double,
-    type: TransactionType,
+    type: TransactionType?,
     modifier: Modifier = Modifier
 ) {
+    val arrowRotationDeg by animateFloatAsState(
+        targetValue = if (sumAmount >= Double.Zero) Float.Zero
+        else 180f,
+        label = "ArrowRotationDegree"
+    )
+    val sumContentDescription = stringResource(
+        R.string.cd_total_transaction_sum,
+        stringResource(
+            id = if (type == null) R.string.aggregate
+            else R.string.total
+        ),
+        TextFormat.currency(amount = sumAmount.absoluteValue, currency = currency)
+    )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .semantics(true) {}
+            .clearAndSetSemantics {
+                contentDescription = sumContentDescription
+            }
     ) {
         Crossfade(targetState = type, label = "TotalAmountLabel") { txType ->
             Text(
                 text = stringResource(
-                    id = when (txType) {
-                        TransactionType.CREDIT -> R.string.total_credits
-                        TransactionType.DEBIT -> R.string.total_debits
-                    }
+                    id = if (txType == null) R.string.aggregate
+                    else R.string.total
                 ),
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
@@ -1022,15 +1042,28 @@ private fun TotalSumAmount(
             )
         }
         SpacerSmall()
-        VerticalNumberSpinnerContent(sumAmount) { amount ->
-            Text(
-                text = TextFormat.currency(amount = amount, currency = currency),
-                style = MaterialTheme.typography.headlineMedium
-                    .copy(lineBreak = LineBreak.Heading),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.SemiBold
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            VerticalNumberSpinnerContent(sumAmount) { amount ->
+                Text(
+                    text = TextFormat.currency(amount = amount.absoluteValue, currency = currency),
+                    style = MaterialTheme.typography.headlineMedium
+                        .copy(lineBreak = LineBreak.Heading),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            AnimatedVisibility(sumAmount != Double.Zero) {
+                Icon(
+                    imageVector = Icons.Default.ArrowUpward,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .rotate(arrowRotationDeg)
+                )
+            }
         }
     }
 }
