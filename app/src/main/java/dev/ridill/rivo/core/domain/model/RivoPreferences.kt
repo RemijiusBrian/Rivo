@@ -11,5 +11,6 @@ data class RivoPreferences(
     val needsConfigRestore: Boolean,
     val autoAddTransactionEnabled: Boolean,
     val showExcludedTransactions: Boolean,
-    val showBalancedFolders: Boolean
+    val showBalancedFolders: Boolean,
+    val appLockEnabled: Boolean
 )

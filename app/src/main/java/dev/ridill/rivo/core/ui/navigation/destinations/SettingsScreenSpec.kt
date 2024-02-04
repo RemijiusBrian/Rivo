@@ -74,7 +74,8 @@ data object SettingsScreenSpec : ScreenSpec {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,
-            navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) }
+            navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) },
+            navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) }
         )
     }
 }

@@ -9,10 +9,12 @@
     <string name="destination_edit_transaction">Edit Transaction</string>
     <string name="destination_settings">Settings</string>
     <string name="destination_backup_settings">Backup</string>
+    <string name="destination_security_settings">Security</string>
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_folders">Folders</string>
     <string name="destination_folders_list">Folders</string>
     <string name="destination_folder_details">Folder</string>
+    <string name="destination_app_lock">App Locked</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -152,6 +154,10 @@
     <string name="preference_google_account">Google Account</string>
     <string name="click_to_sign_in_to_google_account">Click to sign in to your Google account</string>
     <string name="preference_backup_interval">Backup Interval</string>
+    <string name="preference_security">Security</string>
+    <string name="preference_security_summary">Manage app security</string>
+    <string name="preference_app_lock">Screen lock</string>
+    <string name="preference_app_lock_summary">Require Android screen lock or fingerprint to unlock %s</string>
 
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
@@ -183,6 +189,9 @@
         <item quantity="one">Transaction added to folder</item>
         <item quantity="other">Transactions added to folder</item>
     </plurals>
+
+    <string name="fingerprint_title">Verify It\'s you</string>
+    <string name="fingerprint_subtitle">Use fingerprint to continue</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -305,4 +314,5 @@
     <string name="create_new_tag">Create New Tag</string>
     <string name="folder_list_option_hide_balanced">Hide Balanced</string>
     <string name="folder_list_option_show_balanced">Show Balanced</string>
+    <string name="tap_to_unlock">Tap to Unlock</string>
 </resources>

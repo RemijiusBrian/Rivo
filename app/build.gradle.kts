@@ -173,6 +173,9 @@ dependencies {
     // Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
 
+    // AndroidX Biometric
+    implementation(libs.androidx.biometric)
+
     // Firebase
     implementation(platform(libs.com.google.firebase.bom))
     implementation(libs.com.google.firebase.analytics.ktx)

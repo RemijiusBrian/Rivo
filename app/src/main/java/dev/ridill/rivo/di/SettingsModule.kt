@@ -24,6 +24,7 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -130,6 +131,10 @@ object SettingsModule {
         preferencesManager = preferencesManager,
         backupWorkManager = backupWorkManager
     )
+
+    @Provides
+    fun provideSecuritySettingsEventBus(): EventBus<SecuritySettingsViewModel.SecuritySettingsEvent> =
+        EventBus()
 }
 
 @Qualifier

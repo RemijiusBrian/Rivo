@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.ReceiverService
+import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
@@ -21,7 +22,8 @@ import kotlin.time.Duration.Companion.seconds
 class RivoViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val receiverService: ReceiverService,
-    private val smsModelDownloadManager: SMSModelDownloadManager
+    private val smsModelDownloadManager: SMSModelDownloadManager,
+    private val eventBus: EventBus<RivoEvent>
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
     val showWelcomeFlow = preferences.map { it.showAppWelcomeFlow }
@@ -34,9 +36,12 @@ class RivoViewModel @Inject constructor(
 
     val showSplashScreen = MutableStateFlow(true)
 
+    val events = eventBus.eventFlow
+
     init {
         toggleSplashScreenVisibility()
         collectTransactionAutoAdd()
+        collectAppLockEnabled()
     }
 
     private fun toggleSplashScreenVisibility() = viewModelScope.launch {
@@ -61,6 +66,19 @@ class RivoViewModel @Inject constructor(
 
     fun onNotificationPermissionCheck(granted: Boolean) {
         receiverService.toggleNotificationActionReceivers(granted)
+    }
+
+    private fun collectAppLockEnabled() = viewModelScope.launch {
+        preferences.map { it.appLockEnabled }
+            .collectLatest { enabled ->
+                if (enabled) {
+                    eventBus.send(RivoEvent.EnableSecureFlags)
+                }
+            }
+    }
+
+    sealed class RivoEvent {
+        data object EnableSecureFlags : RivoEvent()
     }
 }
 

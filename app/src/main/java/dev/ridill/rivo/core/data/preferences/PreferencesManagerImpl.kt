@@ -31,6 +31,7 @@ class PreferencesManagerImpl(
             val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED] ?: false
             val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS] ?: true
             val showBalancedFolders = preferences[Keys.SHOW_BALANCED_FOLDERS] ?: true
+            val appLockEnabled = preferences[Keys.APP_LOCK_ENABLED] ?: false
 
             RivoPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -40,7 +41,8 @@ class PreferencesManagerImpl(
                 needsConfigRestore = needsConfigRestore,
                 autoAddTransactionEnabled = autoAddTransactionEnabled,
                 showExcludedTransactions = showExcludedTransactions,
-                showBalancedFolders = showBalancedFolders
+                showBalancedFolders = showBalancedFolders,
+                appLockEnabled = appLockEnabled
             )
         }
 
@@ -108,6 +110,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateAppLockEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.APP_LOCK_ENABLED] = enabled
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -117,5 +127,6 @@ class PreferencesManagerImpl(
         val AUTO_ADD_TRANSACTION_ENABLED = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
         val SHOW_EXCLUDED_TRANSACTIONS = booleanPreferencesKey("SHOW_EXCLUDED_TRANSACTIONS")
         val SHOW_BALANCED_FOLDERS = booleanPreferencesKey("SHOW_BALANCED_FOLDERS")
+        val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")
     }
 }
