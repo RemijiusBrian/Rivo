@@ -71,14 +71,12 @@ class RivoViewModel @Inject constructor(
     private fun collectAppLockEnabled() = viewModelScope.launch {
         preferences.map { it.appLockEnabled }
             .collectLatest { enabled ->
-                if (enabled) {
-                    eventBus.send(RivoEvent.EnableSecureFlags)
-                }
+                eventBus.send(RivoEvent.EnableSecureFlags(enabled))
             }
     }
 
     sealed class RivoEvent {
-        data object EnableSecureFlags : RivoEvent()
+        data class EnableSecureFlags(val enabled: Boolean) : RivoEvent()
     }
 }
 
