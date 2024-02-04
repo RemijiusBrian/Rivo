@@ -26,6 +26,22 @@ fun LottieAnim(
 }
 
 @Composable
+fun ManualLottieAnim(
+    @RawRes resId: Int,
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit
+) {
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(resId))
+    LottieAnimation(
+        composition = composition,
+        modifier = modifier,
+        contentScale = contentScale,
+        progress = progress
+    )
+}
+
+@Composable
 fun InfiniteLottieAnim(
     @RawRes resId: Int,
     modifier: Modifier = Modifier,
