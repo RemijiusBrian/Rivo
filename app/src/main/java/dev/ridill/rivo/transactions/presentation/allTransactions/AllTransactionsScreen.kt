@@ -16,8 +16,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,7 +64,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -74,16 +71,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -98,7 +90,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
@@ -143,7 +134,6 @@ import kotlin.math.absoluteValue
 @Composable
 fun AllTransactionsScreen(
     snackbarController: SnackbarController,
-    hapticFeedback: HapticFeedback,
     state: AllTransactionsState,
     isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
@@ -156,7 +146,6 @@ fun AllTransactionsScreen(
     navigateUp: () -> Unit
 ) {
     val transactionsListState = rememberLazyListState()
-    var autoScrollSpeed by remember { mutableFloatStateOf(0f) }
 
     BackHandler(
         enabled = state.transactionMultiSelectionModeActive,
@@ -254,9 +243,7 @@ fun AllTransactionsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(Float.One),
-                listState = transactionsListState,
-                setAutoScrollSpeed = { autoScrollSpeed = it },
-                hapticFeedback = hapticFeedback
+                listState = transactionsListState
             )
         }
 
@@ -671,7 +658,6 @@ private fun DateIndicator(
 @Composable
 private fun TransactionsList(
     listState: LazyListState,
-    setAutoScrollSpeed: (Float) -> Unit,
     currency: Currency,
     totalSumAmount: Double,
     typeFilter: TransactionType?,
@@ -690,8 +676,7 @@ private fun TransactionsList(
     listContentPadding: PaddingValues,
     onToggleShowExcludedTransactions: (Boolean) -> Unit,
     onDeleteSelectedTransactions: () -> Unit,
-    modifier: Modifier = Modifier,
-    hapticFeedback: HapticFeedback
+    modifier: Modifier = Modifier
 ) {
     val isListEmpty by remember(transactionsList) {
         derivedStateOf { transactionsList.isEmpty() }
@@ -745,17 +730,7 @@ private fun TransactionsList(
             LazyColumn(
                 contentPadding = listContentPadding,
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall),
-                state = listState,
-                modifier = Modifier
-                    .transactionListDragHandler(
-                        lazyListState = listState,
-                        selectedIds = { selectedTransactionIds },
-                        autoScrollThreshold = with(LocalDensity.current) { AutoScrollThreshold.toPx() },
-                        onDragStart = onTxLongPress,
-                        onTxPointed = onTxSelectionChange,
-                        setAutoScrollSpeed = setAutoScrollSpeed,
-                        hapticController = hapticFeedback
-                    )
+                state = listState
             ) {
                 items(
                     items = transactionsList,
@@ -765,9 +740,7 @@ private fun TransactionsList(
                     val clickableModifier = if (multiSelectionModeActive) Modifier
                         .toggleable(
                             value = transaction.id in selectedTransactionIds,
-                            onValueChange = { onTxSelectionChange(transaction.id) },
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
+                            onValueChange = { onTxSelectionChange(transaction.id) }
                         )
                     else Modifier.combinedClickable(
                         role = Role.Button,
@@ -786,14 +759,6 @@ private fun TransactionsList(
                         excluded = transaction.excluded,
                         folder = transaction.folder,
                         modifier = Modifier
-                            /*.semantics {
-                                if (!multiSelectionModeActive) {
-                                    onLongClick("select") {
-                                        onSelectedTxIdsChange(selectedTransactionIds + transaction.id)
-                                        true
-                                    }
-                                }
-                            }*/
                             .then(clickableModifier)
                             .animateItemPlacement()
                     )
@@ -803,9 +768,9 @@ private fun TransactionsList(
     }
 }
 
-private val AutoScrollThreshold = 40.dp
+//private val AutoScrollThreshold = 40.dp
 
-fun Modifier.transactionListDragHandler(
+/*fun Modifier.transactionListDragHandler(
     lazyListState: LazyListState,
     selectedIds: () -> Set<Long>,
     hapticController: HapticFeedback,
@@ -870,7 +835,7 @@ fun Modifier.transactionListDragHandler(
             }
         )
     }
-)
+)*/
 
 @Composable
 private fun TransactionListHeader(

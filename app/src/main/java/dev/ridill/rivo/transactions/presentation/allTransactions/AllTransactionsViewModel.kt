@@ -317,7 +317,10 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     override fun onTransactionLongPress(id: Long) {
-        savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value + id
+        viewModelScope.launch {
+            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value + id
+            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
+        }
     }
 
     override fun onTransactionSelectionChange(id: Long) {
