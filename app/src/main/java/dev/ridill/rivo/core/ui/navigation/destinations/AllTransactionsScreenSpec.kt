@@ -60,7 +60,6 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         AllTransactionsScreen(
             snackbarController = snackbarController,
-            hapticFeedback = hapticFeedback,
             state = state,
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagColorInput = { tagInput.value?.color },
