@@ -3,6 +3,7 @@ package dev.ridill.rivo.core.domain.service
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
 import dev.ridill.rivo.transactions.domain.sms.TransactionSmsReceiver
@@ -17,6 +18,7 @@ class ReceiverService(
     fun toggleNotificationActionReceivers(enable: Boolean) {
         toggleReceiver(DeleteTransactionActionReceiver::class.java, enable)
         toggleReceiver(MarkTransactionExcludedActionReceiver::class.java, enable)
+        toggleReceiver(LockAppImmediateReceiver::class.java, enable)
     }
 
     private fun toggleReceiver(receiverClass: Class<*>, enable: Boolean) {
