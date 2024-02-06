@@ -41,7 +41,7 @@ class AppLockNotificationHelper(
 
     fun getForegroundNotification(
     ): NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(R.drawable.ic_notification)
+        .setSmallIcon(R.drawable.notification_ic_lock_open)
         .setContentTitle(
             context.getString(
                 R.string.app_unlocked,
@@ -68,7 +68,7 @@ class AppLockNotificationHelper(
         )
 
         return NotificationCompat.Action.Builder(
-            R.drawable.ic_notification,
+            R.drawable.notification_ic_lock_open,
             context.getString(R.string.lock),
             pendingIntent
         ).build()
