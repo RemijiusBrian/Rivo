@@ -3,6 +3,7 @@ package dev.ridill.rivo.settings.presentation.security
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -81,7 +82,9 @@ private fun AutoLockIntervalSelection(
             LabelledRadioButton(
                 label = stringResource(interval.labelRes),
                 selected = interval == selectedInterval,
-                onClick = { onIntervalSelect(interval) }
+                onClick = { onIntervalSelect(interval) },
+                modifier = Modifier
+                    .fillMaxWidth()
             )
         }
     }
