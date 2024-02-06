@@ -28,8 +28,6 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.ManualLottieAnim
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.settings.presentation.settings.rememberBiometricPrompt
-import dev.ridill.rivo.settings.presentation.settings.rememberPromptInfo
 import kotlinx.coroutines.launch
 
 @Composable

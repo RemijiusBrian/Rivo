@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.settings
+package dev.ridill.rivo.settings.presentation.security
 
 import android.content.Context
 import androidx.biometric.BiometricManager

@@ -17,8 +17,8 @@ import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
-import dev.ridill.rivo.settings.presentation.settings.rememberBiometricPrompt
-import dev.ridill.rivo.settings.presentation.settings.rememberPromptInfo
+import dev.ridill.rivo.settings.presentation.security.rememberBiometricPrompt
+import dev.ridill.rivo.settings.presentation.security.rememberPromptInfo
 
 data object SecuritySettingsScreenSpec : ScreenSpec {
     override val route: String = "security_settings"
