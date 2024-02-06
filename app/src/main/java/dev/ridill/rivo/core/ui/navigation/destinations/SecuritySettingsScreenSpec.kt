@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.rememberBiometricPrompt
@@ -34,6 +35,8 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
     override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
         val viewModel: SecuritySettingsViewModel = hiltViewModel(navBackStackEntry)
         val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(false)
+        val selectedInterval by viewModel.appAutoLockInterval
+            .collectAsStateWithLifecycle(AppAutoLockInterval.ONE_MINUTE)
         val biometricPrompt = rememberBiometricPrompt(
             onAuthSucceeded = { viewModel.onAuthenticationSuccess() }
         )
@@ -55,6 +58,8 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         SecuritySettingsScreen(
             appLockEnabled = appLockEnabled,
             onAppLockToggle = viewModel::onAppLockToggle,
+            autoLockInterval = selectedInterval,
+            onIntervalSelect = viewModel::onAutoLockIntervalSelect,
             navigateUp = navController::navigateUp
         )
     }

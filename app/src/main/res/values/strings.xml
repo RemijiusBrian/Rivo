@@ -14,7 +14,6 @@
     <string name="destination_folders">Folders</string>
     <string name="destination_folders_list">Folders</string>
     <string name="destination_folder_details">Folder</string>
-    <string name="destination_app_lock">App Locked</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -28,6 +27,7 @@
     <string name="notification_channel_auto_add_transaction_setup_name">Transactions Auto-Add Setup</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
+    <string name="notification_channel_app_lock_name">App Lock</string>
 
     <!-- Content Description -->
     <string name="cd_balance_and_budget_amounts">You have a balance of %1$s from your budget of %2$s</string>
@@ -315,4 +315,12 @@
     <string name="folder_list_option_hide_balanced">Hide Balanced</string>
     <string name="folder_list_option_show_balanced">Show Balanced</string>
     <string name="tap_to_unlock">Tap to Unlock</string>
+    <string name="app_unlocked">%s is unlocked</string>
+    <string name="lock">Lock</string>
+    <string name="tap_to_open">Tap to open</string>
+    <string name="one_minute">1 Minute</string>
+    <string name="five_minutes">5 Minutes</string>
+    <string name="ten_minutes">10 Minutes</string>
+    <string name="one_hour">1 Hour</string>
+    <string name="auto_lock_after">Auto lock after</string>
 </resources>

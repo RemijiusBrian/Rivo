@@ -7,11 +7,13 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.settings.presentation.security.AppLockManager
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,6 +25,7 @@ class RivoViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val receiverService: ReceiverService,
     private val smsModelDownloadManager: SMSModelDownloadManager,
+    private val appLockManager: AppLockManager,
     private val eventBus: EventBus<RivoEvent>
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
@@ -32,6 +35,8 @@ class RivoViewModel @Inject constructor(
     val appTheme = preferences.map { it.appTheme }
         .distinctUntilChanged()
     val dynamicThemeEnabled = preferences.map { it.dynamicColorsEnabled }
+        .distinctUntilChanged()
+    val isAppLocked = preferences.map { it.isAppLocked }
         .distinctUntilChanged()
 
     val showSplashScreen = MutableStateFlow(true)
@@ -73,6 +78,19 @@ class RivoViewModel @Inject constructor(
             .collectLatest { enabled ->
                 eventBus.send(RivoEvent.EnableSecureFlags(enabled))
             }
+    }
+
+    fun startAppAutoLockTimer() = viewModelScope.launch {
+        if (!preferences.first().appLockEnabled) return@launch
+        appLockManager.startAppLockTimerService()
+    }
+
+    fun stopAppAutoLockTimer() {
+        appLockManager.stopAppLockTimer()
+    }
+
+    fun onAppLockAuthSucceeded() = viewModelScope.launch {
+        preferencesManager.updateAppLocked(false)
     }
 
     sealed class RivoEvent {

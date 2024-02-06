@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -21,6 +23,7 @@ import dev.ridill.rivo.core.ui.navigation.RivoNavHost
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import dev.ridill.rivo.settings.presentation.security.AppLockScreen
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -59,28 +62,21 @@ class RivoActivity : FragmentActivity() {
             val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
             val showWelcomeFlow by viewModel.showWelcomeFlow.collectAsStateWithLifecycle(false)
             val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
+            val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
             val darkTheme = when (appTheme) {
                 AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
                 AppTheme.LIGHT -> false
                 AppTheme.DARK -> true
             }
 
-            RivoTheme(
+            ScreenContent(
                 darkTheme = darkTheme,
-                dynamicColor = dynamicTheme
-            ) {
-                val navController = rememberNavController()
-                RivoNavHost(
-                    navController = navController,
-                    showWelcomeFlow = showWelcomeFlow
-                )
-            }
+                dynamicTheme = dynamicTheme,
+                showWelcomeFlow = showWelcomeFlow,
+                isAppLocked = isAppLocked,
+                onAuthSuccess = viewModel::onAppLockAuthSucceeded
+            )
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // TODO: Check if app locked
     }
 
     override fun onResume() {
@@ -88,9 +84,14 @@ class RivoActivity : FragmentActivity() {
         checkAppPermissions()
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.stopAppAutoLockTimer()
+    }
+
     override fun onStop() {
         super.onStop()
-        // Start AppLockTimer Service
+        viewModel.startAppAutoLockTimer()
     }
 
     private fun checkAppPermissions() {
@@ -101,6 +102,38 @@ class RivoActivity : FragmentActivity() {
             val isNotificationPermissionGranted =
                 isPermissionGranted(Manifest.permission.POST_NOTIFICATIONS)
             viewModel.onNotificationPermissionCheck(isNotificationPermissionGranted)
+        }
+    }
+}
+
+@Composable
+private fun ScreenContent(
+    darkTheme: Boolean,
+    dynamicTheme: Boolean,
+    showWelcomeFlow: Boolean,
+    isAppLocked: Boolean,
+    onAuthSuccess: () -> Unit
+) {
+    RivoTheme(
+        darkTheme = darkTheme,
+        dynamicColor = dynamicTheme
+    ) {
+        val navController = rememberNavController()
+        AnimatedContent(
+            targetState = isAppLocked,
+            label = "AppLockScreen"
+        ) { locked ->
+            if (locked) {
+                AppLockScreen(
+                    onBack = navController::navigateUp,
+                    onAuthSucceeded = { onAuthSuccess() },
+                )
+            } else {
+                RivoNavHost(
+                    navController = navController,
+                    showWelcomeFlow = showWelcomeFlow
+                )
+            }
         }
     }
 }

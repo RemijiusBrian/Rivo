@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.rivo.core.domain.model.RivoPreferences
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,10 @@ class PreferencesManagerImpl(
             val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS] ?: true
             val showBalancedFolders = preferences[Keys.SHOW_BALANCED_FOLDERS] ?: true
             val appLockEnabled = preferences[Keys.APP_LOCK_ENABLED] ?: false
+            val appAutoLockInterval = AppAutoLockInterval.valueOf(
+                preferences[Keys.APP_AUTO_LOCK_INTERVAL] ?: AppAutoLockInterval.ONE_MINUTE.name
+            )
+            val isAppLocked = preferences[Keys.IS_APP_LOCKED] ?: false
 
             RivoPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -42,7 +47,9 @@ class PreferencesManagerImpl(
                 autoAddTransactionEnabled = autoAddTransactionEnabled,
                 showExcludedTransactions = showExcludedTransactions,
                 showBalancedFolders = showBalancedFolders,
-                appLockEnabled = appLockEnabled
+                appLockEnabled = appLockEnabled,
+                appAutoLockInterval = appAutoLockInterval,
+                isAppLocked = isAppLocked
             )
         }
 
@@ -118,6 +125,22 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateAppAutoLockInterval(interval: AppAutoLockInterval) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.APP_AUTO_LOCK_INTERVAL] = interval.name
+            }
+        }
+    }
+
+    override suspend fun updateAppLocked(locked: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.IS_APP_LOCKED] = locked
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -128,5 +151,7 @@ class PreferencesManagerImpl(
         val SHOW_EXCLUDED_TRANSACTIONS = booleanPreferencesKey("SHOW_EXCLUDED_TRANSACTIONS")
         val SHOW_BALANCED_FOLDERS = booleanPreferencesKey("SHOW_BALANCED_FOLDERS")
         val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")
+        val APP_AUTO_LOCK_INTERVAL = stringPreferencesKey("APP_AUTO_LOCK_INTERVAL")
+        val IS_APP_LOCKED = booleanPreferencesKey("IS_APP_LOCKED")
     }
 }

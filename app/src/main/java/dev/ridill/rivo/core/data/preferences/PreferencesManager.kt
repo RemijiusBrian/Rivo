@@ -23,4 +23,5 @@ interface PreferencesManager {
     suspend fun updateShowBalancedFolders(show: Boolean)
     suspend fun updateAppLockEnabled(enabled: Boolean)
     suspend fun updateAppAutoLockInterval(interval: AppAutoLockInterval)
+    suspend fun updateAppLocked(locked: Boolean)
 }

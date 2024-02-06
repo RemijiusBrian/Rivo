@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -16,8 +17,12 @@ class SecuritySettingsViewModel @Inject constructor(
     private val eventBus: EventBus<SecuritySettingsEvent>
 ) : ViewModel() {
 
-    val appLockEnabled = preferencesManager.preferences
+    private val preferences = preferencesManager.preferences
+    val appLockEnabled = preferences
         .map { it.appLockEnabled }
+        .distinctUntilChanged()
+    val appAutoLockInterval = preferences
+        .map { it.appAutoLockInterval }
         .distinctUntilChanged()
 
     val events = eventBus.eventFlow
@@ -35,6 +40,12 @@ class SecuritySettingsViewModel @Inject constructor(
     fun onAuthenticationSuccess() {
         viewModelScope.launch {
             preferencesManager.updateAppLockEnabled(true)
+        }
+    }
+
+    fun onAutoLockIntervalSelect(interval: AppAutoLockInterval) {
+        viewModelScope.launch {
+            preferencesManager.updateAppAutoLockInterval(interval)
         }
     }
 

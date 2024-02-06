@@ -2,9 +2,10 @@ package dev.ridill.rivo.settings.domain.appLock
 
 import android.app.Service
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.IBinder
+import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.settings.domain.notification.AppLockNotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -12,35 +13,42 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
+@AndroidEntryPoint
 class AppLockTimerService : Service() {
 
     private val serviceScope = CoroutineScope(SupervisorJob())
 
     @Inject
-    lateinit var preferencesManager: PreferencesManager
+    lateinit var notificationHelper: AppLockNotificationHelper
 
     @Inject
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var preferencesManager: PreferencesManager
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            Action.START.toString() -> startTimer()
-            Action.LOCK.toString() -> lockApp()
+            Action.START_TIMER.toString() -> startTimer()
+            Action.STOP_TIMER.toString() -> stopSelf()
+            Action.IMMEDIATE_LOCK.toString() -> lockAppImmediate()
         }
 
         return START_STICKY
     }
 
-    private fun lockApp() {
-        
+    private fun lockAppImmediate() = serviceScope.launch {
+        preferencesManager.updateAppLocked(true)
+        stopSelf()
     }
 
-    private fun startTimer() {
-        serviceScope.launch {
-            val interval = preferencesManager.preferences.first().appAutoLockInterval
-            delay(interval.duration)
-        }
+    private fun startTimer() = serviceScope.launch {
+        startForeground(
+            Random.nextInt(), notificationHelper.getForegroundNotification().build()
+        )
+        val interval = preferencesManager.preferences.first().appAutoLockInterval
+        delay(interval.duration)
+        preferencesManager.updateAppLocked(true)
+        stopSelf()
     }
 
     override fun onDestroy() {
@@ -51,7 +59,8 @@ class AppLockTimerService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     enum class Action {
-        START,
-        LOCK
+        START_TIMER,
+        STOP_TIMER,
+        IMMEDIATE_LOCK
     }
 }
