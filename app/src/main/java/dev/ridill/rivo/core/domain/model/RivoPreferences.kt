@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.domain.model
 
+import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import java.time.LocalDateTime
 
@@ -12,5 +13,6 @@ data class RivoPreferences(
     val autoAddTransactionEnabled: Boolean,
     val showExcludedTransactions: Boolean,
     val showBalancedFolders: Boolean,
-    val appLockEnabled: Boolean
+    val appLockEnabled: Boolean,
+    val appAutoLockInterval: AppAutoLockInterval
 )

@@ -28,11 +28,6 @@ class RivoActivity : FragmentActivity() {
 
     private val viewModel: RivoViewModel by viewModels()
 
-    override fun onResume() {
-        super.onResume()
-        checkAppPermissions()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -81,6 +76,21 @@ class RivoActivity : FragmentActivity() {
                 )
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // TODO: Check if app locked
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkAppPermissions()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Start AppLockTimer Service
     }
 
     private fun checkAppPermissions() {
