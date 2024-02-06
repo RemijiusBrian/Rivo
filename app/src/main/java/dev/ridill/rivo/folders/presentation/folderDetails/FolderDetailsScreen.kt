@@ -26,19 +26,16 @@ import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,6 +63,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.DismissBackground
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.ListLabel
@@ -74,6 +72,7 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
+import dev.ridill.rivo.core.ui.components.SwipeToDismissContainer
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
@@ -410,45 +409,33 @@ private fun TransactionsInFolder(
                                     key = item.transaction.id,
                                     contentType = "TransactionListItem"
                                 ) {
-                                    val dismissState = rememberDismissState(
-                                        confirmValueChange = {
-                                            if (it == DismissValue.DismissedToEnd) {
-                                                onTransactionSwipeDismiss(item.transaction)
-                                            }
-                                            true
-                                        }
-                                    )
-                                    SwipeToDismiss(
-                                        state = dismissState,
+                                    SwipeToDismissContainer(
+                                        item = item.transaction,
+                                        onDismiss = { onTransactionSwipeDismiss(it) },
                                         background = {
-                                            Box(
-                                                contentAlignment = Alignment.CenterStart,
+                                            DismissBackground(
+                                                swipeDismissState = it,
+                                                icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
+                                                contentDescription = stringResource(R.string.cd_remove_from_folder),
                                                 modifier = Modifier
-                                                    .fillMaxSize()
                                                     .padding(horizontal = SpacingLarge)
-                                            ) {
-                                                Icon(
-                                                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
-                                                    contentDescription = stringResource(R.string.cd_remove_from_folder)
-                                                )
-                                            }
+                                            )
                                         },
                                         directions = setOf(DismissDirection.StartToEnd),
-                                        dismissContent = {
-                                            TransactionCard(
-                                                note = item.transaction.note,
-                                                amount = item.transaction
-                                                    .amountFormattedWithCurrency(currency),
-                                                date = item.transaction.date,
-                                                type = item.transaction.type,
-                                                excluded = item.transaction.excluded,
-                                                tag = item.transaction.tag,
-                                                onClick = { onTransactionClick(item.transaction.id) },
-                                                modifier = Modifier
-                                                    .animateItemPlacement()
-                                            )
-                                        }
-                                    )
+                                        modifier = Modifier
+                                            .animateItemPlacement()
+                                    ) {
+                                        TransactionCard(
+                                            note = item.transaction.note,
+                                            amount = item.transaction
+                                                .amountFormattedWithCurrency(currency),
+                                            date = item.transaction.date,
+                                            type = item.transaction.type,
+                                            excluded = item.transaction.excluded,
+                                            tag = item.transaction.tag,
+                                            onClick = { onTransactionClick(item.transaction.id) }
+                                        )
+                                    }
                                 }
                             }
                         }
