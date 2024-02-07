@@ -4,13 +4,12 @@ import android.os.Build
 import dev.ridill.rivo.BuildConfig
 
 object BuildUtil {
-
     val versionName: String get() = BuildConfig.VERSION_NAME
 
     val isDebug: Boolean get() = BuildConfig.DEBUG
 
-    val isAtLeastSdk34: Boolean
-        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+    val isApiLevelAtLeast30: Boolean
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     fun isDynamicColorsSupported(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

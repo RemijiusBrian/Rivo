@@ -19,11 +19,14 @@ import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
+import dev.ridill.rivo.settings.domain.notification.AppLockNotificationHelper
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.security.AppLockManager
+import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -130,6 +133,20 @@ object SettingsModule {
         preferencesManager = preferencesManager,
         backupWorkManager = backupWorkManager
     )
+
+    @Provides
+    fun provideAppLockNotificationHelper(
+        @ApplicationContext context: Context
+    ): AppLockNotificationHelper = AppLockNotificationHelper(context)
+
+    @Provides
+    fun provideAppLockManager(
+        @ApplicationContext context: Context
+    ): AppLockManager = AppLockManager(context)
+
+    @Provides
+    fun provideSecuritySettingsEventBus(): EventBus<SecuritySettingsViewModel.SecuritySettingsEvent> =
+        EventBus()
 }
 
 @Qualifier

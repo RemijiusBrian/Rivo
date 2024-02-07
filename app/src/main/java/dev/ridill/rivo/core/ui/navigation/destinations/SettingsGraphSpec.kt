@@ -12,6 +12,7 @@ object SettingsGraphSpec : NavGraphSpec, BottomNavDestination {
 
     override val children: List<NavDestination> = listOf(
         SettingsScreenSpec,
-        BackupSettingsScreenSpec
+        BackupSettingsScreenSpec,
+        SecuritySettingsScreenSpec
     )
 }

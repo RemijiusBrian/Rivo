@@ -58,7 +58,8 @@ fun SettingsScreen(
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
-    navigateToBackupSettings: () -> Unit
+    navigateToBackupSettings: () -> Unit,
+    navigateToSecuritySettings: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     RivoScaffold(
@@ -139,6 +140,12 @@ fun SettingsScreen(
                 titleRes = R.string.preference_backup,
                 summary = stringResource(R.string.preference_backup_summary),
                 onClick = navigateToBackupSettings,
+            )
+
+            SimpleSettingsPreference(
+                titleRes = R.string.preference_security,
+                summary = stringResource(R.string.preference_security_summary),
+                onClick = navigateToSecuritySettings
             )
 
             Divider(
