@@ -17,6 +17,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.RivoScaffold
+import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.SecuritySettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
@@ -25,6 +26,7 @@ import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 
 @Composable
 fun SecuritySettingsScreen(
+    snackbarController: SnackbarController,
     appLockEnabled: Boolean,
     onAppLockToggle: (Boolean) -> Unit,
     autoLockInterval: AppAutoLockInterval,
@@ -37,7 +39,8 @@ fun SecuritySettingsScreen(
                 title = { Text(stringResource(SecuritySettingsScreenSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) }
             )
-        }
+        },
+        snackbarController = snackbarController
     ) { paddingValues ->
         Column(
             modifier = Modifier

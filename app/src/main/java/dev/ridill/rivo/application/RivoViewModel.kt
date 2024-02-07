@@ -81,7 +81,8 @@ class RivoViewModel @Inject constructor(
     }
 
     fun startAppAutoLockTimer() = viewModelScope.launch {
-        if (!preferences.first().appLockEnabled) return@launch
+        val preferences = preferences.first()
+        if (!preferences.appLockEnabled || preferences.isAppLocked) return@launch
         appLockManager.startAppLockTimerService()
     }
 

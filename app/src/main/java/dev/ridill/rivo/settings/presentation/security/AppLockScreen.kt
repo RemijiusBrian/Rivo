@@ -1,7 +1,9 @@
 package dev.ridill.rivo.settings.presentation.security
 
 import androidx.activity.compose.BackHandler
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -16,8 +18,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +34,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.ManualLottieAnim
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.util.UiText
 import kotlinx.coroutines.launch
 
 @Composable
@@ -41,6 +48,8 @@ fun AppLockScreen(
         enabled = true,
         onBack = onBack
     )
+
+    val biometricManager = rememberBiometricManager()
 
     val progressAnimatable = remember {
         Animatable(Float.Zero)
@@ -64,8 +73,23 @@ fun AppLockScreen(
         subTitle = stringResource(R.string.fingerprint_subtitle)
     )
 
+    var errorMessage by remember { mutableStateOf<UiText?>(null) }
+    val showError by remember {
+        derivedStateOf { errorMessage != null }
+    }
     LaunchedEffect(Unit) {
-        biometricPrompt.authenticate(promptInfo)
+        when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                errorMessage = null
+                biometricPrompt.authenticate(promptInfo)
+            }
+
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                errorMessage = UiText.StringResource(R.string.error_biometric_hw_unavailable)
+            }
+
+            else -> Unit
+        }
     }
 
     Surface {
@@ -82,7 +106,21 @@ fun AppLockScreen(
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(
-                            onClick = { biometricPrompt.authenticate(promptInfo) }
+                            onClick = {
+                                when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
+                                    BiometricManager.BIOMETRIC_SUCCESS -> {
+                                        errorMessage = null
+                                        biometricPrompt.authenticate(promptInfo)
+                                    }
+
+                                    BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                                        errorMessage =
+                                            UiText.StringResource(R.string.error_biometric_hw_unavailable)
+                                    }
+
+                                    else -> Unit
+                                }
+                            }
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -99,6 +137,16 @@ fun AppLockScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
                 )
+
+                AnimatedVisibility(visible = showError) {
+                    errorMessage?.let {
+                        Text(
+                            text = it.asString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
     }

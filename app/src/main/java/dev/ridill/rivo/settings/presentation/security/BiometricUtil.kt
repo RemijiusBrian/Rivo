@@ -11,6 +11,11 @@ import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.Executor
 
 @Composable
+fun rememberBiometricManager(
+    context: Context = LocalContext.current
+): BiometricManager = remember(context) { BiometricManager.from(context) }
+
+@Composable
 fun rememberBiometricPrompt(
     context: Context = LocalContext.current,
     activity: FragmentActivity = LocalContext.current as FragmentActivity,
@@ -48,7 +53,7 @@ fun rememberPromptInfo(
     title: String,
     subTitle: String? = null,
     description: String? = null,
-    allowedAuthenticators: Int = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    allowedAuthenticators: Int = BiometricUtil.DefaultBiometricAuthenticators
 ): BiometricPrompt.PromptInfo {
 
     return remember(title, subTitle, description) {
@@ -59,4 +64,9 @@ fun rememberPromptInfo(
             .setAllowedAuthenticators(allowedAuthenticators)
             .build()
     }
+}
+
+object BiometricUtil {
+    val DefaultBiometricAuthenticators: Int
+        get() = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
 }
