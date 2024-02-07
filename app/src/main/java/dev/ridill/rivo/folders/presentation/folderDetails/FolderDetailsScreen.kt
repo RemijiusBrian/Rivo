@@ -25,9 +25,8 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -197,7 +196,7 @@ fun FolderDetailsScreen(
             )
 
             if (!state.isNewFolder) {
-                Divider(
+                HorizontalDivider(
                     modifier = Modifier
                         .padding(horizontal = SpacingMedium)
                 )
@@ -412,7 +411,7 @@ private fun TransactionsInFolder(
                                     SwipeToDismissContainer(
                                         item = item.transaction,
                                         onDismiss = { onTransactionSwipeDismiss(it) },
-                                        background = {
+                                        backgroundContent = {
                                             DismissBackground(
                                                 swipeDismissState = it,
                                                 icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
@@ -421,7 +420,7 @@ private fun TransactionsInFolder(
                                                     .padding(horizontal = SpacingLarge)
                                             )
                                         },
-                                        directions = setOf(DismissDirection.StartToEnd),
+                                        enableDismissFromStartToEnd = true,
                                         modifier = Modifier
                                             .animateItemPlacement()
                                     ) {

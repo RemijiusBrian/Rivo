@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,13 +73,13 @@ fun PermissionRationaleDialog(
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AlertDialog(
+    BasicAlertDialog(
         onDismissRequest = {},
+        modifier = modifier,
         properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false
-        ),
-        modifier = modifier
+        )
     ) {
         Surface(
             shape = AlertDialogDefaults.shape,

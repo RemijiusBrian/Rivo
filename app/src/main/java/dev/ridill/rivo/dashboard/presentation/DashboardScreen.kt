@@ -21,19 +21,22 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -102,14 +105,23 @@ fun DashboardScreen(
             BottomAppBar(
                 actions = {
                     BottomNavDestination.bottomNavDestinations.forEach { destination ->
-                        PlainTooltipBox(tooltip = { Text(stringResource(destination.labelRes)) }) {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            state = rememberTooltipState(),
+                            tooltip = {
+                                PlainTooltip(
+                                    caretProperties = TooltipDefaults.caretProperties
+                                ) {
+                                    Text(stringResource(destination.labelRes))
+                                }
+                            },
+                            focusable = false
+                        ) {
                             IconButton(
                                 onClick = { navigateToBottomNavDestination(destination) },
                                 colors = IconButtonDefaults.iconButtonColors(
                                     contentColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier
-                                    .tooltipAnchor()
+                                )
                             ) {
                                 Icon(
                                     imageVector = ImageVector.vectorResource(destination.iconRes),
@@ -338,7 +350,7 @@ private fun SpendsOverview(
 
             SpacerSmall()
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
             )

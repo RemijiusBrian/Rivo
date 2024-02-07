@@ -13,7 +13,7 @@ import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -105,7 +105,7 @@ fun SettingsScreen(
                 leadingIcon = Icons.Rounded.Notifications
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(vertical = PreferenceDividerVerticalPadding)
             )
@@ -148,7 +148,7 @@ fun SettingsScreen(
                 onClick = navigateToSecuritySettings
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(vertical = PreferenceDividerVerticalPadding)
             )

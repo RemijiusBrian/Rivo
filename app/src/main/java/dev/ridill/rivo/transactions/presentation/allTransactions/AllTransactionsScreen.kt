@@ -45,11 +45,11 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -705,7 +705,7 @@ private fun TransactionsList(
                     .padding(horizontal = SpacingMedium)
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(
                         vertical = SpacingSmall,

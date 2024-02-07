@@ -13,7 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddToDrive
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -75,7 +75,7 @@ fun BackupSettingsScreen(
                     .padding(vertical = SpacingLarge)
             )
 
-            Divider()
+            HorizontalDivider()
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_google_account,

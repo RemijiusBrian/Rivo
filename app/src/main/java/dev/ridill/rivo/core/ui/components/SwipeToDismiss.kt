@@ -9,14 +9,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,20 +34,18 @@ fun <T> SwipeToDismissContainer(
     onDismiss: (T) -> Unit,
     modifier: Modifier = Modifier,
     animationDuration: Int = DEFAULT_ANIM_DURATION,
-    directions: Set<DismissDirection> = setOf(
-        DismissDirection.EndToStart,
-        DismissDirection.StartToEnd
-    ),
-    background: @Composable RowScope.(DismissState) -> Unit = {},
+    enableDismissFromStartToEnd: Boolean = true,
+    enableDismissFromEndToStart: Boolean = true,
+    backgroundContent: @Composable RowScope.(SwipeToDismissBoxState) -> Unit = {},
     content: @Composable RowScope.(T) -> Unit
 ) {
     var isRemoved by remember { mutableStateOf(false) }
-    val state = rememberDismissState(
+    val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             when (value) {
-                DismissValue.Default -> false
-                DismissValue.DismissedToEnd -> {
-                    if (directions.contains(DismissDirection.StartToEnd)) {
+                SwipeToDismissBoxValue.Settled -> false
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    if (enableDismissFromStartToEnd) {
                         isRemoved = true
                         true
                     } else {
@@ -56,8 +53,8 @@ fun <T> SwipeToDismissContainer(
                     }
                 }
 
-                DismissValue.DismissedToStart -> {
-                    if (directions.contains(DismissDirection.EndToStart)) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    if (enableDismissFromEndToStart) {
                         isRemoved = true
                         true
                     } else {
@@ -87,11 +84,12 @@ fun <T> SwipeToDismissContainer(
         ) + fadeOut(),
         modifier = modifier
     ) {
-        SwipeToDismiss(
+        SwipeToDismissBox(
             state = state,
-            background = { background(state) },
-            dismissContent = { content(item) },
-            directions = directions
+            enableDismissFromStartToEnd = true,
+            enableDismissFromEndToStart = true,
+            backgroundContent = { backgroundContent(state) },
+            content = { content(item) }
         )
     }
 }
@@ -100,14 +98,14 @@ private const val DEFAULT_ANIM_DURATION = 500
 
 @Composable
 fun DismissBackground(
-    swipeDismissState: DismissState,
+    swipeDismissState: SwipeToDismissBoxState,
     icon: ImageVector,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     containerColor: Color = MaterialTheme.colorScheme.errorContainer,
     contentColor: Color = contentColorFor(containerColor)
 ) {
-    val color = if (swipeDismissState.dismissDirection != null) {
+    val color = if (swipeDismissState.progress > 0f) {
         containerColor
     } else Color.Transparent
 

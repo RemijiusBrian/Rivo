@@ -1,7 +1,5 @@
 package dev.ridill.rivo.core.ui.components
 
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
@@ -11,8 +9,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarVisuals
-import androidx.compose.material3.SwipeToDismiss
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,7 +30,7 @@ fun RivoSnackbarHost(
         RivoSnackbar(
             snackbarData = snackbarData,
             onSwipeDismiss = { dismissValue ->
-                if (dismissValue == DismissValue.DismissedToEnd) {
+                if (dismissValue == SwipeToDismissBoxValue.StartToEnd) {
                     snackbarData.dismiss()
                 }
             }
@@ -46,7 +45,7 @@ fun RivoSnackbarHost(
 @Composable
 fun RivoSnackbar(
     snackbarData: SnackbarData,
-    onSwipeDismiss: (DismissValue) -> Unit,
+    onSwipeDismiss: (SwipeToDismissBoxValue) -> Unit,
     modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
@@ -58,33 +57,33 @@ fun RivoSnackbar(
 ) {
     val visuals = snackbarData.visuals as RivoSnackbarVisuals
     val isError = visuals.isError
-    val dismissState = rememberDismissState(
+    val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
             onSwipeDismiss(it)
             true
         }
     )
 
-    SwipeToDismiss(
+    SwipeToDismissBox(
         state = dismissState,
-        background = {},
-        dismissContent = {
-            Snackbar(
-                snackbarData = snackbarData,
-                actionOnNewLine = actionOnNewLine,
-                shape = shape,
-                containerColor = if (isError) MaterialTheme.colorScheme.errorContainer
-                else containerColor,
-                contentColor = if (isError) MaterialTheme.colorScheme.onErrorContainer
-                else contentColor,
-                actionColor = actionColor,
-                actionContentColor = actionContentColor,
-                dismissActionContentColor = dismissActionContentColor
-            )
-        },
-        directions = setOf(DismissDirection.StartToEnd),
+        backgroundContent = {},
+        enableDismissFromEndToStart = true,
         modifier = modifier
-    )
+    ) {
+        Snackbar(
+            snackbarData = snackbarData,
+            actionOnNewLine = actionOnNewLine,
+            shape = shape,
+            containerColor = if (isError) MaterialTheme.colorScheme.errorContainer
+            else containerColor,
+            contentColor = if (isError) MaterialTheme.colorScheme.onErrorContainer
+            else contentColor,
+            actionColor = actionColor,
+            actionContentColor = actionContentColor,
+            dismissActionContentColor = dismissActionContentColor
+        )
+    }
+
 }
 
 class RivoSnackbarVisuals(
