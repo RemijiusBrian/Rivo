@@ -10,7 +10,7 @@
             android:action="android.intent.action.VIEW"
             android:data="https://www.rivo.com/add_transaction_shortcut"
             android:targetClass="dev.ridill.rivo.application.RivoActivity"
-            android:targetPackage="dev.ridill.mym.internal" />
+            android:targetPackage="dev.ridill.rivo.internal" />
     </shortcut>
 
     <shortcut
@@ -23,6 +23,6 @@
             android:action="android.intent.action.VIEW"
             android:data="https://www.rivo.com/add_folder_shortcut"
             android:targetClass="dev.ridill.rivo.application.RivoActivity"
-            android:targetPackage="dev.ridill.mym.internal" />
+            android:targetPackage="dev.ridill.rivo.internal" />
     </shortcut>
 </shortcuts>
