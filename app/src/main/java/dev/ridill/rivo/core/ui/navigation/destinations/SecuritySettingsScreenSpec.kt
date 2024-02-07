@@ -19,6 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
@@ -60,7 +61,9 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
             contract = ActivityResultContracts.StartActivityForResult(),
             onResult = {
                 if (it.resultCode == Activity.RESULT_OK) {
-                    biometricPrompt.authenticate(promptInfo)
+                    if (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators) == BiometricManager.BIOMETRIC_SUCCESS) {
+                        biometricPrompt.authenticate(promptInfo)
+                    }
                 }
             }
         )
@@ -84,14 +87,17 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
                             }
 
                             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-                                // Prompts the user to create credentials that your app accepts.
-                                val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
-                                    putExtra(
-                                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                                        BiometricUtil.DefaultBiometricAuthenticators
-                                    )
+                                if (BuildUtil.isApiLevelAtLeast30) {
+                                    // Prompts the user to create credentials that your app accepts.
+                                    val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL)
+                                        .apply {
+                                            putExtra(
+                                                Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                                                BiometricUtil.DefaultBiometricAuthenticators
+                                            )
+                                        }
+                                    biometricEnrollLauncher.launch(enrollIntent)
                                 }
-                                biometricEnrollLauncher.launch(enrollIntent)
                             }
 
                             else -> Unit
