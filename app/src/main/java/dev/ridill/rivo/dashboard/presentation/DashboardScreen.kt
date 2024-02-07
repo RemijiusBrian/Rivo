@@ -109,9 +109,7 @@ fun DashboardScreen(
                             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                             state = rememberTooltipState(),
                             tooltip = {
-                                PlainTooltip(
-                                    caretProperties = TooltipDefaults.caretProperties
-                                ) {
+                                PlainTooltip {
                                     Text(stringResource(destination.labelRes))
                                 }
                             },
