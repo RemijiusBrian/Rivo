@@ -22,7 +22,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Release
-        run: ./gradlew :app:assembleInternalDebug
+        run: ./gradlew assembleInternalDebug
 
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
