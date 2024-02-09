@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "dev.ridill.mym.internal",
+  "variantName": "internalRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 23,
+      "versionName": "2024.02.01",
+      "outputFile": "Rivo-internalRelease-code23-v2024.02.01.apk"
+    }
+  ],
+  "elementType": "File"
+}
