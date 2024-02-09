@@ -1,11 +1,7 @@
 name: Build & upload to Firebase App Distribution
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_notes:
-        required: true
-        description: 'Release Notes'
+  push
 
 jobs:
   build:
