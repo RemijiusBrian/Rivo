@@ -41,9 +41,9 @@ import kotlinx.coroutines.launch
 fun AppLockScreen(
     onBack: () -> Unit,
     onAuthSucceeded: (BiometricPrompt.AuthenticationResult) -> Unit,
+    modifier: Modifier = Modifier,
     onAuthError: (String) -> Unit = {},
-    onAuthFailed: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onAuthFailed: () -> Unit = {}
 ) {
     BackHandler(
         enabled = true,
