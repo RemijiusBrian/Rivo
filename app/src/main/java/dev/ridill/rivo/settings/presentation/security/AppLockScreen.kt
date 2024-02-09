@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 fun AppLockScreen(
     onBack: () -> Unit,
     onAuthSucceeded: (BiometricPrompt.AuthenticationResult) -> Unit,
+    modifier: Modifier = Modifier,
     onAuthError: (String) -> Unit = {},
     onAuthFailed: () -> Unit = {}
 ) {
@@ -92,7 +93,9 @@ fun AppLockScreen(
         }
     }
 
-    Surface {
+    Surface(
+        modifier = modifier
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),

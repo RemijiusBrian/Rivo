@@ -5,10 +5,19 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
@@ -74,7 +83,8 @@ class RivoActivity : FragmentActivity() {
                 dynamicTheme = dynamicTheme,
                 showWelcomeFlow = showWelcomeFlow,
                 isAppLocked = isAppLocked,
-                onAuthSuccess = viewModel::onAppLockAuthSucceeded
+                onAuthSuccess = viewModel::onAppLockAuthSucceeded,
+                closeApp = ::finish
             )
         }
     }
@@ -112,28 +122,41 @@ private fun ScreenContent(
     dynamicTheme: Boolean,
     showWelcomeFlow: Boolean,
     isAppLocked: Boolean,
-    onAuthSuccess: () -> Unit
+    onAuthSuccess: () -> Unit,
+    closeApp: () -> Unit
 ) {
     RivoTheme(
         darkTheme = darkTheme,
         dynamicColor = dynamicTheme
     ) {
         val navController = rememberNavController()
-        AnimatedContent(
-            targetState = isAppLocked,
-            label = "AppLockScreen"
-        ) { locked ->
-            if (locked) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            RivoNavHost(
+                navController = navController,
+                showWelcomeFlow = showWelcomeFlow
+            )
+
+            AnimatedVisibility(
+                visible = isAppLocked,
+                enter = scaleIn(
+                    transformOrigin = TransformOrigin(1f, 0f),
+                    animationSpec = tween(durationMillis = LOCK_ANIM_DURATION)
+                ) + fadeIn(),
+                exit = scaleOut(
+                    transformOrigin = TransformOrigin(1f, 0f),
+                    animationSpec = tween(durationMillis = LOCK_ANIM_DURATION)
+                ) + fadeOut()
+            ) {
                 AppLockScreen(
-                    onBack = navController::navigateUp,
+                    onBack = closeApp,
                     onAuthSucceeded = { onAuthSuccess() },
-                )
-            } else {
-                RivoNavHost(
-                    navController = navController,
-                    showWelcomeFlow = showWelcomeFlow
                 )
             }
         }
     }
 }
+
+private const val LOCK_ANIM_DURATION = 500
