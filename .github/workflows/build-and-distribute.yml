@@ -18,7 +18,7 @@ jobs:
       - name: Create Google Services JSON File
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_CONTENT }}
-        run: echo $GOOGLE_SERVICES_CONTENT | base64 -di > app/google-services.json
+        run: echo $GOOGLE_SERVICES_JSON | base64 -di > app/google-services.json
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
