@@ -1,7 +1,7 @@
 name: Build & upload to Firebase App Distribution
 
 on:
-  push
+  pull_request_target
 
 jobs:
   build:
@@ -10,12 +10,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: set up JDK 17
+
+      - name: Setup JDK
         uses: actions/setup-java@v1
         with:
           java-version: 17
 
-      - name: Create Google Services JSON File
+      - name: Create Google Services File
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_CONTENT }}
         run: echo $GOOGLE_SERVICES_JSON | base64 -di > app/google-services.json
@@ -33,7 +34,6 @@ jobs:
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{secrets.FIREBASE_APP_ID}}
-          serviceCredentialsFileContent: ${{ secrets.SERVICE_ACCOUNT }}
-          groups: Owner
+          serviceCredentialsFileContent: ${{secrets.SERVICE_ACCOUNT}}
+          groups: First Wave
           file: app/build/outputs/apk/internal/debug/Rivo-internalDebug-code1-v2024.02.00.apk
-          releaseNotes: 'Test Release'
