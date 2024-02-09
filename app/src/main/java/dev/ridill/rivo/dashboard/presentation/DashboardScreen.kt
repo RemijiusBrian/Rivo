@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -93,7 +95,8 @@ fun DashboardScreen(
     snackbarController: SnackbarController,
     navigateToAllTransactions: () -> Unit,
     navigateToAddEditTransaction: (Long?) -> Unit,
-    navigateToBottomNavDestination: (BottomNavDestination) -> Unit
+    navigateToBottomNavDestination: (BottomNavDestination) -> Unit,
+    onAppLockClick: () -> Unit
 ) {
     val recentSpendsListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -101,6 +104,21 @@ fun DashboardScreen(
     RivoScaffold(
         modifier = Modifier
             .fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Greeting(username = state.signedInUsername) },
+                actions = {
+                    if (state.isAppLockEnabled) {
+                        IconButton(onClick = onAppLockClick) {
+                            Icon(
+                                imageVector = Icons.Rounded.LockOpen,
+                                contentDescription = stringResource(R.string.cd_tap_to_lock_app)
+                            )
+                        }
+                    }
+                }
+            )
+        },
         bottomBar = {
             BottomAppBar(
                 actions = {
@@ -150,12 +168,12 @@ fun DashboardScreen(
                 .padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
-            Greeting(
+            /*Greeting(
                 username = state.signedInUsername,
                 modifier = Modifier
                     .padding(horizontal = SpacingMedium)
                     .padding(top = SpacingMedium)
-            )
+            )*/
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
@@ -516,7 +534,8 @@ private fun PreviewDashboardScreen() {
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
-            navigateToBottomNavDestination = {}
+            navigateToBottomNavDestination = {},
+            onAppLockClick = {}
         )
     }
 }

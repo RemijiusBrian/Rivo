@@ -57,7 +57,8 @@ data object DashboardScreenSpec : ScreenSpec {
             },
             navigateToBottomNavDestination = {
                 navController.navigate(it.route)
-            }
+            },
+            onAppLockClick = viewModel::onAppLockClick
         )
     }
 }

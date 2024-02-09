@@ -42,7 +42,8 @@ fun AppLockScreen(
     onBack: () -> Unit,
     onAuthSucceeded: (BiometricPrompt.AuthenticationResult) -> Unit,
     onAuthError: (String) -> Unit = {},
-    onAuthFailed: () -> Unit = {}
+    onAuthFailed: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     BackHandler(
         enabled = true,
@@ -92,7 +93,9 @@ fun AppLockScreen(
         }
     }
 
-    Surface {
+    Surface(
+        modifier = modifier
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),

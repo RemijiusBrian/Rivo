@@ -46,20 +46,26 @@ class DashboardViewModel @Inject constructor(
 
     private val signedInUsername = MutableStateFlow<String?>(null)
 
+    private val isAppLockEnabled = preferencesManager.preferences
+        .map { it.appLockEnabled }
+        .distinctUntilChanged()
+
     val state = combineTuple(
         currency,
         monthlyBudget,
         spentAmount,
         balance,
         recentSpends,
-        signedInUsername
+        signedInUsername,
+        isAppLockEnabled
     ).map { (
                 currency,
                 monthlyBudget,
                 spentAmount,
                 balance,
                 recentSpends,
-                signedInUsername
+                signedInUsername,
+                isAppLockEnabled
             ) ->
         DashboardState(
             currency = currency,
@@ -67,7 +73,8 @@ class DashboardViewModel @Inject constructor(
             spentAmount = spentAmount,
             monthlyBudget = monthlyBudget,
             recentSpends = recentSpends,
-            signedInUsername = signedInUsername
+            signedInUsername = signedInUsername,
+            isAppLockEnabled = isAppLockEnabled
         )
     }.asStateFlow(viewModelScope, DashboardState())
 
@@ -97,6 +104,12 @@ class DashboardViewModel @Inject constructor(
 
     private fun cancelNotifications() {
         autoAddTransactionNotificationHelper.cancelAllNotifications()
+    }
+
+    fun onAppLockClick() {
+        viewModelScope.launch {
+            preferencesManager.updateAppLocked(true)
+        }
     }
 }
 
