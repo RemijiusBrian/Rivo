@@ -12,6 +12,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
+import com.google.android.gms.common.api.Status
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.logD
@@ -44,11 +45,11 @@ class GoogleSignInService(
         try {
             if (result.resultCode != Activity.RESULT_OK) {
                 logI { "SignIn Failed" }
-                /*logD {
+                logD {
                     "SignIn Status - ${
                         result.data?.extras?.getParcelable<Status>(KEY_GOOGLE_SIGN_IN_STATUS)
                     }"
-                }*/
+                }
                 throw GoogleSignInFailedException()
             }
 
@@ -88,6 +89,6 @@ class GoogleSignInService(
     }
 }
 
-//private const val KEY_GOOGLE_SIGN_IN_STATUS = "googleSignInStatus"
+private const val KEY_GOOGLE_SIGN_IN_STATUS = "googleSignInStatus"
 
 class GoogleSignInFailedException : Throwable("SignIn Failed")

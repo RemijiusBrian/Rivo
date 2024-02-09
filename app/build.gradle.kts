@@ -16,7 +16,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "dev.ridill.mym"
+        applicationId = "dev.ridill.rivo"
         minSdk = 29
         targetSdk = 34
         versionCode = 1
@@ -42,6 +42,7 @@ android {
 
         getByName("debug") {
             isDebuggable = true
+            applicationIdSuffix = ".debug"
         }
     }
 
