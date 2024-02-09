@@ -36,3 +36,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.SERVICE_ACCOUNT }}
           groups: Owner
           file: app/build/outputs/apk/internal/debug/Rivo-internalDebug-code1-v2024.02.00.apk
+          releaseNotes: 'Test Release'
