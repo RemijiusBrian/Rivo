@@ -1,7 +1,7 @@
 name: Build & upload to Firebase App Distribution
 
 on:
-  pull_request_target
+  workflow_dispatch
 
 jobs:
   build:
