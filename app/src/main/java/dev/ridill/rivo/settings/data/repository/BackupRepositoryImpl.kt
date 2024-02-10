@@ -54,6 +54,7 @@ class BackupRepositoryImpl(
         try {
             logI { "Performing Data Backup" }
             val backupFile = backupService.buildBackupFile()
+
             val metadataMap = mapOf(
                 "name" to backupFile.name,
                 "parents" to backupParents

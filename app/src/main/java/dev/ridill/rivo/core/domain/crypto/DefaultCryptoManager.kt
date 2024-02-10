@@ -3,7 +3,6 @@ package dev.ridill.rivo.core.domain.crypto
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import java.security.KeyStore
-import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -15,20 +14,23 @@ class DefaultCryptoManager : CryptoManager {
         load(null)
     }
 
-    private fun getEncryptCipher(password: String): Cipher = Cipher
+    private fun getEncryptCipher(): Cipher = Cipher
         .getInstance(TRANSFORMATION)
         .apply {
-            init(Cipher.ENCRYPT_MODE, createKey(password))
+            init(Cipher.ENCRYPT_MODE, getOrCreateKey())
         }
 
-    private fun getDecryptCipher(password: String, iv: ByteArray): Cipher = Cipher
+    private fun getDecryptCipher(iv: ByteArray): Cipher = Cipher
         .getInstance(TRANSFORMATION)
         .apply {
-            init(Cipher.DECRYPT_MODE, createKey(password), IvParameterSpec(iv))
+            init(Cipher.DECRYPT_MODE, getOrCreateKey(), IvParameterSpec(iv))
         }
 
+    private fun getOrCreateKey(): SecretKey =
+        (keyStore.getEntry(ALIAS, null) as? KeyStore.SecretKeyEntry)?.secretKey
+            ?: createKey()
 
-    private fun createKey(password: String): SecretKey = KeyGenerator.getInstance(ALGORITHM)
+    private fun createKey(): SecretKey = KeyGenerator.getInstance(ALGORITHM)
         .apply {
             init(
                 KeyGenParameterSpec.Builder(
@@ -39,20 +41,21 @@ class DefaultCryptoManager : CryptoManager {
                     .setEncryptionPaddings(PADDING)
                     .setUserAuthenticationRequired(false)
                     .setRandomizedEncryptionRequired(true)
-                    .build(),
-                SecureRandom.getInstance(ALGORITHM).apply {
-                    setSeed(password.toByteArray())
-                }
+                    .build()
             )
         }.generateKey()
 
-    override fun encrypt(rawData: ByteArray, password: String): ByteArray {
-        TODO("Not yet implemented")
+    override fun encrypt(rawData: ByteArray, password: String): EncryptionResult {
+        val cipher = getEncryptCipher()
+        val encryptedData = cipher.doFinal(rawData)
+        return EncryptionResult(
+            data = encryptedData,
+            iv = cipher.iv
+        )
     }
 
-    override fun decrypt(encryptedData: ByteArray, password: String): ByteArray {
-        TODO("Not yet implemented")
-    }
+    override fun decrypt(encryptedData: EncryptionResult, password: String): ByteArray =
+        getDecryptCipher(encryptedData.iv).doFinal(encryptedData.data)
 
     companion object {
         private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
