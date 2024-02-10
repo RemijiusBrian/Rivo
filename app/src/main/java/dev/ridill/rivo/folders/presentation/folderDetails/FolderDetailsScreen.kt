@@ -416,11 +416,12 @@ private fun TransactionsInFolder(
                                                 swipeDismissState = it,
                                                 icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
                                                 contentDescription = stringResource(R.string.cd_remove_from_folder),
+                                                enableDismissFromEndToStart = false,
                                                 modifier = Modifier
                                                     .padding(horizontal = SpacingLarge)
                                             )
                                         },
-                                        enableDismissFromStartToEnd = true,
+                                        enableDismissFromEndToStart = false,
                                         modifier = Modifier
                                             .animateItemPlacement()
                                     ) {
