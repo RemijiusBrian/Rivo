@@ -3,6 +3,7 @@ package dev.ridill.rivo.settings.data.repository
 import com.google.gson.Gson
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.model.SimpleResource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
@@ -29,6 +30,7 @@ class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
     private val signInService: GoogleSignInService,
+    private val cryptoManager: CryptoManager,
     private val preferencesManager: PreferencesManager
 ) : BackupRepository {
     override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
@@ -54,6 +56,14 @@ class BackupRepositoryImpl(
         try {
             logI { "Performing Data Backup" }
             val backupFile = backupService.buildBackupFile()
+            /*backupFile.inputStream().use { inputStream ->
+                val bytes = inputStream.readBytes()
+                val encryptedBytes = cryptoManager.encrypt(bytes, "RivoPassword")
+                val decryptedBytes = cryptoManager.decrypt(encryptedBytes, "RivoPassword")
+                logD { "Encrypted Bytes - ${encryptedBytes.data.decodeToString()}" }
+                logD { "Decrypted Bytes - ${decryptedBytes.decodeToString()}" }
+                logD { "Success - ${encryptedBytes.data.contentEquals(decryptedBytes)}" }
+            }*/
 
             val metadataMap = mapOf(
                 "name" to backupFile.name,

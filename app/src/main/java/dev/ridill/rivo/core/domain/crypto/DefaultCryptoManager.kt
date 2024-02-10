@@ -1,52 +1,40 @@
 package dev.ridill.rivo.core.domain.crypto
 
-import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import java.security.KeyStore
 import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
 
 class DefaultCryptoManager : CryptoManager {
 
-    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+    /*private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
         load(null)
+    }*/
+
+    private fun getEncryptCipher(password: String): Cipher = Cipher
+        .getInstance(TRANSFORMATION)
+        .apply {
+            init(Cipher.ENCRYPT_MODE, createKey(password))
+        }
+
+    private fun getDecryptCipher(password: String, iv: ByteArray): Cipher = Cipher
+        .getInstance(TRANSFORMATION)
+        .apply {
+            init(Cipher.DECRYPT_MODE, createKey(password), IvParameterSpec(iv))
+        }
+
+    private fun createKey(password: String): SecretKey {
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+        val keySpec = PBEKeySpec(password.toCharArray())
+        val key = factory.generateSecret(keySpec)
+        return SecretKeySpec(key.encoded, ALGORITHM)
     }
 
-    private fun getEncryptCipher(): Cipher = Cipher
-        .getInstance(TRANSFORMATION)
-        .apply {
-            init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-        }
-
-    private fun getDecryptCipher(iv: ByteArray): Cipher = Cipher
-        .getInstance(TRANSFORMATION)
-        .apply {
-            init(Cipher.DECRYPT_MODE, getOrCreateKey(), IvParameterSpec(iv))
-        }
-
-    private fun getOrCreateKey(): SecretKey =
-        (keyStore.getEntry(ALIAS, null) as? KeyStore.SecretKeyEntry)?.secretKey
-            ?: createKey()
-
-    private fun createKey(): SecretKey = KeyGenerator.getInstance(ALGORITHM)
-        .apply {
-            init(
-                KeyGenParameterSpec.Builder(
-                    ALIAS,
-                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-                )
-                    .setBlockModes(BLOCK_MODE)
-                    .setEncryptionPaddings(PADDING)
-                    .setUserAuthenticationRequired(false)
-                    .setRandomizedEncryptionRequired(true)
-                    .build()
-            )
-        }.generateKey()
-
     override fun encrypt(rawData: ByteArray, password: String): EncryptionResult {
-        val cipher = getEncryptCipher()
+        val cipher = getEncryptCipher(password)
         val encryptedData = cipher.doFinal(rawData)
         return EncryptionResult(
             data = encryptedData,
@@ -55,7 +43,7 @@ class DefaultCryptoManager : CryptoManager {
     }
 
     override fun decrypt(encryptedData: EncryptionResult, password: String): ByteArray =
-        getDecryptCipher(encryptedData.iv).doFinal(encryptedData.data)
+        getDecryptCipher(password, encryptedData.iv).doFinal(encryptedData.data)
 
     companion object {
         private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES

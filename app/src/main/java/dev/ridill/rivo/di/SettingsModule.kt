@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.ConfigDao
@@ -103,11 +104,13 @@ object SettingsModule {
         backupService: BackupService,
         gDriveApi: GDriveApi,
         signInService: GoogleSignInService,
+        cryptoManager: CryptoManager,
         preferencesManager: PreferencesManager
     ): BackupRepository = BackupRepositoryImpl(
         backupService = backupService,
         gDriveApi = gDriveApi,
         signInService = signInService,
+        cryptoManager = cryptoManager,
         preferencesManager = preferencesManager
     )
 

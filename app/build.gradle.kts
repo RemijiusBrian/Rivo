@@ -196,6 +196,9 @@ dependencies {
     implementation(libs.com.github.zhuinden.flow.combinetuple.kt)
     implementation(libs.com.jakewharton.timber)
     implementation(libs.com.notkamui.keval)
+
+    // Test
+    testImplementation(libs.com.google.truth)
 }
 
 ksp {

@@ -134,6 +134,6 @@ class BackupService(
 
 private const val SQLITE_WAL_FILE_SUFFIX = "-wal"
 private const val SQLITE_SHM_FILE_SUFFIX = "-shm"
-const val BACKUP_FILE_NAME = "Backup.mym"
+const val BACKUP_FILE_NAME = "Rivo.backup"
 
 class BackupCachingFailedThrowable : Throwable("Failed to create backup cache")
