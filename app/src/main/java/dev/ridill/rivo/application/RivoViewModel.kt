@@ -7,6 +7,7 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.presentation.security.AppLockManager
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
@@ -38,6 +39,7 @@ class RivoViewModel @Inject constructor(
         .distinctUntilChanged()
     val isAppLocked = preferences.map { it.isAppLocked }
         .distinctUntilChanged()
+    val appLockAuthErrorMessage = MutableStateFlow<UiText?>(null)
 
     val showSplashScreen = MutableStateFlow(true)
 
@@ -80,22 +82,31 @@ class RivoViewModel @Inject constructor(
             }
     }
 
-    fun startAppAutoLockTimer() = viewModelScope.launch {
+    fun onAppStop() = viewModelScope.launch {
         val preferences = preferences.first()
         if (!preferences.appLockEnabled || preferences.isAppLocked) return@launch
         appLockManager.startAppLockTimerService()
     }
 
-    fun stopAppAutoLockTimer() {
+    fun onAppStart() = viewModelScope.launch {
         appLockManager.stopAppLockTimer()
+        val preferences = preferences.first()
+        if (preferences.appLockEnabled && preferences.isAppLocked) {
+            eventBus.send(RivoEvent.LaunchAppLockAuthentication)
+        }
     }
 
     fun onAppLockAuthSucceeded() = viewModelScope.launch {
         preferencesManager.updateAppLocked(false)
     }
 
+    fun updateAppLockErrorMessage(message: UiText?) {
+        appLockAuthErrorMessage.update { message }
+    }
+
     sealed class RivoEvent {
         data class EnableSecureFlags(val enabled: Boolean) : RivoEvent()
+        data object LaunchAppLockAuthentication : RivoEvent()
     }
 }
 

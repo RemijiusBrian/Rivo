@@ -97,6 +97,7 @@
     <string name="error_backup_creation_failed">Failed to create backup</string>
     <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
     <string name="error_biometric_hw_unavailable">Biometric features are currently unavailable</string>
+    <string name="error_biometric_auth_failed">Authentication failed</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
