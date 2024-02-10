@@ -5,19 +5,23 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.geometry.Offset
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
@@ -27,18 +31,53 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
+import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.security.AppLockScreen
+import dev.ridill.rivo.settings.presentation.security.BiometricUtil
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RivoActivity : FragmentActivity() {
 
     private val viewModel: RivoViewModel by viewModels()
+
+    private val biometricManager by lazy { BiometricManager.from(this) }
+    private val biometricPrompt by lazy {
+        BiometricPrompt(
+            this,
+            ContextCompat.getMainExecutor(this),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    viewModel.updateAppLockErrorMessage(UiText.DynamicString(errString.toString()))
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    viewModel.onAppLockAuthSucceeded()
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    viewModel.updateAppLockErrorMessage(UiText.StringResource(R.string.error_biometric_auth_failed))
+                }
+            }
+        )
+    }
+    private val promptInfo by lazy {
+        BiometricPrompt.PromptInfo.Builder()
+            .setTitle(getString(R.string.fingerprint_title))
+            .setSubtitle(getString(R.string.fingerprint_subtitle))
+            .setAllowedAuthenticators(BiometricUtil.DefaultBiometricAuthenticators)
+            .build()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -62,6 +101,10 @@ class RivoActivity : FragmentActivity() {
                                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                             }
                         }
+
+                        RivoViewModel.RivoEvent.LaunchAppLockAuthentication -> {
+                            checkAndLaunchBiometric()
+                        }
                     }
                 }
             }
@@ -72,6 +115,7 @@ class RivoActivity : FragmentActivity() {
             val showWelcomeFlow by viewModel.showWelcomeFlow.collectAsStateWithLifecycle(false)
             val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
             val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
+            val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
             val darkTheme = when (appTheme) {
                 AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
                 AppTheme.LIGHT -> false
@@ -82,8 +126,9 @@ class RivoActivity : FragmentActivity() {
                 darkTheme = darkTheme,
                 dynamicTheme = dynamicTheme,
                 showWelcomeFlow = showWelcomeFlow,
+                appLockErrorMessage = appLockErrorMessage,
                 isAppLocked = isAppLocked,
-                onAuthSuccess = viewModel::onAppLockAuthSucceeded,
+                onUnlockClick = ::checkAndLaunchBiometric,
                 closeApp = ::finish
             )
         }
@@ -96,12 +141,12 @@ class RivoActivity : FragmentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.stopAppAutoLockTimer()
+        viewModel.onAppStart()
     }
 
     override fun onStop() {
         super.onStop()
-        viewModel.startAppAutoLockTimer()
+        viewModel.onAppStop()
     }
 
     private fun checkAppPermissions() {
@@ -114,6 +159,21 @@ class RivoActivity : FragmentActivity() {
             viewModel.onNotificationPermissionCheck(isNotificationPermissionGranted)
         }
     }
+
+    private fun checkAndLaunchBiometric() {
+        when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                viewModel.updateAppLockErrorMessage(null)
+                biometricPrompt.authenticate(promptInfo)
+            }
+
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                viewModel.updateAppLockErrorMessage(UiText.StringResource(R.string.error_biometric_hw_unavailable))
+            }
+
+            else -> Unit
+        }
+    }
 }
 
 @Composable
@@ -121,10 +181,36 @@ private fun ScreenContent(
     darkTheme: Boolean,
     dynamicTheme: Boolean,
     showWelcomeFlow: Boolean,
+    appLockErrorMessage: UiText?,
     isAppLocked: Boolean,
-    onAuthSuccess: () -> Unit,
+    onUnlockClick: () -> Unit,
     closeApp: () -> Unit
 ) {
+    val unlockIconAnimProgress = remember { Animatable(0f) }
+    val lockScreenVisibilityProgress = remember { Animatable(0f) }
+    var showAppLock by rememberSaveable { mutableStateOf(isAppLocked) }
+
+    LaunchedEffect(isAppLocked) {
+        if (isAppLocked) {
+            unlockIconAnimProgress.snapTo(0f)
+            showAppLock = true
+            lockScreenVisibilityProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = APP_SCREEN_VISIBILITY_ANIM_DURATION)
+            )
+        } else {
+            unlockIconAnimProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = UNLOCK_ICON_ANIM_DURATION)
+            )
+            lockScreenVisibilityProgress.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(durationMillis = APP_SCREEN_VISIBILITY_ANIM_DURATION)
+            )
+            showAppLock = false
+        }
+    }
+
     RivoTheme(
         darkTheme = darkTheme,
         dynamicColor = dynamicTheme
@@ -139,24 +225,22 @@ private fun ScreenContent(
                 showWelcomeFlow = showWelcomeFlow
             )
 
-            AnimatedVisibility(
-                visible = isAppLocked,
-                enter = scaleIn(
-                    transformOrigin = TransformOrigin(1f, 0f),
-                    animationSpec = tween(durationMillis = LOCK_ANIM_DURATION)
-                ) + fadeIn(),
-                exit = scaleOut(
-                    transformOrigin = TransformOrigin(1f, 0f),
-                    animationSpec = tween(durationMillis = LOCK_ANIM_DURATION)
-                ) + fadeOut()
-            ) {
+            if (showAppLock) {
                 AppLockScreen(
                     onBack = closeApp,
-                    onAuthSucceeded = { onAuthSuccess() },
+                    unlockAnimProgress = unlockIconAnimProgress.asState(),
+                    onUnlockClick = onUnlockClick,
+                    errorMessage = appLockErrorMessage,
+                    modifier = Modifier
+                        .circularReveal(
+                            transitionProgress = lockScreenVisibilityProgress.asState(),
+                            revealFrom = Offset(1f, 0f)
+                        )
                 )
             }
         }
     }
 }
 
-private const val LOCK_ANIM_DURATION = 500
+private const val UNLOCK_ICON_ANIM_DURATION = 1000
+private const val APP_SCREEN_VISIBILITY_ANIM_DURATION = 500

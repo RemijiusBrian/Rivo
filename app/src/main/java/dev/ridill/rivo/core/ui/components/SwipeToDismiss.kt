@@ -43,7 +43,7 @@ fun <T> SwipeToDismissContainer(
     val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             when (value) {
-                SwipeToDismissBoxValue.Settled -> false
+                SwipeToDismissBoxValue.Settled -> true
                 SwipeToDismissBoxValue.StartToEnd -> {
                     if (enableDismissFromStartToEnd) {
                         isRemoved = true
@@ -66,7 +66,7 @@ fun <T> SwipeToDismissContainer(
     )
 
     LaunchedEffect(Unit) {
-        state.reset()
+        state.snapTo(SwipeToDismissBoxValue.Settled)
     }
 
     LaunchedEffect(isRemoved) {
@@ -101,11 +101,16 @@ fun DismissBackground(
     swipeDismissState: SwipeToDismissBoxState,
     icon: ImageVector,
     modifier: Modifier = Modifier,
+    enableDismissFromStartToEnd: Boolean = true,
+    enableDismissFromEndToStart: Boolean = true,
     contentDescription: String? = null,
     containerColor: Color = MaterialTheme.colorScheme.errorContainer,
     contentColor: Color = contentColorFor(containerColor)
 ) {
-    val color = if (swipeDismissState.progress > 0f) {
+    val color = if (
+        (enableDismissFromStartToEnd && swipeDismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) ||
+        (enableDismissFromEndToStart && swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart)
+    ) {
         containerColor
     } else Color.Transparent
 
@@ -117,16 +122,20 @@ fun DismissBackground(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = contentColor
-        )
-
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = contentColor
-        )
+        if (enableDismissFromStartToEnd) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = contentColor
+            )
+        }
+        SpacerMedium()
+        if (enableDismissFromEndToStart) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = contentColor
+            )
+        }
     }
 }
