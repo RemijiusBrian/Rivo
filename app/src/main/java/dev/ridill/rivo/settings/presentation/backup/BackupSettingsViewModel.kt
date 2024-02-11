@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
@@ -19,6 +20,7 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,6 +30,7 @@ import javax.inject.Inject
 class BackupSettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: BackupSettingsRepository,
+    private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<BackupEvent>
 ) : ViewModel(), BackupSettingsActions {
 
@@ -165,7 +168,12 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     override fun onBackupNowClick() {
-        repo.runImmediateBackupJob()
+        viewModelScope.launch {
+            if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
+                eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+            }
+            repo.runImmediateBackupJob()
+        }
     }
 
     override fun onEncryptionPreferenceClick() {
