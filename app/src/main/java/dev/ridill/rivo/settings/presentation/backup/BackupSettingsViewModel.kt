@@ -153,7 +153,13 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     override fun onBackupIntervalPreferenceClick() {
-        savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = true
+        viewModelScope.launch {
+            if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
+                eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                return@launch
+            }
+            savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = true
+        }
     }
 
     override fun onBackupIntervalSelected(interval: BackupInterval) {
@@ -171,6 +177,7 @@ class BackupSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
                 eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                return@launch
             }
             repo.runImmediateBackupJob()
         }
