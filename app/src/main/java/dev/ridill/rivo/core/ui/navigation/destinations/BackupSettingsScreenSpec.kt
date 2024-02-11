@@ -72,6 +72,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         }
 
         BackupSettingsScreen(
+            context = context,
             snackbarController = snackbarController,
             state = state,
             actions = viewModel,

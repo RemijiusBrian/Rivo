@@ -1,5 +1,7 @@
 package dev.ridill.rivo.settings.presentation.backup
 
+import android.content.Context
+import android.text.format.DateFormat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +47,7 @@ import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
 
 @Composable
 fun BackupSettingsScreen(
+    context: Context,
     snackbarController: SnackbarController,
     state: BackupSettingsState,
     actions: BackupSettingsActions,
@@ -98,7 +101,7 @@ fun BackupSettingsScreen(
 
                     PreviousBackupDetails(
                         lastBackupDate = state.lastBackupDateFormatted?.asString(),
-                        lastBackupTime = state.lastBackupTimeFormatted,
+                        lastBackupTime = state.getBackupTimeFormatted(DateFormat.is24HourFormat(context)),
                         onBackupNowClick = actions::onBackupNowClick,
                         isBackupRunning = state.isBackupRunning
                     )

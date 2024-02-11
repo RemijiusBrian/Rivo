@@ -4,6 +4,11 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import java.time.LocalDateTime
+import java.time.chrono.IsoChronology
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.FormatStyle
+import java.util.Locale
 
 data class BackupSettingsState(
     val accountEmail: String? = null,
@@ -16,6 +21,21 @@ data class BackupSettingsState(
     val lastBackupDateFormatted: UiText?
         get() = lastBackupDateTime?.let { DateUtil.Formatters.prettyDateAgo(it.toLocalDate()) }
 
-    val lastBackupTimeFormatted: String?
-        get() = lastBackupDateTime?.format(DateUtil.Formatters.localizedTimeShort)
+    fun getBackupTimeFormatted(is24HourFormat: Boolean): String? {
+        var pattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+            null,
+            FormatStyle.SHORT,
+            IsoChronology.INSTANCE,
+            Locale.getDefault()
+        )
+
+        if (is24HourFormat) {
+            pattern = pattern.replace("h", "H")
+                .replace("a", "").trim()
+        }
+
+        val formatter = DateTimeFormatter.ofPattern(pattern)
+
+        return lastBackupDateTime?.let { formatter.format(it) }
+    }
 }
