@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.EventBus
@@ -17,6 +18,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
+import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -186,6 +188,19 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onEncryptionPreferenceClick() {
         viewModelScope.launch {
             eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+        }
+    }
+
+    fun onDestinationResult(result: String) {
+        viewModelScope.launch {
+            when (result) {
+                ENCRYPTION_PASSWORD_UPDATED -> {
+                    eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.encryption_password_updated)))
+                    repo.runImmediateBackupJob()
+                }
+
+                else -> Unit
+            }
         }
     }
 
