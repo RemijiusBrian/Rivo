@@ -15,5 +15,6 @@ data class RivoPreferences(
     val showBalancedFolders: Boolean,
     val appLockEnabled: Boolean,
     val appAutoLockInterval: AppAutoLockInterval,
-    val isAppLocked: Boolean
+    val isAppLocked: Boolean,
+    val encryptionPasswordHash: String?
 )

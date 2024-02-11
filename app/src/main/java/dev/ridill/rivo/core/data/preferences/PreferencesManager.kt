@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 interface PreferencesManager {
     companion object {
-        const val NAME = "MYM_preferences"
+        const val NAME = "Rivo_preferences"
     }
 
     val preferences: Flow<RivoPreferences>
@@ -24,4 +24,5 @@ interface PreferencesManager {
     suspend fun updateAppLockEnabled(enabled: Boolean)
     suspend fun updateAppAutoLockInterval(interval: AppAutoLockInterval)
     suspend fun updateAppLocked(locked: Boolean)
+    suspend fun updateEncryptionPasswordHash(hash: String?)
 }

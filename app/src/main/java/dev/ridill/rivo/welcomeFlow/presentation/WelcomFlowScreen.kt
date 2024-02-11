@@ -25,13 +25,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.work.WorkInfo
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.welcomeFlow.domain.model.WelcomeFlowPage
 import dev.ridill.rivo.welcomeFlow.presentation.components.GoogleSignInPage
@@ -43,8 +43,10 @@ import dev.ridill.rivo.welcomeFlow.presentation.components.WelcomeMessagePage
 fun WelcomeFlowScreen(
     snackbarController: SnackbarController,
     pagerState: PagerState,
-    restoreState: WorkInfo.State?,
+    restoreStatusText: UiText?,
+    isRestoreRunning: Boolean,
     availableBackup: BackupDetails?,
+    showEncryptionPasswordInput: Boolean,
     currency: Currency,
     budgetInput: () -> String,
     actions: WelcomeFlowActions
@@ -79,12 +81,16 @@ fun WelcomeFlowScreen(
 
                     WelcomeFlowPage.GOOGLE_SIGN_IN.ordinal -> {
                         GoogleSignInPage(
+                            restoreStatus = restoreStatusText,
+                            isRestoreRunning = isRestoreRunning,
                             onSignInClick = actions::onGoogleSignInClick,
                             onSkipSignInClick = actions::onSkipGoogleSignInClick,
-                            restoreWorkerState = restoreState,
                             onRestoreClick = actions::onRestoreDataClick,
                             onSkipRestoreClick = actions::onSkipDataRestore,
-                            availableBackupDetails = availableBackup
+                            availableBackupDetails = availableBackup,
+                            showEncryptionPasswordInput = showEncryptionPasswordInput,
+                            onEncryptionPasswordInputDismiss = actions::onEncryptionPasswordInputDismiss,
+                            onEncryptionPasswordSubmit = actions::onEncryptionPasswordSubmit
                         )
                     }
 

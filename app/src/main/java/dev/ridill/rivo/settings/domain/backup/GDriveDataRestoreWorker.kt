@@ -34,7 +34,7 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
         startForegroundService()
         val backupDetails = tryOrNull {
             Gson().fromJson(
-                inputData.getString(BackupWorkManager.BACKUP_DETAILS_INPUT).orEmpty(),
+                inputData.getString(BackupWorkManager.KEY_DETAILS_INPUT).orEmpty(),
                 BackupDetails::class.java
             )
         } ?: return@withContext Result.failure(
@@ -44,7 +44,16 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
             )
         )
 
-        when (val resource = repo.performAppDataRestore(backupDetails)) {
+        val passwordHash = inputData.getString(BackupWorkManager.KEY_PASSWORD_HASH).orEmpty()
+            .ifEmpty {
+                return@withContext Result.failure(
+                    workDataOf(
+                        BackupWorkManager.KEY_MESSAGE to UiText.StringResource(R.string.error_invalid_encryption_password)
+                            .asString(appContext)
+                    )
+                )
+            }
+        when (val resource = repo.performAppDataRestore(backupDetails, passwordHash)) {
             is Resource.Error -> Result.failure(
                 workDataOf(
                     BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)

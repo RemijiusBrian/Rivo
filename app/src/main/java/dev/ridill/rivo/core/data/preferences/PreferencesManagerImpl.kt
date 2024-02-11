@@ -4,15 +4,19 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.rivo.core.domain.model.RivoPreferences
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.time.LocalDateTime
 
 class PreferencesManagerImpl(
@@ -20,6 +24,12 @@ class PreferencesManagerImpl(
 ) : PreferencesManager {
 
     override val preferences: Flow<RivoPreferences> = dataStore.data
+        .catch { cause ->
+            if (cause is IOException) {
+                logE(cause) { "Preferences Exception" }
+                emit(emptyPreferences())
+            } else throw cause
+        }
         .map { preferences ->
             val showAppWelcomeFlow = preferences[Keys.SHOW_WELCOME_FLOW] ?: true
             val appTheme = AppTheme.valueOf(
@@ -37,6 +47,7 @@ class PreferencesManagerImpl(
                 preferences[Keys.APP_AUTO_LOCK_INTERVAL] ?: AppAutoLockInterval.ONE_MINUTE.name
             )
             val isAppLocked = preferences[Keys.IS_APP_LOCKED] ?: false
+            val encryptionPasswordHash = preferences[Keys.ENCRYPTION_PASSWORD_HASH]
 
             RivoPreferences(
                 showAppWelcomeFlow = showAppWelcomeFlow,
@@ -49,7 +60,8 @@ class PreferencesManagerImpl(
                 showBalancedFolders = showBalancedFolders,
                 appLockEnabled = appLockEnabled,
                 appAutoLockInterval = appAutoLockInterval,
-                isAppLocked = isAppLocked
+                isAppLocked = isAppLocked,
+                encryptionPasswordHash = encryptionPasswordHash
             )
         }
 
@@ -141,6 +153,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateEncryptionPasswordHash(hash: String?) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.ENCRYPTION_PASSWORD_HASH] = hash.orEmpty()
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -153,5 +173,6 @@ class PreferencesManagerImpl(
         val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")
         val APP_AUTO_LOCK_INTERVAL = stringPreferencesKey("APP_AUTO_LOCK_INTERVAL")
         val IS_APP_LOCKED = booleanPreferencesKey("IS_APP_LOCKED")
+        val ENCRYPTION_PASSWORD_HASH = stringPreferencesKey("ENCRYPTION_PASSWORD_HASH")
     }
 }

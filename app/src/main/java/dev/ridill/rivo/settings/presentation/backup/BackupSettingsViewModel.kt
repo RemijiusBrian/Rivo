@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backupSettings
+package dev.ridill.rivo.settings.presentation.backup
 
 import android.content.Intent
 import androidx.activity.result.ActivityResult
@@ -143,7 +143,9 @@ class BackupSettingsViewModel @Inject constructor(
                 resource.message?.let { eventBus.send(BackupEvent.ShowUiMessage(it)) }
             }
 
-            is Resource.Success -> Unit
+            is Resource.Success -> {
+                eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+            }
         }
     }
 
@@ -166,8 +168,15 @@ class BackupSettingsViewModel @Inject constructor(
         repo.runImmediateBackupJob()
     }
 
+    override fun onEncryptionPreferenceClick() {
+        viewModelScope.launch {
+            eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+        }
+    }
+
     sealed class BackupEvent {
         data class ShowUiMessage(val uiText: UiText) : BackupEvent()
+        data object NavigateToBackupEncryptionScreen : BackupEvent()
         data class LaunchGoogleSignIn(val intent: Intent) : BackupEvent()
     }
 }

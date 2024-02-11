@@ -26,6 +26,22 @@ fun MediumDisplayText(
 }
 
 @Composable
+fun SmallDisplayText(
+    title: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = 2,
+    overflow: TextOverflow = TextOverflow.Ellipsis
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.displaySmall,
+        modifier = modifier,
+        maxLines = maxLines,
+        overflow = overflow
+    )
+}
+
+@Composable
 fun ListLabel(
     text: String,
     modifier: Modifier = Modifier,

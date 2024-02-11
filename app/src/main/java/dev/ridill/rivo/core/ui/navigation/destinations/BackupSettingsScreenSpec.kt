@@ -14,11 +14,14 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
+import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
-import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
-import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.backup.BackupSettingsScreen
+import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
+import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
 
 data object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
@@ -44,6 +47,21 @@ data object BackupSettingsScreenSpec : ScreenSpec {
             onResult = viewModel::onSignInResult
         )
 
+        DestinationResultEffect(
+            key = ACTION_ENCRYPTION_PASSWORD,
+            navBackStackEntry = navBackStackEntry,
+            onResult = {
+                when (it) {
+                    ENCRYPTION_PASSWORD_UPDATED -> R.string.encryption_password_updated
+                    else -> null
+                }?.let { resId ->
+                    snackbarController.showSnackbar(
+                        context.getString(resId)
+                    )
+                }
+            }
+        )
+
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
                 is BackupSettingsViewModel.BackupEvent.ShowUiMessage -> {
@@ -55,6 +73,10 @@ data object BackupSettingsScreenSpec : ScreenSpec {
 
                 is BackupSettingsViewModel.BackupEvent.LaunchGoogleSignIn -> {
                     googleSignInLauncher.launch(event.intent)
+                }
+
+                BackupSettingsViewModel.BackupEvent.NavigateToBackupEncryptionScreen -> {
+                    navController.navigate(BackupEncryptionScreenSpec.route)
                 }
             }
         }

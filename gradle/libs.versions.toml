@@ -46,6 +46,8 @@ flow-combinetuple-kt = "1.2.0"
 timber-logging = "5.0.1"
 keval = "0.9.0"
 
+com-google-truth = "1.4.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 org-jetbrains-kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin-bom" }
@@ -122,6 +124,9 @@ com-airbnb-android-lottie-compose = { group = "com.airbnb.android", name = "lott
 com-github-zhuinden-flow-combinetuple-kt = { group = "com.github.Zhuinden", name = "flow-combinetuple-kt", version.ref = "flow-combinetuple-kt" }
 com-jakewharton-timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber-logging" }
 com-notkamui-keval = { group = "com.notkamui.libs", name = "keval", version.ref = "keval" }
+
+# Test
+com-google-truth = { group = "com.google.truth", name = "truth", version.ref = "com-google-truth" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }

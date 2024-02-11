@@ -19,6 +19,7 @@ import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -53,7 +54,11 @@ class BackupRepositoryImpl(
     override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
         try {
             logI { "Performing Data Backup" }
-            val backupFile = backupService.buildBackupFile()
+            val passwordHash = preferencesManager.preferences.first()
+                .encryptionPasswordHash.orEmpty()
+                .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
+            val backupFile = backupService.buildBackupFile(passwordHash)
+
             val metadataMap = mapOf(
                 "name" to backupFile.name,
                 "parents" to backupParents
@@ -92,6 +97,9 @@ class BackupRepositoryImpl(
                 data = Unit,
                 message = UiText.StringResource(R.string.backup_complete)
             )
+        } catch (t: InvalidEncryptionPasswordThrowable) {
+            logE(t)
+            Resource.Error(UiText.StringResource(R.string.error_invalid_encryption_password))
         } catch (t: BackupCachingFailedThrowable) {
             logE(t)
             Resource.Error(UiText.StringResource(R.string.error_backup_creation_failed))
@@ -105,7 +113,8 @@ class BackupRepositoryImpl(
     }
 
     override suspend fun performAppDataRestore(
-        details: BackupDetails
+        details: BackupDetails,
+        passwordHash: String
     ): SimpleResource = withContext(Dispatchers.IO) {
         try {
             logI { "Restoring Backup" }
@@ -115,8 +124,15 @@ class BackupRepositoryImpl(
                 ?: throw BackupDownloadFailedThrowable()
             logI { "Downloaded backup data" }
 
-            backupService.restoreBackupFile(fileBody.byteStream())
+            backupService.restoreBackupFile(
+                dataInputStream = fileBody.byteStream(),
+                password = passwordHash
+            )
             details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
+            preferencesManager.updateEncryptionPasswordHash(passwordHash)
+            backupService.clearLocalCache()
+            logI { "Cleaned up local cache" }
+
             logI { "Backup Restored" }
             Resource.Success(Unit)
         } catch (t: BackupDownloadFailedThrowable) {
@@ -137,3 +153,4 @@ private val backupParents: List<String>
 
 class NoBackupFoundThrowable : Throwable("No Backups Found")
 class BackupDownloadFailedThrowable : Throwable("Failed to download backup data")
+class InvalidEncryptionPasswordThrowable : Throwable("")

@@ -21,4 +21,6 @@ interface BackupSettingsRepository {
     suspend fun updateBackupInterval(interval: BackupInterval)
     fun runImmediateBackupJob()
     suspend fun getCurrentBackupInterval(): BackupInterval
+    suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean
+    suspend fun updateEncryptionPassword(password: String)
 }

@@ -214,8 +214,8 @@ class SettingsViewModel @Inject constructor(
 
     sealed class SettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent()
-        object RequestSMSPermission : SettingsEvent()
-        object LaunchAppSettings : SettingsEvent()
+        data object RequestSMSPermission : SettingsEvent()
+        data object LaunchAppSettings : SettingsEvent()
     }
 }
 
@@ -225,4 +225,4 @@ private const val SHOW_CURRENCY_SELECTION = "SHOW_CURRENCY_SELECTION"
 private const val CURRENCY_SEARCH_QUERY = "CURRENCY_SEARCH_QUERY"
 private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
-private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TOGGLED_AUTO_ADD_TRANSACTION_STATE"
+private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TEMP_AUTO_ADD_TRANSACTION_STATE"

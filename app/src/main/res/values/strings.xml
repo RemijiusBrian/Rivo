@@ -9,6 +9,7 @@
     <string name="destination_edit_transaction">Edit Transaction</string>
     <string name="destination_settings">Settings</string>
     <string name="destination_backup_settings">Backup</string>
+    <string name="destination_backup_encryption">Backup Encryption</string>
     <string name="destination_security_settings">Security</string>
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_folders">Folders</string>
@@ -94,10 +95,13 @@
     <string name="error_unknown">An Unknown error occurred</string>
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
+    <string name="error_invalid_encryption_password">Invalid encryption password</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
     <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
     <string name="error_biometric_hw_unavailable">Biometric features are currently unavailable</string>
     <string name="error_biometric_auth_failed">Authentication failed</string>
+    <string name="error_passwords_do_not_match">Passwords do not match</string>
+    <string name="error_incorrect_existing_encryption_password">Current password Incorrect</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -153,10 +157,15 @@
     <string name="preference_backup">Backup</string>
     <string name="preference_backup_summary">Backup your transactions</string>
     <string name="preference_title_google_drive">Google Drive</string>
-    <string name="preference_google_drive_backup_message">%s uses Google Drive to backup up your data. You can restore your data when you install the app.</string>
+    <string name="preference_google_drive_backup_message">%s uses Google Drive to backup up your data.
+        All backups are encrypted for added protection.
+        You can restore your data when you install the app.\n
+        Please note that if you forget your password, you will not be able to recovery your data.</string>
     <string name="preference_google_account">Google Account</string>
     <string name="click_to_sign_in_to_google_account">Click to sign in to your Google account</string>
     <string name="preference_backup_interval">Backup Interval</string>
+    <string name="preference_backup_encryption_title">Backup Encryption</string>
+    <string name="preference_backup_encryption_summary">Tap to set a password to encrypt your data with</string>
     <string name="preference_security">Security</string>
     <string name="preference_security_summary">Manage app security</string>
     <string name="preference_app_lock">Screen lock</string>
@@ -326,4 +335,12 @@
     <string name="ten_minutes">10 Minutes</string>
     <string name="one_hour">1 Hour</string>
     <string name="auto_lock_after">Auto lock after</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="update_password">Update Password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm Password</string>
+    <string name="encryption_password_updated">Encryption password updated</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="backup_encryption_message">Your backup is encrypted in your google storage.\n\nTo restore your data from encrypted backup on a new device, you will need your password.</string>
 </resources>

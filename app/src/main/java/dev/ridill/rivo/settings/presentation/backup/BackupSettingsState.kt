@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backupSettings
+package dev.ridill.rivo.settings.presentation.backup
 
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.UiText

@@ -17,6 +17,8 @@ import dev.ridill.rivo.application.RivoViewModel
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.data.preferences.PreferencesManagerImpl
+import dev.ridill.rivo.core.domain.crypto.CryptoManager
+import dev.ridill.rivo.core.domain.crypto.DefaultCryptoManager
 import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
@@ -69,6 +71,9 @@ object AppModule {
 
     @Provides
     fun provideRivoEventBus(): EventBus<RivoViewModel.RivoEvent> = EventBus()
+
+    @Provides
+    fun provideCryptoManager(): CryptoManager = DefaultCryptoManager()
 }
 
 @Qualifier
