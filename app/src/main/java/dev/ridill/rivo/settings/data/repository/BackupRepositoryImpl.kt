@@ -128,8 +128,8 @@ class BackupRepositoryImpl(
                 dataInputStream = fileBody.byteStream(),
                 password = passwordHash
             )
-            details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
             preferencesManager.updateEncryptionPasswordHash(passwordHash)
+            details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
             backupService.clearLocalCache()
             logI { "Cleaned up local cache" }
 
