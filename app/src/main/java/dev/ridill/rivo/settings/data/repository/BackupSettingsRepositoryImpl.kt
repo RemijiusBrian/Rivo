@@ -7,8 +7,10 @@ import androidx.work.WorkInfo
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
@@ -31,7 +34,8 @@ class BackupSettingsRepositoryImpl(
     private val dao: ConfigDao,
     private val signInService: GoogleSignInService,
     private val preferencesManager: PreferencesManager,
-    private val backupWorkManager: BackupWorkManager
+    private val backupWorkManager: BackupWorkManager,
+    private val cryptoManager: CryptoManager
 ) : BackupSettingsRepository {
     private val _backupAccount = MutableStateFlow<GoogleSignInAccount?>(null)
 
@@ -100,4 +104,15 @@ class BackupSettingsRepositoryImpl(
         BackupInterval.valueOf(
             dao.getBackupInterval() ?: BackupInterval.MANUAL.name
         )
+
+    override suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean =
+        cryptoManager.hash(currentPasswordInput) ==
+                preferencesManager.preferences.first().encryptionPasswordHash
+
+    override suspend fun updateEncryptionPassword(password: String): Unit =
+        withContext(Dispatchers.IO) {
+            val passwordHash = cryptoManager.hash(password)
+            logD { "Password Hash - $passwordHash" }
+            preferencesManager.updateEncryptionPasswordHash(passwordHash)
+        }
 }

@@ -9,6 +9,7 @@ import androidx.work.WorkInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.BuildUtil
@@ -22,6 +23,8 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.welcomeFlow.domain.model.WelcomeFlowPage
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,14 +36,27 @@ class WelcomeFlowViewModel @Inject constructor(
     private val backupWorkManager: BackupWorkManager,
     private val settingsRepository: SettingsRepository,
     private val preferencesManager: PreferencesManager,
-    private val backupRepository: BackupRepository
+    private val backupRepository: BackupRepository,
+    private val cryptoManager: CryptoManager
 ) : ViewModel(), WelcomeFlowActions {
-    val restoreState = savedStateHandle.getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
+    private val restoreState = savedStateHandle
+        .getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
+    val restoreStatusText = restoreState.map { state ->
+        when (state) {
+            WorkInfo.State.RUNNING -> UiText.StringResource(R.string.data_restore_in_progress)
+            WorkInfo.State.SUCCEEDED -> UiText.StringResource(R.string.restarting_app)
+            else -> null
+        }
+    }.distinctUntilChanged()
+    val isRestoreRunning = restoreState.map { it == WorkInfo.State.RUNNING }
+        .distinctUntilChanged()
 
     val availableBackup = savedStateHandle.getStateFlow<BackupDetails?>(AVAILABLE_BACKUP, null)
 
     val currency = settingsRepository.getCurrencyPreference()
     val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
+    val showEncryptionPasswordInput = savedStateHandle
+        .getStateFlow(SHOW_ENCRYPTION_PASSWORD_INPUT, false)
 
     val events = eventBus.eventFlow
 
@@ -145,8 +161,19 @@ class WelcomeFlowViewModel @Inject constructor(
                 eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
                 return@launch
             }
-            backupWorkManager.runImmediateRestoreWork(backupDetails)
+            savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = true
         }
+    }
+
+    override fun onEncryptionPasswordInputDismiss() {
+        savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = false
+    }
+
+    override fun onEncryptionPasswordSubmit(password: String) {
+        val backupDetails = availableBackup.value ?: return
+        val passwordHash = cryptoManager.hash(password)
+        savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = false
+        backupWorkManager.runImmediateRestoreWork(backupDetails, passwordHash)
     }
 
     override fun onSkipDataRestore() {
@@ -190,3 +217,4 @@ class WelcomeFlowViewModel @Inject constructor(
 private const val BUDGET_INPUT = "BUDGET_INPUT"
 private const val RESTORE_JOB_STATE = "RESTORE_JOB_STATE"
 private const val AVAILABLE_BACKUP = "AVAILABLE_BACKUP"
+private const val SHOW_ENCRYPTION_PASSWORD_INPUT = "SHOW_ENCRYPTION_PASSWORD_INPUT"

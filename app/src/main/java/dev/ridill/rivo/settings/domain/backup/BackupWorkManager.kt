@@ -39,7 +39,8 @@ class BackupWorkManager(
     companion object {
         const val WORK_INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
         const val KEY_MESSAGE = "KEY_MESSAGE"
-        const val BACKUP_DETAILS_INPUT = "BACKUP_DETAILS_INPUT"
+        const val KEY_DETAILS_INPUT = "KEY_DETAILS_INPUT"
+        const val KEY_PASSWORD_HASH = "KEY_PASSWORD_HASH"
     }
 
     fun schedulePeriodicBackupWork(interval: BackupInterval) {
@@ -91,14 +92,15 @@ class BackupWorkManager(
         .getWorkInfoByIdLiveData(oneTimeBackupWorkName.toUUID())
         .asFlow()
 
-    fun runImmediateRestoreWork(details: BackupDetails) {
+    fun runImmediateRestoreWork(details: BackupDetails, passwordHash: String) {
         val jsonData = Gson().toJson(details)
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(oneTimeRestoreWorkName.toUUID())
             .setInputData(
                 workDataOf(
-                    BACKUP_DETAILS_INPUT to jsonData
+                    KEY_DETAILS_INPUT to jsonData,
+                    KEY_PASSWORD_HASH to passwordHash
                 )
             )
             .addTag(commonBackupTag)

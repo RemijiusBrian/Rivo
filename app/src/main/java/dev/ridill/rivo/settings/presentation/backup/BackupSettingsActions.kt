@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backupSettings
+package dev.ridill.rivo.settings.presentation.backup
 
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 
@@ -8,4 +8,5 @@ interface BackupSettingsActions {
     fun onBackupIntervalSelected(interval: BackupInterval)
     fun onBackupIntervalSelectionDismiss()
     fun onBackupNowClick()
+    fun onEncryptionPreferenceClick()
 }

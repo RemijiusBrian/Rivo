@@ -2,7 +2,8 @@ package dev.ridill.rivo.core.domain.crypto
 
 interface CryptoManager {
     fun encrypt(rawData: ByteArray, password: String): EncryptionResult
-    fun decrypt(encryptedData: EncryptionResult, password: String): ByteArray
+    fun decrypt(encryptedData: ByteArray, iv: ByteArray, password: String): ByteArray
+    fun hash(message: String): String
 }
 
 data class EncryptionResult(

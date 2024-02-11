@@ -33,9 +33,11 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
             pageCount = { WelcomeFlowPage.entries.size }
         )
         val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
-        val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
+        val restoreStatusText by viewModel.restoreStatusText.collectAsStateWithLifecycle(null)
+        val isRestoreRunning by viewModel.isRestoreRunning.collectAsStateWithLifecycle(false)
         val currency by viewModel.currency.collectAsStateWithLifecycle(initialValue = LocaleUtil.defaultCurrency)
         val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
+        val showEncryptionPasswordInput by viewModel.showEncryptionPasswordInput.collectAsStateWithLifecycle()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -91,8 +93,10 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
         WelcomeFlowScreen(
             snackbarController = snackbarController,
             pagerState = pagerState,
-            restoreState = restoreState,
+            restoreStatusText = restoreStatusText,
+            isRestoreRunning = isRestoreRunning,
             availableBackup = availableBackup,
+            showEncryptionPasswordInput = showEncryptionPasswordInput,
             currency = currency,
             budgetInput = { budgetInput.value },
             actions = viewModel

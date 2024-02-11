@@ -8,6 +8,8 @@ interface WelcomeFlowActions {
     fun onSkipGoogleSignInClick()
     fun onRestoreDataClick()
     fun onSkipDataRestore()
+    fun onEncryptionPasswordInputDismiss()
+    fun onEncryptionPasswordSubmit(password: String)
     fun onBudgetInputChange(value: String)
     fun onSetBudgetContinue()
 }

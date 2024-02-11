@@ -1,9 +1,17 @@
 package dev.ridill.rivo.core.ui.components
 
+import androidx.annotation.StringRes
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -22,5 +30,38 @@ fun BackArrowButton(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = stringResource(R.string.cd_navigate_back)
         )
+    }
+}
+
+@Composable
+fun ButtonWithLoadingIndicator(
+    @StringRes textRes: Int,
+    loading: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ButtonColors = ButtonDefaults.buttonColors()
+) {
+    Button(
+        onClick = {
+            if (!loading) onClick()
+        },
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors
+    ) {
+        Crossfade(
+            targetState = loading,
+            label = "TextLoadingCrossfade"
+        ) { isLoading ->
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(ButtonDefaults.IconSize)
+                )
+            } else {
+                Text(stringResource(textRes))
+            }
+        }
     }
 }

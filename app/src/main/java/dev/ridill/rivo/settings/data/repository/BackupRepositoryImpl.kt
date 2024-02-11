@@ -3,7 +3,6 @@ package dev.ridill.rivo.settings.data.repository
 import com.google.gson.Gson
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.model.SimpleResource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
@@ -20,6 +19,7 @@ import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -30,7 +30,6 @@ class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
     private val signInService: GoogleSignInService,
-    private val cryptoManager: CryptoManager,
     private val preferencesManager: PreferencesManager
 ) : BackupRepository {
     override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
@@ -55,15 +54,10 @@ class BackupRepositoryImpl(
     override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
         try {
             logI { "Performing Data Backup" }
-            val backupFile = backupService.buildBackupFile()
-            /*backupFile.inputStream().use { inputStream ->
-                val bytes = inputStream.readBytes()
-                val encryptedBytes = cryptoManager.encrypt(bytes, "RivoPassword")
-                val decryptedBytes = cryptoManager.decrypt(encryptedBytes, "RivoPassword")
-                logD { "Encrypted Bytes - ${encryptedBytes.data.decodeToString()}" }
-                logD { "Decrypted Bytes - ${decryptedBytes.decodeToString()}" }
-                logD { "Success - ${encryptedBytes.data.contentEquals(decryptedBytes)}" }
-            }*/
+            val passwordHash = preferencesManager.preferences.first()
+                .encryptionPasswordHash.orEmpty()
+                .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
+            val backupFile = backupService.buildBackupFile(passwordHash)
 
             val metadataMap = mapOf(
                 "name" to backupFile.name,
@@ -103,6 +97,9 @@ class BackupRepositoryImpl(
                 data = Unit,
                 message = UiText.StringResource(R.string.backup_complete)
             )
+        } catch (t: InvalidEncryptionPasswordThrowable) {
+            logE(t)
+            Resource.Error(UiText.StringResource(R.string.error_invalid_encryption_password))
         } catch (t: BackupCachingFailedThrowable) {
             logE(t)
             Resource.Error(UiText.StringResource(R.string.error_backup_creation_failed))
@@ -116,7 +113,8 @@ class BackupRepositoryImpl(
     }
 
     override suspend fun performAppDataRestore(
-        details: BackupDetails
+        details: BackupDetails,
+        passwordHash: String
     ): SimpleResource = withContext(Dispatchers.IO) {
         try {
             logI { "Restoring Backup" }
@@ -126,8 +124,15 @@ class BackupRepositoryImpl(
                 ?: throw BackupDownloadFailedThrowable()
             logI { "Downloaded backup data" }
 
-            backupService.restoreBackupFile(fileBody.byteStream())
+            backupService.restoreBackupFile(
+                dataInputStream = fileBody.byteStream(),
+                password = passwordHash
+            )
             details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
+            preferencesManager.updateEncryptionPasswordHash(passwordHash)
+            backupService.clearLocalCache()
+            logI { "Cleaned up local cache" }
+
             logI { "Backup Restored" }
             Resource.Success(Unit)
         } catch (t: BackupDownloadFailedThrowable) {
@@ -148,3 +153,4 @@ private val backupParents: List<String>
 
 class NoBackupFoundThrowable : Throwable("No Backups Found")
 class BackupDownloadFailedThrowable : Throwable("Failed to download backup data")
+class InvalidEncryptionPasswordThrowable : Throwable("")

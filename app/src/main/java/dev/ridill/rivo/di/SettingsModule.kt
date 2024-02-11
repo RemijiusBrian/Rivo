@@ -25,7 +25,8 @@ import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
 import dev.ridill.rivo.settings.presentation.security.AppLockManager
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
@@ -96,21 +97,24 @@ object SettingsModule {
     @Provides
     fun provideBackupService(
         @ApplicationContext context: Context,
-        database: RivoDatabase
-    ): BackupService = BackupService(context, database)
+        database: RivoDatabase,
+        cryptoManager: CryptoManager
+    ): BackupService = BackupService(
+        context = context,
+        database = database,
+        cryptoManager = cryptoManager
+    )
 
     @Provides
     fun provideBackupRepository(
         backupService: BackupService,
         gDriveApi: GDriveApi,
         signInService: GoogleSignInService,
-        cryptoManager: CryptoManager,
         preferencesManager: PreferencesManager
     ): BackupRepository = BackupRepositoryImpl(
         backupService = backupService,
         gDriveApi = gDriveApi,
         signInService = signInService,
-        cryptoManager = cryptoManager,
         preferencesManager = preferencesManager
     )
 
@@ -129,12 +133,14 @@ object SettingsModule {
         dao: ConfigDao,
         signInService: GoogleSignInService,
         preferencesManager: PreferencesManager,
-        backupWorkManager: BackupWorkManager
+        backupWorkManager: BackupWorkManager,
+        cryptoManager: CryptoManager
     ): BackupSettingsRepository = BackupSettingsRepositoryImpl(
         dao = dao,
         signInService = signInService,
         preferencesManager = preferencesManager,
-        backupWorkManager = backupWorkManager
+        backupWorkManager = backupWorkManager,
+        cryptoManager = cryptoManager
     )
 
     @Provides
@@ -149,6 +155,10 @@ object SettingsModule {
 
     @Provides
     fun provideSecuritySettingsEventBus(): EventBus<SecuritySettingsViewModel.SecuritySettingsEvent> =
+        EventBus()
+
+    @Provides
+    fun provideBackupEncryptionEventBus(): EventBus<BackupEncryptionViewModel.BackupEncryptionEvent> =
         EventBus()
 }
 

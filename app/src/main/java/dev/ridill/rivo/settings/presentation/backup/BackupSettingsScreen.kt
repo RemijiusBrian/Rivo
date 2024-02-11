@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backupSettings
+package dev.ridill.rivo.settings.presentation.backup
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -101,6 +101,12 @@ fun BackupSettingsScreen(
                         lastBackupTime = state.lastBackupTimeFormatted,
                         onBackupNowClick = actions::onBackupNowClick,
                         isBackupRunning = state.isBackupRunning
+                    )
+
+                    SimpleSettingsPreference(
+                        titleRes = R.string.preference_backup_encryption_title,
+                        summary = stringResource(R.string.preference_backup_encryption_summary),
+                        onClick = actions::onEncryptionPreferenceClick
                     )
                 }
             }
