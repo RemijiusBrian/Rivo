@@ -27,6 +27,9 @@ class AppLockTimerService : Service() {
     lateinit var preferencesManager: PreferencesManager
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startForeground(
+            Random.nextInt(), notificationHelper.getForegroundNotification().build()
+        )
         when (intent?.action) {
             Action.START_TIMER.toString() -> startTimer()
             Action.STOP_TIMER.toString() -> stopSelf()
@@ -42,13 +45,17 @@ class AppLockTimerService : Service() {
     }
 
     private fun startTimer() = serviceScope.launch {
-        startForeground(
-            Random.nextInt(), notificationHelper.getForegroundNotification().build()
-        )
         val interval = preferencesManager.preferences.first().appAutoLockInterval
         delay(interval.duration)
         preferencesManager.updateAppLocked(true)
         stopSelf()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        startForeground(
+            Random.nextInt(), notificationHelper.getForegroundNotification().build()
+        )
     }
 
     override fun onDestroy() {
