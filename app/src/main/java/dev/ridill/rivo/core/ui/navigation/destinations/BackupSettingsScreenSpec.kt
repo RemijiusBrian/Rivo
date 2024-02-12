@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -34,7 +35,11 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         { slideInHorizontallyWithFadeIn { it } }
 
     @Composable
-    override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
+    override fun Content(
+        windowSizeClass: WindowSizeClass,
+        navController: NavHostController,
+        navBackStackEntry: NavBackStackEntry
+    ) {
         val viewModel: BackupSettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 

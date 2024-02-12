@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +24,11 @@ data object DashboardScreenSpec : ScreenSpec {
     override val labelRes: Int = R.string.destination_dashboard
 
     @Composable
-    override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
+    override fun Content(
+        windowSizeClass: WindowSizeClass,
+        navController: NavHostController,
+        navBackStackEntry: NavBackStackEntry
+    ) {
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
 

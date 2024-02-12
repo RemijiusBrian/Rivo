@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation
 
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
@@ -15,6 +16,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.WelcomeFlowScreenSpec
 
 @Composable
 fun RivoNavHost(
+    windowSizeClass: WindowSizeClass,
     navController: NavHostController,
     showWelcomeFlow: Boolean,
     modifier: Modifier = Modifier
@@ -30,14 +32,24 @@ fun RivoNavHost(
         }
         NavDestination.allDestinations.forEach { destination ->
             when (destination) {
-                is NavGraphSpec -> addGraphSpec(destination, navController)
-                is ScreenSpec -> addScreenSpec(destination, navController)
+                is NavGraphSpec -> addGraphSpec(
+                    windowSizeClass = windowSizeClass,
+                    navGraphSpec = destination,
+                    navController = navController
+                )
+
+                is ScreenSpec -> addScreenSpec(
+                    windowSizeClass = windowSizeClass,
+                    screenSpec = destination,
+                    navController = navController
+                )
             }
         }
     }
 }
 
 private fun NavGraphBuilder.addScreenSpec(
+    windowSizeClass: WindowSizeClass,
     screenSpec: ScreenSpec,
     navController: NavHostController
 ) {
@@ -50,11 +62,16 @@ private fun NavGraphBuilder.addScreenSpec(
         popEnterTransition = screenSpec.popEnterTransition,
         popExitTransition = screenSpec.popExitTransition
     ) { navBackStackEntry ->
-        screenSpec.Content(navController = navController, navBackStackEntry = navBackStackEntry)
+        screenSpec.Content(
+            windowSizeClass = windowSizeClass,
+            navController = navController,
+            navBackStackEntry = navBackStackEntry
+        )
     }
 }
 
 private fun NavGraphBuilder.addGraphSpec(
+    windowSizeClass: WindowSizeClass,
     navGraphSpec: NavGraphSpec,
     navController: NavHostController
 ) {
@@ -67,8 +84,17 @@ private fun NavGraphBuilder.addGraphSpec(
     ) {
         navGraphSpec.children.forEach { destination ->
             when (destination) {
-                is ScreenSpec -> addScreenSpec(destination, navController)
-                is NavGraphSpec -> addGraphSpec(destination, navController)
+                is ScreenSpec -> addScreenSpec(
+                    windowSizeClass = windowSizeClass,
+                    screenSpec = destination,
+                    navController = navController
+                )
+
+                is NavGraphSpec -> addGraphSpec(
+                    windowSizeClass = windowSizeClass,
+                    navGraphSpec = navGraphSpec,
+                    navController = navController
+                )
             }
         }
     }

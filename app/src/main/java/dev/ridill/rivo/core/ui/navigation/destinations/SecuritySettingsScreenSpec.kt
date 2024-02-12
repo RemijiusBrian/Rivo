@@ -9,6 +9,7 @@ import androidx.biometric.BiometricManager
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +44,11 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         { slideInHorizontallyWithFadeIn { it } }
 
     @Composable
-    override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
+    override fun Content(
+        windowSizeClass: WindowSizeClass,
+        navController: NavHostController,
+        navBackStackEntry: NavBackStackEntry
+    ) {
         val viewModel: SecuritySettingsViewModel = hiltViewModel(navBackStackEntry)
         val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(false)
         val selectedInterval by viewModel.appAutoLockInterval

@@ -12,6 +12,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -122,7 +124,10 @@ class RivoActivity : FragmentActivity() {
                 AppTheme.DARK -> true
             }
 
+            val windowSizeClass = calculateWindowSizeClass(activity = this)
+
             ScreenContent(
+                windowSizeClass = windowSizeClass,
                 darkTheme = darkTheme,
                 dynamicTheme = dynamicTheme,
                 showWelcomeFlow = showWelcomeFlow,
@@ -178,6 +183,7 @@ class RivoActivity : FragmentActivity() {
 
 @Composable
 private fun ScreenContent(
+    windowSizeClass: WindowSizeClass,
     darkTheme: Boolean,
     dynamicTheme: Boolean,
     showWelcomeFlow: Boolean,
@@ -221,6 +227,7 @@ private fun ScreenContent(
                 .fillMaxSize()
         ) {
             RivoNavHost(
+                windowSizeClass = windowSizeClass,
                 navController = navController,
                 showWelcomeFlow = showWelcomeFlow
             )

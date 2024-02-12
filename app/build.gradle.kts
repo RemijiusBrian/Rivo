@@ -112,7 +112,9 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).conf
         "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
         "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
         "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-        "-opt-in=kotlinx.coroutines.FlowPreview"
+        "-opt-in=kotlinx.coroutines.FlowPreview",
+        "-opt-in=androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi"
+
     )
 }
 
@@ -131,6 +133,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.windowSize)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.animation)
 

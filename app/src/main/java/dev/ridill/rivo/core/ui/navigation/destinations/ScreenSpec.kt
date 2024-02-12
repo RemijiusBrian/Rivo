@@ -5,6 +5,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
@@ -31,5 +32,9 @@ sealed interface ScreenSpec : NavDestination {
         get() = { fadeOut() }
 
     @Composable
-    fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry)
+    fun Content(
+        windowSizeClass: WindowSizeClass,
+        navController: NavHostController,
+        navBackStackEntry: NavBackStackEntry
+    )
 }

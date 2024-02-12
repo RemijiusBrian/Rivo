@@ -6,6 +6,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -101,7 +102,11 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     fun isIdInvalid(folderId: Long): Boolean = folderId == ARG_INVALID_ID_LONG
 
     @Composable
-    override fun Content(navController: NavHostController, navBackStackEntry: NavBackStackEntry) {
+    override fun Content(
+        windowSizeClass: WindowSizeClass,
+        navController: NavHostController,
+        navBackStackEntry: NavBackStackEntry
+    ) {
         val viewModel: FolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val transactionsList = viewModel.transactionsList.collectAsLazyPagingItems()
