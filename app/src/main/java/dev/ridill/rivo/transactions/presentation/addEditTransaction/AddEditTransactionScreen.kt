@@ -387,7 +387,7 @@ fun NoteInput(
         placeholder = { Text(stringResource(R.string.add_a_note)) },
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Words,
+            capitalization = KeyboardCapitalization.Sentences,
             imeAction = ImeAction.Done
         ),
         singleLine = true,

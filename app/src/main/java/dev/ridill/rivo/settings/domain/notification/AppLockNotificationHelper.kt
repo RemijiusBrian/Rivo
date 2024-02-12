@@ -11,6 +11,7 @@ import androidx.core.app.TaskStackBuilder
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import kotlin.random.Random
 
 class AppLockNotificationHelper(
     private val context: Context
@@ -57,14 +58,14 @@ class AppLockNotificationHelper(
         val intent = Intent(context, RivoActivity::class.java)
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(1, NotificationHelper.Utils.pendingIntentFlags)
+            getPendingIntent(Random.nextInt(), NotificationHelper.Utils.pendingIntentFlags)
         }
     }
 
     private fun buildLockAction(): NotificationCompat.Action {
         val intent = Intent(context, LockAppImmediateReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
-            context, 1, intent, NotificationHelper.Utils.pendingIntentFlags
+            context, Random.nextInt(), intent, NotificationHelper.Utils.pendingIntentFlags
         )
 
         return NotificationCompat.Action.Builder(

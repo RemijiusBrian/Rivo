@@ -331,7 +331,6 @@
     <string name="one_minute">1 Minute</string>
     <string name="five_minutes">5 Minutes</string>
     <string name="ten_minutes">10 Minutes</string>
-    <string name="one_hour">1 Hour</string>
     <string name="auto_lock_after">Auto lock after</string>
     <string name="enter_password">Enter Password</string>
     <string name="update_password">Update Password</string>
