@@ -28,10 +28,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -88,7 +90,6 @@ import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
@@ -495,36 +496,37 @@ private fun TransactionTypeSelector(
         R.string.cd_transaction_type_selector,
         stringResource(selectedType.labelRes)
     )
-    TabSelector(
-        values = { TransactionType.entries },
-        selectedItem = { selectedType },
+
+    val typesCount = remember { TransactionType.entries.size }
+
+    SingleChoiceSegmentedButtonRow(
         modifier = modifier
             .semantics {
                 contentDescription = typeSelectorContentDescription
-            }
-    ) { type ->
-        val selected = selectedType == type
-        val transactionTypeSelectorContentDescription = if (!selected)
-            stringResource(
-                R.string.cd_transaction_type_selector_unselected,
-                stringResource(type.labelRes)
-            )
-        else null
-        TabSelectorItem(
-            selected = selected,
-            onClick = { onValueChange(type) },
-            text = {
-                Text(
-                    text = stringResource(type.labelRes),
-                    overflow = TextOverflow.Ellipsis
-                )
             },
-            modifier = Modifier
-                .mergedContentDescription(transactionTypeSelectorContentDescription),
-            selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            unselectedContentColor = LocalContentColor.current
-        )
-
+    ) {
+        TransactionType.entries.forEachIndexed { index, type ->
+            val selected = selectedType == type
+            val transactionTypeSelectorContentDescription = if (!selected)
+                stringResource(
+                    R.string.cd_transaction_type_selector_unselected,
+                    stringResource(type.labelRes)
+                )
+            else null
+            SegmentedButton(
+                selected = selected,
+                onClick = { onValueChange(type) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = typesCount),
+                modifier = Modifier
+                    .semantics {
+                        transactionTypeSelectorContentDescription?.let {
+                            contentDescription = it
+                        }
+                    }
+            ) {
+                Text(stringResource(type.labelRes))
+            }
+        }
     }
 }
 
