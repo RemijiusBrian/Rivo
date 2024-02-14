@@ -90,6 +90,7 @@ class RivoViewModel @Inject constructor(
 
     fun onAppStart() = viewModelScope.launch {
         appLockManager.stopAppLockTimer()
+        delay(SPLASH_SCREEN_DELAY_SECONDS.seconds)
         val preferences = preferences.first()
         if (preferences.appLockEnabled && preferences.isAppLocked) {
             eventBus.send(RivoEvent.LaunchAppLockAuthentication)
