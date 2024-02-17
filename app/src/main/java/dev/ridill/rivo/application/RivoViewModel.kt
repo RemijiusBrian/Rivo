@@ -8,6 +8,7 @@ import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.presentation.security.AppLockManager
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
@@ -27,7 +28,8 @@ class RivoViewModel @Inject constructor(
     private val receiverService: ReceiverService,
     private val smsModelDownloadManager: SMSModelDownloadManager,
     private val appLockManager: AppLockManager,
-    private val eventBus: EventBus<RivoEvent>
+    private val eventBus: EventBus<RivoEvent>,
+    private val backupSettingsRepo: BackupSettingsRepository
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
     val showWelcomeFlow = preferences.map { it.showAppWelcomeFlow }
@@ -49,6 +51,7 @@ class RivoViewModel @Inject constructor(
         toggleSplashScreenVisibility()
         collectTransactionAutoAdd()
         collectAppLockEnabled()
+        collectConfigRestore()
     }
 
     private fun toggleSplashScreenVisibility() = viewModelScope.launch {
@@ -64,6 +67,15 @@ class RivoViewModel @Inject constructor(
                 receiverService.toggleSmsReceiver(enabled)
                 if (enabled)
                     smsModelDownloadManager.downloadSMSModelIfNeeded()
+            }
+    }
+
+    private fun collectConfigRestore() = viewModelScope.launch {
+        preferencesManager.preferences.map { it.needsConfigRestore }
+            .collectLatest { needsRestore ->
+                if (!needsRestore) return@collectLatest
+                backupSettingsRepo.restoreBackupJob()
+                preferencesManager.updateNeedsConfigRestore(false)
             }
     }
 

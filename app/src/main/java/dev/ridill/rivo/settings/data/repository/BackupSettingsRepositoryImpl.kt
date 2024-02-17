@@ -100,10 +100,12 @@ class BackupSettingsRepositoryImpl(
         backupWorkManager.runImmediateBackupWork()
     }
 
-    override suspend fun getCurrentBackupInterval(): BackupInterval =
-        BackupInterval.valueOf(
+    override suspend fun restoreBackupJob() {
+        val backupInterval = BackupInterval.valueOf(
             dao.getBackupInterval() ?: BackupInterval.MANUAL.name
         )
+        backupWorkManager.schedulePeriodicBackupWork(backupInterval)
+    }
 
     override suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean =
         cryptoManager.hash(currentPasswordInput) ==
