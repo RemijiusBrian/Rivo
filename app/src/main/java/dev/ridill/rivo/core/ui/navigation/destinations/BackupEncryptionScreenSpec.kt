@@ -16,6 +16,8 @@ import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionScreen
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
+import dev.ridill.rivo.settings.presentation.security.rememberBiometricPrompt
+import dev.ridill.rivo.settings.presentation.security.rememberPromptInfo
 
 data object BackupEncryptionScreenSpec : ScreenSpec {
     override val route: String = "backup_encryption"
@@ -37,6 +39,11 @@ data object BackupEncryptionScreenSpec : ScreenSpec {
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
+        val biometricPrompt = rememberBiometricPrompt(
+            onAuthSucceeded = { viewModel.onBiometricAuthSucceeded() }
+        )
+        val promptInfo = rememberPromptInfo()
+
         LaunchedEffect(viewModel, context, snackbarController) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -52,6 +59,10 @@ data object BackupEncryptionScreenSpec : ScreenSpec {
                             ACTION_ENCRYPTION_PASSWORD,
                             ENCRYPTION_PASSWORD_UPDATED
                         )
+                    }
+
+                    BackupEncryptionViewModel.BackupEncryptionEvent.LaunchBiometricAuthentication -> {
+                        biometricPrompt.authenticate(promptInfo)
                     }
                 }
             }

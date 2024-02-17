@@ -10,7 +10,6 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,8 +69,12 @@ class BackupEncryptionViewModel @Inject constructor(
 
     override fun onForgotCurrentPasswordClick() {
         viewModelScope.launch {
-            preferencesManager.updateEncryptionPasswordHash(null)
+            eventBus.send(BackupEncryptionEvent.LaunchBiometricAuthentication)
         }
+    }
+
+    fun onBiometricAuthSucceeded() = viewModelScope.launch {
+        preferencesManager.updateEncryptionPasswordHash(null)
     }
 
     override fun onNewPasswordChange(value: String) {
@@ -93,9 +96,6 @@ class BackupEncryptionViewModel @Inject constructor(
             val currentPassword = currentPassword.value
             val newPassword = newPassword.value
             val confirmNewPassword = confirmNewPassword.value
-            logD { "Current Password - $currentPassword" }
-            logD { "New Password - $newPassword" }
-            logD { "Confirm New Password - $confirmNewPassword" }
 
             if (hasExistingPassword.first()) {
                 if (!repo.isCurrentPasswordMatch(currentPassword)) {
@@ -146,6 +146,7 @@ class BackupEncryptionViewModel @Inject constructor(
     sealed interface BackupEncryptionEvent {
         data class ShowUiMessage(val message: UiText) : BackupEncryptionEvent
         data object PasswordUpdated : BackupEncryptionEvent
+        data object LaunchBiometricAuthentication : BackupEncryptionEvent
     }
 }
 

@@ -75,8 +75,8 @@ class RivoActivity : FragmentActivity() {
     }
     private val promptInfo by lazy {
         BiometricPrompt.PromptInfo.Builder()
-            .setTitle(getString(R.string.fingerprint_title))
-            .setSubtitle(getString(R.string.fingerprint_subtitle))
+            .setTitle(getString(R.string.biometric_prompt_title))
+            .setSubtitle(getString(R.string.fingerprint_or_screen_lock_prompt_message))
             .setAllowedAuthenticators(BiometricUtil.DefaultBiometricAuthenticators)
             .build()
     }

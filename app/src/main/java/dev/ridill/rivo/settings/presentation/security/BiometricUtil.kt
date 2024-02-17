@@ -6,8 +6,10 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import dev.ridill.rivo.R
 import java.util.concurrent.Executor
 
 @Composable
@@ -50,8 +52,8 @@ fun rememberBiometricPrompt(
 
 @Composable
 fun rememberPromptInfo(
-    title: String,
-    subTitle: String? = null,
+    title: String = stringResource(R.string.biometric_prompt_title),
+    subTitle: String? = stringResource(R.string.fingerprint_or_screen_lock_prompt_message),
     description: String? = null,
     allowedAuthenticators: Int = BiometricUtil.DefaultBiometricAuthenticators
 ): BiometricPrompt.PromptInfo {

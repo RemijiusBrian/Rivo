@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -57,10 +56,7 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         val biometricPrompt = rememberBiometricPrompt(
             onAuthSucceeded = { viewModel.onAuthenticationSuccess() }
         )
-        val promptInfo = rememberPromptInfo(
-            title = stringResource(R.string.fingerprint_title),
-            subTitle = stringResource(R.string.fingerprint_subtitle)
-        )
+        val promptInfo = rememberPromptInfo()
 
         val biometricEnrollLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
