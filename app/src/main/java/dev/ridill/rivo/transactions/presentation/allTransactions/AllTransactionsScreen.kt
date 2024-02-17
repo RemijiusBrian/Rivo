@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -208,7 +209,7 @@ fun AllTransactionsScreen(
                     onAssignToTransactions = actions::onAssignTagToTransactions,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillParentMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
+                        .heightIn(min = TagsRowMinHeight)
                         .animateItemPlacement()
                 )
             }
@@ -271,66 +272,6 @@ fun AllTransactionsScreen(
                 )
             }
         }
-        /*Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                    start = paddingValues.calculateStartPadding(localLayoutDirection),
-                    end = paddingValues.calculateEndPadding(localLayoutDirection)
-                )
-                .padding(top = SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
-        ) {
-            TagsInfoList(
-                currency = state.currency,
-                tags = state.tagsWithExpenditures,
-                selectedTagId = state.selectedTagId,
-                onTagSelect = actions::onTagSelect,
-                onTagLongClick = actions::onTagLongClick,
-                onNewTagClick = actions::onNewTagClick,
-                tagAssignModeActive = state.transactionMultiSelectionModeActive,
-                onAssignToTransactions = actions::onAssignTagToTransactions,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
-            )
-
-            DateFilter(
-                selectedDate = state.selectedDate,
-                onMonthSelect = actions::onMonthSelect,
-                yearsList = state.yearsList,
-                onYearSelect = actions::onYearSelect
-            )
-
-            TransactionsList(
-                currency = state.currency,
-                typeFilter = state.selectedTransactionTypeFilter,
-                totalSumAmount = state.totalAmount,
-                listLabel = state.transactionListLabel,
-                transactionsList = state.transactionList,
-                selectedTransactionIds = state.selectedTransactionIds,
-                selectionState = state.transactionSelectionState,
-                multiSelectionModeActive = state.transactionMultiSelectionModeActive,
-                onSelectionStateChange = actions::onSelectionStateChange,
-                onTransactionOptionClick = actions::onTransactionOptionClick,
-                onTransactionClick = navigateToAddEditTransaction,
-                onTxLongPress = actions::onTransactionLongPress,
-                onTxSelectionChange = actions::onTransactionSelectionChange,
-                listContentPadding = PaddingValues(
-                    top = SpacingSmall,
-                    bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
-                ),
-                showExcludedTransactions = state.showExcludedTransactions,
-                onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
-                onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
-                onDeleteSelectedTransactions = actions::onDeleteSelectedTransactionsClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(Float.One),
-                listState = transactionsListState
-            )
-        }*/
 
         if (state.showDeleteTransactionConfirmation) {
             ConfirmationDialog(
@@ -382,7 +323,7 @@ fun AllTransactionsScreen(
     }
 }
 
-private const val TAGS_LIST_HEIGHT_FRACTION = 0.16f
+private val TagsRowMinHeight = 120.dp
 
 @Composable
 private fun TagsInfoList(
