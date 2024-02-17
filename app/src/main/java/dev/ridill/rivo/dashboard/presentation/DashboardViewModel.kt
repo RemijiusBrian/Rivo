@@ -8,11 +8,8 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
-import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
-import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -24,8 +21,6 @@ class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
     private val signInService: GoogleSignInService,
     private val preferencesManager: PreferencesManager,
-    private val backupWorkManager: BackupWorkManager,
-    private val backupSettingsRepo: BackupSettingsRepository,
     private val autoAddTransactionNotificationHelper: AutoAddTransactionNotificationHelper
 ) : ViewModel() {
 
@@ -80,7 +75,6 @@ class DashboardViewModel @Inject constructor(
 
     init {
         getSignedInUserName()
-        collectConfigRestore()
         cancelNotifications()
     }
 
@@ -88,18 +82,6 @@ class DashboardViewModel @Inject constructor(
         signedInUsername.update {
             signInService.getSignedInAccount()?.displayName
         }
-    }
-
-    private fun collectConfigRestore() = viewModelScope.launch {
-        preferencesManager.preferences.map { it.needsConfigRestore }
-            .collectLatest { needsRestore ->
-                if (!needsRestore) return@collectLatest
-
-                val currentBackupInterval = backupSettingsRepo.getCurrentBackupInterval()
-                backupWorkManager.schedulePeriodicBackupWork(currentBackupInterval)
-
-                preferencesManager.updateNeedsConfigRestore(false)
-            }
     }
 
     private fun cancelNotifications() {

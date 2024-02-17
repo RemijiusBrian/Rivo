@@ -20,7 +20,7 @@ interface BackupSettingsRepository {
     fun getPeriodicBackupWorkInfo(): Flow<WorkInfo?>
     suspend fun updateBackupInterval(interval: BackupInterval)
     fun runImmediateBackupJob()
-    suspend fun getCurrentBackupInterval(): BackupInterval
+    suspend fun restoreBackupJob()
     suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean
     suspend fun updateEncryptionPassword(password: String)
 }
