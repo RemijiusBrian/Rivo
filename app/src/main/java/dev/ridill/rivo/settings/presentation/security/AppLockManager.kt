@@ -21,7 +21,7 @@ class AppLockManager(
                     serviceIntent
                 )
             },
-            500
+            DELAY_MILLIS
         )
     }
 
@@ -31,7 +31,9 @@ class AppLockManager(
             {
                 context.stopService(serviceIntent)
             },
-            500
+            DELAY_MILLIS
         )
     }
 }
+
+private const val DELAY_MILLIS = 500L
