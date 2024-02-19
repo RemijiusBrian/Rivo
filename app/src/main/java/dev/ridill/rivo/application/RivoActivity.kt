@@ -142,8 +142,8 @@ class RivoActivity : FragmentActivity() {
             .canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators) == BiometricManager.BIOMETRIC_SUCCESS
         if (!canAuthenticate) return
 
-        val title = getString(R.string.fingerprint_title)
-        val subtitle = getString(R.string.fingerprint_subtitle)
+        val title = getString(R.string.biometric_prompt_title)
+        val subtitle = getString(R.string.fingerprint_or_screen_lock_prompt_message)
         val authPromptCallback = object : AuthPromptCallback() {
             override fun onAuthenticationError(
                 activity: FragmentActivity?,

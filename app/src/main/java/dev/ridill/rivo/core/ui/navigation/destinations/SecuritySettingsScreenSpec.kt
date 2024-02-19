@@ -76,7 +76,6 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
             }
         )
 
-
         LaunchedEffect(snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -132,8 +131,8 @@ private inline fun startBiometricAuthentication(
     crossinline onAuthSuccess: () -> Unit
 ) {
     val activity = context.findActivity() as FragmentActivity
-    val title = context.getString(R.string.fingerprint_title)
-    val subtitle = context.getString(R.string.fingerprint_subtitle)
+    val title = context.getString(R.string.biometric_prompt_title)
+    val subtitle = context.getString(R.string.fingerprint_or_screen_lock_prompt_message)
     val authPromptCallback = object : AuthPromptCallback() {
         override fun onAuthenticationSucceeded(
             activity: FragmentActivity?,
