@@ -1,6 +1,6 @@
-package dev.ridill.rivo.welcomeFlow.presentation
+package dev.ridill.rivo.onboarding.presentation
 
-interface WelcomeFlowActions {
+interface OnboardingActions {
     fun onGiveNotificationPermissionClick()
     fun onSkipNotificationPermission()
     fun onNotificationPermissionResponse(granted: Boolean)

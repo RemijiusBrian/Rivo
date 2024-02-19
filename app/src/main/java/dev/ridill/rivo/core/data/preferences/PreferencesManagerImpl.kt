@@ -31,7 +31,7 @@ class PreferencesManagerImpl(
             } else throw cause
         }
         .map { preferences ->
-            val showAppWelcomeFlow = preferences[Keys.SHOW_WELCOME_FLOW] ?: true
+            val showOnboarding = preferences[Keys.SHOW_ONBOARDING] ?: true
             val appTheme = AppTheme.valueOf(
                 preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM_DEFAULT.name
             )
@@ -50,7 +50,7 @@ class PreferencesManagerImpl(
             val encryptionPasswordHash = preferences[Keys.ENCRYPTION_PASSWORD_HASH]
 
             RivoPreferences(
-                showAppWelcomeFlow = showAppWelcomeFlow,
+                showOnboarding = showOnboarding,
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
@@ -65,10 +65,10 @@ class PreferencesManagerImpl(
             )
         }
 
-    override suspend fun concludeWelcomeFlow() {
+    override suspend fun concludeOnboarding() {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.SHOW_WELCOME_FLOW] = false
+                preferences[Keys.SHOW_ONBOARDING] = false
             }
         }
     }
@@ -162,7 +162,7 @@ class PreferencesManagerImpl(
     }
 
     private object Keys {
-        val SHOW_WELCOME_FLOW = booleanPreferencesKey("SHOW_WELCOME_FLOW")
+        val SHOW_ONBOARDING = booleanPreferencesKey("SHOW_ONBOARDING")
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")

@@ -1,4 +1,4 @@
-package dev.ridill.rivo.welcomeFlow.presentation
+package dev.ridill.rivo.onboarding.presentation
 
 import android.content.Intent
 import androidx.activity.result.ActivityResult
@@ -17,11 +17,11 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.welcomeFlow.domain.model.WelcomeFlowPage
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -29,16 +29,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WelcomeFlowViewModel @Inject constructor(
+class OnboardingViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val eventBus: EventBus<WelcomeFlowEvent>,
+    private val eventBus: EventBus<OnboardingEvent>,
     private val signInService: GoogleSignInService,
     private val backupWorkManager: BackupWorkManager,
     private val settingsRepository: SettingsRepository,
     private val preferencesManager: PreferencesManager,
     private val backupRepository: BackupRepository,
     private val cryptoManager: CryptoManager
-) : ViewModel(), WelcomeFlowActions {
+) : ViewModel(), OnboardingActions {
     private val restoreState = savedStateHandle
         .getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
     val restoreStatusText = restoreState.map { state ->
@@ -72,13 +72,13 @@ class WelcomeFlowViewModel @Inject constructor(
             when (state) {
                 WorkInfo.State.SUCCEEDED -> {
                     savedStateHandle[AVAILABLE_BACKUP] = null
-                    preferencesManager.concludeWelcomeFlow()
-                    eventBus.send(WelcomeFlowEvent.RestartApplication)
+                    preferencesManager.concludeOnboarding()
+                    eventBus.send(OnboardingEvent.RestartApplication)
                 }
 
                 WorkInfo.State.FAILED -> {
                     eventBus.send(
-                        WelcomeFlowEvent.ShowUiMessage(
+                        OnboardingEvent.ShowUiMessage(
                             info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
                                 ?: UiText.StringResource(R.string.error_app_data_restore_failed)
@@ -94,41 +94,41 @@ class WelcomeFlowViewModel @Inject constructor(
     override fun onGiveNotificationPermissionClick() {
         viewModelScope.launch {
             if (BuildUtil.isNotificationRuntimePermissionNeeded())
-                eventBus.send(WelcomeFlowEvent.LaunchNotificationPermissionRequest)
+                eventBus.send(OnboardingEvent.LaunchNotificationPermissionRequest)
             else
-                eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
         }
     }
 
     override fun onSkipNotificationPermission() {
         viewModelScope.launch {
-            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
+            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
         }
     }
 
     override fun onNotificationPermissionResponse(granted: Boolean) {
         if (granted) viewModelScope.launch {
-            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.GOOGLE_SIGN_IN))
+            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
         }
     }
 
     override fun onGoogleSignInClick() {
         viewModelScope.launch {
             val signInIntent = signInService.getSignInIntent()
-            eventBus.send(WelcomeFlowEvent.LaunchGoogleSignIn(signInIntent))
+            eventBus.send(OnboardingEvent.LaunchGoogleSignIn(signInIntent))
         }
     }
 
     override fun onSkipGoogleSignInClick() {
         viewModelScope.launch {
-            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
         }
     }
 
     fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
         when (val resource = signInService.getAccountFromSignInResult(result)) {
             is Resource.Error -> {
-                resource.message?.let { eventBus.send(WelcomeFlowEvent.ShowUiMessage(it)) }
+                resource.message?.let { eventBus.send(OnboardingEvent.ShowUiMessage(it)) }
             }
 
             is Resource.Success -> {
@@ -141,14 +141,14 @@ class WelcomeFlowViewModel @Inject constructor(
         logI { "Running Backup Check" }
         when (val resource = backupRepository.checkForBackup()) {
             is Resource.Error -> {
-                eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
             }
 
             is Resource.Success -> {
                 if (resource.data != null) {
                     savedStateHandle[AVAILABLE_BACKUP] = resource.data
                 } else {
-                    eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+                    eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
                 }
             }
         }
@@ -158,7 +158,7 @@ class WelcomeFlowViewModel @Inject constructor(
         viewModelScope.launch {
             val backupDetails = availableBackup.value
             if (backupDetails == null) {
-                eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
                 return@launch
             }
             savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = true
@@ -178,7 +178,7 @@ class WelcomeFlowViewModel @Inject constructor(
 
     override fun onSkipDataRestore() {
         viewModelScope.launch {
-            eventBus.send(WelcomeFlowEvent.NavigateToPage(WelcomeFlowPage.SET_BUDGET))
+            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
             savedStateHandle[AVAILABLE_BACKUP] = null
         }
     }
@@ -192,25 +192,25 @@ class WelcomeFlowViewModel @Inject constructor(
             val budgetValue = budgetInput.value.toLongOrNull() ?: -1L
             if (budgetValue <= Long.Zero) {
                 eventBus.send(
-                    WelcomeFlowEvent.ShowUiMessage(
+                    OnboardingEvent.ShowUiMessage(
                         UiText.StringResource(R.string.error_invalid_amount, true)
                     )
                 )
                 return@launch
             }
             settingsRepository.updateCurrentBudget(budgetValue)
-            preferencesManager.concludeWelcomeFlow()
-            eventBus.send(WelcomeFlowEvent.WelcomeFlowConcluded)
+            preferencesManager.concludeOnboarding()
+            eventBus.send(OnboardingEvent.OnboardingConcluded)
         }
     }
 
-    sealed class WelcomeFlowEvent {
-        data class NavigateToPage(val page: WelcomeFlowPage) : WelcomeFlowEvent()
-        data object WelcomeFlowConcluded : WelcomeFlowEvent()
-        data class ShowUiMessage(val uiText: UiText) : WelcomeFlowEvent()
-        data object LaunchNotificationPermissionRequest : WelcomeFlowEvent()
-        data class LaunchGoogleSignIn(val intent: Intent) : WelcomeFlowEvent()
-        data object RestartApplication : WelcomeFlowEvent()
+    sealed class OnboardingEvent {
+        data class NavigateToPage(val page: OnboardingPage) : OnboardingEvent()
+        data object OnboardingConcluded : OnboardingEvent()
+        data class ShowUiMessage(val uiText: UiText) : OnboardingEvent()
+        data object LaunchNotificationPermissionRequest : OnboardingEvent()
+        data class LaunchGoogleSignIn(val intent: Intent) : OnboardingEvent()
+        data object RestartApplication : OnboardingEvent()
     }
 }
 

@@ -6,7 +6,7 @@ sealed interface NavDestination {
     companion object {
         val allDestinations: List<NavDestination>
             get() = listOf(
-                WelcomeFlowScreenSpec,
+                OnboardingScreenSpec,
                 DashboardScreenSpec,
                 AddEditTransactionScreenSpec,
                 AllTransactionsScreenSpec,

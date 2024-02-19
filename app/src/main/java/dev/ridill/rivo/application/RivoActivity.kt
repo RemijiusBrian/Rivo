@@ -7,6 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.auth.AuthPromptCallback
+import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
+import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -23,7 +26,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
@@ -49,37 +51,6 @@ import kotlinx.coroutines.launch
 class RivoActivity : FragmentActivity() {
 
     private val viewModel: RivoViewModel by viewModels()
-
-    private val biometricManager by lazy { BiometricManager.from(this) }
-    private val biometricPrompt by lazy {
-        BiometricPrompt(
-            this,
-            ContextCompat.getMainExecutor(this),
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    viewModel.updateAppLockErrorMessage(UiText.DynamicString(errString.toString()))
-                }
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    viewModel.onAppLockAuthSucceeded()
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    viewModel.updateAppLockErrorMessage(UiText.StringResource(R.string.error_biometric_auth_failed))
-                }
-            }
-        )
-    }
-    private val promptInfo by lazy {
-        BiometricPrompt.PromptInfo.Builder()
-            .setTitle(getString(R.string.biometric_prompt_title))
-            .setSubtitle(getString(R.string.fingerprint_or_screen_lock_prompt_message))
-            .setAllowedAuthenticators(BiometricUtil.DefaultBiometricAuthenticators)
-            .build()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -167,17 +138,48 @@ class RivoActivity : FragmentActivity() {
     }
 
     private fun checkAndLaunchBiometric() {
-        when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
-            BiometricManager.BIOMETRIC_SUCCESS -> {
-                viewModel.updateAppLockErrorMessage(null)
-                biometricPrompt.authenticate(promptInfo)
+        val canAuthenticate = BiometricManager.from(this)
+            .canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators) == BiometricManager.BIOMETRIC_SUCCESS
+        if (!canAuthenticate) return
+
+        val title = getString(R.string.fingerprint_title)
+        val subtitle = getString(R.string.fingerprint_subtitle)
+        val authPromptCallback = object : AuthPromptCallback() {
+            override fun onAuthenticationError(
+                activity: FragmentActivity?,
+                errorCode: Int,
+                errString: CharSequence
+            ) {
+                super.onAuthenticationError(activity, errorCode, errString)
+                viewModel.updateAppLockErrorMessage(UiText.DynamicString(errString.toString()))
             }
 
-            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-                viewModel.updateAppLockErrorMessage(UiText.StringResource(R.string.error_biometric_hw_unavailable))
+            override fun onAuthenticationSucceeded(
+                activity: FragmentActivity?,
+                result: BiometricPrompt.AuthenticationResult
+            ) {
+                super.onAuthenticationSucceeded(activity, result)
+                viewModel.onAppLockAuthSucceeded()
             }
 
-            else -> Unit
+            override fun onAuthenticationFailed(activity: FragmentActivity?) {
+                super.onAuthenticationFailed(activity)
+                viewModel.updateAppLockErrorMessage(UiText.StringResource(R.string.error_biometric_auth_failed))
+            }
+        }
+        if (BuildUtil.isApiLevelAtLeast30) {
+            startClass3BiometricOrCredentialAuthentication(
+                crypto = null,
+                title = title,
+                subtitle = subtitle,
+                callback = authPromptCallback
+            )
+        } else {
+            startClass2BiometricOrCredentialAuthentication(
+                title = title,
+                subtitle = subtitle,
+                callback = authPromptCallback
+            )
         }
     }
 }

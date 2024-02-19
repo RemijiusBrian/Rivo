@@ -70,7 +70,7 @@ class AppLockNotificationHelper(
 
         return NotificationCompat.Action.Builder(
             R.drawable.notification_ic_lock_open,
-            context.getString(R.string.lock),
+            context.getString(R.string.lock_app),
             pendingIntent
         ).build()
     }

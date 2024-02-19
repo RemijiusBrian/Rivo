@@ -1,11 +1,16 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.biometric.auth.AuthPromptCallback
+import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
+import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -13,7 +18,9 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -23,13 +30,11 @@ import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.presentation.security.BiometricUtil
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
-import dev.ridill.rivo.settings.presentation.security.rememberBiometricManager
-import dev.ridill.rivo.settings.presentation.security.rememberBiometricPrompt
-import dev.ridill.rivo.settings.presentation.security.rememberPromptInfo
 
 data object SecuritySettingsScreenSpec : ScreenSpec {
     override val route: String = "security_settings"
@@ -52,33 +57,36 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(false)
         val selectedInterval by viewModel.appAutoLockInterval
             .collectAsStateWithLifecycle(AppAutoLockInterval.ONE_MINUTE)
-        val biometricManager = rememberBiometricManager()
-        val biometricPrompt = rememberBiometricPrompt(
-            onAuthSucceeded = { viewModel.onAuthenticationSuccess() }
-        )
-        val promptInfo = rememberPromptInfo()
 
+        val context = LocalContext.current
+        val snackbarController = rememberSnackbarController()
+
+        val biometricManager = remember(context) { BiometricManager.from(context) }
         val biometricEnrollLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
             onResult = {
                 if (it.resultCode == Activity.RESULT_OK) {
                     if (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators) == BiometricManager.BIOMETRIC_SUCCESS) {
-                        biometricPrompt.authenticate(promptInfo)
+                        startBiometricAuthentication(
+                            context = context,
+                            onAuthSuccess = viewModel::onAuthenticationSuccess
+                        )
                     }
                 }
             }
         )
 
-        val snackbarController = rememberSnackbarController()
-        val context = LocalContext.current
 
-        LaunchedEffect(biometricPrompt, promptInfo, snackbarController, context) {
+        LaunchedEffect(snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
                     SecuritySettingsViewModel.SecuritySettingsEvent.LaunchAuthentication -> {
                         when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
                             BiometricManager.BIOMETRIC_SUCCESS -> {
-                                biometricPrompt.authenticate(promptInfo)
+                                startBiometricAuthentication(
+                                    context = context,
+                                    onAuthSuccess = viewModel::onAuthenticationSuccess
+                                )
                             }
 
                             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
@@ -115,6 +123,38 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
             autoLockInterval = selectedInterval,
             onIntervalSelect = viewModel::onAutoLockIntervalSelect,
             navigateUp = navController::navigateUp
+        )
+    }
+}
+
+private inline fun startBiometricAuthentication(
+    context: Context,
+    crossinline onAuthSuccess: () -> Unit
+) {
+    val activity = context.findActivity() as FragmentActivity
+    val title = context.getString(R.string.fingerprint_title)
+    val subtitle = context.getString(R.string.fingerprint_subtitle)
+    val authPromptCallback = object : AuthPromptCallback() {
+        override fun onAuthenticationSucceeded(
+            activity: FragmentActivity?,
+            result: BiometricPrompt.AuthenticationResult
+        ) {
+            super.onAuthenticationSucceeded(activity, result)
+            onAuthSuccess()
+        }
+    }
+    if (BuildUtil.isApiLevelAtLeast30) {
+        activity.startClass3BiometricOrCredentialAuthentication(
+            crypto = null,
+            title = title,
+            subtitle = subtitle,
+            callback = authPromptCallback
+        )
+    } else {
+        activity.startClass2BiometricOrCredentialAuthentication(
+            title = title,
+            subtitle = subtitle,
+            callback = authPromptCallback
         )
     }
 }
