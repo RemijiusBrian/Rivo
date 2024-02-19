@@ -13,7 +13,7 @@ interface PreferencesManager {
 
     val preferences: Flow<RivoPreferences>
 
-    suspend fun concludeWelcomeFlow()
+    suspend fun concludeOnboarding()
     suspend fun updateAppThem(theme: AppTheme)
     suspend fun updateDynamicColorsEnabled(enabled: Boolean)
     suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime)

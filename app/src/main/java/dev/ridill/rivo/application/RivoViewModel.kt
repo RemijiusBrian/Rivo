@@ -32,7 +32,7 @@ class RivoViewModel @Inject constructor(
     private val backupSettingsRepo: BackupSettingsRepository
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
-    val showWelcomeFlow = preferences.map { it.showAppWelcomeFlow }
+    val showWelcomeFlow = preferences.map { it.showOnboarding }
         .distinctUntilChanged()
         .asStateFlow(viewModelScope, true)
     val appTheme = preferences.map { it.appTheme }

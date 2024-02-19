@@ -1,4 +1,4 @@
-package dev.ridill.rivo.welcomeFlow.presentation.components
+package dev.ridill.rivo.onboarding.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

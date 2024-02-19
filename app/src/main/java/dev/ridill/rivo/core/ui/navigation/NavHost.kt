@@ -12,7 +12,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.DashboardScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.navigation.destinations.NavGraphSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.ScreenSpec
-import dev.ridill.rivo.core.ui.navigation.destinations.WelcomeFlowScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.OnboardingScreenSpec
 
 @Composable
 fun RivoNavHost(
@@ -23,7 +23,7 @@ fun RivoNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (showWelcomeFlow) WelcomeFlowScreenSpec.route
+        startDestination = if (showWelcomeFlow) OnboardingScreenSpec.route
         else DashboardScreenSpec.route,
         modifier = modifier
     ) {

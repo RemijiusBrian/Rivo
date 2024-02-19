@@ -19,11 +19,11 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.util.restartApplication
-import dev.ridill.rivo.welcomeFlow.domain.model.WelcomeFlowPage
-import dev.ridill.rivo.welcomeFlow.presentation.WelcomeFlowScreen
-import dev.ridill.rivo.welcomeFlow.presentation.WelcomeFlowViewModel
+import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
+import dev.ridill.rivo.onboarding.presentation.OnboardingScreen
+import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
 
-data object WelcomeFlowScreenSpec : ScreenSpec {
+data object OnboardingScreenSpec : ScreenSpec {
     override val route: String = "welcome_flow"
     override val labelRes: Int = R.string.destination_welcome_flow
 
@@ -33,9 +33,9 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
         navController: NavHostController,
         navBackStackEntry: NavBackStackEntry
     ) {
-        val viewModel: WelcomeFlowViewModel = hiltViewModel(navBackStackEntry)
+        val viewModel: OnboardingViewModel = hiltViewModel(navBackStackEntry)
         val pagerState = rememberPagerState(
-            pageCount = { WelcomeFlowPage.entries.size }
+            pageCount = { OnboardingPage.entries.size }
         )
         val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
         val restoreStatusText by viewModel.restoreStatusText.collectAsStateWithLifecycle(null)
@@ -61,23 +61,23 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
-                is WelcomeFlowViewModel.WelcomeFlowEvent.NavigateToPage -> {
+                is OnboardingViewModel.OnboardingEvent.NavigateToPage -> {
                     if (!pagerState.isScrollInProgress)
                         pagerState.animateScrollToPage(event.page.ordinal)
                 }
 
-                WelcomeFlowViewModel.WelcomeFlowEvent.LaunchNotificationPermissionRequest -> {
+                OnboardingViewModel.OnboardingEvent.LaunchNotificationPermissionRequest -> {
                     notificationPermissionLauncher?.launchRequest()
                 }
 
-                is WelcomeFlowViewModel.WelcomeFlowEvent.ShowUiMessage -> {
+                is OnboardingViewModel.OnboardingEvent.ShowUiMessage -> {
                     snackbarController.showSnackbar(
                         event.uiText.asString(context),
                         event.uiText.isErrorText
                     )
                 }
 
-                WelcomeFlowViewModel.WelcomeFlowEvent.WelcomeFlowConcluded -> {
+                OnboardingViewModel.OnboardingEvent.OnboardingConcluded -> {
                     navController.navigate(DashboardScreenSpec.route) {
                         popUpTo(route) {
                             inclusive = true
@@ -85,17 +85,17 @@ data object WelcomeFlowScreenSpec : ScreenSpec {
                     }
                 }
 
-                is WelcomeFlowViewModel.WelcomeFlowEvent.LaunchGoogleSignIn -> {
+                is OnboardingViewModel.OnboardingEvent.LaunchGoogleSignIn -> {
                     signInLauncher.launch(event.intent)
                 }
 
-                WelcomeFlowViewModel.WelcomeFlowEvent.RestartApplication -> {
+                OnboardingViewModel.OnboardingEvent.RestartApplication -> {
                     context.restartApplication()
                 }
             }
         }
 
-        WelcomeFlowScreen(
+        OnboardingScreen(
             snackbarController = snackbarController,
             pagerState = pagerState,
             restoreStatusText = restoreStatusText,

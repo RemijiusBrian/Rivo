@@ -1,6 +1,6 @@
-package dev.ridill.rivo.welcomeFlow.domain.model
+package dev.ridill.rivo.onboarding.domain.model
 
-enum class WelcomeFlowPage {
+enum class OnboardingPage {
     WELCOME,
     NOTIFICATION_PERMISSION,
     GOOGLE_SIGN_IN,

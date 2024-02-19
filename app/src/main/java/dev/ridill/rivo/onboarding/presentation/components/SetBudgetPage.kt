@@ -1,4 +1,4 @@
-package dev.ridill.rivo.welcomeFlow.presentation.components
+package dev.ridill.rivo.onboarding.presentation.components
 
 import android.icu.util.Currency
 import androidx.compose.animation.AnimatedVisibility

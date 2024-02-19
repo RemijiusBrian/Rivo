@@ -1,4 +1,4 @@
-package dev.ridill.rivo.welcomeFlow.presentation.components
+package dev.ridill.rivo.onboarding.presentation.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
