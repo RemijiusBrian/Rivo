@@ -18,6 +18,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -57,6 +58,18 @@ fun OnboardingScreen(
 ) {
     val view = LocalView.current
     if (!view.isInEditMode) {
+        // Set isAppearanceLightStatusBars = true for Onboarding Screen only
+//      // and revert it back to original value when screen disposes
+        DisposableEffect(view) {
+            val window = (view.context as Activity).window
+            val originalLightStatusBarValue = WindowCompat.getInsetsController(window, view)
+                .isAppearanceLightStatusBars
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            onDispose {
+                WindowCompat.getInsetsController(window, view)
+                    .isAppearanceLightStatusBars = originalLightStatusBarValue
+            }
+        }
         SideEffect {
             val window = (view.context as Activity).window
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
