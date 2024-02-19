@@ -34,7 +34,7 @@ androidx-biometric = "1.2.0-alpha05"
 
 firebase-bom = "32.7.2"
 
-play-services-auth = "20.7.0"
+play-services-auth = "21.0.0"
 
 google-mlkit-entity-extraction = "16.0.0-beta4"
 
@@ -104,7 +104,8 @@ androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", vers
 # Preferences DataStore
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-preferences" }
 
-androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "androidx-biometric" }
+# AndroidX Biometric
+androidx-biometric-ktx = { group = "androidx.biometric", name = "biometric-ktx", version.ref = "androidx-biometric" }
 
 # Firebase
 com-google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
