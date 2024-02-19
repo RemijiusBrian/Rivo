@@ -55,6 +55,13 @@ fun OnboardingScreen(
     budgetInput: () -> String,
     actions: OnboardingActions
 ) {
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+        }
+    }
     RivoScaffold(
         modifier = Modifier
             .imePadding(),
