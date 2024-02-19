@@ -80,7 +80,9 @@ class RivoViewModel @Inject constructor(
     }
 
     fun onSmsPermissionCheck(granted: Boolean) = viewModelScope.launch {
-        preferencesManager.updateAutoAddTransactionEnabled(granted)
+        if (!granted) {
+            preferencesManager.updateAutoAddTransactionEnabled(false)
+        }
     }
 
     fun onNotificationPermissionCheck(granted: Boolean) {

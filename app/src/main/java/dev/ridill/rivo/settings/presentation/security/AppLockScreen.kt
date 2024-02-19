@@ -83,13 +83,12 @@ fun AppLockScreen(
                 )
 
                 AnimatedVisibility(visible = showError) {
-                    errorMessage?.let {
-                        Text(
-                            text = it.asString(),
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    Text(
+                        text = errorMessage?.asString().orEmpty(),
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }

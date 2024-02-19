@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Rivo</string>
 
     <!-- Destination Labels -->
@@ -200,8 +200,8 @@
         <item quantity="other">Transactions added to folder</item>
     </plurals>
 
-    <string name="fingerprint_title">Verify It\'s you</string>
-    <string name="fingerprint_subtitle">Use fingerprint to continue</string>
+    <string name="biometric_prompt_title">Verify It\'s you</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" tools:override="true">Use your fingerprint or screen lock to continue</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>

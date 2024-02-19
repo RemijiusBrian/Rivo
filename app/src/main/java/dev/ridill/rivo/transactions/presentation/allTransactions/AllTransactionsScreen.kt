@@ -23,14 +23,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -96,7 +95,6 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
-import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -120,7 +118,6 @@ import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.TagInfo
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
@@ -145,8 +142,6 @@ fun AllTransactionsScreen(
     navigateToAddEditTransaction: (Long) -> Unit,
     navigateUp: () -> Unit
 ) {
-    val transactionsListState = rememberLazyListState()
-
     BackHandler(
         enabled = state.transactionMultiSelectionModeActive,
         onBack = actions::onDismissMultiSelectionMode
@@ -186,65 +181,96 @@ fun AllTransactionsScreen(
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
         val localLayoutDirection = LocalLayoutDirection.current
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
                     start = paddingValues.calculateStartPadding(localLayoutDirection),
                     end = paddingValues.calculateEndPadding(localLayoutDirection)
-                )
-                .padding(top = SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
-        ) {
-            TagsInfoList(
-                currency = state.currency,
-                tags = state.tagsWithExpenditures,
-                selectedTagId = state.selectedTagId,
-                onTagSelect = actions::onTagSelect,
-                onTagLongClick = actions::onTagLongClick,
-                onNewTagClick = actions::onNewTagClick,
-                tagAssignModeActive = state.transactionMultiSelectionModeActive,
-                onAssignToTransactions = actions::onAssignTagToTransactions,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(TAGS_LIST_HEIGHT_FRACTION)
-            )
-
-            DateFilter(
-                selectedDate = state.selectedDate,
-                onMonthSelect = actions::onMonthSelect,
-                yearsList = state.yearsList,
-                onYearSelect = actions::onYearSelect
-            )
-
-            TransactionsList(
-                currency = state.currency,
-                typeFilter = state.selectedTransactionTypeFilter,
-                totalSumAmount = state.totalAmount,
-                listLabel = state.transactionListLabel,
-                transactionsList = state.transactionList,
-                selectedTransactionIds = state.selectedTransactionIds,
-                selectionState = state.transactionSelectionState,
-                multiSelectionModeActive = state.transactionMultiSelectionModeActive,
-                onSelectionStateChange = actions::onSelectionStateChange,
-                onTransactionOptionClick = actions::onTransactionOptionClick,
-                onTransactionClick = navigateToAddEditTransaction,
-                onTxLongPress = actions::onTransactionLongPress,
-                onTxSelectionChange = actions::onTransactionSelectionChange,
-                listContentPadding = PaddingValues(
-                    top = SpacingSmall,
-                    bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
                 ),
-                showExcludedTransactions = state.showExcludedTransactions,
-                onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
-                onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
-                onDeleteSelectedTransactions = actions::onDeleteSelectedTransactionsClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(Float.One),
-                listState = transactionsListState
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            contentPadding = PaddingValues(
+                bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
             )
+        ) {
+            item(
+                key = "TagsHorizontalList",
+                contentType = "TagsHorizontalList"
+            ) {
+                TagsInfoList(
+                    currency = state.currency,
+                    tags = state.tagsWithExpenditures,
+                    selectedTagId = state.selectedTagId,
+                    onTagSelect = actions::onTagSelect,
+                    onTagLongClick = actions::onTagLongClick,
+                    onNewTagClick = actions::onNewTagClick,
+                    tagAssignModeActive = state.transactionMultiSelectionModeActive,
+                    onAssignToTransactions = actions::onAssignTagToTransactions,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = TagsRowMinHeight)
+                        .animateItemPlacement()
+                )
+            }
+
+            stickyHeader(
+                key = "TransactionListHeader",
+                contentType = "TransactionListHeader"
+            ) {
+                TransactionListHeader(
+                    selectedDate = state.selectedDate,
+                    onMonthSelect = actions::onMonthSelect,
+                    yearsList = state.yearsList,
+                    onYearSelect = actions::onYearSelect,
+                    multiSelectionModeActive = state.transactionMultiSelectionModeActive,
+                    totalSumAmount = state.totalAmount,
+                    currency = state.currency,
+                    selectedTxTypeFilter = state.selectedTransactionTypeFilter,
+                    listLabel = state.transactionListLabel,
+                    showExcludedTransactions = state.showExcludedTransactions,
+                    onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
+                    onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
+                    multiSelectionState = state.transactionSelectionState,
+                    onSelectionStateChange = actions::onSelectionStateChange,
+                    onDeleteClick = actions::onDeleteSelectedTransactionsClick,
+                    onTransactionOptionClick = actions::onTransactionOptionClick,
+                    modifier = Modifier
+                        .animateItemPlacement()
+                )
+            }
+
+            items(
+                items = state.transactionList,
+                key = { it.id },
+                contentType = { "TransactionCard" }
+            ) { transaction ->
+                val clickableModifier = if (state.transactionMultiSelectionModeActive) Modifier
+                    .toggleable(
+                        value = transaction.id in state.selectedTransactionIds,
+                        onValueChange = { actions.onTransactionSelectionChange(transaction.id) }
+                    )
+                else Modifier.combinedClickable(
+                    role = Role.Button,
+                    onClick = { navigateToAddEditTransaction(transaction.id) },
+                    onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
+                    onLongClick = { actions.onTransactionLongPress(transaction.id) },
+                    onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
+                )
+
+                TransactionCard(
+                    note = transaction.note,
+                    amount = transaction.amountFormattedWithCurrency(state.currency),
+                    date = transaction.date,
+                    type = transaction.type,
+                    selected = transaction.id in state.selectedTransactionIds,
+                    excluded = transaction.excluded,
+                    folder = transaction.folder,
+                    modifier = Modifier
+                        .then(clickableModifier)
+                        .animateItemPlacement()
+                )
+            }
         }
 
         if (state.showDeleteTransactionConfirmation) {
@@ -297,7 +323,7 @@ fun AllTransactionsScreen(
     }
 }
 
-private const val TAGS_LIST_HEIGHT_FRACTION = 0.16f
+private val TagsRowMinHeight = 120.dp
 
 @Composable
 private fun TagsInfoList(
@@ -503,6 +529,76 @@ private fun TagInfoCard(
 private val TagInfoCardWidth = 116.dp
 
 @Composable
+private fun TransactionListHeader(
+    selectedDate: LocalDate,
+    onMonthSelect: (Month) -> Unit,
+    yearsList: List<Int>,
+    onYearSelect: (Int) -> Unit,
+    multiSelectionModeActive: Boolean,
+    totalSumAmount: Double,
+    currency: Currency,
+    selectedTxTypeFilter: TransactionType?,
+    listLabel: UiText,
+    showExcludedTransactions: Boolean,
+    onToggleTransactionTypeFilter: () -> Unit,
+    onToggleShowExcludedTransactions: (Boolean) -> Unit,
+    multiSelectionState: ToggleableState,
+    onSelectionStateChange: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onTransactionOptionClick: (TransactionOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = Modifier
+            .padding(vertical = SpacingSmall)
+            .then(modifier)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        ) {
+            DateFilter(
+                selectedDate = selectedDate,
+                onMonthSelect = onMonthSelect,
+                yearsList = yearsList,
+                onYearSelect = onYearSelect,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            TotalSumAmount(
+                multiSelectionModeActive = multiSelectionModeActive,
+                sumAmount = totalSumAmount,
+                currency = currency,
+                type = selectedTxTypeFilter,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingMedium)
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(
+                        vertical = SpacingSmall,
+                        horizontal = SpacingMedium
+                    )
+            )
+
+            TransactionListLabelAndOptions(
+                listLabel = listLabel,
+                onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
+                showExcludedTransactions = showExcludedTransactions,
+                onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
+                multiSelectionModeActive = multiSelectionModeActive,
+                multiSelectionState = multiSelectionState,
+                onSelectionStateChange = onSelectionStateChange,
+                onDeleteClick = onDeleteClick,
+                onTransactionOptionClick = onTransactionOptionClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
 private fun DateFilter(
     selectedDate: LocalDate,
     onMonthSelect: (Month) -> Unit,
@@ -510,7 +606,7 @@ private fun DateFilter(
     onYearSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val monthsList = remember { Month.values() }
+    val monthsList = remember { Month.entries.toTypedArray() }
 
     val monthsListState = rememberLazyListState()
 
@@ -655,7 +751,7 @@ private fun DateIndicator(
     }
 }
 
-@Composable
+/*@Composable
 private fun TransactionsList(
     listState: LazyListState,
     currency: Currency,
@@ -713,7 +809,7 @@ private fun TransactionsList(
                     )
             )
 
-            TransactionListHeader(
+            TransactionListLabelAndOptions(
                 listLabel = listLabel,
                 onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
                 showExcludedTransactions = showExcludedTransactions,
@@ -766,7 +862,7 @@ private fun TransactionsList(
             }
         }
     }
-}
+}*/
 
 //private val AutoScrollThreshold = 40.dp
 
@@ -838,7 +934,7 @@ private fun TransactionsList(
 )*/
 
 @Composable
-private fun TransactionListHeader(
+private fun TransactionListLabelAndOptions(
     listLabel: UiText,
     showExcludedTransactions: Boolean,
     onToggleTransactionTypeFilter: () -> Unit,

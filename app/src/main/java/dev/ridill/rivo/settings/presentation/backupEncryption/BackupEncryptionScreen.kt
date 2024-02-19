@@ -1,6 +1,7 @@
 package dev.ridill.rivo.settings.presentation.backupEncryption
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -154,7 +157,7 @@ private fun PasswordUpdateSheet(
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
             MediumDisplayText(title = stringResource(R.string.update_password))
-            if (hasExistingPassword) {
+            AnimatedVisibility(hasExistingPassword) {
                 Column {
                     PasswordField(
                         value = currentPassword,
@@ -220,6 +223,11 @@ private fun PasswordField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
             imeAction = imeAction
+        ),
+        shape = MaterialTheme.shapes.medium,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
         )
     )
 }

@@ -1,5 +1,8 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,15 +15,25 @@ import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
+import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionScreen
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
+import dev.ridill.rivo.settings.presentation.security.rememberBiometricPrompt
+import dev.ridill.rivo.settings.presentation.security.rememberPromptInfo
 
 data object BackupEncryptionScreenSpec : ScreenSpec {
     override val route: String = "backup_encryption"
 
     override val labelRes: Int = R.string.destination_backup_encryption
+
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutHorizontallyWithFadeOut { it } }
+
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInHorizontallyWithFadeIn { it } }
 
     @Composable
     override fun Content(
@@ -37,6 +50,11 @@ data object BackupEncryptionScreenSpec : ScreenSpec {
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
+        val biometricPrompt = rememberBiometricPrompt(
+            onAuthSucceeded = { viewModel.onBiometricAuthSucceeded() }
+        )
+        val promptInfo = rememberPromptInfo()
+
         LaunchedEffect(viewModel, context, snackbarController) {
             viewModel.events.collect { event ->
                 when (event) {
@@ -52,6 +70,10 @@ data object BackupEncryptionScreenSpec : ScreenSpec {
                             ACTION_ENCRYPTION_PASSWORD,
                             ENCRYPTION_PASSWORD_UPDATED
                         )
+                    }
+
+                    BackupEncryptionViewModel.BackupEncryptionEvent.LaunchBiometricAuthentication -> {
+                        biometricPrompt.authenticate(promptInfo)
                     }
                 }
             }

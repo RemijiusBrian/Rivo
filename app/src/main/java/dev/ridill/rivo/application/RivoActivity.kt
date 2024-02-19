@@ -126,10 +126,11 @@ class RivoActivity : FragmentActivity() {
     }
 
     private fun checkAppPermissions() {
+        if (viewModel.showWelcomeFlow.value) return
         val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
         viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
 
-        if (BuildUtil.isNotificationRuntimePermissionNeeded() && !viewModel.showWelcomeFlow.value) {
+        if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
             val isNotificationPermissionGranted =
                 isPermissionGranted(Manifest.permission.POST_NOTIFICATIONS)
             viewModel.onNotificationPermissionCheck(isNotificationPermissionGranted)
