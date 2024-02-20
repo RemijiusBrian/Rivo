@@ -18,7 +18,9 @@ class BackupService(
     private val cryptoManager: CryptoManager
 ) {
     @Throws(BackupCachingFailedThrowable::class)
-    suspend fun buildBackupFile(password: String): File = withContext(Dispatchers.IO) {
+    suspend fun buildBackupFile(
+        password: String
+    ): File = withContext(Dispatchers.IO) {
         val dbFile = context.getDatabasePath(RivoDatabase.NAME)
         val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
