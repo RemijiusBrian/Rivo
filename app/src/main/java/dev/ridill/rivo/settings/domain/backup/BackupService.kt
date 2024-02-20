@@ -18,7 +18,9 @@ class BackupService(
     private val cryptoManager: CryptoManager
 ) {
     @Throws(BackupCachingFailedThrowable::class)
-    suspend fun buildBackupFile(password: String): File = withContext(Dispatchers.IO) {
+    suspend fun buildBackupFile(
+        password: String
+    ): File = withContext(Dispatchers.IO) {
         val dbFile = context.getDatabasePath(RivoDatabase.NAME)
         val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
@@ -73,107 +75,110 @@ class BackupService(
     }
 
     @Throws(BackupCachingFailedThrowable::class)
-    suspend fun restoreBackupFile(dataInputStream: InputStream, password: String) =
-        withContext(Dispatchers.IO) {
-            val dbPath = database.openHelper.readableDatabase.path
-            val dbFile = dbPath?.let { File(it) } ?: throw BackupCachingFailedThrowable()
-            val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
-            val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
+    suspend fun restoreBackupFile(
+        dataInputStream: InputStream,
+        password: String
+    ) = withContext(Dispatchers.IO) {
+        val dbPath = database.openHelper.readableDatabase.path
+        val dbFile = dbPath?.let { File(it) } ?: throw BackupCachingFailedThrowable()
+        val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
+        val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
 
-            val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
-            logI { "Create temp decrypted cache " }
-            val tempDecryptCache = File(cachePath, "TempDecryptCache.backup")
+        val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
+        logI { "Create temp decrypted cache " }
+        val tempDecryptCache = File(cachePath, "TempDecryptCache.backup")
 
-            dataInputStream.use dataInputStream@{ inputStream ->
-                val ivSizeBytes = ByteArray(Int.SIZE_BYTES)
-                inputStream.read(ivSizeBytes)
-                val ivSize = ivSizeBytes.toInt()
+        dataInputStream.use dataInputStream@{ inputStream ->
+            val ivSizeBytes = ByteArray(Int.SIZE_BYTES)
+            inputStream.read(ivSizeBytes)
+            val ivSize = ivSizeBytes.toInt()
 
-                logI { "Read iv data" }
-                var ivBytesLeft = ivSize
-                var ivBytes = ByteArray(0)
-                while (ivBytesLeft > 0) {
-                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, ivBytesLeft))
-                    val bytesRead = inputStream.read(data)
-                    ivBytes += data.copyOfRange(0, bytesRead)
-                    ivBytesLeft -= bytesRead
-                }
-
-                logI { "Read encrypted data" }
-                val dataBytes = inputStream.readBytes()
-                logI { "Decrypt data" }
-                val decryptedBytes = cryptoManager.decrypt(dataBytes, ivBytes, password)
-
-                logI { "Write decrypted data to temp decrypt cache" }
-                tempDecryptCache.outputStream().use tempDecryptCacheOutputStream@{
-                    it.write(decryptedBytes)
-                }
+            logI { "Read iv data" }
+            var ivBytesLeft = ivSize
+            var ivBytes = ByteArray(0)
+            while (ivBytesLeft > 0) {
+                val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, ivBytesLeft))
+                val bytesRead = inputStream.read(data)
+                ivBytes += data.copyOfRange(0, bytesRead)
+                ivBytesLeft -= bytesRead
             }
 
-            logI { "Write temp decrypt cache to DB files" }
-            tempDecryptCache.inputStream().use tempDecryptCacheInputStream@{ inputStream ->
-                // Read DB Data
-                dbFile.outputStream().use dbOutputStream@{
-                    val dbSizeBytes = ByteArray(Int.SIZE_BYTES)
-                    inputStream.read(dbSizeBytes)
-                    val dbSize = dbSizeBytes.toInt()
+            logI { "Read encrypted data" }
+            val dataBytes = inputStream.readBytes()
+            logI { "Decrypt data" }
+            val decryptedBytes = cryptoManager.decrypt(dataBytes, ivBytes, password)
 
-                    var bytesLeft = dbSize
-                    var byteArray = ByteArray(0)
-                    while (bytesLeft > 0) {
-                        val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
-                        val bytesRead = inputStream.read(data)
-                        byteArray += data.copyOfRange(0, bytesRead)
-                        bytesLeft -= bytesRead
-                    }
-                    it.write(byteArray)
-                }
-
-                // Read WAL Data
-                dbWalFile.outputStream().use walOutputStream@{
-                    val walSizeBytes = ByteArray(Int.SIZE_BYTES)
-                    val sizeBytesRead = inputStream.read(walSizeBytes)
-                    if (sizeBytesRead == -1) return@walOutputStream
-                    val walSize = walSizeBytes.toInt()
-
-                    var bytesLeft = walSize
-                    var byteArray = ByteArray(0)
-                    while (bytesLeft > 0) {
-                        val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
-                        val bytesRead = inputStream.read(data)
-                        byteArray += data.copyOfRange(0, bytesRead)
-                        bytesLeft -= bytesRead
-                    }
-                    it.write(byteArray)
-                }
-
-                // Read SHM Data
-                dbShmFile.outputStream().use shmOutputStream@{
-                    val shmSizeBytes = ByteArray(Int.SIZE_BYTES)
-                    val sizeBytesRead = inputStream.read(shmSizeBytes)
-                    if (sizeBytesRead == -1) return@shmOutputStream
-                    val shmSize = shmSizeBytes.toInt()
-
-                    var bytesLeft = shmSize
-                    var byteArray = byteArrayOf()
-                    while (bytesLeft > 0) {
-                        val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
-                        val bytesRead = inputStream.read(data)
-                        byteArray += data.copyOfRange(0, bytesRead)
-                        bytesLeft -= bytesRead
-                    }
-                    it.write(byteArray)
-                }
+            logI { "Write decrypted data to temp decrypt cache" }
+            tempDecryptCache.outputStream().use tempDecryptCacheOutputStream@{
+                it.write(decryptedBytes)
             }
-            checkpointDb()
         }
+
+        logI { "Write temp decrypt cache to DB files" }
+        tempDecryptCache.inputStream().use tempDecryptCacheInputStream@{ inputStream ->
+            // Read DB Data
+            dbFile.outputStream().use dbOutputStream@{
+                val dbSizeBytes = ByteArray(Int.SIZE_BYTES)
+                inputStream.read(dbSizeBytes)
+                val dbSize = dbSizeBytes.toInt()
+
+                var bytesLeft = dbSize
+                var byteArray = ByteArray(0)
+                while (bytesLeft > 0) {
+                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
+                    val bytesRead = inputStream.read(data)
+                    byteArray += data.copyOfRange(0, bytesRead)
+                    bytesLeft -= bytesRead
+                }
+                it.write(byteArray)
+            }
+
+            // Read WAL Data
+            dbWalFile.outputStream().use walOutputStream@{
+                val walSizeBytes = ByteArray(Int.SIZE_BYTES)
+                val sizeBytesRead = inputStream.read(walSizeBytes)
+                if (sizeBytesRead == -1) return@walOutputStream
+                val walSize = walSizeBytes.toInt()
+
+                var bytesLeft = walSize
+                var byteArray = ByteArray(0)
+                while (bytesLeft > 0) {
+                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
+                    val bytesRead = inputStream.read(data)
+                    byteArray += data.copyOfRange(0, bytesRead)
+                    bytesLeft -= bytesRead
+                }
+                it.write(byteArray)
+            }
+
+            // Read SHM Data
+            dbShmFile.outputStream().use shmOutputStream@{
+                val shmSizeBytes = ByteArray(Int.SIZE_BYTES)
+                val sizeBytesRead = inputStream.read(shmSizeBytes)
+                if (sizeBytesRead == -1) return@shmOutputStream
+                val shmSize = shmSizeBytes.toInt()
+
+                var bytesLeft = shmSize
+                var byteArray = byteArrayOf()
+                while (bytesLeft > 0) {
+                    val data = ByteArray(minOf(DEFAULT_BUFFER_SIZE, bytesLeft))
+                    val bytesRead = inputStream.read(data)
+                    byteArray += data.copyOfRange(0, bytesRead)
+                    bytesLeft -= bytesRead
+                }
+                it.write(byteArray)
+            }
+        }
+        checkpointDb()
+    }
 
     suspend fun clearLocalCache() = withContext(Dispatchers.IO) {
         val cacheDir = context.externalCacheDir
-        cacheDir?.listFiles()
+        cacheDir?.delete()
+        /*cacheDir?.listFiles()
             ?.forEach { file ->
                 file.delete()
-            }
+            }*/
     }
 
     private fun checkpointDb() {
