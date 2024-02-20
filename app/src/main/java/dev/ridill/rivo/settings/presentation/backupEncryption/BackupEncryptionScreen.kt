@@ -139,13 +139,14 @@ private fun PasswordUpdateSheet(
     onConfirmClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val confirmEnabled by remember {
+    val confirmEnabled by remember(hasExistingPassword) {
         derivedStateOf {
             (!hasExistingPassword || currentPassword().isNotEmpty())
                     && newPassword().isNotEmpty()
                     && confirmNewPassword().isNotEmpty()
         }
     }
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
