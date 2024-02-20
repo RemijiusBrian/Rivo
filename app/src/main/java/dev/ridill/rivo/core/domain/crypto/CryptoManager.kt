@@ -4,6 +4,7 @@ interface CryptoManager {
     fun encrypt(rawData: ByteArray, password: String): EncryptionResult
     fun decrypt(encryptedData: ByteArray, iv: ByteArray, password: String): ByteArray
     fun hash(message: String): String
+    fun areDigestsEqual(hash1: String?, hash2: String?): Boolean
 }
 
 data class EncryptionResult(

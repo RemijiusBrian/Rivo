@@ -48,6 +48,10 @@ class DefaultCryptoManager : CryptoManager {
         MessageDigest.getInstance(KeyProperties.DIGEST_SHA256)
             .digest(message.toByteArray()).toHexString()
 
+    @OptIn(ExperimentalStdlibApi::class)
+    override fun areDigestsEqual(hash1: String?, hash2: String?): Boolean =
+        MessageDigest.isEqual(hash1?.hexToByteArray(), hash2?.hexToByteArray())
+
     companion object {
         private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
         private const val BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC
@@ -57,6 +61,5 @@ class DefaultCryptoManager : CryptoManager {
         private const val ITERATION_COUNT = 65536
         private const val KEY_LENGTH = 128
         private const val KEY_ALGORITHM = "PBKDF2WithHmacSha256"
-        //        private const val ALIAS = "RivoKey"
     }
 }

@@ -10,7 +10,6 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
@@ -108,13 +107,18 @@ class BackupSettingsRepositoryImpl(
     }
 
     override suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean =
-        cryptoManager.hash(currentPasswordInput) ==
-                preferencesManager.preferences.first().encryptionPasswordHash
+        preferencesManager.preferences.first().encryptionPasswordHash?.let {
+            cryptoManager.areDigestsEqual(
+                hash1 = cryptoManager.hash(currentPasswordInput),
+                hash2 = it
+            )
+        } ?: false
+
 
     override suspend fun updateEncryptionPassword(password: String): Unit =
         withContext(Dispatchers.IO) {
             val passwordHash = cryptoManager.hash(password)
-            logD { "Password Hash - $passwordHash" }
             preferencesManager.updateEncryptionPasswordHash(passwordHash)
         }
 }
+
