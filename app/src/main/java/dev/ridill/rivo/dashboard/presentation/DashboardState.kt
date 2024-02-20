@@ -9,7 +9,7 @@ data class DashboardState(
     val currency: Currency = LocaleUtil.defaultCurrency,
     val balance: Double = Double.Zero,
     val spentAmount: Double = Double.Zero,
-    val monthlyBudget: Long = Long.Zero,
+    val monthlyBudgetInclCredits: Double = Double.Zero,
     val recentSpends: List<TransactionListItem> = emptyList(),
     val signedInUsername: String? = null,
     val isAppLockEnabled: Boolean = false

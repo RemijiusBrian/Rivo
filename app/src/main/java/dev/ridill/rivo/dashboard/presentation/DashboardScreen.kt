@@ -168,16 +168,10 @@ fun DashboardScreen(
                 .padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
-            /*Greeting(
-                username = state.signedInUsername,
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-                    .padding(top = SpacingMedium)
-            )*/
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
-                budget = state.monthlyBudget,
+                budget = state.monthlyBudgetInclCredits,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -194,7 +188,7 @@ fun DashboardScreen(
                     .padding(horizontal = SpacingSmall),
                 onAllTransactionsClick = navigateToAllTransactions,
                 listState = recentSpendsListState,
-                onNavigateUpClick = {
+                onScrollUpClick = {
                     coroutineScope.launch {
                         if (recentSpendsListState.isScrollInProgress)
                             recentSpendsListState.scrollToItem(Int.Zero)
@@ -243,7 +237,7 @@ private fun Greeting(
 private fun BalanceAndBudget(
     currency: Currency,
     balance: Double,
-    budget: Long,
+    budget: Double,
     modifier: Modifier = Modifier
 ) {
     val balanceAndBudgetContentDescription = stringResource(
@@ -328,7 +322,7 @@ private fun SpendsOverview(
     onTransactionClick: (TransactionListItem) -> Unit,
     onAllTransactionsClick: () -> Unit,
     listState: LazyListState,
-    onNavigateUpClick: () -> Unit,
+    onScrollUpClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val showScrollUpButton by remember {
@@ -339,7 +333,6 @@ private fun SpendsOverview(
         shape = MaterialTheme.shapes.medium
             .copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         modifier = modifier,
-//        color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = ElevationLevel1
     ) {
         Column(
@@ -422,7 +415,7 @@ private fun SpendsOverview(
                         .padding(SpacingMedium)
                 ) {
                     FilledTonalIconButton(
-                        onClick = onNavigateUpClick,
+                        onClick = onScrollUpClick,
                         shape = CircleShape
                     ) {
                         Icon(
@@ -529,7 +522,7 @@ private fun PreviewDashboardScreen() {
             state = DashboardState(
                 balance = 1_000.0,
                 spentAmount = 500.0,
-                monthlyBudget = 5_000L
+                monthlyBudgetInclCredits = 5_000.0
             ),
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
