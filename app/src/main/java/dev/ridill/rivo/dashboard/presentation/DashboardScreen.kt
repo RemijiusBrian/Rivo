@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
@@ -200,13 +201,16 @@ private fun Greeting(
         partOfDay = DateUtil.getPartOfDay()
     }
 
+    val isUsernameAvailable = remember(username) { !username.isNullOrEmpty() }
+
     Column(
         modifier = modifier
     ) {
         Crossfade(targetState = partOfDay, label = "Greeting") { part ->
             Text(
                 text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
-                style = MaterialTheme.typography.titleMedium
+                style = if (isUsernameAvailable) MaterialTheme.typography.titleMedium
+                else LocalTextStyle.current
             )
         }
         username?.let { name ->
