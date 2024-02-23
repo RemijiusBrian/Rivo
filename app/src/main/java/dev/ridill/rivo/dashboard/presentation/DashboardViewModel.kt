@@ -64,11 +64,11 @@ class DashboardViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, DashboardState())
 
     init {
-        getSignedInUserName()
+        updateSignedInUsername()
         cancelNotifications()
     }
 
-    private fun getSignedInUserName() {
+    fun updateSignedInUsername() {
         signedInUsername.update {
             signInService.getSignedInAccount()?.displayName
         }
