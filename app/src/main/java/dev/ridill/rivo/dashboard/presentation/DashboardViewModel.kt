@@ -55,7 +55,6 @@ class DashboardViewModel @Inject constructor(
     val state = combineTuple(
         currency,
         budgetInclCredits,
-        creditAmount,
         spentAmount,
         balance,
         recentSpends,
@@ -64,7 +63,6 @@ class DashboardViewModel @Inject constructor(
     ).map { (
                 currency,
                 budgetInclCredits,
-                creditAmount,
                 spentAmount,
                 balance,
                 recentSpends,
@@ -76,7 +74,6 @@ class DashboardViewModel @Inject constructor(
             balance = balance,
             spentAmount = spentAmount,
             monthlyBudgetInclCredits = budgetInclCredits,
-            creditsAmount = creditAmount,
             recentSpends = recentSpends,
             signedInUsername = signedInUsername,
             isAppLockEnabled = isAppLockEnabled

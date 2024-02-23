@@ -171,8 +171,7 @@ fun DashboardScreen(
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
-                budgetInclCredits = state.monthlyBudgetInclCredits,
-                credits = state.creditsAmount,
+                budget = state.monthlyBudgetInclCredits,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -238,14 +237,13 @@ private fun Greeting(
 private fun BalanceAndBudget(
     currency: Currency,
     balance: Double,
-    budgetInclCredits: Double,
-    credits: Double,
+    budget: Double,
     modifier: Modifier = Modifier
 ) {
     val balanceAndBudgetContentDescription = stringResource(
         R.string.cd_balance_and_budget_amounts,
         TextFormat.currency(balance, currency),
-        TextFormat.currency(budgetInclCredits, currency)
+        TextFormat.currency(budget, currency)
     )
     Row(
         modifier = modifier
@@ -260,58 +258,30 @@ private fun BalanceAndBudget(
                 .alignBy(LastBaseline)
         )
         SpacerSmall()
-        Text(
-            text = stringResource(R.string.fwd_slash),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .alignByBaseline()
-        )
-        SpacerSmall()
-        Column(
+        VerticalNumberSpinnerContent(
+            number = budget,
             modifier = Modifier
                 .alignBy(LastBaseline)
         ) {
-            Row {
-                VerticalNumberSpinnerContent(
-                    number = budgetInclCredits,
-                    modifier = Modifier
-                        .alignByBaseline()
-                ) {
-                    Text(
-                        text = TextFormat.currency(amount = it, currency = currency),
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                SpacerExtraSmall()
-
-                Text(
-                    text = stringResource(R.string.budget),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Normal,
-                    maxLines = 1,
-                    modifier = Modifier
-                        .alignByBaseline()
-                )
-            }
-
-            Crossfade(
-                targetState = credits,
-                label = "CreditAmount"
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.including_abbr_credit_amount,
-                        TextFormat.currency(amount = it, currency = currency)
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = stringResource(
+                    R.string.fwd_slash_amount_value,
+                    TextFormat.currency(amount = it, currency = currency)
+                ),
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
+        SpacerExtraSmall()
+        Text(
+            text = stringResource(R.string.budget),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier
+                .alignBy(LastBaseline),
+            maxLines = 1
+        )
     }
 }
 
@@ -552,8 +522,7 @@ private fun PreviewDashboardScreen() {
             state = DashboardState(
                 balance = 1_000.0,
                 spentAmount = 500.0,
-                monthlyBudgetInclCredits = 5_000.0,
-                creditsAmount = 1_000.0
+                monthlyBudgetInclCredits = 5_000.0
             ),
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
