@@ -27,7 +27,7 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
-import dev.ridill.rivo.settings.presentation.security.AppLockManager
+import dev.ridill.rivo.settings.presentation.security.AppLockServiceManager
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
@@ -149,9 +149,9 @@ object SettingsModule {
     ): AppLockNotificationHelper = AppLockNotificationHelper(context)
 
     @Provides
-    fun provideAppLockManager(
+    fun provideAppLockServiceManager(
         @ApplicationContext context: Context
-    ): AppLockManager = AppLockManager(context)
+    ): AppLockServiceManager = AppLockServiceManager(context)
 
     @Provides
     fun provideSecuritySettingsEventBus(): EventBus<SecuritySettingsViewModel.SecuritySettingsEvent> =
