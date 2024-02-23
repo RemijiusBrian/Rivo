@@ -15,7 +15,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -100,10 +99,9 @@ class RivoViewModel @Inject constructor(
 
     private fun collectIsAppLocked() = viewModelScope.launch {
         preferences
-            .filter { it.appLockEnabled } // Collect flow only if appLockEnabled = true
-            .map { it.isAppLocked }
-            .collectLatest { isLocked ->
-                if (isLocked) {
+            .map { Pair(it.appLockEnabled, it.isAppLocked) }
+            .collectLatest { (appLockedEnabled, isLocked) ->
+                if (!appLockedEnabled || isLocked) {
                     appLockServiceManager.stopAppUnlockedIndicator()
                 } else {
                     appLockServiceManager.startAppUnlockedIndicator()

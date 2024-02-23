@@ -94,6 +94,7 @@ class AppLockService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()
+        resetTimerJob()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
