@@ -11,6 +11,5 @@ data class DashboardState(
     val spentAmount: Double = Double.Zero,
     val monthlyBudgetInclCredits: Double = Double.Zero,
     val recentSpends: List<TransactionListItem> = emptyList(),
-    val signedInUsername: String? = null,
-    val isAppLockEnabled: Boolean = false
+    val signedInUsername: String? = null
 )

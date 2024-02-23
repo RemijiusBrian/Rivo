@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
@@ -30,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
@@ -95,8 +95,7 @@ fun DashboardScreen(
     snackbarController: SnackbarController,
     navigateToAllTransactions: () -> Unit,
     navigateToAddEditTransaction: (Long?) -> Unit,
-    navigateToBottomNavDestination: (BottomNavDestination) -> Unit,
-    onAppLockClick: () -> Unit
+    navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
     val recentSpendsListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -106,17 +105,7 @@ fun DashboardScreen(
             .fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Greeting(username = state.signedInUsername) },
-                actions = {
-                    if (state.isAppLockEnabled) {
-                        IconButton(onClick = onAppLockClick) {
-                            Icon(
-                                imageVector = Icons.Rounded.LockOpen,
-                                contentDescription = stringResource(R.string.cd_tap_to_lock_app)
-                            )
-                        }
-                    }
-                }
+                title = { Greeting(username = state.signedInUsername) }
             )
         },
         bottomBar = {
@@ -212,13 +201,16 @@ private fun Greeting(
         partOfDay = DateUtil.getPartOfDay()
     }
 
+    val isUsernameAvailable = remember(username) { !username.isNullOrEmpty() }
+
     Column(
         modifier = modifier
     ) {
         Crossfade(targetState = partOfDay, label = "Greeting") { part ->
             Text(
                 text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
-                style = MaterialTheme.typography.titleMedium
+                style = if (isUsernameAvailable) MaterialTheme.typography.titleMedium
+                else LocalTextStyle.current
             )
         }
         username?.let { name ->
@@ -527,8 +519,7 @@ private fun PreviewDashboardScreen() {
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
-            navigateToBottomNavDestination = {},
-            onAppLockClick = {}
+            navigateToBottomNavDestination = {}
         )
     }
 }

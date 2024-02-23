@@ -60,7 +60,9 @@
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
 
-        <service android:name=".settings.domain.appLock.AppLockTimerService" />
+        <service
+            android:name=".settings.domain.appLock.AppLockService"
+            android:exported="false" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"
