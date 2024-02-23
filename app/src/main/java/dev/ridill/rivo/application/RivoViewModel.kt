@@ -9,7 +9,7 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
-import dev.ridill.rivo.settings.presentation.security.AppLockManager
+import dev.ridill.rivo.settings.presentation.security.AppLockServiceManager
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ class RivoViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val receiverService: ReceiverService,
     private val smsModelDownloadManager: SMSModelDownloadManager,
-    private val appLockManager: AppLockManager,
+    private val appLockServiceManager: AppLockServiceManager,
     private val eventBus: EventBus<RivoEvent>,
     private val backupSettingsRepo: BackupSettingsRepository
 ) : ViewModel() {
@@ -52,6 +52,7 @@ class RivoViewModel @Inject constructor(
         collectTransactionAutoAdd()
         collectAppLockEnabled()
         collectConfigRestore()
+        collectIsAppLocked()
     }
 
     private fun toggleSplashScreenVisibility() = viewModelScope.launch {
@@ -96,18 +97,36 @@ class RivoViewModel @Inject constructor(
             }
     }
 
+    private fun collectIsAppLocked() = viewModelScope.launch {
+        preferences
+            .map { Pair(it.appLockEnabled, it.isAppLocked) }
+            .collectLatest { (appLockedEnabled, isLocked) ->
+                if (!appLockedEnabled || isLocked) {
+                    appLockServiceManager.stopAppUnlockedIndicator()
+                } else {
+                    appLockServiceManager.startAppUnlockedIndicator()
+                }
+            }
+    }
+
     fun onAppStop() = viewModelScope.launch {
         val preferences = preferences.first()
         if (!preferences.appLockEnabled || preferences.isAppLocked) return@launch
-        appLockManager.startAppLockTimerService()
+        appLockServiceManager.startAppAutoLockTimer()
     }
 
     fun onAppStart() = viewModelScope.launch {
-        appLockManager.stopAppLockTimer()
         delay(SPLASH_SCREEN_DELAY_SECONDS.seconds)
+        startAppLockServices()
+    }
+
+    private suspend fun startAppLockServices() {
         val preferences = preferences.first()
-        if (preferences.appLockEnabled && preferences.isAppLocked) {
+        if (!preferences.appLockEnabled) return
+        if (preferences.isAppLocked) {
             eventBus.send(RivoEvent.LaunchAppLockAuthentication)
+        } else {
+            appLockServiceManager.stopAppLockTimer()
         }
     }
 

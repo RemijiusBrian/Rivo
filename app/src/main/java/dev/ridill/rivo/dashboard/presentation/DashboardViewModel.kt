@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
@@ -13,14 +12,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
     private val signInService: GoogleSignInService,
-    private val preferencesManager: PreferencesManager,
     private val autoAddTransactionNotificationHelper: AutoAddTransactionNotificationHelper
 ) : ViewModel() {
 
@@ -41,26 +38,20 @@ class DashboardViewModel @Inject constructor(
 
     private val signedInUsername = MutableStateFlow<String?>(null)
 
-    private val isAppLockEnabled = preferencesManager.preferences
-        .map { it.appLockEnabled }
-        .distinctUntilChanged()
-
     val state = combineTuple(
         currency,
         monthlyBudget,
         spentAmount,
         balance,
         recentSpends,
-        signedInUsername,
-        isAppLockEnabled
+        signedInUsername
     ).map { (
                 currency,
                 monthlyBudget,
                 spentAmount,
                 balance,
                 recentSpends,
-                signedInUsername,
-                isAppLockEnabled
+                signedInUsername
             ) ->
         DashboardState(
             currency = currency,
@@ -68,8 +59,7 @@ class DashboardViewModel @Inject constructor(
             spentAmount = spentAmount,
             monthlyBudget = monthlyBudget,
             recentSpends = recentSpends,
-            signedInUsername = signedInUsername,
-            isAppLockEnabled = isAppLockEnabled
+            signedInUsername = signedInUsername
         )
     }.asStateFlow(viewModelScope, DashboardState())
 
@@ -86,12 +76,6 @@ class DashboardViewModel @Inject constructor(
 
     private fun cancelNotifications() {
         autoAddTransactionNotificationHelper.cancelAllNotifications()
-    }
-
-    fun onAppLockClick() {
-        viewModelScope.launch {
-            preferencesManager.updateAppLocked(true)
-        }
     }
 }
 
