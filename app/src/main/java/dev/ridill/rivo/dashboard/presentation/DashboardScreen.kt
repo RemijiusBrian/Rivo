@@ -250,30 +250,48 @@ private fun BalanceAndBudget(
                 .alignBy(LastBaseline)
         )
         SpacerSmall()
-        VerticalNumberSpinnerContent(
-            number = budget,
+        Box(
             modifier = Modifier
                 .alignBy(LastBaseline)
         ) {
-            Text(
-                text = stringResource(
-                    R.string.fwd_slash_amount_value,
-                    TextFormat.currency(amount = it, currency = currency)
-                ),
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.budget_includes_credited_amounts))
+                    }
+                },
+                state = rememberTooltipState()
+            ) {
+                Row {
+                    VerticalNumberSpinnerContent(
+                        number = budget,
+                        modifier = Modifier
+                            .alignBy(LastBaseline)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.fwd_slash_amount_value,
+                                TextFormat.currency(amount = it, currency = currency)
+                            ),
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    SpacerExtraSmall()
+                    Text(
+                        text = stringResource(R.string.budget_asterisk),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .alignBy(LastBaseline)
+                    )
+                }
+            }
         }
-        SpacerExtraSmall()
-        Text(
-            text = stringResource(R.string.budget),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Normal,
-            modifier = Modifier
-                .alignBy(LastBaseline),
-            maxLines = 1
-        )
     }
 }
 
