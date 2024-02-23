@@ -205,7 +205,8 @@
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
-    <string name="fwd_slash_amount_value">/ %s</string>
+    <string name="fwd_slash">/</string>
+    <string name="including_abbr_credit_amount">Incl %s in credits</string>
     <string name="budget">Budget</string>
     <string name="recent_spends">Recent Spends</string>
     <string name="spent_this_month">Spent this month</string>
