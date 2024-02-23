@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
@@ -95,8 +94,7 @@ fun DashboardScreen(
     snackbarController: SnackbarController,
     navigateToAllTransactions: () -> Unit,
     navigateToAddEditTransaction: (Long?) -> Unit,
-    navigateToBottomNavDestination: (BottomNavDestination) -> Unit,
-    onAppLockClick: () -> Unit
+    navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
     val recentSpendsListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -106,17 +104,7 @@ fun DashboardScreen(
             .fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Greeting(username = state.signedInUsername) },
-                actions = {
-                    if (state.isAppLockEnabled) {
-                        IconButton(onClick = onAppLockClick) {
-                            Icon(
-                                imageVector = Icons.Rounded.LockOpen,
-                                contentDescription = stringResource(R.string.cd_tap_to_lock_app)
-                            )
-                        }
-                    }
-                }
+                title = { Greeting(username = state.signedInUsername) }
             )
         },
         bottomBar = {
@@ -168,12 +156,6 @@ fun DashboardScreen(
                 .padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
-            /*Greeting(
-                username = state.signedInUsername,
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-                    .padding(top = SpacingMedium)
-            )*/
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
@@ -534,8 +516,7 @@ private fun PreviewDashboardScreen() {
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
-            navigateToBottomNavDestination = {},
-            onAppLockClick = {}
+            navigateToBottomNavDestination = {}
         )
     }
 }
