@@ -24,12 +24,12 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0
         AND tx.type = :typeName
-        AND (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', tx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
+        AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', tx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
     """
     )
     fun getAmountSum(
         typeName: String,
-        monthAndYear: LocalDateTime? = null
+        dateTime: LocalDateTime? = null
     ): Flow<Double>
 
     @Query(

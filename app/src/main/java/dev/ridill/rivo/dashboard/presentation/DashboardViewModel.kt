@@ -26,12 +26,19 @@ class DashboardViewModel @Inject constructor(
     private val monthlyBudget = repo.getCurrentBudget()
 
     private val spentAmount = repo.getExpenditureForCurrentMonth()
+    private val creditAmount = repo.getTotalCreditsForCurrentMonth()
+    private val budgetInclCredits = combineTuple(
+        monthlyBudget,
+        creditAmount
+    ).map { (budget, credit) ->
+        budget + credit
+    }.distinctUntilChanged()
 
     private val balance = combineTuple(
-        monthlyBudget,
+        budgetInclCredits,
         spentAmount
-    ).map { (limit, exp) ->
-        limit - exp
+    ).map { (budgetInclCredits, debits) ->
+        budgetInclCredits - debits
     }.distinctUntilChanged()
 
     private val recentSpends = repo.getRecentSpends()
@@ -40,14 +47,14 @@ class DashboardViewModel @Inject constructor(
 
     val state = combineTuple(
         currency,
-        monthlyBudget,
+        budgetInclCredits,
         spentAmount,
         balance,
         recentSpends,
         signedInUsername
     ).map { (
                 currency,
-                monthlyBudget,
+                budgetInclCredits,
                 spentAmount,
                 balance,
                 recentSpends,
@@ -57,7 +64,7 @@ class DashboardViewModel @Inject constructor(
             currency = currency,
             balance = balance,
             spentAmount = spentAmount,
-            monthlyBudget = monthlyBudget,
+            monthlyBudgetInclCredits = budgetInclCredits,
             recentSpends = recentSpends,
             signedInUsername = signedInUsername
         )
