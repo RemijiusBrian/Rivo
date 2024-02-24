@@ -2,7 +2,9 @@ package dev.ridill.rivo.settings.domain.appLock
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
+import androidx.core.app.ServiceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.logI
@@ -76,8 +78,11 @@ class AppLockService : Service() {
     }
 
     private fun setForeground() {
-        startForeground(
-            NOTIFICATION_ID, notificationHelper.getForegroundNotification().build()
+        ServiceCompat.startForeground(
+            this,
+            NOTIFICATION_ID,
+            notificationHelper.getForegroundNotification().build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
     }
 
