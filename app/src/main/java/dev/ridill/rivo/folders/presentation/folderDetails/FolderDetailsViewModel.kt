@@ -11,6 +11,7 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
@@ -193,6 +194,7 @@ class FolderDetailsViewModel @Inject constructor(
                 createdTimestamp = createdTimestamp,
                 excluded = excluded
             )
+            logD { "Inserted ID - $insertedId" }
             folderIdFlow.update { insertedId }
             val txIdsListToAdd = FolderDetailsScreenSpec
                 .getTxIdsArgFromSavedStateHandle(savedStateHandle)
@@ -241,9 +243,9 @@ class FolderDetailsViewModel @Inject constructor(
     }
 
     sealed class FolderDetailsEvent {
-        object NavigateUp : FolderDetailsEvent()
+        data object NavigateUp : FolderDetailsEvent()
         data class ShowUiMessage(val uiText: UiText) : FolderDetailsEvent()
-        object FolderDeleted : FolderDetailsEvent()
+        data object FolderDeleted : FolderDetailsEvent()
         data class NavigateUpWithFolderId(val folderId: Long) : FolderDetailsEvent()
         data class TransactionRemovedFromGroup(val transaction: TransactionListItem) :
             FolderDetailsEvent()
