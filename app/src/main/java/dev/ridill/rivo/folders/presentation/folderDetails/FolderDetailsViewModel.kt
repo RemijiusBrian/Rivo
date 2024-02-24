@@ -11,7 +11,6 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
@@ -194,8 +193,10 @@ class FolderDetailsViewModel @Inject constructor(
                 createdTimestamp = createdTimestamp,
                 excluded = excluded
             )
-            logD { "Inserted ID - $insertedId" }
-            folderIdFlow.update { insertedId }
+            val isUpdate = FolderDetailsScreenSpec.isIdInvalid(insertedId)
+            if (!isUpdate) {
+                folderIdFlow.update { insertedId }
+            }
             val txIdsListToAdd = FolderDetailsScreenSpec
                 .getTxIdsArgFromSavedStateHandle(savedStateHandle)
             if (txIdsListToAdd.isNotEmpty()) {
@@ -214,8 +215,8 @@ class FolderDetailsViewModel @Inject constructor(
                 eventBus.send(
                     FolderDetailsEvent.ShowUiMessage(
                         UiText.StringResource(
-                            if (isNewFolder.value) R.string.transaction_folder_created
-                            else R.string.transaction_folder_updated
+                            if (isUpdate) R.string.transaction_folder_updated
+                            else R.string.transaction_folder_created
                         )
                     )
                 )
