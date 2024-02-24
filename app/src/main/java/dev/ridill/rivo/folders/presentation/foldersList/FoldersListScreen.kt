@@ -1,6 +1,7 @@
 package dev.ridill.rivo.folders.presentation.foldersList
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.rounded.ViewList
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.GridView
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,10 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,17 +36,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.ListMode
-import dev.ridill.rivo.core.domain.model.SortOrder
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
@@ -61,20 +51,20 @@ import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
-import dev.ridill.rivo.folders.domain.model.FolderDetails
-import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
-import dev.ridill.rivo.folders.domain.model.FoldersListOption
+import dev.ridill.rivo.folders.domain.model.AggregateType
+import dev.ridill.rivo.folders.domain.model.FolderUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
 
 @Composable
 fun FoldersListScreen(
     snackbarController: SnackbarController,
-    foldersList: LazyPagingItems<FolderDetails>,
+    foldersList: LazyPagingItems<FolderUIModel>,
     state: FoldersListState,
     actions: FoldersListActions,
     navigateToFolderDetails: (Long?) -> Unit,
@@ -89,13 +79,8 @@ fun FoldersListScreen(
                 scrollBehavior = topAppBarScrollBehavior,
                 actions = {
                     FolderListOptions(
-                        selectedSortCriteria = state.sortCriteria,
-                        selectedSortOrder = state.sortOrder,
-                        onSortOptionSelect = actions::onSortOptionSelect,
                         selectedListMode = state.listMode,
-                        onListModeToggle = actions::onListModeToggle,
-                        showBalancedFolders = state.showBalancedFolders,
-                        onOptionSelect = actions::onListOptionSelect
+                        onListModeToggle = actions::onListModeToggle
                     )
                 }
             )
@@ -148,26 +133,45 @@ fun FoldersListScreen(
                     horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
                     verticalItemSpacing = SpacingMedium
                 ) {
-                    items(
-                        count = foldersList.itemCount,
-                        key = foldersList.itemKey { it.id },
-                        contentType = foldersList.itemContentType { "FolderListCard" }
-                    ) { index ->
-                        foldersList[index]?.let { folder ->
-                            FolderCard(
-                                listMode = state.listMode,
-                                name = folder.name,
-                                created = folder.createdDateFormatted,
-                                excluded = folder.excluded,
-                                aggregateDirection = folder.aggregateType,
-                                aggregateAmount = TextFormat.compactNumber(
-                                    value = folder.aggregateAmount.absoluteValue,
-                                    currency = state.currency
-                                ),
-                                onClick = { navigateToFolderDetails(folder.id) },
-                                modifier = Modifier
-                                    .animateItemPlacement()
-                            )
+                    repeat(foldersList.itemCount) { index ->
+                        foldersList[index]?.let { item ->
+                            when (item) {
+                                is FolderUIModel.AggregateTypeSeparator -> {
+                                    item(
+                                        key = item.type.name,
+                                        contentType = "AggregateTypeSeparator",
+                                        span = StaggeredGridItemSpan.FullLine
+                                    ) {
+                                        FolderAggregateTypeSeparator(
+                                            type = item.type,
+                                            modifier = Modifier
+                                                .animateItemPlacement()
+                                        )
+                                    }
+                                }
+
+                                is FolderUIModel.FolderListItem -> {
+                                    item(
+                                        key = item.folderDetails.id,
+                                        contentType = "FolderCard"
+                                    ) {
+                                        FolderCard(
+                                            listMode = state.listMode,
+                                            name = item.folderDetails.name,
+                                            created = item.folderDetails.createdDateFormatted,
+                                            excluded = item.folderDetails.excluded,
+                                            aggregateAmount = TextFormat.compactNumber(
+                                                value = item.folderDetails.aggregateAmount.absoluteValue,
+                                                currency = state.currency
+                                            ),
+                                            aggregateType = item.folderDetails.aggregateType,
+                                            onClick = { navigateToFolderDetails(item.folderDetails.id) },
+                                            modifier = Modifier
+                                                .animateItemPlacement()
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -178,24 +182,14 @@ fun FoldersListScreen(
 
 @Composable
 private fun FolderListOptions(
-    selectedSortCriteria: FolderSortCriteria,
-    selectedSortOrder: SortOrder,
-    onSortOptionSelect: (FolderSortCriteria) -> Unit,
     selectedListMode: ListMode,
     onListModeToggle: () -> Unit,
-    showBalancedFolders: Boolean,
-    onOptionSelect: (FoldersListOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SortOptionsMenu(
-            selectedSortCriteria = selectedSortCriteria,
-            selectedSortOrder = selectedSortOrder,
-            onSortOptionSelect = onSortOptionSelect
-        )
         IconButton(onClick = onListModeToggle) {
             Crossfade(
                 targetState = selectedListMode,
@@ -210,112 +204,28 @@ private fun FolderListOptions(
                 )
             }
         }
-        FoldersListOptions(
-            showBalancedFolders = showBalancedFolders,
-            onOptionSelect = onOptionSelect
-        )
     }
 }
 
 @Composable
-private fun SortOptionsMenu(
-    selectedSortCriteria: FolderSortCriteria,
-    selectedSortOrder: SortOrder,
-    onSortOptionSelect: (FolderSortCriteria) -> Unit,
+private fun FolderAggregateTypeSeparator(
+    type: AggregateType,
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by rememberSaveable { mutableStateOf(false) }
-
-    Box(modifier = modifier) {
-        IconButton(
-            onClick = { isExpanded = !isExpanded }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Sort,
-                contentDescription = stringResource(R.string.cd_toggle_list_mode)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(
+                vertical = SpacingSmall,
+                horizontal = SpacingMedium
             )
-        }
-
-        val sortContentDescription = stringResource(
-            R.string.cd_list_sorted,
-            stringResource(selectedSortCriteria.labelRes),
-            stringResource(selectedSortOrder.labelRes)
+    ) {
+        Text(
+            text = stringResource(type.labelRes),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
         )
-        DropdownMenu(
-            expanded = isExpanded,
-            onDismissRequest = { isExpanded = false },
-            modifier = Modifier
-                .semantics {
-                    contentDescription = sortContentDescription
-                }
-        ) {
-            FolderSortCriteria.entries.forEach { criteria ->
-                val selected = criteria == selectedSortCriteria
-                val sortOptionContentDescription = stringResource(
-                    R.string.cd_sort_option,
-                    stringResource(criteria.labelRes),
-                    stringResource((!selectedSortOrder).labelRes)
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(criteria.labelRes)) },
-                    onClick = {
-                        isExpanded = false
-                        onSortOptionSelect(criteria)
-                    },
-                    trailingIcon = {
-                        if (selected) {
-                            Icon(
-                                imageVector = selectedSortOrder.icon,
-                                contentDescription = null
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .semantics {
-                            contentDescription = sortOptionContentDescription
-                        }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FoldersListOptions(
-    showBalancedFolders: Boolean,
-    onOptionSelect: (FoldersListOption) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Box(modifier = modifier) {
-        IconButton(onClick = { expanded = !expanded }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(R.string.cd_folders_list_option_toggle)
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            FoldersListOption.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(
-                                id = if (showBalancedFolders) R.string.folder_list_option_hide_balanced
-                                else R.string.folder_list_option_show_balanced
-                            )
-                        )
-                    },
-                    onClick = {
-                        expanded = false
-                        onOptionSelect(option)
-                    }
-                )
-            }
-        }
     }
 }
 
@@ -326,7 +236,7 @@ private fun FolderCard(
     created: String,
     excluded: Boolean,
     aggregateAmount: String,
-    aggregateDirection: TransactionType?,
+    aggregateType: AggregateType,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -336,19 +246,21 @@ private fun FolderCard(
             color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
         )
 
-    val folderContentDescription = aggregateDirection?.let {
-        stringResource(
+    val folderContentDescription = when (aggregateType) {
+        AggregateType.BALANCED -> stringResource(
+            R.string.cd_folder_list_item_with_aggregate_amount,
+            name,
+            created
+        )
+
+        else -> stringResource(
             R.string.cd_folder_list_item_without_aggregate_amount,
             name,
             created,
             aggregateAmount,
-            stringResource(it.labelRes)
+            stringResource(aggregateType.labelRes)
         )
-    } ?: stringResource(
-        R.string.cd_folder_list_item_with_aggregate_amount,
-        name,
-        created
-    )
+    }
 
     OutlinedCard(
         onClick = onClick,
@@ -389,7 +301,7 @@ private fun FolderCard(
 
                         AggregateAmountText(
                             amount = aggregateAmount,
-                            type = aggregateDirection,
+                            type = aggregateType,
                             horizontalAlignment = Alignment.End,
                             modifier = Modifier
                                 .fillMaxWidth(AMOUNT_TEXT_WIDTH_FRACTION)
@@ -419,7 +331,7 @@ private fun FolderCard(
 
                         AggregateAmountText(
                             amount = aggregateAmount,
-                            type = aggregateDirection,
+                            type = aggregateType,
                             horizontalAlignment = Alignment.Start
                         )
                     }
@@ -434,17 +346,17 @@ private const val AMOUNT_TEXT_WIDTH_FRACTION = 0.50f
 @Composable
 private fun AggregateAmountText(
     amount: String,
-    type: TransactionType?,
+    type: AggregateType,
     horizontalAlignment: Alignment.Horizontal,
     modifier: Modifier = Modifier
 ) {
-    val aggregateTypeText = stringResource(
-        id = when (type) {
-            TransactionType.CREDIT -> R.string.credited
-            TransactionType.DEBIT -> R.string.debited
-            else -> R.string.balanced
+    val aggregateIcon = remember(type) {
+        when (type) {
+            AggregateType.BALANCED -> null
+            AggregateType.AGG_DEBIT -> TransactionType.DEBIT.directionIcon
+            AggregateType.AGG_CREDIT -> TransactionType.CREDIT.directionIcon
         }
-    )
+    }
 
     Column(
         modifier = modifier,
@@ -453,9 +365,9 @@ private fun AggregateAmountText(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            type?.let {
+            aggregateIcon?.let {
                 Icon(
-                    imageVector = it.directionIcon,
+                    imageVector = it,
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
@@ -466,16 +378,18 @@ private fun AggregateAmountText(
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                textDecoration = if (type == AggregateType.BALANCED) TextDecoration.Underline
+                else null
             )
         }
-        Text(
-            text = aggregateTypeText,
+        /*Text(
+            text = stringResource(type.labelRes),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textDecoration = if (type == null) TextDecoration.Underline
+            textDecoration = if (type == AggregateType.BALANCED) TextDecoration.Underline
             else null
-        )
+        )*/
     }
 }

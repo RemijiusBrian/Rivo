@@ -2,27 +2,15 @@ package dev.ridill.rivo.folders.domain.repository
 
 import androidx.paging.PagingData
 import dev.ridill.rivo.core.domain.model.ListMode
-import dev.ridill.rivo.core.domain.model.SortOrder
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.folders.domain.model.FolderDetails
-import dev.ridill.rivo.folders.domain.model.FolderSortCriteria
+import dev.ridill.rivo.folders.domain.model.FolderUIModel
 import kotlinx.coroutines.flow.Flow
 
 interface FoldersListRepository {
-    fun getFoldersWithAggregateList(
-        sortCriteria: FolderSortCriteria,
-        sortOrder: SortOrder,
-        showBalanced: Boolean
-    ): Flow<PagingData<FolderDetails>>
-
-    fun getFoldersListSortCriteria(): Flow<FolderSortCriteria>
-    fun getFoldersListSortOrder(): Flow<SortOrder>
-    suspend fun updateFoldersListSort(criteria: FolderSortCriteria, order: SortOrder)
+    fun getFoldersWithAggregateList(): Flow<PagingData<FolderUIModel>>
     fun getFoldersListMode(): Flow<ListMode>
     suspend fun updateFoldersListMode(listMode: ListMode)
-    fun getShowBalancedFolders(): Flow<Boolean>
-    suspend fun toggleShowBalancedFolders()
     fun getFoldersList(searchQuery: String = String.Empty): Flow<PagingData<Folder>>
     suspend fun getFolderById(id: Long): Folder?
 }

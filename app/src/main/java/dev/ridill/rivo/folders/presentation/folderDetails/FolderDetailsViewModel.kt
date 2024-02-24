@@ -15,6 +15,7 @@ import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
@@ -64,7 +65,7 @@ class FolderDetailsViewModel @Inject constructor(
     private val aggregateAmount = folderDetails.map { it?.aggregateAmount.orZero() }
         .distinctUntilChanged()
 
-    private val aggregateType = folderDetails.map { it?.aggregateType }
+    private val aggregateType = folderDetails.map { it?.aggregateType ?: AggregateType.BALANCED }
         .distinctUntilChanged()
 
     private val editModeActive = savedStateHandle.getStateFlow(EDIT_MODE_ACTIVE, false)
@@ -193,7 +194,10 @@ class FolderDetailsViewModel @Inject constructor(
                 createdTimestamp = createdTimestamp,
                 excluded = excluded
             )
-            folderIdFlow.update { insertedId }
+            val isUpdate = FolderDetailsScreenSpec.isIdInvalid(insertedId)
+            if (!isUpdate) {
+                folderIdFlow.update { insertedId }
+            }
             val txIdsListToAdd = FolderDetailsScreenSpec
                 .getTxIdsArgFromSavedStateHandle(savedStateHandle)
             if (txIdsListToAdd.isNotEmpty()) {
@@ -212,8 +216,8 @@ class FolderDetailsViewModel @Inject constructor(
                 eventBus.send(
                     FolderDetailsEvent.ShowUiMessage(
                         UiText.StringResource(
-                            if (isNewFolder.value) R.string.transaction_folder_created
-                            else R.string.transaction_folder_updated
+                            if (isUpdate) R.string.transaction_folder_updated
+                            else R.string.transaction_folder_created
                         )
                     )
                 )
@@ -241,9 +245,9 @@ class FolderDetailsViewModel @Inject constructor(
     }
 
     sealed class FolderDetailsEvent {
-        object NavigateUp : FolderDetailsEvent()
+        data object NavigateUp : FolderDetailsEvent()
         data class ShowUiMessage(val uiText: UiText) : FolderDetailsEvent()
-        object FolderDeleted : FolderDetailsEvent()
+        data object FolderDeleted : FolderDetailsEvent()
         data class NavigateUpWithFolderId(val folderId: Long) : FolderDetailsEvent()
         data class TransactionRemovedFromGroup(val transaction: TransactionListItem) :
             FolderDetailsEvent()

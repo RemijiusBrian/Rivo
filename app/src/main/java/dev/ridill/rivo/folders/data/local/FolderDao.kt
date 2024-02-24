@@ -11,42 +11,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FolderDao : BaseDao<FolderEntity> {
-
     @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY name ASC")
-    fun getFoldersWithAggregateExpenditureSortedByNameAsc(
-        showBalanced: Boolean
-    ): PagingSource<Int, FolderAndAggregateAmountView>
-
-    @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY name DESC")
-    fun getFoldersWithAggregateExpenditureSortedByNameDesc(
-        showBalanced: Boolean
-    ): PagingSource<Int, FolderAndAggregateAmountView>
-
-    @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY datetime(createdTimestamp) ASC, id ASC")
-    fun getFoldersWithAggregateExpenditureSortedByCreatedAsc(
-        showBalanced: Boolean
-    ): PagingSource<Int, FolderAndAggregateAmountView>
-
-    @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY datetime(createdTimestamp) DESC, id DESC")
-    fun getFoldersWithAggregateExpenditureSortedByCreatedDesc(
-        showBalanced: Boolean
-    ): PagingSource<Int, FolderAndAggregateAmountView>
-
-    @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY ABS(aggregateAmount) ASC")
-    fun getFoldersWithAggregateExpenditureSortedByAggregateAsc(
-        showBalanced: Boolean
-    ): PagingSource<Int, FolderAndAggregateAmountView>
-
-    @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE (:showBalanced = 1 OR aggregateAmount != 0.0) ORDER BY ABS(aggregateAmount) DESC")
-    fun getFoldersWithAggregateExpenditureSortedByAggregateDesc(
-        showBalanced: Boolean
-    ): PagingSource<Int, FolderAndAggregateAmountView>
+    @Query(
+        """SELECT * FROM folder_and_aggregate_amount_view
+        ORDER BY CASE
+                WHEN aggregateAmount > 0.0 THEN 1
+                WHEN aggregateAmount < 0.0 THEN 0
+                WHEN aggregateAmount = 0.0 THEN -1
+            END DESC,
+            datetime(createdTimestamp) DESC
+        """
+    )
+    fun getFoldersWithAggregateExpenditure(): PagingSource<Int, FolderAndAggregateAmountView>
 
     @Transaction
     @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE id = :id ORDER BY datetime(createdTimestamp) DESC, id DESC")

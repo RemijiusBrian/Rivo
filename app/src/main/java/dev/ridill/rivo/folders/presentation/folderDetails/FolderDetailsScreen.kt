@@ -82,6 +82,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
+import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
@@ -286,7 +287,7 @@ private fun NameField(
 private fun AggregateAmountAndCreatedDate(
     currency: Currency,
     aggregateAmount: Double,
-    aggregateType: TransactionType?,
+    aggregateType: AggregateType,
     date: String,
     modifier: Modifier = Modifier
 ) {
@@ -450,23 +451,17 @@ private fun TransactionsInFolder(
 private fun AggregateAmount(
     amount: Double,
     currency: Currency,
-    type: TransactionType?,
+    type: AggregateType,
     modifier: Modifier = Modifier
 ) {
-    val aggregateTypeText = stringResource(
-        id = when (type) {
-            TransactionType.CREDIT -> R.string.aggregate_amount_credited
-            TransactionType.DEBIT -> R.string.aggregate_amount_debited
-            else -> R.string.aggregate_amount_zero
-        }
-    )
-    val aggregateAmountContentDescription = type?.let {
-        stringResource(
+    val aggregateAmountContentDescription = when (type) {
+        AggregateType.BALANCED -> stringResource(R.string.cd_folder_aggregate_amount_balanced)
+        else -> stringResource(
             R.string.cd_folder_aggregate_amount_unbalanced,
             TextFormat.currency(amount, currency),
-            aggregateTypeText
+            stringResource(type.labelRes)
         )
-    } ?: stringResource(R.string.cd_folder_aggregate_amount_balanced)
+    }
     Row(
         modifier = modifier
             .mergedContentDescription(aggregateAmountContentDescription)
@@ -490,13 +485,13 @@ private fun AggregateAmount(
         SpacerExtraSmall()
 
         Crossfade(
-            targetState = aggregateTypeText,
+            targetState = type.labelRes,
             label = "AggregateType",
             modifier = Modifier
                 .alignBy(LastBaseline)
-        ) { text ->
+        ) { resId ->
             Text(
-                text = text,
+                text = stringResource(resId),
                 style = MaterialTheme.typography.titleMedium
             )
         }
