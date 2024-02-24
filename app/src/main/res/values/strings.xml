@@ -207,7 +207,8 @@
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
     <string name="fwd_slash_amount_value">/ %s</string>
-    <string name="budget">Budget</string>
+    <string name="budget_asterisk">Budget*</string>
+    <string name="budget_includes_credited_amounts">Budget includes credited amounts</string>
     <string name="recent_spends">Recent Spends</string>
     <string name="spent_this_month">Spent this month</string>
     <string name="amount_zero">0</string>
@@ -327,7 +328,7 @@
     <string name="folder_list_option_show_balanced">Show Balanced</string>
     <string name="tap_to_unlock">Tap to Unlock</string>
     <string name="app_unlocked">%s is unlocked</string>
-    <string name="lock_app">Lock App</string>
+    <string name="lock_app">Lock app</string>
     <string name="tap_to_open">Tap to open</string>
     <string name="one_minute">1 Minute</string>
     <string name="five_minutes">5 Minutes</string>

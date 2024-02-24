@@ -25,8 +25,13 @@ class DashboardRepositoryImpl(
         .distinctUntilChanged()
 
     override fun getExpenditureForCurrentMonth(): Flow<Double> = transactionDao.getAmountSum(
-        monthAndYear = DateUtil.now(),
-        typeName = TransactionType.DEBIT.name
+        typeName = TransactionType.DEBIT.name,
+        dateTime = DateUtil.now()
+    ).distinctUntilChanged()
+
+    override fun getTotalCreditsForCurrentMonth(): Flow<Double> = transactionDao.getAmountSum(
+        typeName = TransactionType.CREDIT.name,
+        dateTime = DateUtil.now()
     ).distinctUntilChanged()
 
     override fun getRecentSpends(): Flow<List<TransactionListItem>> = transactionDao

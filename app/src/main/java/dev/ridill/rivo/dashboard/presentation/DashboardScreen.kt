@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
@@ -159,7 +160,7 @@ fun DashboardScreen(
             BalanceAndBudget(
                 currency = state.currency,
                 balance = state.balance,
-                budget = state.monthlyBudget,
+                budget = state.monthlyBudgetInclCredits,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -176,7 +177,7 @@ fun DashboardScreen(
                     .padding(horizontal = SpacingSmall),
                 onAllTransactionsClick = navigateToAllTransactions,
                 listState = recentSpendsListState,
-                onNavigateUpClick = {
+                onScrollUpClick = {
                     coroutineScope.launch {
                         if (recentSpendsListState.isScrollInProgress)
                             recentSpendsListState.scrollToItem(Int.Zero)
@@ -200,13 +201,16 @@ private fun Greeting(
         partOfDay = DateUtil.getPartOfDay()
     }
 
+    val isUsernameAvailable = remember(username) { !username.isNullOrEmpty() }
+
     Column(
         modifier = modifier
     ) {
         Crossfade(targetState = partOfDay, label = "Greeting") { part ->
             Text(
                 text = stringResource(R.string.app_greeting, stringResource(part.labelRes)),
-                style = MaterialTheme.typography.titleMedium
+                style = if (isUsernameAvailable) MaterialTheme.typography.titleMedium
+                else LocalTextStyle.current
             )
         }
         username?.let { name ->
@@ -225,7 +229,7 @@ private fun Greeting(
 private fun BalanceAndBudget(
     currency: Currency,
     balance: Double,
-    budget: Long,
+    budget: Double,
     modifier: Modifier = Modifier
 ) {
     val balanceAndBudgetContentDescription = stringResource(
@@ -246,30 +250,48 @@ private fun BalanceAndBudget(
                 .alignBy(LastBaseline)
         )
         SpacerSmall()
-        VerticalNumberSpinnerContent(
-            number = budget,
+        Box(
             modifier = Modifier
                 .alignBy(LastBaseline)
         ) {
-            Text(
-                text = stringResource(
-                    R.string.fwd_slash_amount_value,
-                    TextFormat.currency(amount = it, currency = currency)
-                ),
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.budget_includes_credited_amounts))
+                    }
+                },
+                state = rememberTooltipState()
+            ) {
+                Row {
+                    VerticalNumberSpinnerContent(
+                        number = budget,
+                        modifier = Modifier
+                            .alignBy(LastBaseline)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.fwd_slash_amount_value,
+                                TextFormat.currency(amount = it, currency = currency)
+                            ),
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    SpacerExtraSmall()
+                    Text(
+                        text = stringResource(R.string.budget_asterisk),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .alignBy(LastBaseline)
+                    )
+                }
+            }
         }
-        SpacerExtraSmall()
-        Text(
-            text = stringResource(R.string.budget),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Normal,
-            modifier = Modifier
-                .alignBy(LastBaseline),
-            maxLines = 1
-        )
     }
 }
 
@@ -310,7 +332,7 @@ private fun SpendsOverview(
     onTransactionClick: (TransactionListItem) -> Unit,
     onAllTransactionsClick: () -> Unit,
     listState: LazyListState,
-    onNavigateUpClick: () -> Unit,
+    onScrollUpClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val showScrollUpButton by remember {
@@ -321,7 +343,6 @@ private fun SpendsOverview(
         shape = MaterialTheme.shapes.medium
             .copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize),
         modifier = modifier,
-//        color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = ElevationLevel1
     ) {
         Column(
@@ -404,7 +425,7 @@ private fun SpendsOverview(
                         .padding(SpacingMedium)
                 ) {
                     FilledTonalIconButton(
-                        onClick = onNavigateUpClick,
+                        onClick = onScrollUpClick,
                         shape = CircleShape
                     ) {
                         Icon(
@@ -511,7 +532,7 @@ private fun PreviewDashboardScreen() {
             state = DashboardState(
                 balance = 1_000.0,
                 spentAmount = 500.0,
-                monthlyBudget = 5_000L
+                monthlyBudgetInclCredits = 5_000.0
             ),
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},

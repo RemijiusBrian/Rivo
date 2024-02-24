@@ -550,11 +550,12 @@ private fun TransactionListHeader(
 ) {
     Surface(
         modifier = Modifier
-            .padding(vertical = SpacingSmall)
             .then(modifier)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            modifier = Modifier
+                .padding(vertical = SpacingSmall)
         ) {
             DateFilter(
                 selectedDate = selectedDate,

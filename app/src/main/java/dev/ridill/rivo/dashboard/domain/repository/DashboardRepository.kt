@@ -8,5 +8,6 @@ interface DashboardRepository {
     fun getCurrencyPreference(): Flow<Currency>
     fun getCurrentBudget(): Flow<Long>
     fun getExpenditureForCurrentMonth(): Flow<Double>
+    fun getTotalCreditsForCurrentMonth(): Flow<Double>
     fun getRecentSpends(): Flow<List<TransactionListItem>>
 }

@@ -10,6 +10,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
@@ -49,6 +50,10 @@ data object DashboardScreenSpec : ScreenSpec {
             }?.let { messageRes ->
                 snackbarController.showSnackbar(context.getString(messageRes))
             }
+        }
+
+        OnLifecycleStartEffect {
+            viewModel.updateSignedInUsername()
         }
 
         DashboardScreen(
