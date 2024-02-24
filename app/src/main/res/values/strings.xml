@@ -77,9 +77,6 @@
     <string name="cd_long_press_tag_to_edit">Long press to edit tag</string>
     <string name="cd_filter_transactions_by_type">Filter transactions by type</string>
     <string name="cd_clear">Clear</string>
-    <string name="cd_list_sorted">List sorted by %1$s %2$s</string>
-    <string name="cd_sort_option">Click to sort list by %1$s %2$s</string>
-    <string name="cd_folders_list_option_toggle">Folders list options</string>
     <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
     <string name="cd_total_transaction_sum">%1$s amounts to %2$s</string>
@@ -201,7 +198,7 @@
 
     <string name="biometric_prompt_title">Verify It\'s you</string>
     <string name="fingerprint_or_screen_lock_prompt_message" tools:override="true">Use your fingerprint or screen lock to continue</string>
-    
+
     <string name="app_lock_service_special_use_message">The service runs as a timer to auto update the app to the locked state after the specified time interval</string>
 
     <string name="app_greeting">Good %s,</string>
@@ -284,12 +281,6 @@
     <string name="label_transaction_folder_name">Name</string>
     <string name="transactions">Transactions</string>
     <string name="created">Created</string>
-    <string name="aggregate_amount_debited">Aggregate Debited</string>
-    <string name="debited">Debited</string>
-    <string name="aggregate_amount_credited">Aggregate Credited</string>
-    <string name="credited">Credited</string>
-    <string name="aggregate_amount_zero">Aggregate Balanced</string>
-    <string name="balanced">Balanced</string>
     <string name="transaction_type_label_credit">Credit</string>
     <string name="transaction_type_label_debit">Debit</string>
     <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
@@ -324,8 +315,6 @@
     <string name="enter_multiplier">Enter Multiplier</string>
     <string name="enter_percent">Enter Percent</string>
     <string name="create_new_tag">Create New Tag</string>
-    <string name="folder_list_option_hide_balanced">Hide Balanced</string>
-    <string name="folder_list_option_show_balanced">Show Balanced</string>
     <string name="tap_to_unlock">Tap to Unlock</string>
     <string name="app_unlocked">%s is unlocked</string>
     <string name="lock_app">Lock app</string>
@@ -342,4 +331,8 @@
     <string name="encryption_password_updated">Encryption password updated</string>
     <string name="forgot_password">Forgot Password</string>
     <string name="backup_encryption_message">Your backup is encrypted in your google storage.\n\nTo restore your data from encrypted backup on a new device, you will need your password.</string>
+
+    <string name="aggregate_type_balanced">Balanced</string>
+    <string name="aggregate_type_debit">Agg. Debit</string>
+    <string name="aggregate_type_credit">Agg. Credit</string>
 </resources>
