@@ -84,8 +84,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
 
-    fun isEditMode(expenseId: Long?): Boolean = expenseId != ARG_INVALID_ID_LONG
-
     fun buildAutoAddedTransactionDeeplinkUri(id: Long): Uri =
         AUTO_ADDED_TRANSACTION_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString()).toUri()
 
