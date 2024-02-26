@@ -427,8 +427,7 @@ private fun TransactionsInFolder(
                                             .animateItemPlacement()
                                     ) {
                                         TransactionCard(
-                                            note = item.transaction.note
-                                                .ifEmpty { stringResource(item.transaction.type.labelRes) },
+                                            note = item.transaction.note,
                                             amount = item.transaction
                                                 .amountFormattedWithCurrency(currency),
                                             date = item.transaction.date,

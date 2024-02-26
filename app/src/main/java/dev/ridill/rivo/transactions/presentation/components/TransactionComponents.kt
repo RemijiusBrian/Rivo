@@ -13,6 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,6 +31,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -40,6 +43,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.icons.Tags
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -65,6 +69,7 @@ fun TransactionListItem(
     shadowElevation: Dp = ListItemDefaults.Elevation,
     excluded: Boolean = false
 ) {
+    val isNoteEmpty = remember(note) { note.isEmpty() }
     val transactionListItemContentDescription = buildString {
         append(
             stringResource(
@@ -91,12 +96,21 @@ fun TransactionListItem(
     ListItem(
         headlineContent = {
             Text(
-                text = note,
+                text = note
+                    .ifEmpty { stringResource(type.labelRes) },
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textDecoration = TextDecoration.exclusion(excluded),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = LocalContentColor.current.copy(
+                    alpha = if (isNoteEmpty) ContentAlpha.SUB_CONTENT
+                    else Float.One
+                ),
+                style = LocalTextStyle.current.copy(
+                    fontStyle = if (note.isEmpty()) FontStyle.Italic
+                    else null
+                )
             )
             // FIXME: note text not visible if amount text is too long
         },

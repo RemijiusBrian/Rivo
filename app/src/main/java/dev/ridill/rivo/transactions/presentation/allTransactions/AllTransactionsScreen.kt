@@ -259,8 +259,7 @@ fun AllTransactionsScreen(
                 )
 
                 TransactionCard(
-                    note = transaction.note
-                        .ifEmpty { stringResource(transaction.type.labelRes) },
+                    note = transaction.note,
                     amount = transaction.amountFormattedWithCurrency(state.currency),
                     date = transaction.date,
                     type = transaction.type,
