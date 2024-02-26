@@ -15,9 +15,7 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_ADDED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_UPDATED
 
 data object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
@@ -43,8 +41,6 @@ data object DashboardScreenSpec : ScreenSpec {
             snackbarController,
         ) {
             when (it) {
-                RESULT_TRANSACTION_ADDED -> R.string.transaction_added
-                RESULT_TRANSACTION_UPDATED -> R.string.transaction_updated
                 RESULT_TRANSACTION_DELETED -> R.string.transaction_deleted
                 else -> null
             }?.let { messageRes ->

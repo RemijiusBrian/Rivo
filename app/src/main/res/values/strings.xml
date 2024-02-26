@@ -209,8 +209,6 @@
     <string name="spent_this_month">Spent this month</string>
     <string name="amount_zero">0</string>
     <string name="add_a_note">Add a Note</string>
-    <string name="transaction_added">Transaction Added</string>
-    <string name="transaction_updated">Transaction Updated</string>
     <string name="transaction_deleted">Transaction Deleted</string>
     <string name="choose_theme">Choose Theme</string>
     <string name="budget_updated">Your budget has been updated</string>
