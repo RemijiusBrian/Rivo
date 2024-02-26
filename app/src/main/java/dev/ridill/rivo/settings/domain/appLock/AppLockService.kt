@@ -70,6 +70,7 @@ class AppLockService : Service() {
     private fun lockAppImmediate() = serviceScope.launch {
         logI { "Locking app and terminating service" }
         preferencesManager.updateAppLocked(true)
+        stopSelf()
     }
 
     private fun stopService() {

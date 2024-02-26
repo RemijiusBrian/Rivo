@@ -32,16 +32,11 @@ class AppLockServiceManager(
         val serviceIntent = Intent(context, AppLockService::class.java).apply {
             action = serviceAction.name
         }
-        Handler(Looper.getMainLooper()).postDelayed(
-            {
-                ContextCompat.startForegroundService(
-                    context,
-                    serviceIntent
-                )
-            },
-            DELAY_MILLIS
-        )
+        Handler(Looper.getMainLooper()).post {
+            ContextCompat.startForegroundService(
+                context,
+                serviceIntent
+            )
+        }
     }
 }
-
-private const val DELAY_MILLIS = 500L
