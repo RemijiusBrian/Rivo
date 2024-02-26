@@ -18,9 +18,8 @@ interface AddEditTransactionActions {
     fun onTransactionExclusionToggle(excluded: Boolean)
     fun onTransformAmountClick()
     fun onTransformAmountDismiss()
-    fun onAmounTransformationSelect(criteria: AmountTransformation)
+    fun onAmountTransformationSelect(criteria: AmountTransformation)
     fun onAmountTransformationConfirm(value: String)
-    fun onSaveClick()
     fun onDeleteClick()
     fun onDeleteDismiss()
     fun onDeleteConfirm()
@@ -36,4 +35,5 @@ interface AddEditTransactionActions {
     fun onFolderSelectionDismiss()
     fun onFolderSelect(folder: Folder)
     fun onCreateFolderClick()
+    fun onBackNav()
 }

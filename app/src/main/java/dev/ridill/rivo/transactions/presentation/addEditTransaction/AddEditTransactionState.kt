@@ -10,6 +10,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 data class AddEditTransactionState(
+    val isLoading: Boolean = false,
     val currency: Currency = LocaleUtil.defaultCurrency,
     val amountRecommendations: List<Long> = emptyList(),
     val tagsList: List<Tag> = emptyList(),

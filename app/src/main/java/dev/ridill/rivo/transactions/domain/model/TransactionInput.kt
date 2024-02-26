@@ -1,11 +1,14 @@
 package dev.ridill.rivo.transactions.domain.model
 
+import android.os.Parcelable
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
-data class Transaction(
+@Parcelize
+data class TransactionInput(
     val id: Long,
     val amount: String,
     val note: String,
@@ -14,9 +17,9 @@ data class Transaction(
     val tagId: Long?,
     val folderId: Long?,
     val excluded: Boolean
-) {
+) : Parcelable {
     companion object {
-        val DEFAULT = Transaction(
+        val DEFAULT = TransactionInput(
             id = RivoDatabase.DEFAULT_ID_LONG,
             amount = String.Empty,
             note = String.Empty,

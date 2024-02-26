@@ -5,8 +5,9 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
-import dev.ridill.rivo.transactions.data.toTransaction
-import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.data.toEntity
+import dev.ridill.rivo.transactions.data.toTransactionInput
+import dev.ridill.rivo.transactions.domain.model.TransactionInput
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +23,10 @@ class AddEditTransactionRepositoryImpl(
 ) : AddEditTransactionRepository {
     override fun getCurrencyPreference(): Flow<Currency> = settingsRepo.getCurrencyPreference()
 
-    override suspend fun getTransactionById(id: Long): Transaction? = withContext(Dispatchers.IO) {
-        dao.getTransactionById(id)?.toTransaction()
-    }
+    override suspend fun getTransactionById(id: Long): TransactionInput? =
+        withContext(Dispatchers.IO) {
+            dao.getTransactionById(id)?.toTransactionInput()
+        }
 
     override fun getAmountRecommendations(): Flow<List<Long>> = dao.getTransactionAmountRange()
         .map { (upperLimit, lowerLimit) ->
@@ -35,6 +37,11 @@ class AddEditTransactionRepositoryImpl(
 
             if (range == Long.Zero) listOf(50L, 100L, 500L)
             else listOf(roundLower, roundLower + (range / 2), roundUpper)
+        }
+
+    override suspend fun saveTransaction(transaction: TransactionInput): Long =
+        withContext(Dispatchers.IO) {
+            dao.insert(transaction.toEntity()).first()
         }
 
     override suspend fun saveTransaction(
