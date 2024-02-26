@@ -1,11 +1,13 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import android.icu.util.Currency
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -18,17 +20,16 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -113,11 +114,15 @@ fun AddEditTransactionScreen(
     folderSearchQuery: () -> String,
     folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
-    actions: AddEditTransactionActions,
-    navigateUp: () -> Unit
+    actions: AddEditTransactionActions
 ) {
     val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+
+    BackHandler(
+        enabled = true,
+        onBack = actions::onBackNav
+    )
 
     LaunchedEffect(isEditMode) {
         if (!isEditMode)
@@ -141,7 +146,7 @@ fun AddEditTransactionScreen(
                         )
                     )
                 },
-                navigationIcon = { BackArrowButton(onClick = navigateUp) },
+                navigationIcon = { BackArrowButton(onClick = actions::onBackNav) },
                 actions = {
                     if (isEditMode) {
                         IconButton(onClick = actions::onDeleteClick) {
@@ -155,103 +160,108 @@ fun AddEditTransactionScreen(
                 scrollBehavior = topAppBarScrollBehavior
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = actions::onSaveClick) {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = stringResource(R.string.cd_save_transaction)
-                )
-            }
-        },
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
             .imePadding(),
         snackbarController = snackbarController
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(SpacingMedium),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
-        ) {
-            TransactionTypeSelector(
-                selectedType = state.transactionType,
-                onValueChange = actions::onTransactionTypeChange,
+        Box {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION)
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            AmountInput(
-                currency = state.currency,
-                amount = amountInput,
-                onAmountChange = actions::onAmountChange,
-                onTransformClick = actions::onTransformAmountClick,
-                modifier = Modifier
-                    .focusRequester(amountFocusRequester)
-            )
-
-            NoteInput(
-                input = noteInput,
-                onValueChange = actions::onNoteChange,
-                onFocused = actions::onNoteInputFocused
-            )
-
-            if (!isEditMode) {
-                AmountRecommendationsRow(
-                    currency = state.currency,
-                    recommendations = state.amountRecommendations,
-                    onRecommendationClick = {
-                        actions.onRecommendedAmountClick(it)
-                        focusManager.moveFocus(FocusDirection.Down)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(AMOUNT_RECOMMENDATION_WIDTH_FRACTION)
-                )
-            }
-
-            HorizontalDivider()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(SpacingMedium),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
             ) {
-                FolderIndicator(
-                    folderName = state.linkedFolderName,
-                    onAddToFolderClick = actions::onAddToFolderClick,
-                    onRemoveFolderClick = actions::onRemoveFromFolderClick,
+                TransactionTypeSelector(
+                    selectedType = state.transactionType,
+                    onValueChange = actions::onTransactionTypeChange,
                     modifier = Modifier
-                        .weight(weight = Float.One, fill = false)
+                        .fillMaxWidth(TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION)
+                        .align(Alignment.CenterHorizontally)
                 )
 
-                TransactionDate(
-                    date = state.transactionDateFormatted,
-                    onDateClick = actions::onTransactionTimestampClick,
+                AmountInput(
+                    currency = state.currency,
+                    amount = amountInput,
+                    onAmountChange = actions::onAmountChange,
+                    onTransformClick = actions::onTransformAmountClick,
                     modifier = Modifier
-                        .weight(weight = Float.One, fill = false)
+                        .focusRequester(amountFocusRequester)
+                )
+
+                NoteInput(
+                    input = noteInput,
+                    onValueChange = actions::onNoteChange,
+                    onFocused = actions::onNoteInputFocused
+                )
+
+                if (!isEditMode) {
+                    AmountRecommendationsRow(
+                        currency = state.currency,
+                        recommendations = state.amountRecommendations,
+                        onRecommendationClick = {
+                            actions.onRecommendedAmountClick(it)
+                            focusManager.moveFocus(FocusDirection.Down)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(AMOUNT_RECOMMENDATION_WIDTH_FRACTION)
+                    )
+                }
+
+                HorizontalDivider()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    FolderIndicator(
+                        folderName = state.linkedFolderName,
+                        onAddToFolderClick = actions::onAddToFolderClick,
+                        onRemoveFolderClick = actions::onRemoveFromFolderClick,
+                        modifier = Modifier
+                            .weight(weight = Float.One, fill = false)
+                    )
+
+                    TransactionDate(
+                        date = state.transactionDateFormatted,
+                        onDateClick = actions::onTransactionTimestampClick,
+                        modifier = Modifier
+                            .weight(weight = Float.One, fill = false)
+                    )
+                }
+
+                ExclusionToggle(
+                    excluded = state.isTransactionExcluded,
+                    onToggle = actions::onTransactionExclusionToggle,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                )
+
+                TagsList(
+                    tagsList = state.tagsList,
+                    selectedTagId = state.selectedTagId,
+                    onTagClick = actions::onTagClick,
+                    onNewTagClick = actions::onNewTagClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             }
 
-            ExclusionToggle(
-                excluded = state.isTransactionExcluded,
-                onToggle = actions::onTransactionExclusionToggle,
+            AnimatedVisibility(
+                visible = state.isLoading,
                 modifier = Modifier
-                    .align(Alignment.End)
-            )
-
-            TagsList(
-                tagsList = state.tagsList,
-                selectedTagId = state.selectedTagId,
-                onTagClick = actions::onTagClick,
-                onNewTagClick = actions::onNewTagClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+                    .align(Alignment.TopCenter)
+            ) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
         }
 
         if (state.showDeleteConfirmation) {
@@ -313,7 +323,7 @@ fun AddEditTransactionScreen(
             AmountTransformationSheet(
                 onDismiss = actions::onTransformAmountDismiss,
                 selectedTransformation = state.selectedAmountTransformation,
-                onTransformationSelect = actions::onAmounTransformationSelect,
+                onTransformationSelect = actions::onAmountTransformationSelect,
                 onTransformClick = actions::onAmountTransformationConfirm
             )
         }

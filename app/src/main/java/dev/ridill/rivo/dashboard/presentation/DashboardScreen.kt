@@ -404,7 +404,8 @@ private fun SpendsOverview(
                         contentType = { "RecentSpendCard" }
                     ) { transaction ->
                         RecentSpendCard(
-                            note = transaction.note,
+                            note = transaction.note
+                                .ifEmpty { stringResource(transaction.type.labelRes) },
                             amount = transaction.amountFormattedWithCurrency(currency),
                             date = transaction.date,
                             type = transaction.type,

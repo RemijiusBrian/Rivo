@@ -25,12 +25,15 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionInput
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,39 +48,43 @@ class AddEditTransactionViewModel @Inject constructor(
 ) : ViewModel(), AddEditTransactionActions {
     private val transactionIdArg = AddEditTransactionScreenSpec
         .getTransactionIdFromSavedStateHandle(savedStateHandle)
-    private val isEditMode = AddEditTransactionScreenSpec.isEditMode(transactionIdArg)
 
     private val linkFolderIdArg = AddEditTransactionScreenSpec
         .getFolderIdToLinkFromSavedStateHandle(savedStateHandle)
+
+    private val isLoading = MutableStateFlow(false)
 
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
     private val currency = transactionRepo.getCurrencyPreference()
 
-    val amountInput = savedStateHandle.getStateFlow(AMOUNT_INPUT, "")
+    private val txInput = savedStateHandle.getStateFlow(TX_INPUT, TransactionInput.DEFAULT)
+    val amountInput = txInput.map { it.amount }
+        .asStateFlow(viewModelScope, String.Empty)
 
     private val amountTransformation = savedStateHandle
         .getStateFlow(SELECTED_AMOUNT_TRANSFORMATION, AmountTransformation.DIVIDE_BY)
     private val showAmountTransformationInput = savedStateHandle
         .getStateFlow(SHOW_AMOUNT_TRANSFORMATION_INPUT, false)
 
-    val noteInput = savedStateHandle.getStateFlow(NOTE_INPUT, "")
+    val noteInput = txInput.map { it.note }
 
     private val tagsList = tagsRepo.getAllTags()
-    private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
+    private val selectedTagId = txInput.map { it.tagId }
+        .distinctUntilChanged()
 
-    private val transactionTimestamp = savedStateHandle
-        .getStateFlow(TRANSACTION_TIMESTAMP, DateUtil.now())
+    private val transactionTimestamp = txInput.map { it.timestamp }
+        .distinctUntilChanged()
 
-    private val transactionFolderId = savedStateHandle
-        .getStateFlow<Long?>(TRANSACTION_FOLDER_ID, null)
+    private val transactionFolderId = txInput.map { it.folderId }
+        .distinctUntilChanged()
 
-    private val transactionType = savedStateHandle
-        .getStateFlow(TRANSACTION_TYPE, TransactionType.DEBIT)
+    private val transactionType = txInput.map { it.type }
+        .distinctUntilChanged()
 
-    private val isTransactionExcluded = savedStateHandle
-        .getStateFlow(IS_TRANSACTION_EXCLUDED, false)
+    private val isTransactionExcluded = txInput.map { it.excluded }
+        .distinctUntilChanged()
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
@@ -105,6 +112,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }.map { it?.name }
 
     val state = combineTuple(
+        isLoading,
         currency,
         amountRecommendations,
         amountTransformation,
@@ -121,9 +129,10 @@ class AddEditTransactionViewModel @Inject constructor(
         showFolderSelection,
         linkedFolderName
     ).map { (
+                isLoading,
                 currency,
                 amountRecommendations,
-                selectedAmountTransformation,
+                amountTransformation,
                 showAmountTransformationInput,
                 tagsList,
                 selectedTagId,
@@ -138,6 +147,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 linkedFolderName
             ) ->
         AddEditTransactionState(
+            isLoading = isLoading,
             currency = currency,
             amountRecommendations = amountRecommendations,
             tagsList = tagsList,
@@ -152,7 +162,7 @@ class AddEditTransactionViewModel @Inject constructor(
             showFolderSelection = showFolderSelection,
             linkedFolderName = linkedFolderName,
             showTransformationInput = showAmountTransformationInput,
-            selectedAmountTransformation = selectedAmountTransformation
+            selectedAmountTransformation = amountTransformation
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -163,28 +173,15 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        val transaction = transactionRepo.getTransactionById(transactionIdArg)
-            ?: Transaction.DEFAULT
-        savedStateHandle[AMOUNT_INPUT] = TextFormat.parseNumber(transaction.amount)
-            ?.let {
-                TextFormat.number(
-                    value = it,
-                    isGroupingUsed = false,
-                    maxFractionDigits = Int.MAX_VALUE
-                )
-            }
-            .orEmpty()
-        savedStateHandle[NOTE_INPUT] = transaction.note
-        savedStateHandle[TRANSACTION_TIMESTAMP] = transaction.timestamp
-        savedStateHandle[TRANSACTION_TYPE] = transaction.type
-        savedStateHandle[SELECTED_TAG_ID] = transaction.tagId
-        savedStateHandle[IS_TRANSACTION_EXCLUDED] = transaction.excluded
-        savedStateHandle[TRANSACTION_FOLDER_ID] = linkFolderIdArg
-            ?: transaction.folderId
+        val transactionInput = transactionRepo.getTransactionById(transactionIdArg)
+            ?: TransactionInput.DEFAULT
+        savedStateHandle[TX_INPUT] = transactionInput.copy(
+            folderId = linkFolderIdArg ?: transactionInput.folderId
+        )
     }
 
     override fun onAmountChange(value: String) {
-        savedStateHandle[AMOUNT_INPUT] = value
+        savedStateHandle[TX_INPUT] = txInput.value.copy(amount = value)
     }
 
     override fun onNoteInputFocused() {
@@ -195,23 +192,31 @@ class AddEditTransactionViewModel @Inject constructor(
         val isExpression = evalService.isExpression(amountInput)
         val result = if (isExpression) evalService.evalOrNull(amountInput)
         else TextFormat.parseNumber(amountInput)
-        savedStateHandle[AMOUNT_INPUT] = TextFormat.number(
-            value = result.orZero(),
-            isGroupingUsed = false
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            amount = TextFormat.number(
+                value = result.orZero(),
+                isGroupingUsed = false
+            )
         )
     }
 
     override fun onNoteChange(value: String) {
-        savedStateHandle[NOTE_INPUT] = value
+        savedStateHandle[TX_INPUT] = txInput.value.copy(note = value)
     }
 
     override fun onRecommendedAmountClick(amount: Long) {
-        savedStateHandle[AMOUNT_INPUT] = amount.toString()
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            amount = TextFormat.number(
+                value = amount,
+                isGroupingUsed = false
+            )
+        )
     }
 
     override fun onTagClick(tagId: Long) {
-        savedStateHandle[SELECTED_TAG_ID] = tagId
-            .takeIf { selectedTagId.value != it }
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            tagId = tagId.takeIf { it != txInput.value.tagId }
+        )
     }
 
     override fun onTransactionTimestampClick() {
@@ -223,17 +228,22 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onTransactionTimestampSelectionConfirm(millis: Long) {
-        savedStateHandle[TRANSACTION_TIMESTAMP] = DateUtil
-            .dateFromMillisWithTime(millis, transactionTimestamp.value)
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            timestamp = DateUtil.dateFromMillisWithTime(millis)
+        )
         savedStateHandle[SHOW_DATE_TIME_PICKER] = false
     }
 
     override fun onTransactionTypeChange(type: TransactionType) {
-        savedStateHandle[TRANSACTION_TYPE] = type
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            type = type
+        )
     }
 
     override fun onTransactionExclusionToggle(excluded: Boolean) {
-        savedStateHandle[IS_TRANSACTION_EXCLUDED] = excluded
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            excluded = excluded
+        )
     }
 
     override fun onTransformAmountClick() {
@@ -244,7 +254,7 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = false
     }
 
-    override fun onAmounTransformationSelect(criteria: AmountTransformation) {
+    override fun onAmountTransformationSelect(criteria: AmountTransformation) {
         savedStateHandle[SELECTED_AMOUNT_TRANSFORMATION] = criteria
     }
 
@@ -255,60 +265,13 @@ class AddEditTransactionViewModel @Inject constructor(
             AmountTransformation.MULTIPLIER -> amount * value.toDoubleOrNull().orZero()
             AmountTransformation.PERCENT -> amount * (value.toFloatOrNull().orZero() / 100f)
         }
-        savedStateHandle[AMOUNT_INPUT] = TextFormat.number(
-            value = transformedAmount.ifInfinite { Double.Zero },
-            isGroupingUsed = false
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            amount = TextFormat.number(
+                value = transformedAmount.ifInfinite { Double.Zero },
+                isGroupingUsed = false
+            )
         )
         savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = false
-    }
-
-    override fun onSaveClick() {
-        viewModelScope.launch {
-            val amountInput = amountInput.value.trim()
-            val isExp = evalService.isExpression(amountInput)
-            val amount = (if (isExp) evalService.evalOrNull(amountInput)
-            else TextFormat.parseNumber(amountInput)) ?: -1.0
-            if (amount < Double.Zero) {
-                eventBus.send(
-                    AddEditTransactionEvent.ShowUiMessage(
-                        UiText.StringResource(
-                            R.string.error_invalid_amount,
-                            true
-                        )
-                    )
-                )
-                return@launch
-            }
-            val note = noteInput.value.trim()
-            if (note.isEmpty()) {
-                eventBus.send(
-                    AddEditTransactionEvent.ShowUiMessage(
-                        UiText.StringResource(
-                            R.string.error_invalid_transaction_note,
-                            true
-                        )
-                    )
-                )
-                return@launch
-            }
-            val type = transactionType.value
-            val tagId = selectedTagId.value
-            val folderId = transactionFolderId.value
-            val excluded = isTransactionExcluded.value
-            transactionRepo.saveTransaction(
-                id = currentTransactionId,
-                amount = amount,
-                note = note,
-                timestamp = transactionTimestamp.value,
-                transactionType = type,
-                tagId = tagId,
-                folderId = folderId,
-                excluded = excluded
-            )
-            val event = if (isEditMode) AddEditTransactionEvent.TransactionUpdated
-            else AddEditTransactionEvent.TransactionAdded
-            eventBus.send(event)
-        }
     }
 
     override fun onDeleteClick() {
@@ -376,7 +339,9 @@ class AddEditTransactionViewModel @Inject constructor(
             )
 
             clearAndHideTagInput()
-            savedStateHandle[SELECTED_TAG_ID] = insertedId
+            savedStateHandle[TX_INPUT] = txInput.value.copy(
+                tagId = insertedId
+            )
             eventBus.send(
                 AddEditTransactionEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
             )
@@ -401,7 +366,9 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onFolderSelect(folder: Folder) {
-        savedStateHandle[TRANSACTION_FOLDER_ID] = folder.id
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            folderId = folder.id
+        )
         savedStateHandle[SHOW_FOLDER_SELECTION] = false
     }
 
@@ -413,7 +380,9 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     fun onCreateFolderResult(folderIdString: String?) {
-        savedStateHandle[TRANSACTION_FOLDER_ID] = folderIdString?.toLongOrNull()
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            folderId = folderIdString?.toLongOrNull()
+        )
     }
 
     private fun clearAndHideTagInput() {
@@ -421,33 +390,57 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[TAG_INPUT] = null
     }
 
+    override fun onBackNav() {
+        isLoading.update { true }
+        viewModelScope.launch {
+            val txInput = txInput.value
+            val amountInput = txInput.amount.trim()
+            if (amountInput.isEmpty()) {
+                eventBus.send(AddEditTransactionEvent.NavigateUp)
+                return@launch
+            }
+            val isExp = evalService.isExpression(amountInput)
+            val evaluatedAmount = (if (isExp) evalService.evalOrNull(amountInput)
+            else TextFormat.parseNumber(amountInput)) ?: -1.0
+            if (evaluatedAmount < Double.Zero) {
+                eventBus.send(
+                    AddEditTransactionEvent.ShowUiMessage(
+                        UiText.StringResource(
+                            R.string.error_invalid_amount,
+                            true
+                        )
+                    )
+                )
+                return@launch
+            }
+            transactionRepo.saveTransaction(
+                transaction = txInput.copy(
+                    amount = evaluatedAmount.toString()
+                )
+            )
+            isLoading.update { false }
+            eventBus.send(AddEditTransactionEvent.NavigateUp)
+        }
+    }
+
     sealed class AddEditTransactionEvent {
-        object TransactionAdded : AddEditTransactionEvent()
-        object TransactionUpdated : AddEditTransactionEvent()
-        object TransactionDeleted : AddEditTransactionEvent()
+        data object TransactionDeleted : AddEditTransactionEvent()
+        data object NavigateUp : AddEditTransactionEvent()
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
-        object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
+        data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
     }
 }
 
-
-private const val AMOUNT_INPUT = "AMOUNT_INPUT"
-private const val NOTE_INPUT = "NOTE_INPUT"
-private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
-private const val TRANSACTION_TIMESTAMP = "TRANSACTION_TIMESTAMP"
-private const val IS_TRANSACTION_EXCLUDED = "IS_TRANSACTION_EXCLUDED"
+private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
-private const val TRANSACTION_TYPE = "TRANSACTION_TYPE"
 private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
 private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
 private const val SHOW_AMOUNT_TRANSFORMATION_INPUT = "SHOW_AMOUNT_TRANSFORMATION_INPUT"
 private const val SELECTED_AMOUNT_TRANSFORMATION = "SELECTED_AMOUNT_TRANSFORMATION"
 
-const val RESULT_TRANSACTION_ADDED = "RESULT_TRANSACTION_ADDED"
-const val RESULT_TRANSACTION_UPDATED = "RESULT_TRANSACTION_UPDATED"
 const val RESULT_TRANSACTION_DELETED = "RESULT_TRANSACTION_DELETED"

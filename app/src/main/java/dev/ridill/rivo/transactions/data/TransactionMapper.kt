@@ -1,22 +1,39 @@
 package dev.ridill.rivo.transactions.data
 
+import dev.ridill.rivo.core.domain.util.orZero
+import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionInput
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
-fun TransactionEntity.toTransaction(): Transaction = Transaction(
+fun TransactionEntity.toTransactionInput(): TransactionInput = TransactionInput(
     id = id,
-    amount = amount.toString(),
+    amount = TextFormat.number(
+        value = amount,
+        isGroupingUsed = false,
+        maxFractionDigits = Int.MAX_VALUE
+    ),
     note = note,
     timestamp = timestamp,
     type = TransactionType.valueOf(typeName),
     folderId = folderId,
     tagId = tagId,
     excluded = isExcluded
+)
+
+fun TransactionInput.toEntity(): TransactionEntity = TransactionEntity(
+    id = id,
+    note = note,
+    amount = amount.toDoubleOrNull().orZero(),
+    timestamp = timestamp,
+    typeName = type.name,
+    isExcluded = excluded,
+    tagId = tagId,
+    folderId = folderId
 )
 
 fun TransactionDetailsView.toTransactionListItem(): TransactionListItem {

@@ -1,15 +1,17 @@
 package dev.ridill.rivo.transactions.domain.repository
 
 import android.icu.util.Currency
-import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionInput
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 interface AddEditTransactionRepository {
     fun getCurrencyPreference(): Flow<Currency>
-    suspend fun getTransactionById(id: Long): Transaction?
+    suspend fun getTransactionById(id: Long): TransactionInput?
     fun getAmountRecommendations(): Flow<List<Long>>
+    suspend fun saveTransaction(transaction: TransactionInput): Long
+
     suspend fun saveTransaction(
         id: Long?,
         amount: Double,

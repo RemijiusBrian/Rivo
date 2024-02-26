@@ -30,9 +30,7 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_ADDED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_UPDATED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String =
@@ -118,13 +116,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionAdded -> {
-                    navController.navigateUpWithResult(
-                        DASHBOARD_ACTION_RESULT,
-                        RESULT_TRANSACTION_ADDED
-                    )
-                }
-
                 AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
                     navController.navigateUpWithResult(
                         DASHBOARD_ACTION_RESULT,
@@ -132,11 +123,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                     )
                 }
 
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionUpdated -> {
-                    navController.navigateUpWithResult(
-                        DASHBOARD_ACTION_RESULT,
-                        RESULT_TRANSACTION_UPDATED
-                    )
+                AddEditTransactionViewModel.AddEditTransactionEvent.NavigateUp -> {
+                    navController.navigateUp()
                 }
 
                 is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
@@ -159,23 +147,16 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
         AddEditTransactionScreen(
             snackbarController = snackbarController,
-            amountInput =
-            { amount.value },
-            noteInput =
-            { note.value },
+            amountInput = { amount.value },
+            noteInput = { note.value },
+            tagNameInput = { tagInput.value?.name.orEmpty() },
+            tagColorInput = { tagInput.value?.color },
+            tagExclusionInput = { tagInput.value?.excluded },
             isEditMode = isEditMode,
-            tagNameInput =
-            { tagInput.value?.name.orEmpty() },
-            tagColorInput =
-            { tagInput.value?.color },
-            tagExclusionInput =
-            { tagInput.value?.excluded },
-            folderSearchQuery =
-            { folderSearchQuery.value },
+            folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,
             state = state,
-            actions = viewModel,
-            navigateUp = navController::navigateUp
+            actions = viewModel
         )
     }
 }
