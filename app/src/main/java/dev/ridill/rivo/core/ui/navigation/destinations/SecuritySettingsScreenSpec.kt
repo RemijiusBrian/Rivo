@@ -32,7 +32,7 @@ import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
-import dev.ridill.rivo.settings.presentation.security.BiometricUtil
+import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 

@@ -44,7 +44,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.security.AppLockScreen
-import dev.ridill.rivo.settings.presentation.security.BiometricUtil
+import dev.ridill.rivo.core.domain.util.BiometricUtil
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

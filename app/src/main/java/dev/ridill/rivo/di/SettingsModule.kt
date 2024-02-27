@@ -27,7 +27,7 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
-import dev.ridill.rivo.settings.presentation.security.AppLockServiceManager
+import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient

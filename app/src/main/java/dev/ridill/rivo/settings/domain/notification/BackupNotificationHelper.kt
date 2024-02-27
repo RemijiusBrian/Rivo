@@ -36,7 +36,7 @@ class BackupNotificationHelper(
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun getForegroundNotification(
+    fun buildForegroundNotification(
         @StringRes titleRes: Int
     ): NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(R.drawable.ic_notification)

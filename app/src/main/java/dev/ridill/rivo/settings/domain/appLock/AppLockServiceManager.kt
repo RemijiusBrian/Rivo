@@ -1,11 +1,10 @@
-package dev.ridill.rivo.settings.presentation.security
+package dev.ridill.rivo.settings.domain.appLock
 
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
-import dev.ridill.rivo.settings.domain.appLock.AppLockService
 
 class AppLockServiceManager(
     private val context: Context
