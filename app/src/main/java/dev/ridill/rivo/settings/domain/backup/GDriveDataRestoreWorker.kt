@@ -71,7 +71,7 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
         setForeground(
             ForegroundInfo(
                 Random.nextInt(),
-                notificationHelper.getForegroundNotification(R.string.restoring_app_data).build(),
+                notificationHelper.buildForegroundNotification(R.string.restoring_app_data).build(),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         )
