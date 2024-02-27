@@ -9,7 +9,7 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
-import dev.ridill.rivo.settings.presentation.security.AppLockServiceManager
+import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
