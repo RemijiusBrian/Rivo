@@ -1,5 +1,7 @@
 package dev.ridill.rivo.settings.data.repository
 
+import com.google.android.gms.auth.GoogleAuthException
+import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.gson.Gson
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
@@ -25,6 +27,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
 class BackupRepositoryImpl(
     private val backupService: BackupService,
@@ -51,65 +54,52 @@ class BackupRepositoryImpl(
         }
     }
 
-    override suspend fun performAppDataBackup(): SimpleResource = withContext(Dispatchers.IO) {
-        try {
-            logI { "Performing Data Backup" }
-            val passwordHash = preferencesManager.preferences.first()
-                .encryptionPasswordHash.orEmpty()
-                .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
-            val backupFile = backupService.buildBackupFile(passwordHash)
+    @Throws(
+        InvalidEncryptionPasswordThrowable::class,
+        BackupCachingFailedThrowable::class,
+        IOException::class,
+        UserRecoverableAuthException::class,
+        GoogleAuthException::class
+    )
+    override suspend fun performAppDataBackup() = withContext(Dispatchers.IO) {
+        logI { "Performing Data Backup" }
+        val passwordHash = preferencesManager.preferences.first()
+            .encryptionPasswordHash.orEmpty()
+            .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
+        val backupFile = backupService.buildBackupFile(passwordHash)
 
-            val metadataMap = mapOf(
-                "name" to backupFile.name,
-                "parents" to backupParents
-            )
-            val metadataJson = Gson().toJson(metadataMap)
-            val metadataPart = metadataJson.toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
+        val metadataMap = mapOf(
+            "name" to backupFile.name,
+            "parents" to backupParents
+        )
+        val metadataJson = Gson().toJson(metadataMap)
+        val metadataPart = metadataJson.toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
 
-            val fileBody = backupFile.asRequestBody(BACKUP_MIME_TYPE.toMediaTypeOrNull())
-            val mediaPart = MultipartBody.Part.createFormData(
-                MEDIA_PART_KEY,
-                backupFile.name,
-                fileBody
-            )
+        val fileBody = backupFile.asRequestBody(BACKUP_MIME_TYPE.toMediaTypeOrNull())
+        val mediaPart = MultipartBody.Part.createFormData(
+            MEDIA_PART_KEY,
+            backupFile.name,
+            fileBody
+        )
 
-            logD { "Backup file generated - $backupFile" }
-            val token = signInService.getAccessToken()
-            gDriveApi.uploadFile(
-                token = token,
-                metadata = metadataPart,
-                file = mediaPart
-            )
-            logI { "Backup file uploaded" }
+        logD { "Backup file generated - $backupFile" }
+        val token = signInService.getAccessToken()
+        gDriveApi.uploadFile(
+            token = token,
+            metadata = metadataPart,
+            file = mediaPart
+        )
+        logI { "Backup file uploaded" }
 
-            preferencesManager.updateLastBackupTimestamp(DateUtil.now())
-            gDriveApi.getOtherFilesInDrive(token).files
-                .drop(1)
-                .forEach { file ->
-                    gDriveApi.deleteFile(token, file.id)
-                }
-            logI { "Cleaned up Drive" }
-            backupService.clearLocalCache()
-            logI { "Cleaned up local cache" }
-
-            logI { "Backup Completed" }
-            Resource.Success(
-                data = Unit,
-                message = UiText.StringResource(R.string.backup_complete)
-            )
-        } catch (t: InvalidEncryptionPasswordThrowable) {
-            logE(t)
-            Resource.Error(UiText.StringResource(R.string.error_invalid_encryption_password))
-        } catch (t: BackupCachingFailedThrowable) {
-            logE(t)
-            Resource.Error(UiText.StringResource(R.string.error_backup_creation_failed))
-        } catch (t: Throwable) {
-            logE(t)
-            Resource.Error(
-                t.localizedMessage?.let { UiText.DynamicString(it) }
-                    ?: UiText.StringResource(R.string.error_app_data_backup_failed)
-            )
-        }
+        preferencesManager.updateLastBackupTimestamp(DateUtil.now())
+        gDriveApi.getOtherFilesInDrive(token).files
+            .drop(1)
+            .forEach { file ->
+                gDriveApi.deleteFile(token, file.id)
+            }
+        logI { "Cleaned up Drive" }
+        backupService.clearLocalCache()
+        logI { "Cleaned up local cache" }
     }
 
     override suspend fun performAppDataRestore(

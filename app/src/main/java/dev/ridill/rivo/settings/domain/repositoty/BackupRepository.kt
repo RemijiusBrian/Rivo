@@ -6,6 +6,6 @@ import dev.ridill.rivo.settings.domain.modal.BackupDetails
 
 interface BackupRepository {
     suspend fun checkForBackup(): Resource<BackupDetails>
-    suspend fun performAppDataBackup(): SimpleResource
+    suspend fun performAppDataBackup()
     suspend fun performAppDataRestore(details: BackupDetails, passwordHash: String): SimpleResource
 }

@@ -5,9 +5,15 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.google.android.gms.auth.GoogleAuthException
+import com.google.android.gms.auth.UserRecoverableAuthException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import dev.ridill.rivo.core.domain.model.Resource
+import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.logE
+import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.settings.data.repository.InvalidEncryptionPasswordThrowable
+import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,25 +22,46 @@ import kotlinx.coroutines.withContext
 class GDriveDataBackupWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
-    private val repo: BackupRepository
+    private val repo: BackupRepository,
+    private val backupNotificationHelper: BackupNotificationHelper,
+    private val workManager: BackupWorkManager
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        when (val resource = repo.performAppDataBackup()) {
-            is Resource.Error -> {
-                Result.failure(
-                    workDataOf(
-                        BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
-                    )
+        try {
+            repo.performAppDataBackup()
+            logI { "Backup Completed" }
+            Result.success()
+        } catch (t: InvalidEncryptionPasswordThrowable) {
+            logE(t)
+            backupNotificationHelper.showBackupErrorNotification(R.string.error_invalid_encryption_password)
+            workManager.cancelPeriodicBackupWork()
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_invalid_encryption_password)
                 )
-            }
-
-            is Resource.Success -> {
-                Result.success(
-                    workDataOf(
-                        BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
-                    )
+            )
+        } catch (e: UserRecoverableAuthException) {
+            backupNotificationHelper.showBackupErrorNotification(R.string.error_google_auth_failed)
+            workManager.cancelPeriodicBackupWork()
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_google_auth_failed)
                 )
-            }
+            )
+        } catch (e: GoogleAuthException) {
+            backupNotificationHelper.showBackupErrorNotification(R.string.error_google_auth_failed)
+            workManager.cancelPeriodicBackupWork()
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_google_auth_failed)
+                )
+            )
+        } catch (t: BackupCachingFailedThrowable) {
+            logE(t)
+            Result.retry()
+        } catch (t: Throwable) {
+            logE(t)
+            Result.retry()
         }
     }
 }

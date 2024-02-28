@@ -18,9 +18,11 @@ interface BackupSettingsRepository {
     suspend fun signInUser(result: ActivityResult): Resource<GoogleSignInAccount>
     fun getImmediateBackupWorkInfo(): Flow<WorkInfo?>
     fun getPeriodicBackupWorkInfo(): Flow<WorkInfo?>
-    suspend fun updateBackupInterval(interval: BackupInterval)
+    suspend fun updateBackupIntervalAndScheduleJob(interval: BackupInterval)
+    fun runBackupJob(interval: BackupInterval)
     fun runImmediateBackupJob()
     suspend fun restoreBackupJob()
     suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean
     suspend fun updateEncryptionPassword(password: String)
+    fun getBackupInterval(): StateFlow<BackupInterval>
 }

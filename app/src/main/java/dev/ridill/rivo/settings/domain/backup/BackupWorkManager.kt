@@ -2,6 +2,7 @@ package dev.ridill.rivo.settings.domain.backup
 
 import android.content.Context
 import androidx.lifecycle.asFlow
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -11,6 +12,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import androidx.work.workDataOf
 import com.google.gson.Gson
 import dev.ridill.rivo.core.domain.util.toUUID
@@ -24,17 +26,17 @@ class BackupWorkManager(
 ) {
     private val workManager = WorkManager.getInstance(context)
 
-    private val commonBackupTag: String
-        get() = "${context.packageName}.BACKUP"
+    private val backupRestoreWorkerTag: String
+        get() = "${context.packageName}.DATA_BACKUP_RESTORE_WORKER"
 
     private val oneTimeBackupWorkName: String
-        get() = "${context.packageName}.ONE_TIME_G_DRIVE_BACKUP_WORK"
+        get() = "${context.packageName}.ONE_TIME_DATA_BACKUP_WORK"
 
     private val periodicBackupWorkName: String
-        get() = "${context.packageName}.PERIODIC_G_DRIVE_BACKUP_WORK"
+        get() = "${context.packageName}.PERIODIC_DATA_BACKUP_WORK"
 
     private val oneTimeRestoreWorkName: String
-        get() = "${context.packageName}.ONE_TIME_G_DRIVE_RESTORE_WORK"
+        get() = "${context.packageName}.ONE_TIME_DATA_RESTORE_WORK"
 
     companion object {
         const val WORK_INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
@@ -56,7 +58,12 @@ class BackupWorkManager(
             .setConstraints(buildConstraints())
             .setId(periodicBackupWorkName.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
-            .addTag(commonBackupTag)
+            .addTag(backupRestoreWorkerTag)
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
             .build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -78,7 +85,7 @@ class BackupWorkManager(
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(oneTimeBackupWorkName.toUUID())
-            .addTag(commonBackupTag)
+            .addTag(backupRestoreWorkerTag)
             .build()
 
         workManager.enqueueUniqueWork(
@@ -103,7 +110,8 @@ class BackupWorkManager(
                     KEY_PASSWORD_HASH to passwordHash
                 )
             )
-            .addTag(commonBackupTag)
+            .addTag(backupRestoreWorkerTag)
+            .setConstraints(buildConstraints())
             .build()
 
         workManager.enqueueUniqueWork(
@@ -118,12 +126,23 @@ class BackupWorkManager(
         .asFlow()
 
     fun cancelAllWorks() {
-        workManager.cancelAllWorkByTag(commonBackupTag)
+        workManager.cancelAllWorkByTag(backupRestoreWorkerTag)
     }
 
-    private fun buildConstraints(): Constraints = Constraints.Builder()
+    fun getBackupIntervalFromWorkInfo(info: WorkInfo): BackupInterval? {
+        val intervalTagIndex = info.tags
+            .indexOfFirst { it.startsWith(WORK_INTERVAL_TAG_PREFIX) }
+
+        return info.tags.elementAtOrNull(intervalTagIndex)
+            ?.removePrefix(WORK_INTERVAL_TAG_PREFIX)
+            ?.let { BackupInterval.valueOf(it) }
+    }
+
+    private fun buildConstraints(
+        requiresBatteryNotLow: Boolean = true
+    ): Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
-        .setRequiresBatteryNotLow(true)
-        .setRequiresDeviceIdle(false)
+        .setRequiresBatteryNotLow(requiresBatteryNotLow)
+        .setRequiresStorageNotLow(true)
         .build()
 }

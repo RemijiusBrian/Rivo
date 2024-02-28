@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -37,6 +38,7 @@ class BackupSettingsRepositoryImpl(
     private val cryptoManager: CryptoManager
 ) : BackupSettingsRepository {
     private val _backupAccount = MutableStateFlow<GoogleSignInAccount?>(null)
+    private val _backupInterval = MutableStateFlow(BackupInterval.MANUAL)
 
     override fun getBackupAccount(): StateFlow<GoogleSignInAccount?> =
         _backupAccount.asStateFlow()
@@ -56,8 +58,6 @@ class BackupSettingsRepositoryImpl(
 
     override suspend fun signInUser(result: ActivityResult): Resource<GoogleSignInAccount> =
         withContext(Dispatchers.IO) {
-            refreshBackupAccount()
-
             if (result.resultCode != Activity.RESULT_OK) {
                 backupWorkManager.cancelAllWorks()
                 return@withContext Resource.Error(
@@ -78,8 +78,14 @@ class BackupSettingsRepositoryImpl(
 
     override fun getPeriodicBackupWorkInfo(): Flow<WorkInfo?> =
         backupWorkManager.getPeriodicBackupWorkInfoFlow()
+            .onEach { info ->
+                info?.let { backupWorkManager.getBackupIntervalFromWorkInfo(it) }
+                    ?.let { interval ->
+                        _backupInterval.update { interval }
+                    }
+            }
 
-    override suspend fun updateBackupInterval(interval: BackupInterval) =
+    override suspend fun updateBackupIntervalAndScheduleJob(interval: BackupInterval) =
         withContext(Dispatchers.IO) {
             val entity = ConfigEntity(
                 configKey = ConfigKeys.BACKUP_INTERVAL,
@@ -88,12 +94,19 @@ class BackupSettingsRepositoryImpl(
             dao.insert(entity)
 
             if (signInService.getSignedInAccount() == null) {
-                backupWorkManager.cancelPeriodicBackupWork()
+                backupWorkManager.cancelAllWorks()
                 return@withContext
             }
             backupWorkManager.schedulePeriodicBackupWork(interval)
         }
 
+    override fun runBackupJob(interval: BackupInterval) {
+        if (interval == BackupInterval.MANUAL) {
+            backupWorkManager.runImmediateBackupWork()
+        } else {
+            backupWorkManager.schedulePeriodicBackupWork(interval)
+        }
+    }
 
     override fun runImmediateBackupJob() {
         backupWorkManager.runImmediateBackupWork()
@@ -120,5 +133,7 @@ class BackupSettingsRepositoryImpl(
             val passwordHash = cryptoManager.hash(password)
             preferencesManager.updateEncryptionPasswordHash(passwordHash)
         }
+
+    override fun getBackupInterval(): StateFlow<BackupInterval> = _backupInterval.asStateFlow()
 }
 
