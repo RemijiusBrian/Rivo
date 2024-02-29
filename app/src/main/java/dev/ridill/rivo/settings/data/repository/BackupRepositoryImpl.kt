@@ -153,8 +153,7 @@ class BackupRepositoryImpl(
         }
     }
 
-    private fun backupFolderName(email: String): String =
-        "Rivo $email backup"
+    private fun backupFolderName(email: String): String = "Rivo $email backup"
 }
 
 const val JSON_MIME_TYPE = "application/json"
