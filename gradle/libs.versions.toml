@@ -11,15 +11,15 @@ junit = "4.13.2"
 androidx-junit = "1.1.5"
 espresso-core = "3.5.1"
 
-compose-bom = "2024.02.00"
+compose-bom = "2024.02.01"
 navigation-compose = "2.7.7"
 
 androidx-lifecycle = "2.7.0"
 
 core-splashscreen = "1.0.1"
 
-dagger-hilt = "2.50"
-androidx-hilt = "1.1.0"
+dagger-hilt = "2.51"
+androidx-hilt = "1.2.0"
 
 androidx-room = "2.6.1"
 
@@ -32,11 +32,11 @@ datastore-preferences = "1.0.0"
 
 androidx-biometric = "1.2.0-alpha05"
 
-firebase-bom = "32.7.2"
+firebase-bom = "32.7.3"
 
 play-services-auth = "21.0.0"
 
-google-mlkit-entity-extraction = "16.0.0-beta4"
+google-mlkit-entity-extraction = "16.0.0-beta5"
 
 retrofit = "2.9.0"
 logging-interceptor = "4.12.0"
@@ -44,7 +44,7 @@ logging-interceptor = "4.12.0"
 lottie-compose = "6.3.0"
 flow-combinetuple-kt = "1.2.0"
 timber-logging = "5.0.1"
-keval = "0.9.0"
+keval = "1.0.0"
 
 com-google-truth = "1.4.1"
 
@@ -137,5 +137,3 @@ com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", versio
 com-google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 org-jetbrains-kotlin-plugin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools-ksp" }
-
-[bundles]
