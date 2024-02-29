@@ -39,7 +39,7 @@ data object OnboardingScreenSpec : ScreenSpec {
         )
         val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
         val restoreStatusText by viewModel.restoreStatusText.collectAsStateWithLifecycle(null)
-        val isRestoreRunning by viewModel.isRestoreRunning.collectAsStateWithLifecycle(false)
+        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         val currency by viewModel.currency.collectAsStateWithLifecycle(initialValue = LocaleUtil.defaultCurrency)
         val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
         val showEncryptionPasswordInput by viewModel.showEncryptionPasswordInput.collectAsStateWithLifecycle()
@@ -99,7 +99,7 @@ data object OnboardingScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             pagerState = pagerState,
             restoreStatusText = restoreStatusText,
-            isRestoreRunning = isRestoreRunning,
+            isLoading = isLoading,
             availableBackup = availableBackup,
             showEncryptionPasswordInput = showEncryptionPasswordInput,
             currency = currency,

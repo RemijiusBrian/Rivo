@@ -22,9 +22,10 @@ import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,17 +40,11 @@ class OnboardingViewModel @Inject constructor(
     private val backupRepository: BackupRepository,
     private val cryptoManager: CryptoManager
 ) : ViewModel(), OnboardingActions {
-    private val restoreState = savedStateHandle
-        .getStateFlow<WorkInfo.State?>(RESTORE_JOB_STATE, null)
-    val restoreStatusText = restoreState.map { state ->
-        when (state) {
-            WorkInfo.State.RUNNING -> UiText.StringResource(R.string.data_restore_in_progress)
-            WorkInfo.State.SUCCEEDED -> UiText.StringResource(R.string.restarting_app)
-            else -> null
-        }
-    }.distinctUntilChanged()
-    val isRestoreRunning = restoreState.map { it == WorkInfo.State.RUNNING }
-        .distinctUntilChanged()
+    val restoreStatusText = savedStateHandle
+        .getStateFlow<UiText?>(RESTORE_STATE_TEXT, null)
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading get() = _isLoading.asStateFlow()
 
     val availableBackup = savedStateHandle.getStateFlow<BackupDetails?>(AVAILABLE_BACKUP, null)
 
@@ -67,7 +62,12 @@ class OnboardingViewModel @Inject constructor(
     private fun collectRestoreWorkState() = viewModelScope.launch {
         backupWorkManager.getImmediateRestoreWorkInfoFlow().collectLatest { info ->
             val state = info?.state
-            savedStateHandle[RESTORE_JOB_STATE] = state
+            _isLoading.update { state == WorkInfo.State.RUNNING }
+            savedStateHandle[RESTORE_STATE_TEXT] = when (state) {
+                WorkInfo.State.RUNNING -> UiText.StringResource(R.string.data_restore_in_progress)
+                WorkInfo.State.SUCCEEDED -> UiText.StringResource(R.string.restarting_app)
+                else -> null
+            }
 
             when (state) {
                 WorkInfo.State.SUCCEEDED -> {
@@ -138,6 +138,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun checkForBackup() {
+        savedStateHandle[RESTORE_STATE_TEXT] = UiText.StringResource(R.string.checking_for_backups)
+        _isLoading.update { true }
         logI { "Running Backup Check" }
         when (val resource = backupRepository.checkForBackup()) {
             is Resource.Error -> {
@@ -152,10 +154,13 @@ class OnboardingViewModel @Inject constructor(
                 }
             }
         }
+        _isLoading.update { false }
+        savedStateHandle[RESTORE_STATE_TEXT] = null
     }
 
     override fun onRestoreDataClick() {
         viewModelScope.launch {
+            if (isLoading.value) return@launch
             val backupDetails = availableBackup.value
             if (backupDetails == null) {
                 eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
@@ -215,6 +220,6 @@ class OnboardingViewModel @Inject constructor(
 }
 
 private const val BUDGET_INPUT = "BUDGET_INPUT"
-private const val RESTORE_JOB_STATE = "RESTORE_JOB_STATE"
+private const val RESTORE_STATE_TEXT = "RESTORE_STATE_TEXT"
 private const val AVAILABLE_BACKUP = "AVAILABLE_BACKUP"
 private const val SHOW_ENCRYPTION_PASSWORD_INPUT = "SHOW_ENCRYPTION_PASSWORD_INPUT"

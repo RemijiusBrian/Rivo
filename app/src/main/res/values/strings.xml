@@ -91,12 +91,15 @@
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_invalid_encryption_password">Invalid encryption password</string>
+    <string name="error_incorrect_encryption_password">Incorrect encryption password</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
     <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
     <string name="error_biometric_hw_unavailable">Biometric features are currently unavailable</string>
     <string name="error_biometric_auth_failed">Authentication failed</string>
     <string name="error_passwords_do_not_match">Passwords do not match</string>
     <string name="error_incorrect_existing_encryption_password">Current password Incorrect</string>
+    <string name="error_google_auth_failed">Failed to authenticate your google account.</string>
+    <string name="error_backup_failed_notification_title">Backup Failed</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -332,4 +335,6 @@
     <string name="aggregate_type_balanced">Balanced</string>
     <string name="aggregate_type_debit">Agg. Debit</string>
     <string name="aggregate_type_credit">Agg. Credit</string>
+    <string name="tap_to_resolve_issues">Tap to resolve issues</string>
+    <string name="checking_for_backups">Checking for backups</string>
 </resources>

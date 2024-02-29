@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResult
+import androidx.core.os.BundleCompat
 import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.auth.UserRecoverableAuthException
@@ -30,7 +31,7 @@ class GoogleSignInService(
         val signInOptions = GoogleSignInOptions.Builder()
             .requestEmail()
             .requestIdToken(context.getString(R.string.default_web_client_id))
-            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER))
+            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER), Scope(Scopes.DRIVE_FILE))
             .build()
 
         val client = GoogleSignIn.getClient(context, signInOptions)
@@ -47,7 +48,13 @@ class GoogleSignInService(
                 logI { "SignIn Failed" }
                 logD {
                     "SignIn Status - ${
-                        result.data?.extras?.getParcelable<Status>(KEY_GOOGLE_SIGN_IN_STATUS)
+                        result.data?.extras?.let {
+                            BundleCompat.getParcelable(
+                                it,
+                                KEY_GOOGLE_SIGN_IN_STATUS,
+                                Status::class.java
+                            )
+                        }
                     }"
                 }
                 throw GoogleSignInFailedException()
@@ -59,7 +66,7 @@ class GoogleSignInService(
                 throw GoogleSignInFailedException()
             }
 
-            logD { "SignIn Success - $account" }
+            logD { "SignIn Success - ${account.email}" }
             Resource.Success(account)
         } catch (t: Throwable) {
             Resource.Error(
@@ -82,10 +89,10 @@ class GoogleSignInService(
         val token = GoogleAuthUtil.getToken(
             context,
             account,
-            "oauth2:${Scopes.DRIVE_APPFOLDER}"
+            "oauth2:${Scopes.DRIVE_APPFOLDER} ${Scopes.DRIVE_FILE}"
         )
 
-        "Bearer $token"
+        token
     }
 }
 

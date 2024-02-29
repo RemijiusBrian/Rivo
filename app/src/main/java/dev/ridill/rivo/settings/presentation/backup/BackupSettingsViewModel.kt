@@ -42,7 +42,7 @@ class BackupSettingsViewModel @Inject constructor(
     private val isAccountAdded = backupAccountEmail.map { !it.isNullOrEmpty() }
         .distinctUntilChanged()
 
-    private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
+    private val backupInterval = repo.getBackupInterval()
 
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
@@ -92,6 +92,7 @@ class BackupSettingsViewModel @Inject constructor(
     private var hasBackupJobRunThisSession: Boolean = false
     private fun collectImmediateBackupWorkInfo() = viewModelScope.launch {
         repo.getImmediateBackupWorkInfo().collectLatest { info ->
+            logD { "Immediate Backup Work Info - $info" }
             val isRunning = info?.state == WorkInfo.State.RUNNING
             isBackupRunning.update { isRunning }
             if (isRunning) {
@@ -112,27 +113,11 @@ class BackupSettingsViewModel @Inject constructor(
 
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
         repo.getPeriodicBackupWorkInfo().collectLatest { info ->
+            logD { "Periodic Backup Work Info - $info" }
             isBackupRunning.update {
                 info?.state == WorkInfo.State.RUNNING
             }
-            setBackupIntervalFromWorkInfo(info)
-            logD { "Backup Work Info - $info" }
         }
-    }
-
-    private fun setBackupIntervalFromWorkInfo(info: WorkInfo?) {
-        val intervalTagIndex = info?.tags
-            ?.indexOfFirst { it.startsWith(BackupWorkManager.WORK_INTERVAL_TAG_PREFIX) }
-            ?: -1
-
-        val intervalTag = info?.tags?.elementAtOrNull(intervalTagIndex)
-            ?.removePrefix(BackupWorkManager.WORK_INTERVAL_TAG_PREFIX)
-            ?.takeIf { info.state != WorkInfo.State.CANCELLED }
-
-        val interval = BackupInterval.valueOf(
-            intervalTag ?: BackupInterval.MANUAL.name
-        )
-        backupInterval.update { interval }
     }
 
     override fun onBackupAccountClick() {
@@ -149,7 +134,9 @@ class BackupSettingsViewModel @Inject constructor(
             }
 
             is Resource.Success -> {
-                eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
+                    eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                }
             }
         }
     }
@@ -167,7 +154,7 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupIntervalSelected(interval: BackupInterval) {
         viewModelScope.launch {
             savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
-            repo.updateBackupInterval(interval)
+            repo.updateBackupIntervalAndScheduleJob(interval)
         }
     }
 
@@ -181,6 +168,7 @@ class BackupSettingsViewModel @Inject constructor(
                 eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
                 return@launch
             }
+
             repo.runImmediateBackupJob()
         }
     }
@@ -196,7 +184,8 @@ class BackupSettingsViewModel @Inject constructor(
             when (result) {
                 ENCRYPTION_PASSWORD_UPDATED -> {
                     eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.encryption_password_updated)))
-                    repo.runImmediateBackupJob()
+                    val interval = backupInterval.first()
+                    repo.runBackupJob(interval)
                 }
 
                 else -> Unit

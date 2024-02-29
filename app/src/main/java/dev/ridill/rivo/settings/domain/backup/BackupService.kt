@@ -11,70 +11,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
+import javax.crypto.BadPaddingException
+import javax.crypto.IllegalBlockSizeException
 
 class BackupService(
     private val context: Context,
     private val database: RivoDatabase,
     private val cryptoManager: CryptoManager
 ) {
-    @Throws(BackupCachingFailedThrowable::class)
-    suspend fun buildBackupFile(
-        password: String
-    ): File = withContext(Dispatchers.IO) {
-        val dbFile = context.getDatabasePath(RivoDatabase.NAME)
-        val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
-        val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
-
-        val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
-        logI { "Create temp backup cache file" }
-        val tempCache = File(cachePath, "TempBackupCache.backup")
-        if (tempCache.exists()) tempCache.delete()
-
-        logI { "Checkpoint DB" }
-        checkpointDb()
-        logI { "Read DB data into temp backup cache file" }
-        tempCache.outputStream().use tempCacheOutputStream@{ outputStream ->
-            // Write DB Data
-            dbFile.inputStream().use dbInputStream@{
-                val dbData = it.readBytes()
-                outputStream.write(dbData.size.toByteArray())
-                outputStream.write(dbData)
-            }
-
-            // Write WAL Data
-            if (dbWalFile.exists()) dbWalFile.inputStream().use walInputStream@{
-                val walData = it.readBytes()
-                outputStream.write(walData.size.toByteArray())
-                outputStream.write(walData)
-            }
-
-            // Write SHM Data
-            if (dbShmFile.exists()) dbShmFile.inputStream().use shmInputStream@{
-                val shmData = it.readBytes()
-                outputStream.write(shmData.size.toByteArray())
-                outputStream.write(shmData)
-            }
-        }
-
-        logI { "Create DB backup file" }
-        val backupFile = File(cachePath, backupFileName())
-        if (backupFile.exists()) backupFile.delete()
-        tempCache.inputStream().use tempCacheInputStream@{
-            val rawBytes = it.readBytes()
-            logI { "Encrypt temp backup cache data" }
-            val encryptionResult = cryptoManager.encrypt(rawBytes, password)
-            backupFile.outputStream().use backupFileOutputStream@{ outputStream ->
-                logI { "Writ encrypted temp backup cache data to backup file" }
-                outputStream.write(encryptionResult.iv.size.toByteArray())
-                outputStream.write(encryptionResult.iv)
-                outputStream.write(encryptionResult.data)
-            }
-        }
-
-        backupFile
-    }
-
-    @Throws(BackupCachingFailedThrowable::class)
+    @Throws(
+        BackupCachingFailedThrowable::class,
+        IllegalBlockSizeException::class,
+        BadPaddingException::class
+    )
     suspend fun restoreBackupFile(
         dataInputStream: InputStream,
         password: String
@@ -85,8 +34,8 @@ class BackupService(
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
 
         val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
-        logI { "Create temp decrypted cache " }
-        val tempDecryptCache = File(cachePath, "TempDecryptCache.backup")
+        logI { "Create decrypted cache" }
+        val decryptedCache = File(cachePath, "DecryptedCache.backup")
 
         dataInputStream.use dataInputStream@{ inputStream ->
             val ivSizeBytes = ByteArray(Int.SIZE_BYTES)
@@ -108,14 +57,14 @@ class BackupService(
             logI { "Decrypt data" }
             val decryptedBytes = cryptoManager.decrypt(dataBytes, ivBytes, password)
 
-            logI { "Write decrypted data to temp decrypt cache" }
-            tempDecryptCache.outputStream().use tempDecryptCacheOutputStream@{
+            logI { "Write decrypted data to decrypted cache" }
+            decryptedCache.outputStream().use tempDecryptCacheOutputStream@{
                 it.write(decryptedBytes)
             }
         }
 
-        logI { "Write temp decrypt cache to DB files" }
-        tempDecryptCache.inputStream().use tempDecryptCacheInputStream@{ inputStream ->
+        logI { "Write decrypted cache to DB files" }
+        decryptedCache.inputStream().use decryptedCacheInputStream@{ inputStream ->
             // Read DB Data
             dbFile.outputStream().use dbOutputStream@{
                 val dbSizeBytes = ByteArray(Int.SIZE_BYTES)
@@ -172,13 +121,70 @@ class BackupService(
         checkpointDb()
     }
 
+    @Throws(
+        BackupCachingFailedThrowable::class,
+        IllegalBlockSizeException::class,
+        BadPaddingException::class
+    )
+    suspend fun buildBackupFile(
+        password: String
+    ): File = withContext(Dispatchers.IO) {
+        val dbFile = context.getDatabasePath(RivoDatabase.NAME)
+        val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
+        val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
+
+        val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
+        logI { "Create temp backup cache file" }
+        val dbCache = File(cachePath, "DBBackupCache.backup")
+        if (dbCache.exists()) dbCache.delete()
+
+        logI { "Checkpoint DB" }
+        checkpointDb()
+        logI { "Read DB data into temp backup cache file" }
+        dbCache.outputStream().use tempCacheOutputStream@{ outputStream ->
+            // Write DB Data
+            dbFile.inputStream().use dbInputStream@{
+                val dbData = it.readBytes()
+                outputStream.write(dbData.size.toByteArray())
+                outputStream.write(dbData)
+            }
+
+            // Write WAL Data
+            if (dbWalFile.exists()) dbWalFile.inputStream().use walInputStream@{
+                val walData = it.readBytes()
+                outputStream.write(walData.size.toByteArray())
+                outputStream.write(walData)
+            }
+
+            // Write SHM Data
+            if (dbShmFile.exists()) dbShmFile.inputStream().use shmInputStream@{
+                val shmData = it.readBytes()
+                outputStream.write(shmData.size.toByteArray())
+                outputStream.write(shmData)
+            }
+        }
+
+        logI { "Create DB backup file" }
+        val encryptedBackupFile = File(cachePath, backupFileName())
+        if (encryptedBackupFile.exists()) encryptedBackupFile.delete()
+        dbCache.inputStream().use dbCacheInputStream@{
+            val rawBytes = it.readBytes()
+            logI { "Encrypt temp backup cache data" }
+            val encryptionResult = cryptoManager.encrypt(rawBytes, password)
+            encryptedBackupFile.outputStream().use backupFileOutputStream@{ outputStream ->
+                logI { "Writ encrypted temp backup cache data to backup file" }
+                outputStream.write(encryptionResult.iv.size.toByteArray())
+                outputStream.write(encryptionResult.iv)
+                outputStream.write(encryptionResult.data)
+            }
+        }
+
+        encryptedBackupFile
+    }
+
     suspend fun clearLocalCache() = withContext(Dispatchers.IO) {
         val cacheDir = context.externalCacheDir
         cacheDir?.delete()
-        /*cacheDir?.listFiles()
-            ?.forEach { file ->
-                file.delete()
-            }*/
     }
 
     private fun checkpointDb() {
@@ -187,11 +193,11 @@ class BackupService(
         writableDb.query("PRAGMA wal_checkpoint(TRUNCATE);")
     }
 
-    private fun backupFileName(): String = "${DateUtil.now()}-$BACKUP_FILE_NAME"
+    private fun backupFileName(): String = "${DateUtil.now()}-$DB_BACKUP_FILE_NAME"
 }
 
 private const val SQLITE_WAL_FILE_SUFFIX = "-wal"
 private const val SQLITE_SHM_FILE_SUFFIX = "-shm"
-const val BACKUP_FILE_NAME = "Rivo.backup"
+const val DB_BACKUP_FILE_NAME = "Rivo_db.backup"
 
 class BackupCachingFailedThrowable : Throwable("Failed to create backup cache")

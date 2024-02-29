@@ -1,12 +1,16 @@
 package dev.ridill.rivo.onboarding.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,7 +33,6 @@ import com.google.android.gms.common.SignInButton
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
-import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
 import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.Spacer
@@ -46,7 +49,7 @@ fun GoogleSignInPage(
     onSignInClick: () -> Unit,
     onSkipSignInClick: () -> Unit,
     restoreStatus: UiText?,
-    isRestoreRunning: Boolean,
+    isLoading: Boolean,
     onSkipRestoreClick: () -> Unit,
     availableBackupDetails: BackupDetails?,
     onRestoreClick: () -> Unit,
@@ -58,75 +61,84 @@ fun GoogleSignInPage(
     val isRestoreAvailable by remember(availableBackupDetails) {
         derivedStateOf { availableBackupDetails != null }
     }
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(SpacingLarge)
-    ) {
-        MediumDisplayText(
-            title = stringResource(
-                id = if (isRestoreAvailable) R.string.welcome_flow_page_restore_data_title
-                else R.string.welcome_flow_page_google_sign_in_title
-            ),
-            modifier = Modifier
-                .padding(vertical = SpacingMedium)
-        )
-        Text(
-            text = if (isRestoreAvailable) stringResource(
-                R.string.welcome_flow_page_restore_data_message,
-                availableBackupDetails?.getParsedDateTime()
-                    ?.format(DateUtil.Formatters.localizedDateMedium)
-                    .orEmpty()
+
+    Box {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(SpacingLarge)
+        ) {
+            MediumDisplayText(
+                title = stringResource(
+                    id = if (isRestoreAvailable) R.string.welcome_flow_page_restore_data_title
+                    else R.string.welcome_flow_page_google_sign_in_title
+                ),
+                modifier = Modifier
+                    .padding(vertical = SpacingMedium)
             )
-            else stringResource(R.string.welcome_flow_page_google_sign_in_message),
-            style = MaterialTheme.typography.titleLarge
-        )
+            Text(
+                text = if (isRestoreAvailable) stringResource(
+                    R.string.welcome_flow_page_restore_data_message,
+                    availableBackupDetails?.getParsedDateTime()
+                        ?.format(DateUtil.Formatters.localizedDateMediumTimeShort)
+                        .orEmpty()
+                )
+                else stringResource(R.string.welcome_flow_page_google_sign_in_message),
+                style = MaterialTheme.typography.titleLarge
+            )
 
-        Spacer(weight = Float.One)
+            Spacer(weight = Float.One)
 
-        if (isRestoreAvailable) {
             RestoreStatus(
                 restoreStatus = restoreStatus,
-                isRestoreRunning = isRestoreRunning,
                 modifier = Modifier
                     .fillMaxWidth()
             )
-        }
 
-        Crossfade(
-            targetState = isRestoreAvailable,
-            label = "SignInOrRestoreActions"
-        ) { isRestoreAvailable ->
-            if (isRestoreAvailable) {
-                RestoreBackupActions(
-                    onRestoreClick = onRestoreClick,
-                    onSkipClick = onSkipRestoreClick,
-                    isLoading = isRestoreRunning
-                )
-            } else {
-                GoogleSignInActions(
-                    onSignInClick = onSignInClick,
-                    onSkipClick = onSkipSignInClick
+            Crossfade(
+                targetState = isRestoreAvailable,
+                label = "SignInOrRestoreActions"
+            ) { isRestoreAvailable ->
+                if (isRestoreAvailable) {
+                    RestoreBackupActions(
+                        onRestoreClick = onRestoreClick,
+                        onSkipClick = onSkipRestoreClick
+                    )
+                } else {
+                    GoogleSignInActions(
+                        onSignInClick = onSignInClick,
+                        onSkipClick = onSkipSignInClick
+                    )
+                }
+            }
+
+            if (showEncryptionPasswordInput) {
+                val passwordInput = remember { mutableStateOf("") }
+                OutlinedTextFieldSheet(
+                    titleRes = R.string.enter_password,
+                    inputValue = { passwordInput.value },
+                    onValueChange = { passwordInput.value = it },
+                    onDismiss = onEncryptionPasswordInputDismiss,
+                    onConfirm = {
+                        onEncryptionPasswordSubmit(passwordInput.value)
+                        passwordInput.value = ""
+                    },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    )
                 )
             }
         }
 
-        if (showEncryptionPasswordInput) {
-            val passwordInput = remember { mutableStateOf("") }
-            OutlinedTextFieldSheet(
-                titleRes = R.string.enter_password,
-                inputValue = { passwordInput.value },
-                onValueChange = { passwordInput.value = it },
-                onDismiss = onEncryptionPasswordInputDismiss,
-                onConfirm = {
-                    onEncryptionPasswordSubmit(passwordInput.value)
-                    passwordInput.value = ""
-                },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                )
+        AnimatedVisibility(
+            visible = isLoading,
+            modifier = Modifier
+                .align(Alignment.Center)
+        ) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -134,7 +146,6 @@ fun GoogleSignInPage(
 
 @Composable
 private fun RestoreBackupActions(
-    isLoading: Boolean,
     onRestoreClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -144,17 +155,22 @@ private fun RestoreBackupActions(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ButtonWithLoadingIndicator(
-            textRes = R.string.restore,
-            loading = isLoading,
+        Button(
             onClick = onRestoreClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
-        )
+        ) {
+            Text(stringResource(R.string.restore))
+        }
 
-        TextButton(onClick = onSkipClick) {
+        TextButton(
+            onClick = onSkipClick,
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = LocalContentColor.current
+            )
+        ) {
             Text(stringResource(R.string.do_not_restore))
         }
     }
@@ -204,18 +220,18 @@ private fun GoogleSignInButton(
 @Composable
 private fun RestoreStatus(
     restoreStatus: UiText?,
-    isRestoreRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val isRestoreRunning = remember(restoreStatus) {
+        restoreStatus == UiText.StringResource(R.string.data_restore_in_progress)
+    }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Crossfade(
             targetState = restoreStatus,
-            label = "RestoreWorkerStateText",
-            modifier = Modifier
-//                .align(Alignment.CenterHorizontally)
+            label = "RestoreWorkerStateText"
         ) { text ->
             Text(
                 text = text?.asString().orEmpty(),
@@ -252,7 +268,7 @@ private fun PreviewRestoreScreen() {
             showEncryptionPasswordInput = false,
             onEncryptionPasswordInputDismiss = {},
             restoreStatus = null,
-            isRestoreRunning = false
+            isLoading = false
         )
     }
 }
