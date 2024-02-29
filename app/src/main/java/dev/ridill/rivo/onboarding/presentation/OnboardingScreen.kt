@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,7 +48,7 @@ fun OnboardingScreen(
     snackbarController: SnackbarController,
     pagerState: PagerState,
     restoreStatusText: UiText?,
-    isRestoreRunning: Boolean,
+    isLoading: Boolean,
     availableBackup: BackupDetails?,
     showEncryptionPasswordInput: Boolean,
     currency: Currency,
@@ -69,10 +68,6 @@ fun OnboardingScreen(
                 WindowCompat.getInsetsController(window, view)
                     .isAppearanceLightStatusBars = originalLightStatusBarValue
             }
-        }
-        SideEffect {
-            val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }
     RivoScaffold(
@@ -106,7 +101,7 @@ fun OnboardingScreen(
                     OnboardingPage.GOOGLE_SIGN_IN.ordinal -> {
                         GoogleSignInPage(
                             restoreStatus = restoreStatusText,
-                            isRestoreRunning = isRestoreRunning,
+                            isLoading = isLoading,
                             onSignInClick = actions::onGoogleSignInClick,
                             onSkipSignInClick = actions::onSkipGoogleSignInClick,
                             onRestoreClick = actions::onRestoreDataClick,

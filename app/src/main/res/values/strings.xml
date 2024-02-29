@@ -336,4 +336,5 @@
     <string name="aggregate_type_debit">Agg. Debit</string>
     <string name="aggregate_type_credit">Agg. Credit</string>
     <string name="tap_to_resolve_issues">Tap to resolve issues</string>
+    <string name="checking_for_backups">Checking for backups</string>
 </resources>
