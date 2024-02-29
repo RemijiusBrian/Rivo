@@ -10,48 +10,55 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 import retrofit2.http.Streaming
 
 interface GDriveApi {
+    @Multipart
+    @POST("upload/drive/v3/files?spaces=$APP_DATA_SPACE&fields=$QUERY_PARAM_FIELDS")
+    suspend fun createFolder(
+        @Part(METADATA_PART_KEY) metadata: RequestBody
+    ): GDriveFileDto
 
     @Multipart
-    @POST("upload/drive/v3/files?uploadType=multipart")
+    @POST("upload/drive/v3/files?uploadType=multipart&spaces=$APP_DATA_SPACE&&fields=$QUERY_PARAM_FIELDS")
     suspend fun uploadFile(
-        @Header(AUTH_HEADER_KEY) token: String,
         @Part(METADATA_PART_KEY) metadata: RequestBody,
         @Part file: MultipartBody.Part
     ): GDriveFileDto
 
-    @GET("drive/v3/files?orderBy=createdTime desc&q=trashed=false&spaces=appDataFolder")
+    @GET("drive/v3/files?orderBy=createdTime desc&spaces=$APP_DATA_SPACE&fields=$QUERY_PARAM_FILE_FIELDS")
     suspend fun getOtherFilesInDrive(
-        @Header(AUTH_HEADER_KEY) token: String
+        @Query("q") query: String
     ): GDriveFilesListResponse
 
-    @GET("drive/v3/files?orderBy=createdTime desc&q=name contains '$BACKUP_FILE_NAME' and trashed=false&spaces=$APP_DATA_SPACE")
+    @GET("drive/v3/files?spaces=$APP_DATA_SPACE&fields=$QUERY_PARAM_FILE_FIELDS")
+    suspend fun getBackupFolder(
+        @Query("q") query: String
+    ): GDriveFilesListResponse
+
+    @GET("drive/v3/files/{folderId}?spaces=$APP_DATA_SPACE&orderBy=createdTime desc&q=name contains '$BACKUP_FILE_NAME' and trashed=false&fields=$QUERY_PARAM_FILE_FIELDS")
     suspend fun getBackupFilesList(
-        @Header(AUTH_HEADER_KEY) token: String
+        @Path("folderId") folderId: String
     ): GDriveFilesListResponse
 
     @Streaming
     @GET("drive/v3/files/{fileId}?alt=media&acknowledgeAbuse=true")
     suspend fun downloadFile(
-        @Header(AUTH_HEADER_KEY) token: String,
         @Path("fileId") fileId: String
     ): Response<ResponseBody>
 
     @DELETE("drive/v3/files/{fileId}")
     suspend fun deleteFile(
-        @Header(AUTH_HEADER_KEY) token: String,
         @Path("fileId") fileId: String
     ): Response<Void>
 }
 
-private const val AUTH_HEADER_KEY = "Authorization"
-
+private const val QUERY_PARAM_FILE_FIELDS = "files(id,name,parents)"
+private const val QUERY_PARAM_FIELDS = "id,name,parents"
 const val METADATA_PART_KEY = "Metadata"
 const val MEDIA_PART_KEY = "Media"

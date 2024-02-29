@@ -15,6 +15,7 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.MEDIA_PART_KEY
+import dev.ridill.rivo.settings.data.remote.dto.CreateGDriveFolderRequestDto
 import dev.ridill.rivo.settings.data.toBackupDetails
 import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupService
@@ -38,8 +39,16 @@ class BackupRepositoryImpl(
     override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
         try {
             logI { "Checking For Backup" }
-            val token = signInService.getAccessToken()
-            val backupFile = gDriveApi.getBackupFilesList(token).files.firstOrNull()
+            val email = signInService.getSignedInAccount()?.email
+                ?: throw GoogleAuthException()
+            val backupFolderName = backupFolderName(email)
+            val backupFolder = gDriveApi.getBackupFolder(
+                query = "trashed=false and name = '$backupFolderName'"
+            ).files.firstOrNull()
+                ?: throw NoBackupFoundThrowable()
+            val backupFile = gDriveApi.getBackupFilesList(
+                folderId = backupFolder.id
+            ).files.firstOrNull()
                 ?: throw NoBackupFoundThrowable()
 
             val backupDetails = backupFile.toBackupDetails()
@@ -66,11 +75,24 @@ class BackupRepositoryImpl(
         val passwordHash = preferencesManager.preferences.first()
             .encryptionPasswordHash.orEmpty()
             .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
+        val email = signInService.getSignedInAccount()?.email
+            ?: throw GoogleAuthException()
+        val backupFolderName = backupFolderName(email)
+        var backupFolder = gDriveApi.getBackupFolder(
+            query = "name = '$backupFolderName' and trashed=false"
+        ).files.firstOrNull()
+        logD { "Received backup folder - $backupFolder" }
+        if (backupFolder == null) {
+            val createBackupFolderRequest = CreateGDriveFolderRequestDto(backupFolderName(email))
+            val createBackupFolderMetadataPart = Gson().toJson(createBackupFolderRequest)
+                .toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
+            logD { "Create backup folder metadata - $createBackupFolderMetadataPart" }
+            backupFolder = gDriveApi.createFolder(createBackupFolderMetadataPart)
+        }
         val backupFile = backupService.buildBackupFile(passwordHash)
-
         val metadataMap = mapOf(
             "name" to backupFile.name,
-            "parents" to backupParents
+            "parents" to listOf(backupFolder.id)
         )
         val metadataJson = Gson().toJson(metadataMap)
         val metadataPart = metadataJson.toRequestBody(JSON_MIME_TYPE.toMediaTypeOrNull())
@@ -82,21 +104,19 @@ class BackupRepositoryImpl(
             fileBody
         )
 
-        logD { "Backup file generated - $backupFile" }
-        val token = signInService.getAccessToken()
-        gDriveApi.uploadFile(
-            token = token,
+        logD { "Backup file generated - ${backupFile.name}" }
+        val gDriveBackup = gDriveApi.uploadFile(
             metadata = metadataPart,
             file = mediaPart
         )
-        logI { "Backup file uploaded" }
+        logI { "Backup file uploaded - $gDriveBackup" }
 
         preferencesManager.updateLastBackupTimestamp(DateUtil.now())
-        gDriveApi.getOtherFilesInDrive(token).files
-            .drop(1)
-            .forEach { file ->
-                gDriveApi.deleteFile(token, file.id)
-            }
+        gDriveApi.getOtherFilesInDrive(
+            query = "trashed=false and files(id) != '${gDriveBackup.id}'"
+        ).files.forEach { file ->
+            gDriveApi.deleteFile(file.id)
+        }
         logI { "Cleaned up Drive" }
         backupService.clearLocalCache()
         logI { "Cleaned up local cache" }
@@ -108,8 +128,7 @@ class BackupRepositoryImpl(
     ): SimpleResource = withContext(Dispatchers.IO) {
         try {
             logI { "Restoring Backup" }
-            val token = signInService.getAccessToken()
-            val response = gDriveApi.downloadFile(token, details.id)
+            val response = gDriveApi.downloadFile(details.id)
             val fileBody = response.body()
                 ?: throw BackupDownloadFailedThrowable()
             logI { "Downloaded backup data" }
@@ -133,13 +152,16 @@ class BackupRepositoryImpl(
             Resource.Error(UiText.StringResource(R.string.error_app_data_restore_failed))
         }
     }
+
+    private fun backupFolderName(email: String): String =
+        "Rivo $email backup"
 }
 
 const val JSON_MIME_TYPE = "application/json"
 const val BACKUP_MIME_TYPE = "application/octet-stream"
 const val APP_DATA_SPACE = "appDataFolder"
-private val backupParents: List<String>
-    get() = listOf(APP_DATA_SPACE)
+const val G_DRIVE_FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
+//const val G_DRIVE_SHORTCUT_MIME_TYPE = "application/vnd.google-apps.shortcut"
 
 class NoBackupFoundThrowable : Throwable("No Backups Found")
 class BackupDownloadFailedThrowable : Throwable("Failed to download backup data")

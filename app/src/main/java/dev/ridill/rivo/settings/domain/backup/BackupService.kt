@@ -27,13 +27,13 @@ class BackupService(
 
         val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
         logI { "Create temp backup cache file" }
-        val tempCache = File(cachePath, "TempBackupCache.backup")
-        if (tempCache.exists()) tempCache.delete()
+        val dbCache = File(cachePath, "DBBackupCache.backup")
+        if (dbCache.exists()) dbCache.delete()
 
         logI { "Checkpoint DB" }
         checkpointDb()
         logI { "Read DB data into temp backup cache file" }
-        tempCache.outputStream().use tempCacheOutputStream@{ outputStream ->
+        dbCache.outputStream().use tempCacheOutputStream@{ outputStream ->
             // Write DB Data
             dbFile.inputStream().use dbInputStream@{
                 val dbData = it.readBytes()
@@ -57,13 +57,13 @@ class BackupService(
         }
 
         logI { "Create DB backup file" }
-        val backupFile = File(cachePath, backupFileName())
-        if (backupFile.exists()) backupFile.delete()
-        tempCache.inputStream().use tempCacheInputStream@{
+        val encryptedBackupFile = File(cachePath, backupFileName())
+        if (encryptedBackupFile.exists()) encryptedBackupFile.delete()
+        dbCache.inputStream().use dbCacheInputStream@{
             val rawBytes = it.readBytes()
             logI { "Encrypt temp backup cache data" }
             val encryptionResult = cryptoManager.encrypt(rawBytes, password)
-            backupFile.outputStream().use backupFileOutputStream@{ outputStream ->
+            encryptedBackupFile.outputStream().use backupFileOutputStream@{ outputStream ->
                 logI { "Writ encrypted temp backup cache data to backup file" }
                 outputStream.write(encryptionResult.iv.size.toByteArray())
                 outputStream.write(encryptionResult.iv)
@@ -71,7 +71,7 @@ class BackupService(
             }
         }
 
-        backupFile
+        encryptedBackupFile
     }
 
     @Throws(BackupCachingFailedThrowable::class)
@@ -85,8 +85,8 @@ class BackupService(
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
 
         val cachePath = context.externalCacheDir ?: throw BackupCachingFailedThrowable()
-        logI { "Create temp decrypted cache " }
-        val tempDecryptCache = File(cachePath, "TempDecryptCache.backup")
+        logI { "Create decrypted cache" }
+        val decryptedCache = File(cachePath, "DecryptedCache.backup")
 
         dataInputStream.use dataInputStream@{ inputStream ->
             val ivSizeBytes = ByteArray(Int.SIZE_BYTES)
@@ -108,14 +108,14 @@ class BackupService(
             logI { "Decrypt data" }
             val decryptedBytes = cryptoManager.decrypt(dataBytes, ivBytes, password)
 
-            logI { "Write decrypted data to temp decrypt cache" }
-            tempDecryptCache.outputStream().use tempDecryptCacheOutputStream@{
+            logI { "Write decrypted data to decrypted cache" }
+            decryptedCache.outputStream().use tempDecryptCacheOutputStream@{
                 it.write(decryptedBytes)
             }
         }
 
-        logI { "Write temp decrypt cache to DB files" }
-        tempDecryptCache.inputStream().use tempDecryptCacheInputStream@{ inputStream ->
+        logI { "Write decrypted cache to DB files" }
+        decryptedCache.inputStream().use decryptedCacheInputStream@{ inputStream ->
             // Read DB Data
             dbFile.outputStream().use dbOutputStream@{
                 val dbSizeBytes = ByteArray(Int.SIZE_BYTES)
@@ -175,10 +175,6 @@ class BackupService(
     suspend fun clearLocalCache() = withContext(Dispatchers.IO) {
         val cacheDir = context.externalCacheDir
         cacheDir?.delete()
-        /*cacheDir?.listFiles()
-            ?.forEach { file ->
-                file.delete()
-            }*/
     }
 
     private fun checkpointDb() {

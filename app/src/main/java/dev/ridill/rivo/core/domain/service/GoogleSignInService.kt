@@ -31,7 +31,7 @@ class GoogleSignInService(
         val signInOptions = GoogleSignInOptions.Builder()
             .requestEmail()
             .requestIdToken(context.getString(R.string.default_web_client_id))
-            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER))
+            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER), Scope(Scopes.DRIVE_FILE))
             .build()
 
         val client = GoogleSignIn.getClient(context, signInOptions)
@@ -89,10 +89,10 @@ class GoogleSignInService(
         val token = GoogleAuthUtil.getToken(
             context,
             account,
-            "oauth2:${Scopes.DRIVE_APPFOLDER}"
+            "oauth2:${Scopes.DRIVE_APPFOLDER} ${Scopes.DRIVE_FILE}"
         )
 
-        "Bearer $token"
+        token
     }
 }
 

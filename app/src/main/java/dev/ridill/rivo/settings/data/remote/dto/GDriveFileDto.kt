@@ -9,13 +9,16 @@ data class GDriveFileDto(
     @Expose
     @SerializedName("id")
     val id: String,
-    @Expose
-    @SerializedName("kind")
-    val kind: String,
-    @Expose
-    @SerializedName("mimeType")
-    val mimeType: String,
+//    @Expose
+//    @SerializedName("kind")
+//    val kind: String,
+//    @Expose
+//    @SerializedName("mimeType")
+//    val mimeType: String,
     @Expose
     @SerializedName("name")
-    val name: String
+    val name: String,
+    @Expose
+    @SerializedName("parents")
+    val parents: List<String>
 )

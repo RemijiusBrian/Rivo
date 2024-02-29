@@ -9,10 +9,10 @@ data class GDriveFilesListResponse(
     @Expose
     @SerializedName("files")
     val files: List<GDriveFileDto>,
-    @Expose
-    @SerializedName("incompleteSearch")
-    val incompleteSearch: Boolean,
-    @Expose
-    @SerializedName("kind")
-    val kind: String
+//    @Expose
+//    @SerializedName("incompleteSearch")
+//    val incompleteSearch: Boolean,
+//    @Expose
+//    @SerializedName("kind")
+//    val kind: String
 )

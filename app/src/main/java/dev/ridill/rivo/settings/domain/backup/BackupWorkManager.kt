@@ -12,7 +12,6 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import androidx.work.workDataOf
 import com.google.gson.Gson
 import dev.ridill.rivo.core.domain.util.toUUID
@@ -43,6 +42,8 @@ class BackupWorkManager(
         const val KEY_MESSAGE = "KEY_MESSAGE"
         const val KEY_DETAILS_INPUT = "KEY_DETAILS_INPUT"
         const val KEY_PASSWORD_HASH = "KEY_PASSWORD_HASH"
+
+        private const val BACKOFF_DELAY_MINUTES = 10L
     }
 
     fun schedulePeriodicBackupWork(interval: BackupInterval) {
@@ -61,7 +62,7 @@ class BackupWorkManager(
             .addTag(backupRestoreWorkerTag)
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
-                WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
+                BACKOFF_DELAY_MINUTES,
                 TimeUnit.MILLISECONDS
             )
             .build()
@@ -86,6 +87,11 @@ class BackupWorkManager(
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(oneTimeBackupWorkName.toUUID())
             .addTag(backupRestoreWorkerTag)
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                BACKOFF_DELAY_MINUTES,
+                TimeUnit.MINUTES
+            )
             .build()
 
         workManager.enqueueUniqueWork(

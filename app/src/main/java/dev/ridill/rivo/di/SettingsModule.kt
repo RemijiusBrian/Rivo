@@ -15,9 +15,11 @@ import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
+import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
+import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.notification.AppLockNotificationHelper
@@ -27,7 +29,6 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
-import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
@@ -64,14 +65,24 @@ object SettingsModule {
 
     @GoogleApis
     @Provides
-    fun provideGoogleApisHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                }
-            )
-            .build()
+    fun provideGoogleAccessTokenInterceptor(
+        signInService: GoogleSignInService
+    ): GoogleAccessTokenInterceptor = GoogleAccessTokenInterceptor(signInService)
+
+    @Provides
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
+    @GoogleApis
+    @Provides
+    fun provideGoogleApisHttpClient(
+        @GoogleApis googleAccessTokenInterceptor: GoogleAccessTokenInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor
+    ): OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(googleAccessTokenInterceptor)
+        .addInterceptor(loggingInterceptor)
+        .build()
 
     @GoogleApis
     @Singleton
