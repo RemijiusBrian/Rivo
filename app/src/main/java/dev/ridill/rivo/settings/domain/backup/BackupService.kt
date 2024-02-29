@@ -183,11 +183,11 @@ class BackupService(
         writableDb.query("PRAGMA wal_checkpoint(TRUNCATE);")
     }
 
-    private fun backupFileName(): String = "${DateUtil.now()}-$BACKUP_FILE_NAME"
+    private fun backupFileName(): String = "${DateUtil.now()}-$DB_BACKUP_FILE_NAME"
 }
 
 private const val SQLITE_WAL_FILE_SUFFIX = "-wal"
 private const val SQLITE_SHM_FILE_SUFFIX = "-shm"
-const val BACKUP_FILE_NAME = "Rivo.backup"
+const val DB_BACKUP_FILE_NAME = "Rivo_db.backup"
 
 class BackupCachingFailedThrowable : Throwable("Failed to create backup cache")

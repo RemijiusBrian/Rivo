@@ -17,6 +17,7 @@ import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 @HiltWorker
 class GDriveDataBackupWorker @AssistedInject constructor(
@@ -32,7 +33,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
             logI { "Backup Completed" }
             Result.success()
         } catch (t: InvalidEncryptionPasswordThrowable) {
-            logE(t)
+            logE(t) { "InvalidEncryptionPasswordThrowable" }
             backupNotificationHelper.showBackupErrorNotification(R.string.error_invalid_encryption_password)
             workManager.cancelPeriodicBackupWork()
             Result.failure(
@@ -41,6 +42,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
         } catch (e: UserRecoverableAuthException) {
+            logE(e) { "UserRecoverableAuthException" }
             backupNotificationHelper.showBackupErrorNotification(R.string.error_google_auth_failed)
             workManager.cancelPeriodicBackupWork()
             Result.failure(
@@ -49,6 +51,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
         } catch (e: GoogleAuthException) {
+            logE(e) { "GoogleAuthException" }
             backupNotificationHelper.showBackupErrorNotification(R.string.error_google_auth_failed)
             workManager.cancelPeriodicBackupWork()
             Result.failure(
@@ -56,12 +59,20 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_google_auth_failed)
                 )
             )
+        } catch (e: HttpException) {
+            logE(e) { "HttpException" }
+            resultForHttpCode(e.code())
         } catch (t: BackupCachingFailedThrowable) {
-            logE(t)
+            logE(t) { "BackupCachingFailedThrowable" }
             Result.retry()
         } catch (t: Throwable) {
-            logE(t)
+            logE(t) { "Throwable" }
             Result.retry()
         }
+    }
+
+    private fun resultForHttpCode(code: Int): Result = when (code) {
+        in listOf(400, 401, 404, 429) -> Result.failure()
+        else -> Result.retry()
     }
 }

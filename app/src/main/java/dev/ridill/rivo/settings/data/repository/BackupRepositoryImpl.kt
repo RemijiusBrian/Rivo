@@ -6,7 +6,6 @@ import com.google.gson.Gson
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.domain.model.SimpleResource
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logD
@@ -19,6 +18,7 @@ import dev.ridill.rivo.settings.data.remote.dto.CreateGDriveFolderRequestDto
 import dev.ridill.rivo.settings.data.toBackupDetails
 import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupService
+import dev.ridill.rivo.settings.domain.backup.DB_BACKUP_FILE_NAME
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
@@ -42,12 +42,13 @@ class BackupRepositoryImpl(
             val email = signInService.getSignedInAccount()?.email
                 ?: throw GoogleAuthException()
             val backupFolderName = backupFolderName(email)
-            val backupFolder = gDriveApi.getBackupFolder(
-                query = "trashed=false and name = '$backupFolderName'"
+            val backupFolder = gDriveApi.getFilesList(
+                q = "trashed=false and name = '$backupFolderName'"
             ).files.firstOrNull()
                 ?: throw NoBackupFoundThrowable()
-            val backupFile = gDriveApi.getBackupFilesList(
-                folderId = backupFolder.id
+            logD { "Backup folder - $backupFolder" }
+            val backupFile = gDriveApi.getFilesList(
+                q = "trashed=false and '${backupFolder.id}' in parents and name contains '$DB_BACKUP_FILE_NAME'",
             ).files.firstOrNull()
                 ?: throw NoBackupFoundThrowable()
 
@@ -78,8 +79,8 @@ class BackupRepositoryImpl(
         val email = signInService.getSignedInAccount()?.email
             ?: throw GoogleAuthException()
         val backupFolderName = backupFolderName(email)
-        var backupFolder = gDriveApi.getBackupFolder(
-            query = "name = '$backupFolderName' and trashed=false"
+        var backupFolder = gDriveApi.getFilesList(
+            q = "name = '$backupFolderName' and trashed=false"
         ).files.firstOrNull()
         logD { "Received backup folder - $backupFolder" }
         if (backupFolder == null) {
@@ -112,9 +113,11 @@ class BackupRepositoryImpl(
         logI { "Backup file uploaded - $gDriveBackup" }
 
         preferencesManager.updateLastBackupTimestamp(DateUtil.now())
-        gDriveApi.getOtherFilesInDrive(
-            query = "trashed=false and files(id) != '${gDriveBackup.id}'"
-        ).files.forEach { file ->
+        val backupFolderFiles = gDriveApi.getFilesList(
+            q = "trashed=false and '${backupFolder.id}' in parents"
+        ).files
+        for (file in backupFolderFiles) {
+            if (file.id == gDriveBackup.id) continue
             gDriveApi.deleteFile(file.id)
         }
         logI { "Cleaned up Drive" }
@@ -122,35 +125,25 @@ class BackupRepositoryImpl(
         logI { "Cleaned up local cache" }
     }
 
+    @Throws(BackupDownloadFailedThrowable::class)
     override suspend fun performAppDataRestore(
         details: BackupDetails,
         passwordHash: String
-    ): SimpleResource = withContext(Dispatchers.IO) {
-        try {
-            logI { "Restoring Backup" }
-            val response = gDriveApi.downloadFile(details.id)
-            val fileBody = response.body()
-                ?: throw BackupDownloadFailedThrowable()
-            logI { "Downloaded backup data" }
+    ) = withContext(Dispatchers.IO) {
+        logI { "Restoring Backup" }
+        val response = gDriveApi.downloadFile(details.id)
+        val fileBody = response.body()
+            ?: throw BackupDownloadFailedThrowable()
+        logI { "Downloaded backup data" }
 
-            backupService.restoreBackupFile(
-                dataInputStream = fileBody.byteStream(),
-                password = passwordHash
-            )
-            preferencesManager.updateEncryptionPasswordHash(passwordHash)
-            details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
-            backupService.clearLocalCache()
-            logI { "Cleaned up local cache" }
-
-            logI { "Backup Restored" }
-            Resource.Success(Unit)
-        } catch (t: BackupDownloadFailedThrowable) {
-            logE(t)
-            Resource.Error(UiText.StringResource(R.string.error_download_backup_failed))
-        } catch (t: Throwable) {
-            logE(t)
-            Resource.Error(UiText.StringResource(R.string.error_app_data_restore_failed))
-        }
+        backupService.restoreBackupFile(
+            dataInputStream = fileBody.byteStream(),
+            password = passwordHash
+        )
+        preferencesManager.updateEncryptionPasswordHash(passwordHash)
+        details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
+        backupService.clearLocalCache()
+        logI { "Cleaned up local cache" }
     }
 
     private fun backupFolderName(email: String): String = "Rivo $email backup"

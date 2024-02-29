@@ -56,7 +56,7 @@ class BackupWorkManager(
             interval.daysInterval,
             TimeUnit.DAYS
         )
-            .setConstraints(buildConstraints())
+            .setConstraints(buildBackupConstraints())
             .setId(periodicBackupWorkName.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
             .addTag(backupRestoreWorkerTag)
@@ -117,7 +117,12 @@ class BackupWorkManager(
                 )
             )
             .addTag(backupRestoreWorkerTag)
-            .setConstraints(buildConstraints())
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresStorageNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
             .build()
 
         workManager.enqueueUniqueWork(
@@ -144,11 +149,9 @@ class BackupWorkManager(
             ?.let { BackupInterval.valueOf(it) }
     }
 
-    private fun buildConstraints(
-        requiresBatteryNotLow: Boolean = true
-    ): Constraints = Constraints.Builder()
+    private fun buildBackupConstraints(): Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
-        .setRequiresBatteryNotLow(requiresBatteryNotLow)
+        .setRequiresBatteryNotLow(true)
         .setRequiresStorageNotLow(true)
         .build()
 }

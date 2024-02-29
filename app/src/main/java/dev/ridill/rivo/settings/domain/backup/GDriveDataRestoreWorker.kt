@@ -12,9 +12,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.model.Resource
+import dev.ridill.rivo.core.domain.util.logE
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.settings.data.repository.BackupDownloadFailedThrowable
+import dev.ridill.rivo.settings.data.repository.InvalidEncryptionPasswordThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
@@ -32,38 +34,41 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
-        val backupDetails = tryOrNull {
-            Gson().fromJson(
-                inputData.getString(BackupWorkManager.KEY_DETAILS_INPUT).orEmpty(),
-                BackupDetails::class.java
-            )
-        } ?: return@withContext Result.failure(
-            workDataOf(
-                BackupWorkManager.KEY_MESSAGE to UiText.StringResource(R.string.error_no_backup_found)
-                    .asString(appContext)
-            )
-        )
-
-        val passwordHash = inputData.getString(BackupWorkManager.KEY_PASSWORD_HASH).orEmpty()
-            .ifEmpty {
-                return@withContext Result.failure(
-                    workDataOf(
-                        BackupWorkManager.KEY_MESSAGE to UiText.StringResource(R.string.error_invalid_encryption_password)
-                            .asString(appContext)
-                    )
+        try {
+            val backupDetails = tryOrNull {
+                Gson().fromJson(
+                    inputData.getString(BackupWorkManager.KEY_DETAILS_INPUT).orEmpty(),
+                    BackupDetails::class.java
                 )
-            }
-        when (val resource = repo.performAppDataRestore(backupDetails, passwordHash)) {
-            is Resource.Error -> Result.failure(
+            } ?: throw Throwable()
+
+            val passwordHash = inputData.getString(BackupWorkManager.KEY_PASSWORD_HASH).orEmpty()
+                .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
+            repo.performAppDataRestore(backupDetails, passwordHash)
+            preferencesManager.updateNeedsConfigRestore(true)
+            logI { "Backup Restored" }
+            Result.success()
+        } catch (t: InvalidEncryptionPasswordThrowable) {
+            logE(t) { "InvalidEncryptionPasswordThrowable" }
+            Result.failure(
                 workDataOf(
-                    BackupWorkManager.KEY_MESSAGE to resource.message?.asString(appContext)
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_invalid_encryption_password)
                 )
             )
-
-            is Resource.Success -> {
-                preferencesManager.updateNeedsConfigRestore(true)
-                Result.success()
-            }
+        } catch (t: BackupDownloadFailedThrowable) {
+            logE(t) { "BackupDownloadFailedThrowable" }
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_download_backup_failed)
+                )
+            )
+        } catch (t: Throwable) {
+            logE(t) { "Throwable" }
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_app_data_restore_failed)
+                )
+            )
         }
     }
 

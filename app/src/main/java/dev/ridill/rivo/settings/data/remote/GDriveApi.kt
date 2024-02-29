@@ -3,7 +3,6 @@ package dev.ridill.rivo.settings.data.remote
 import dev.ridill.rivo.settings.data.remote.dto.GDriveFileDto
 import dev.ridill.rivo.settings.data.remote.dto.GDriveFilesListResponse
 import dev.ridill.rivo.settings.data.repository.APP_DATA_SPACE
-import dev.ridill.rivo.settings.domain.backup.BACKUP_FILE_NAME
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -31,19 +30,10 @@ interface GDriveApi {
         @Part file: MultipartBody.Part
     ): GDriveFileDto
 
-    @GET("drive/v3/files?orderBy=createdTime desc&spaces=$APP_DATA_SPACE&fields=$QUERY_PARAM_FILE_FIELDS")
-    suspend fun getOtherFilesInDrive(
-        @Query("q") query: String
-    ): GDriveFilesListResponse
-
     @GET("drive/v3/files?spaces=$APP_DATA_SPACE&fields=$QUERY_PARAM_FILE_FIELDS")
-    suspend fun getBackupFolder(
-        @Query("q") query: String
-    ): GDriveFilesListResponse
-
-    @GET("drive/v3/files/{folderId}?spaces=$APP_DATA_SPACE&orderBy=createdTime desc&q=name contains '$BACKUP_FILE_NAME' and trashed=false&fields=$QUERY_PARAM_FILE_FIELDS")
-    suspend fun getBackupFilesList(
-        @Path("folderId") folderId: String
+    suspend fun getFilesList(
+        @Query("q") q: String,
+        @Query("orderBy") orderByConditions: String = DEFAULT_ORDER_BY
     ): GDriveFilesListResponse
 
     @Streaming
@@ -58,6 +48,7 @@ interface GDriveApi {
     ): Response<Void>
 }
 
+private const val DEFAULT_ORDER_BY = "createdTime desc"
 private const val QUERY_PARAM_FILE_FIELDS = "files(id,name,parents)"
 private const val QUERY_PARAM_FIELDS = "id,name,parents"
 const val METADATA_PART_KEY = "Metadata"
