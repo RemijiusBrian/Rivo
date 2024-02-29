@@ -7,6 +7,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.toByteArray
 import dev.ridill.rivo.core.domain.util.toInt
+import dev.ridill.rivo.core.domain.util.tryOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -182,9 +183,12 @@ class BackupService(
         encryptedBackupFile
     }
 
-    suspend fun clearLocalCache() = withContext(Dispatchers.IO) {
-        val cacheDir = context.externalCacheDir
-        cacheDir?.delete()
+    suspend fun tryClearCache() = withContext(Dispatchers.IO) {
+        tryOrNull("Clearing cacheDir exception") {
+            val cacheDir = context.externalCacheDir
+            cacheDir?.delete()
+            logI { "Cleared local cacheDir" }
+        }
     }
 
     private fun checkpointDb() {

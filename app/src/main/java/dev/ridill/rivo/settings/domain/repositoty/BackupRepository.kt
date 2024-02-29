@@ -7,4 +7,5 @@ interface BackupRepository {
     suspend fun checkForBackup(): Resource<BackupDetails>
     suspend fun performAppDataBackup()
     suspend fun performAppDataRestore(details: BackupDetails, passwordHash: String)
+    suspend fun tryClearLocalCache()
 }

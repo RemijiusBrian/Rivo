@@ -7,11 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 inline fun <T> tryOrNull(
+    tag: String = "tryOrNull Error",
     tryBlock: () -> T
 ): T? = try {
     tryBlock()
 } catch (t: Throwable) {
-    logE(t) { "tryOrNull Error" }
+    logE(t) { tag }
     null
 }
 

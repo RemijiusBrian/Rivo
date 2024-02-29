@@ -68,6 +68,8 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         } catch (t: Throwable) {
             logE(t) { "Throwable" }
             Result.retry()
+        } finally {
+            repo.tryClearLocalCache()
         }
     }
 

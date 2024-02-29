@@ -125,8 +125,6 @@ class BackupRepositoryImpl(
             gDriveApi.deleteFile(file.id)
         }
         logI { "Cleaned up Drive" }
-        backupService.clearLocalCache()
-        logI { "Cleaned up local cache" }
     }
 
     @Throws(
@@ -151,8 +149,11 @@ class BackupRepositoryImpl(
         )
         preferencesManager.updateEncryptionPasswordHash(passwordHash)
         details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
-        backupService.clearLocalCache()
-        logI { "Cleaned up local cache" }
+        logI { "Updated last backup timestamp" }
+    }
+
+    override suspend fun tryClearLocalCache() {
+        backupService.tryClearCache()
     }
 
     private fun backupFolderName(email: String): String = "Rivo $email backup"
