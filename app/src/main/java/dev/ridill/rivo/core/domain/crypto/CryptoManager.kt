@@ -1,9 +1,14 @@
 package dev.ridill.rivo.core.domain.crypto
 
 import android.security.keystore.KeyProperties
+import javax.crypto.BadPaddingException
+import javax.crypto.IllegalBlockSizeException
 
 interface CryptoManager {
+    @Throws(IllegalBlockSizeException::class, BadPaddingException::class)
     fun encrypt(rawData: ByteArray, password: String): EncryptionResult
+
+    @Throws(IllegalBlockSizeException::class, BadPaddingException::class)
     fun decrypt(encryptedData: ByteArray, iv: ByteArray, password: String): ByteArray
     fun hash(message: String): String
     fun areDigestsEqual(hash1: String?, hash2: String?): Boolean

@@ -22,6 +22,8 @@ import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.crypto.BadPaddingException
+import javax.crypto.IllegalBlockSizeException
 import kotlin.random.Random
 
 @HiltWorker
@@ -53,6 +55,20 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
             Result.failure(
                 workDataOf(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_invalid_encryption_password)
+                )
+            )
+        } catch (e: IllegalBlockSizeException) {
+            logE(e) { "IllegalBlockSizeException" }
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_incorrect_encryption_password)
+                )
+            )
+        } catch (e: BadPaddingException) {
+            logE(e) { "BadPaddingException" }
+            Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_incorrect_encryption_password)
                 )
             )
         } catch (t: BackupDownloadFailedThrowable) {

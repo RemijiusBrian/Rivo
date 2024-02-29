@@ -91,6 +91,7 @@
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_invalid_encryption_password">Invalid encryption password</string>
+    <string name="error_incorrect_encryption_password">Incorrect encryption password</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
     <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
     <string name="error_biometric_hw_unavailable">Biometric features are currently unavailable</string>

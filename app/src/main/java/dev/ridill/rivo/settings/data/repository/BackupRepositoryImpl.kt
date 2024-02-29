@@ -29,6 +29,8 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import javax.crypto.BadPaddingException
+import javax.crypto.IllegalBlockSizeException
 
 class BackupRepositoryImpl(
     private val backupService: BackupService,
@@ -69,7 +71,9 @@ class BackupRepositoryImpl(
         BackupCachingFailedThrowable::class,
         IOException::class,
         UserRecoverableAuthException::class,
-        GoogleAuthException::class
+        GoogleAuthException::class,
+        IllegalBlockSizeException::class,
+        BadPaddingException::class
     )
     override suspend fun performAppDataBackup() = withContext(Dispatchers.IO) {
         logI { "Performing Data Backup" }
@@ -125,7 +129,12 @@ class BackupRepositoryImpl(
         logI { "Cleaned up local cache" }
     }
 
-    @Throws(BackupDownloadFailedThrowable::class)
+    @Throws(
+        BackupDownloadFailedThrowable::class,
+        BackupCachingFailedThrowable::class,
+        IllegalBlockSizeException::class,
+        BadPaddingException::class
+    )
     override suspend fun performAppDataRestore(
         details: BackupDetails,
         passwordHash: String
