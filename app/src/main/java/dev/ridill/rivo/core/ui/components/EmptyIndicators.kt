@@ -19,7 +19,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingSmall
 
 @Composable
 fun EmptyListIndicator(
-    @RawRes resId: Int,
+    @RawRes rawResId: Int,
     modifier: Modifier = Modifier,
     @StringRes messageRes: Int? = null,
     size: Dp = DefaultSize
@@ -30,7 +30,7 @@ fun EmptyListIndicator(
         verticalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
         InfiniteLottieAnim(
-            resId = resId,
+            resId = rawResId,
             modifier = Modifier
                 .size(size)
         )
