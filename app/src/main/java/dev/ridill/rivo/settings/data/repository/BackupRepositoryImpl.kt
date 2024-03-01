@@ -11,6 +11,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.MEDIA_PART_KEY
@@ -153,7 +154,9 @@ class BackupRepositoryImpl(
     }
 
     override suspend fun tryClearLocalCache() {
-        backupService.tryClearCache()
+        tryOrNull("Clearing cacheDir exception") {
+            backupService.clearCache()
+        }
     }
 
     private fun backupFolderName(email: String): String = "Rivo $email backup"
