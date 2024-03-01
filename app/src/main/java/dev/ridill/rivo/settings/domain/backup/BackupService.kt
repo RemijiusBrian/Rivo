@@ -182,9 +182,10 @@ class BackupService(
         encryptedBackupFile
     }
 
-    suspend fun clearLocalCache() = withContext(Dispatchers.IO) {
+    suspend fun clearCache() = withContext(Dispatchers.IO) {
         val cacheDir = context.externalCacheDir
         cacheDir?.delete()
+        logI { "Cleared local cacheDir" }
     }
 
     private fun checkpointDb() {

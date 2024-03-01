@@ -11,6 +11,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.MEDIA_PART_KEY
@@ -125,8 +126,6 @@ class BackupRepositoryImpl(
             gDriveApi.deleteFile(file.id)
         }
         logI { "Cleaned up Drive" }
-        backupService.clearLocalCache()
-        logI { "Cleaned up local cache" }
     }
 
     @Throws(
@@ -151,8 +150,13 @@ class BackupRepositoryImpl(
         )
         preferencesManager.updateEncryptionPasswordHash(passwordHash)
         details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
-        backupService.clearLocalCache()
-        logI { "Cleaned up local cache" }
+        logI { "Updated last backup timestamp" }
+    }
+
+    override suspend fun tryClearLocalCache() {
+        tryOrNull("Clearing cacheDir exception") {
+            backupService.clearCache()
+        }
     }
 
     private fun backupFolderName(email: String): String = "Rivo $email backup"

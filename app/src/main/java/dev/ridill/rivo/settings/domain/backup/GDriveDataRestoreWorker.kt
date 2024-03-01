@@ -85,6 +85,8 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_app_data_restore_failed)
                 )
             )
+        } finally {
+            repo.tryClearLocalCache()
         }
     }
 
