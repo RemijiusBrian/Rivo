@@ -9,7 +9,6 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.auth.AuthPromptCallback
 import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
-import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -36,6 +35,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
@@ -44,7 +44,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.security.AppLockScreen
-import dev.ridill.rivo.core.domain.util.BiometricUtil
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -143,7 +142,7 @@ class RivoActivity : FragmentActivity() {
         if (!canAuthenticate) return
 
         val title = getString(R.string.biometric_prompt_title)
-        val subtitle = getString(R.string.fingerprint_or_screen_lock_prompt_message)
+        val subtitle = getString(R.string.biometric_or_screen_lock_prompt_message)
         val authPromptCallback = object : AuthPromptCallback() {
             override fun onAuthenticationError(
                 activity: FragmentActivity?,
@@ -167,20 +166,12 @@ class RivoActivity : FragmentActivity() {
                 viewModel.updateAppLockErrorMessage(UiText.StringResource(R.string.error_biometric_auth_failed))
             }
         }
-        if (BuildUtil.isApiLevelAtLeast30) {
-            startClass3BiometricOrCredentialAuthentication(
-                crypto = null,
-                title = title,
-                subtitle = subtitle,
-                callback = authPromptCallback
-            )
-        } else {
-            startClass2BiometricOrCredentialAuthentication(
-                title = title,
-                subtitle = subtitle,
-                callback = authPromptCallback
-            )
-        }
+
+        startClass2BiometricOrCredentialAuthentication(
+            title = title,
+            subtitle = subtitle,
+            callback = authPromptCallback
+        )
     }
 }
 
