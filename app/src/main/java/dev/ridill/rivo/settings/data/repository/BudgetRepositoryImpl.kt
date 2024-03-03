@@ -21,6 +21,6 @@ class BudgetRepositoryImpl(
         }
     }
 
-    override fun getBudgetAmountForDateOrLatest(date: LocalDate): Flow<Long> =
-        dao.getBudgetAmountForDateOrLatest(date)
+    override fun getBudgetAmountForDateOrNext(date: LocalDate): Flow<Long> =
+        dao.getBudgetAmountForDateOrNext(date)
 }

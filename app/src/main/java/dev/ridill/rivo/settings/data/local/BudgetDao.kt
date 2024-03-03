@@ -14,9 +14,9 @@ interface BudgetDao : BaseDao<BudgetEntity> {
         """
         SELECT IFNULL(amount, 0)
         FROM budget_table
-        WHERE strftime(date, '%Y-%M') = strftime(:date, '%Y-%M') OR date = (SELECT MAX(date) FROM budget_table)
+        WHERE strftime(date, '%Y-%M') = strftime(:date, '%Y-%M') OR date = (SELECT MAX(date) FROM budget_table WHERE date <= :date)
         LIMIT 1
     """
     )
-    fun getBudgetAmountForDateOrLatest(date: LocalDate): Flow<Long>
+    fun getBudgetAmountForDateOrNext(date: LocalDate): Flow<Long>
 }

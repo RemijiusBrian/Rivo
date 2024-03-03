@@ -10,7 +10,7 @@ interface BudgetRepository {
         date: LocalDate = DateUtil.dateNow()
     )
 
-    fun getBudgetAmountForDateOrLatest(
+    fun getBudgetAmountForDateOrNext(
         date: LocalDate = DateUtil.dateNow()
     ): Flow<Long>
 }
