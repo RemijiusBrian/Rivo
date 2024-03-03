@@ -26,13 +26,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
-import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
 
@@ -132,7 +132,7 @@ private inline fun startBiometricAuthentication(
 ) {
     val activity = context.findActivity() as FragmentActivity
     val title = context.getString(R.string.biometric_prompt_title)
-    val subtitle = context.getString(R.string.fingerprint_or_screen_lock_prompt_message)
+    val subtitle = context.getString(R.string.biometric_or_screen_lock_prompt_message)
     val authPromptCallback = object : AuthPromptCallback() {
         override fun onAuthenticationSucceeded(
             activity: FragmentActivity?,
