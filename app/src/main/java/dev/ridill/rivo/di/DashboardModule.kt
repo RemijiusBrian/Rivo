@@ -7,7 +7,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dev.ridill.rivo.dashboard.data.repository.DashboardRepositoryImpl
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 
 @Module
@@ -17,10 +17,10 @@ object DashboardModule {
     fun provideDashboardRepository(
         transactionDao: TransactionDao,
         budgetRepository: BudgetRepository,
-        settingsRepository: SettingsRepository
+        currencyRepository: CurrencyRepository
     ): DashboardRepository = DashboardRepositoryImpl(
         transactionDao = transactionDao,
-        budgetRepository = budgetRepository,
-        settingsRepository = settingsRepository
+        budgetRepo = budgetRepository,
+        currencyRepo = currencyRepository
     )
 }

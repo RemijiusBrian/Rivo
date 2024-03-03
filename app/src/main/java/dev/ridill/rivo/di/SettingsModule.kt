@@ -15,11 +15,13 @@ import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.BudgetDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
+import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BudgetRepositoryImpl
+import dev.ridill.rivo.settings.data.repository.CurrencyRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupService
@@ -29,6 +31,7 @@ import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
@@ -54,15 +57,23 @@ object SettingsModule {
     ): BudgetRepository = BudgetRepositoryImpl(dao)
 
     @Provides
+    fun provideCurrencyDao(database: RivoDatabase): CurrencyDao = database.currencyDao()
+
+    @Provides
+    fun provideCurrencyRepository(
+        dao: CurrencyDao
+    ): CurrencyRepository = CurrencyRepositoryImpl(dao)
+
+    @Provides
     fun provideMiscConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
 
     @Provides
     fun provideSettingsRepository(
-        configDao: ConfigDao,
-        budgetRepository: BudgetRepository
+        budgetRepository: BudgetRepository,
+        currencyRepository: CurrencyRepository
     ): SettingsRepository = SettingsRepositoryImpl(
-        dao = configDao,
-        budgetRepo = budgetRepository
+        budgetRepo = budgetRepository,
+        currencyRepo = currencyRepository
     )
 
     @Provides

@@ -7,5 +7,5 @@ interface SettingsRepository {
     fun getCurrentBudget(): Flow<Long>
     suspend fun updateCurrentBudget(value: Long)
     fun getCurrencyPreference(): Flow<Currency>
-    suspend fun updateCurrencyCode(code: String)
+    suspend fun updateCurrency(currency: Currency)
 }

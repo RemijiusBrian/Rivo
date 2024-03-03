@@ -12,8 +12,10 @@ import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
 import dev.ridill.rivo.settings.data.local.BudgetDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
+import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.local.entity.BudgetEntity
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
+import dev.ridill.rivo.settings.data.local.entity.CurrencyEntity
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
@@ -26,6 +28,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionEntity::class,
         TagEntity::class,
         FolderEntity::class,
+        CurrencyEntity::class,
         ConfigEntity::class
     ],
     views = [
@@ -53,6 +56,7 @@ abstract class RivoDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun tagsDao(): TagsDao
     abstract fun folderDao(): FolderDao
+    abstract fun currencyDao(): CurrencyDao
     abstract fun configDao(): ConfigDao
 
     @RenameTable(fromTableName = "transaction_folder_table", toTableName = "folder_table")

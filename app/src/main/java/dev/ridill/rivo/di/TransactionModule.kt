@@ -9,7 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.repository.AddEditTransactionRepositoryImpl
@@ -39,10 +39,10 @@ object TransactionModule {
     @Provides
     fun provideAddEditTransactionRepository(
         dao: TransactionDao,
-        settingsRepo: SettingsRepository
+        currencyRepository: CurrencyRepository
     ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(
         dao = dao,
-        settingsRepo = settingsRepo
+        currencyRepo = currencyRepository
     )
 
     @Provides
@@ -56,11 +56,11 @@ object TransactionModule {
     fun provideAllTransactionsRepository(
         dao: TransactionDao,
         preferencesManager: PreferencesManager,
-        settingsRepo: SettingsRepository
+        currencyRepository: CurrencyRepository
     ): AllTransactionsRepository = AllTransactionsRepositoryImpl(
         dao = dao,
         preferencesManager = preferencesManager,
-        settingsRepo = settingsRepo
+        currencyRepo = currencyRepository
     )
 
     @Provides

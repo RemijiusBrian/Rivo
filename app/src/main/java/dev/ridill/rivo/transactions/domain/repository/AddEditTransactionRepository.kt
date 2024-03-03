@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 interface AddEditTransactionRepository {
-    fun getCurrencyPreference(): Flow<Currency>
+    fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency>
     suspend fun getTransactionById(id: Long): TransactionInput?
     fun getAmountRecommendations(): Flow<List<Long>>
     suspend fun saveTransaction(transaction: TransactionInput): Long

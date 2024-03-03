@@ -52,8 +52,8 @@ class TransactionSmsService(
             extractor.downloadModelIfNeeded().await()
             if (!extractor.isModelDownloaded.await()) return@launch
 
-            val currency = repo.getCurrencyPreference().first()
             val dateTimeNow = DateUtil.now()
+            val currency = repo.getCurrencyPreference(dateTimeNow).first()
             val messages = getSmsFromIntent(data)
             for (message in messages) {
                 val content = message.messageBody
