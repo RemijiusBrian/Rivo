@@ -27,10 +27,11 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String =
@@ -116,8 +117,15 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             when (event) {
                 AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
                     navController.navigateUpWithResult(
-                        DASHBOARD_ACTION_RESULT,
+                        ACTION_ADD_EDIT_TX,
                         RESULT_TRANSACTION_DELETED
+                    )
+                }
+
+                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionWithoutAmountIgnored -> {
+                    navController.navigateUpWithResult(
+                        ACTION_ADD_EDIT_TX,
+                        RESULT_TX_WITHOUT_AMOUNT_IGNORED
                     )
                 }
 

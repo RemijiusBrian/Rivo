@@ -12,10 +12,11 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.dashboard.presentation.DASHBOARD_ACTION_RESULT
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
@@ -35,13 +36,14 @@ data object DashboardScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         DestinationResultEffect(
-            key = DASHBOARD_ACTION_RESULT,
+            key = ACTION_ADD_EDIT_TX,
             navBackStackEntry = navBackStackEntry,
             context,
             snackbarController,
         ) {
             when (it) {
                 RESULT_TRANSACTION_DELETED -> R.string.transaction_deleted
+                RESULT_TX_WITHOUT_AMOUNT_IGNORED -> R.string.tx_without_amount_ignored
                 else -> null
             }?.let { messageRes ->
                 snackbarController.showSnackbar(context.getString(messageRes))

@@ -85,5 +85,3 @@ class DashboardViewModel @Inject constructor(
         autoAddTransactionNotificationHelper.cancelAllNotifications()
     }
 }
-
-const val DASHBOARD_ACTION_RESULT = "DASHBOARD_ACTION_RESULT"

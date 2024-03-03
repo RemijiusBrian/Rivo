@@ -398,7 +398,7 @@ class AddEditTransactionViewModel @Inject constructor(
             val txInput = txInput.value
             val amountInput = txInput.amount.trim()
             if (amountInput.isEmpty()) {
-                eventBus.send(AddEditTransactionEvent.NavigateUp)
+                eventBus.send(AddEditTransactionEvent.TransactionWithoutAmountIgnored)
                 return@launch
             }
             val isExp = evalService.isExpression(amountInput)
@@ -427,6 +427,7 @@ class AddEditTransactionViewModel @Inject constructor(
 
     sealed class AddEditTransactionEvent {
         data object TransactionDeleted : AddEditTransactionEvent()
+        data object TransactionWithoutAmountIgnored : AddEditTransactionEvent()
         data object NavigateUp : AddEditTransactionEvent()
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
         data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
@@ -445,4 +446,6 @@ private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
 private const val SHOW_AMOUNT_TRANSFORMATION_INPUT = "SHOW_AMOUNT_TRANSFORMATION_INPUT"
 private const val SELECTED_AMOUNT_TRANSFORMATION = "SELECTED_AMOUNT_TRANSFORMATION"
 
+const val ACTION_ADD_EDIT_TX = "ACTION_ADD_EDIT_TX"
+const val RESULT_TX_WITHOUT_AMOUNT_IGNORED = "RESULT_TX_WITHOUT_AMOUNT_IGNORED"
 const val RESULT_TRANSACTION_DELETED = "RESULT_TRANSACTION_DELETED"
