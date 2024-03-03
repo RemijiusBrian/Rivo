@@ -355,7 +355,7 @@ private fun TransactionsInFolder(
     ) {
         if (pagingItems.isEmpty()) {
             EmptyListIndicator(
-                resId = R.raw.lottie_empty_list_ghost,
+                rawResId = R.raw.lottie_empty_list_ghost,
                 messageRes = R.string.transactions_in_folder_list_empty_message
             )
         }

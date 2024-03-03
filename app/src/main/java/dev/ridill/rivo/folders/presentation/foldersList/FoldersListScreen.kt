@@ -105,7 +105,7 @@ fun FoldersListScreen(
             ) {
                 if (foldersList.isEmpty()) {
                     EmptyListIndicator(
-                        resId = R.raw.lottie_empty_list_ghost,
+                        rawResId = R.raw.lottie_empty_list_ghost,
                         messageRes = R.string.folders_list_empty_message
                     )
                 }

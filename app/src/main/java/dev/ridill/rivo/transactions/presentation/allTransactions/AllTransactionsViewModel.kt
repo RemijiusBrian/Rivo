@@ -44,11 +44,13 @@ class AllTransactionsViewModel @Inject constructor(
 ) : ViewModel(), AllTransactionsActions {
 
     private val selectedDate = savedStateHandle
-        .getStateFlow(SELECTED_DATE, DateUtil.now().toLocalDate())
+        .getStateFlow(SELECTED_DATE, DateUtil.dateNow())
 
     private val yearsList = transactionRepo.getTransactionYearsList()
 
-    private val currency = transactionRepo.getCurrencyPreference()
+    private val currency = selectedDate.flatMapLatest {
+        transactionRepo.getCurrencyPreference(it)
+    }.distinctUntilChanged()
 
     private val tagsWithExpenditures = selectedDate.flatMapLatest { date ->
         tagsRepo.getTagsWithExpenditures(date = date)

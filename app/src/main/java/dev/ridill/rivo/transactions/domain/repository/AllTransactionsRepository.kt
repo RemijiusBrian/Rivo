@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface AllTransactionsRepository {
-    fun getCurrencyPreference(): Flow<Currency>
+    fun getCurrencyPreference(date: LocalDate): Flow<Currency>
     suspend fun deleteTransactionsByIds(ids: List<Long>)
     fun getTransactionYearsList(): Flow<List<Int>>
     fun getAmountSumForDate(

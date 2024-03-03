@@ -382,7 +382,7 @@ private fun SpendsOverview(
             ) {
                 if (recentSpends.isEmpty()) {
                     EmptyListIndicator(
-                        resId = R.raw.lottie_empty_list_ghost,
+                        rawResId = R.raw.lottie_empty_list_ghost,
                         messageRes = R.string.recent_spends_list_empty_message
                     )
                 }

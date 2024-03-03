@@ -184,7 +184,7 @@ fun SettingsScreen(
             CurrencySelectionSheet(
                 currentCurrency = state.currentCurrency,
                 onDismiss = actions::onCurrencySelectionDismiss,
-                onConfirm = { actions.onCurrencySelectionConfirm(it.currencyCode) },
+                onConfirm = actions::onCurrencySelectionConfirm,
                 searchQuery = currencySearchQuery,
                 onSearchQueryChange = actions::onCurrencySearchQueryChange,
                 currencyList = state.currencyList

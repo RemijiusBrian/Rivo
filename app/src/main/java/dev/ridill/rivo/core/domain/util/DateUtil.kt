@@ -16,6 +16,8 @@ import java.time.temporal.ChronoUnit
 object DateUtil {
     fun now(): LocalDateTime = LocalDateTime.now()
 
+    fun dateNow(): LocalDate = LocalDate.now()
+
     fun parse(value: String): LocalDateTime? = tryOrNull {
         LocalDateTime.parse(value)
     }
