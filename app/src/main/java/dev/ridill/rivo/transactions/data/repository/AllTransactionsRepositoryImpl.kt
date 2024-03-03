@@ -33,38 +33,17 @@ class AllTransactionsRepositoryImpl(
         dao.getYearsFromTransactions()
             .map { it.ifEmpty { listOf(DateUtil.now().year) } }
 
-    override fun getAmountSumForDate(
-        selectedTxIds: Set<Long>,
+    override fun getAmountAggregate(
         date: LocalDate,
         type: TransactionType?,
-        addExcluded: Boolean
-    ): Flow<Double> = if (selectedTxIds.isNotEmpty()) dao.getTransactionsByIds(selectedTxIds)
-        .map { entities ->
-            val debits = entities
-                .filter { it.transactionTypeName == TransactionType.DEBIT.name }
-                .sumOf { it.transactionAmount }
-            val credits = entities
-                .filter { it.transactionTypeName == TransactionType.CREDIT.name }
-                .sumOf { it.transactionAmount }
-            debits - credits
-        }
-    else dao.getTransactionsList(
-        monthAndYear = date.atStartOfDay(),
-        transactionTypeName = type?.name,
-        showExcluded = addExcluded
-    ).map { entities ->
-        if (type == null) {
-            val debits = entities
-                .filter { it.transactionTypeName == TransactionType.DEBIT.name }
-                .sumOf { it.transactionAmount }
-            val credits = entities
-                .filter { it.transactionTypeName == TransactionType.CREDIT.name }
-                .sumOf { it.transactionAmount }
-            debits - credits
-        } else {
-            entities.sumOf { it.transactionAmount }
-        }
-    }
+        addExcluded: Boolean,
+        selectedTxIds: Set<Long>?
+    ): Flow<Double> = dao.getAmountAggregate(
+        dateTime = date.atStartOfDay(),
+        selectedTxIds = selectedTxIds,
+        typeName = type?.name,
+        addExcluded = addExcluded
+    ).distinctUntilChanged()
 
     override fun getTransactionsForDateByTag(
         date: LocalDate,

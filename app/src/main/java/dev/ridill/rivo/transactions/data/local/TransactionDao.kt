@@ -66,14 +66,29 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Transaction
     @Query(
         """
-        SELECT * FROM transaction_details_view
-        WHERE transactionId in (:ids)
-        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
+        SELECT (
+            SELECT IFNULL(SUM(t1.amount), 0.0)
+            FROM transaction_table t1
+            WHERE (:typeName = 'DEBIT' OR type = 'DEBIT')
+            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+            AND (:addExcluded = 1 OR is_excluded = 0)
+            AND (COALESCE(:selectedTxIds, '') = '' OR t1.id IN (:selectedTxIds))
+            ) - (
+            SELECT IFNULL(SUM(t2.amount), 0.0)
+            FROM transaction_table t2
+            WHERE (:typeName = 'CREDIT' OR type = 'CREDIT')
+            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+            AND (:addExcluded = 1 OR is_excluded = 0)
+            AND (COALESCE(:selectedTxIds, '') = '' OR t2.id IN (:selectedTxIds))
+            )
     """
     )
-    fun getTransactionsByIds(
-        ids: Set<Long>
-    ): Flow<List<TransactionDetailsView>>
+    fun getAmountAggregate(
+        dateTime: LocalDateTime?,
+        typeName: String? = null,
+        addExcluded: Boolean = false,
+        selectedTxIds: Set<Long>? = null
+    ): Flow<Double>
 
     @Transaction
     @Query(

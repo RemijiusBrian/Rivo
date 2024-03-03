@@ -106,11 +106,11 @@ class AllTransactionsViewModel @Inject constructor(
         transactionTypeFilter,
         showExcludedTransactions
     ).flatMapLatest { (selectedTxIds, date, type, addExcluded) ->
-        transactionRepo.getAmountSumForDate(
-            selectedTxIds = selectedTxIds,
+        transactionRepo.getAmountAggregate(
             date = date,
             type = type,
-            addExcluded = addExcluded
+            addExcluded = addExcluded,
+            selectedTxIds = selectedTxIds.ifEmpty { null }
         )
     }.distinctUntilChanged()
 
