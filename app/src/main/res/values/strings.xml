@@ -199,7 +199,7 @@
     </plurals>
 
     <string name="biometric_prompt_title">Verify It\'s you</string>
-    <string name="fingerprint_or_screen_lock_prompt_message" tools:override="true">Use your fingerprint or screen lock to continue</string>
+    <string name="biometric_or_screen_lock_prompt_message" tools:override="true">Use your biometric or screen lock to continue</string>
 
     <string name="app_lock_service_special_use_message">The service runs as a timer to auto update the app to the locked state after the specified time interval</string>
 
