@@ -57,8 +57,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
-    private val currency = transactionRepo.getCurrencyPreference()
-
     private val txInput = savedStateHandle.getStateFlow(TX_INPUT, TransactionInput.DEFAULT)
     val amountInput = txInput.map { it.amount }
         .asStateFlow(viewModelScope, String.Empty)
@@ -85,6 +83,10 @@ class AddEditTransactionViewModel @Inject constructor(
 
     private val isTransactionExcluded = txInput.map { it.excluded }
         .distinctUntilChanged()
+
+    private val currency = transactionTimestamp.flatMapLatest {
+        transactionRepo.getCurrencyPreference(it)
+    }.distinctUntilChanged()
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)

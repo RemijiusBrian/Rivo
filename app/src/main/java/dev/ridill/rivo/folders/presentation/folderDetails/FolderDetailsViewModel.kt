@@ -18,7 +18,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +34,7 @@ import javax.inject.Inject
 class FolderDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: FolderDetailsRepository,
-    settingsRepo: SettingsRepository,
+    currencyRepo: CurrencyRepository,
     private val eventBus: EventBus<FolderDetailsEvent>
 ) : ViewModel(), FolderDetailsActions {
 
@@ -60,7 +60,8 @@ class FolderDetailsViewModel @Inject constructor(
     }.distinctUntilChanged()
     private val isFolderExcluded = savedStateHandle.getStateFlow(IS_FOLDER_EXCLUDED, false)
 
-    private val currency = settingsRepo.getCurrencyPreference()
+    private val currency = currencyRepo
+        .getCurrencyCodeForDateOrNext()
 
     private val aggregateAmount = folderDetails.map { it?.aggregateAmount.orZero() }
         .distinctUntilChanged()

@@ -1,5 +1,6 @@
 package dev.ridill.rivo.settings.presentation.settings
 
+import android.icu.util.Currency
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -49,7 +50,7 @@ class SettingsViewModel @Inject constructor(
     private val budgetInputError = savedStateHandle
         .getStateFlow<UiText?>(BUDGET_INPUT_ERROR, null)
 
-    private val currencyCode = repo.getCurrencyPreference()
+    private val currentCurrency = repo.getCurrencyPreference()
     private val showCurrencySelection = savedStateHandle
         .getStateFlow(SHOW_CURRENCY_SELECTION, false)
     val currencySearchQuery = savedStateHandle
@@ -75,7 +76,7 @@ class SettingsViewModel @Inject constructor(
         monthlyBudget,
         budgetInputError,
         showMonthlyBudgetInput,
-        currencyCode,
+        currentCurrency,
         showCurrencySelection,
         currencyList,
         autoAddTransactionEnabled,
@@ -168,9 +169,9 @@ class SettingsViewModel @Inject constructor(
         clearAndDismissCurrencySelection()
     }
 
-    override fun onCurrencySelectionConfirm(currencyCode: String) {
+    override fun onCurrencySelectionConfirm(currency: Currency) {
         viewModelScope.launch {
-            repo.updateCurrencyCode(currencyCode)
+            repo.updateCurrency(currency)
             clearAndDismissCurrencySelection()
             eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.currency_updated)))
         }

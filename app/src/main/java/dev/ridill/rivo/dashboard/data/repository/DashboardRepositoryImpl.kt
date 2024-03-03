@@ -4,7 +4,7 @@ import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
@@ -16,15 +16,15 @@ import kotlinx.coroutines.flow.map
 
 class DashboardRepositoryImpl(
     private val transactionDao: TransactionDao,
-    private val budgetRepository: BudgetRepository,
-    private val settingsRepository: SettingsRepository
+    private val budgetRepo: BudgetRepository,
+    private val currencyRepo: CurrencyRepository
 ) : DashboardRepository {
-    override fun getCurrencyPreference(): Flow<Currency> = settingsRepository
-        .getCurrencyPreference()
+    override fun getCurrencyPreference(): Flow<Currency> = currencyRepo
+        .getCurrencyCodeForDateOrNext()
         .distinctUntilChanged()
 
-    override fun getCurrentBudget(): Flow<Long> = budgetRepository
-        .getBudgetAmountForDateOrLatest()
+    override fun getCurrentBudget(): Flow<Long> = budgetRepo
+        .getBudgetAmountForDateOrNext()
         .distinctUntilChanged()
 
     override fun getExpenditureForCurrentMonth(): Flow<Double> = transactionDao.getAmountSum(
