@@ -47,7 +47,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 @TypeConverters(DateTimeConverter::class)
 abstract class RivoDatabase : RoomDatabase() {
     companion object {
-        const val NAME = "MYM.db" // FIXME: Change db name to app name
+        const val NAME = "MYM.db" // FIXME: Change db name
         const val DEFAULT_ID_LONG = 0L
     }
 
