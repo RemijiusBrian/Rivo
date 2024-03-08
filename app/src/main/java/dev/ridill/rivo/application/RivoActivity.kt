@@ -68,7 +68,7 @@ class RivoActivity : FragmentActivity() {
                         }
                     }
                 }
-                
+
                 launch {
                     viewModel.screenSecurityEnabled.collectLatest { enabled ->
                         if (enabled) {
