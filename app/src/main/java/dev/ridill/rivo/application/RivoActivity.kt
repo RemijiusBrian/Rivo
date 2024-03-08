@@ -53,12 +53,9 @@ class RivoActivity : FragmentActivity() {
     private val viewModel: RivoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        splashScreen.apply {
-            setKeepOnScreenCondition { viewModel.showSplashScreen.value }
-        }
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {

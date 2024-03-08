@@ -11,7 +11,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class RivoViewModel @Inject constructor(
@@ -43,25 +41,15 @@ class RivoViewModel @Inject constructor(
         .distinctUntilChanged()
     val appLockAuthErrorMessage = MutableStateFlow<UiText?>(null)
 
-    val showSplashScreen = MutableStateFlow(true)
-
     val screenSecurityEnabled = preferences.map { it.screenSecurityEnabled }
         .distinctUntilChanged()
 
     val events = eventBus.eventFlow
 
     init {
-        toggleSplashScreenVisibility()
         collectTransactionAutoAdd()
         collectConfigRestore()
         collectIsAppLocked()
-    }
-
-    private fun toggleSplashScreenVisibility() = viewModelScope.launch {
-        showWelcomeFlow.collect {
-            delay(SPLASH_SCREEN_DELAY_SECONDS.seconds)
-            showSplashScreen.update { false }
-        }
     }
 
     private fun collectTransactionAutoAdd() = viewModelScope.launch {
@@ -111,7 +99,6 @@ class RivoViewModel @Inject constructor(
     }
 
     fun onAppStart() = viewModelScope.launch {
-        delay(SPLASH_SCREEN_DELAY_SECONDS.seconds)
         startAppLockServices()
     }
 
@@ -137,5 +124,3 @@ class RivoViewModel @Inject constructor(
         data object LaunchAppLockAuthentication : RivoEvent()
     }
 }
-
-private const val SPLASH_SCREEN_DELAY_SECONDS = 1
