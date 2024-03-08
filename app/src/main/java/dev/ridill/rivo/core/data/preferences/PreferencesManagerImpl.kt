@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.ridill.rivo.core.domain.model.RivoPreferences
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logE
+import dev.ridill.rivo.core.domain.util.orFalse
+import dev.ridill.rivo.core.domain.util.orTrue
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import kotlinx.coroutines.Dispatchers
@@ -35,18 +37,19 @@ class PreferencesManagerImpl(
             val appTheme = AppTheme.valueOf(
                 preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM_DEFAULT.name
             )
-            val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED] ?: false
+            val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED].orFalse()
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parse(it) }
-            val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE] ?: false
-            val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED] ?: false
-            val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS] ?: true
-            val showBalancedFolders = preferences[Keys.SHOW_BALANCED_FOLDERS] ?: true
-            val appLockEnabled = preferences[Keys.APP_LOCK_ENABLED] ?: false
+            val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE].orFalse()
+            val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED].orFalse()
+            val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS].orTrue()
+            val showBalancedFolders = preferences[Keys.SHOW_BALANCED_FOLDERS].orTrue()
+            val appLockEnabled = preferences[Keys.APP_LOCK_ENABLED].orFalse()
             val appAutoLockInterval = AppAutoLockInterval.valueOf(
                 preferences[Keys.APP_AUTO_LOCK_INTERVAL] ?: AppAutoLockInterval.ONE_MINUTE.name
             )
-            val isAppLocked = preferences[Keys.IS_APP_LOCKED] ?: false
+            val isAppLocked = preferences[Keys.IS_APP_LOCKED].orFalse()
+            val screenSecurityEnabled = preferences[Keys.SCREEN_SECURITY_ENABLED].orFalse()
             val encryptionPasswordHash = preferences[Keys.ENCRYPTION_PASSWORD_HASH]
 
             RivoPreferences(
@@ -61,6 +64,7 @@ class PreferencesManagerImpl(
                 appLockEnabled = appLockEnabled,
                 appAutoLockInterval = appAutoLockInterval,
                 isAppLocked = isAppLocked,
+                screenSecurityEnabled = screenSecurityEnabled,
                 encryptionPasswordHash = encryptionPasswordHash
             )
         }
@@ -153,6 +157,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateScreenSecurityEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.SCREEN_SECURITY_ENABLED] = enabled
+            }
+        }
+    }
+
     override suspend fun updateEncryptionPasswordHash(hash: String?) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
@@ -173,6 +185,7 @@ class PreferencesManagerImpl(
         val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")
         val APP_AUTO_LOCK_INTERVAL = stringPreferencesKey("APP_AUTO_LOCK_INTERVAL")
         val IS_APP_LOCKED = booleanPreferencesKey("IS_APP_LOCKED")
+        val SCREEN_SECURITY_ENABLED = booleanPreferencesKey("SCREEN_SECURITY_ENABLED")
         val ENCRYPTION_PASSWORD_HASH = stringPreferencesKey("ENCRYPTION_PASSWORD_HASH")
     }
 }

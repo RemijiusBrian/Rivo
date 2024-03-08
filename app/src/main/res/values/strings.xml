@@ -165,6 +165,8 @@
     <string name="preference_security">Security</string>
     <string name="preference_security_summary">Manage app security</string>
     <string name="preference_app_lock">Screen lock</string>
+    <string name="preference_screen_security">Screen security</string>
+    <string name="preference_screen_security_summary">Block screenshots in the recents list and inside the app</string>
     <string name="preference_app_lock_summary">Require Android screen lock or fingerprint to unlock %s</string>
 
     <string name="app_theme_system_default">System Default</string>
