@@ -44,6 +44,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.security.AppLockScreen
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -58,21 +59,25 @@ class RivoActivity : FragmentActivity() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.events.collect { event ->
-                    when (event) {
-                        is RivoViewModel.RivoEvent.EnableSecureFlags -> {
-                            if (event.enabled) {
-                                window.setFlags(
-                                    WindowManager.LayoutParams.FLAG_SECURE,
-                                    WindowManager.LayoutParams.FLAG_SECURE
-                                )
-                            } else {
-                                window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                launch {
+                    viewModel.events.collect { event ->
+                        when (event) {
+                            RivoViewModel.RivoEvent.LaunchAppLockAuthentication -> {
+                                checkAndLaunchBiometric()
                             }
                         }
-
-                        RivoViewModel.RivoEvent.LaunchAppLockAuthentication -> {
-                            checkAndLaunchBiometric()
+                    }
+                }
+                
+                launch {
+                    viewModel.screenSecurityEnabled.collectLatest { enabled ->
+                        if (enabled) {
+                            window.setFlags(
+                                WindowManager.LayoutParams.FLAG_SECURE,
+                                WindowManager.LayoutParams.FLAG_SECURE
+                            )
+                        } else {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                         }
                     }
                 }
