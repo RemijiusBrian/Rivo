@@ -31,6 +31,8 @@ fun SecuritySettingsScreen(
     onAppLockToggle: (Boolean) -> Unit,
     autoLockInterval: AppAutoLockInterval,
     onIntervalSelect: (AppAutoLockInterval) -> Unit,
+    screenSecurityEnabled: Boolean,
+    onScreenSecurityToggle: (Boolean) -> Unit,
     navigateUp: () -> Unit
 ) {
     RivoScaffold(
@@ -62,11 +64,22 @@ fun SecuritySettingsScreen(
             HorizontalDivider()
 
             AnimatedVisibility(visible = appLockEnabled) {
-                AutoLockIntervalSelection(
-                    selectedInterval = autoLockInterval,
-                    onIntervalSelect = onIntervalSelect
-                )
+                Column {
+                    AutoLockIntervalSelection(
+                        selectedInterval = autoLockInterval,
+                        onIntervalSelect = onIntervalSelect
+                    )
+
+                    HorizontalDivider()
+                }
             }
+
+            SwitchPreference(
+                titleRes = R.string.preference_screen_security,
+                summary = stringResource(R.string.preference_screen_security_summary),
+                value = screenSecurityEnabled,
+                onValueChange = onScreenSecurityToggle
+            )
         }
     }
 }

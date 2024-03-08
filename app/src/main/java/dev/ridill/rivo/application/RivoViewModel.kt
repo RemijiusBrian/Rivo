@@ -45,12 +45,14 @@ class RivoViewModel @Inject constructor(
 
     val showSplashScreen = MutableStateFlow(true)
 
+    val screenSecurityEnabled = preferences.map { it.screenSecurityEnabled }
+        .distinctUntilChanged()
+
     val events = eventBus.eventFlow
 
     init {
         toggleSplashScreenVisibility()
         collectTransactionAutoAdd()
-        collectAppLockEnabled()
         collectConfigRestore()
         collectIsAppLocked()
     }
@@ -88,13 +90,6 @@ class RivoViewModel @Inject constructor(
 
     fun onNotificationPermissionCheck(granted: Boolean) {
         receiverService.toggleNotificationActionReceivers(granted)
-    }
-
-    private fun collectAppLockEnabled() = viewModelScope.launch {
-        preferences.map { it.appLockEnabled }
-            .collectLatest { enabled ->
-                eventBus.send(RivoEvent.EnableSecureFlags(enabled))
-            }
     }
 
     private fun collectIsAppLocked() = viewModelScope.launch {
@@ -139,7 +134,6 @@ class RivoViewModel @Inject constructor(
     }
 
     sealed class RivoEvent {
-        data class EnableSecureFlags(val enabled: Boolean) : RivoEvent()
         data object LaunchAppLockAuthentication : RivoEvent()
     }
 }

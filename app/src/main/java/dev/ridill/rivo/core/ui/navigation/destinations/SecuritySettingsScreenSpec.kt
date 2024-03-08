@@ -57,6 +57,8 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(false)
         val selectedInterval by viewModel.appAutoLockInterval
             .collectAsStateWithLifecycle(AppAutoLockInterval.ONE_MINUTE)
+        val screenSecurityEnabled by viewModel.screenSecurityEnabled
+            .collectAsStateWithLifecycle(false)
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -121,6 +123,8 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
             onAppLockToggle = viewModel::onAppLockToggle,
             autoLockInterval = selectedInterval,
             onIntervalSelect = viewModel::onAutoLockIntervalSelect,
+            screenSecurityEnabled = screenSecurityEnabled,
+            onScreenSecurityToggle = viewModel::onScreenSecurityToggle,
             navigateUp = navController::navigateUp
         )
     }

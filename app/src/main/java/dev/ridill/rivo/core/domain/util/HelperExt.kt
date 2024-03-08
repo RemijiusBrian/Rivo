@@ -29,6 +29,7 @@ val String.Companion.WhiteSpace: String get() = " "
 fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())
 
 fun Boolean?.orFalse(): Boolean = this ?: false
+fun Boolean?.orTrue(): Boolean = this ?: true
 
 fun <T> Set<T>.addOrRemove(element: T): Set<T> =
     if (element in this) this - element

@@ -25,6 +25,10 @@ class SecuritySettingsViewModel @Inject constructor(
         .map { it.appAutoLockInterval }
         .distinctUntilChanged()
 
+    val screenSecurityEnabled = preferences
+        .map { it.screenSecurityEnabled }
+        .distinctUntilChanged()
+
     val events = eventBus.eventFlow
 
     fun onAppLockToggle(enabled: Boolean) {
@@ -46,6 +50,12 @@ class SecuritySettingsViewModel @Inject constructor(
     fun onAutoLockIntervalSelect(interval: AppAutoLockInterval) {
         viewModelScope.launch {
             preferencesManager.updateAppAutoLockInterval(interval)
+        }
+    }
+
+    fun onScreenSecurityToggle(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.updateScreenSecurityEnabled(enabled)
         }
     }
 
