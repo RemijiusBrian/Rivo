@@ -10,7 +10,7 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 
 class AutoAddTxSetupNotificationHelper(
     private val context: Context
-) {
+) : NotificationHelper<Unit> {
     private val notificationManager = NotificationManagerCompat.from(context)
 
     init {
@@ -18,10 +18,10 @@ class AutoAddTxSetupNotificationHelper(
         registerChannel()
     }
 
-    private val channelId: String
+    override val channelId: String
         get() = "${context.packageName}.NOTIFICATION_CHANNEL_TRANSACTION_AUTO_ADD_SETUP"
 
-    private fun registerChannelGroup() {
+    override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
             .Builder(NotificationHelper.Groups.transactions(context))
             .setName(context.getString(R.string.notification_channel_group_transactions_name))
@@ -29,7 +29,7 @@ class AutoAddTxSetupNotificationHelper(
         notificationManager.createNotificationChannelGroup(group)
     }
 
-    private fun registerChannel() {
+    override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(context.getString(R.string.notification_channel_auto_add_transaction_setup_name))
@@ -38,10 +38,7 @@ class AutoAddTxSetupNotificationHelper(
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun buildSetupForegroundServiceNotification(): NotificationCompat.Builder =
+    override fun buildBaseNotification(): NotificationCompat.Builder =
         NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.setting_up_transaction_auto_add_feature))
-            .setProgress(100, 0, true)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 }

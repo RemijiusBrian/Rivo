@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.domain.notification
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -12,13 +13,16 @@ import androidx.core.app.TaskStackBuilder
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.ui.navigation.destinations.ARG_TRANSACTION_ID
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
+import dev.ridill.rivo.transactions.domain.model.Transaction
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 @SuppressLint("MissingPermission")
 class AutoAddTransactionNotificationHelper(
     private val context: Context
-) : NotificationHelper {
+) : NotificationHelper<Transaction> {
     private val notificationManager = NotificationManagerCompat.from(context)
 
     init {
@@ -56,19 +60,23 @@ class AutoAddTransactionNotificationHelper(
             .setOnlyAlertOnce(true)
             .setGroup(summaryId)
 
-    override fun postNotification(id: Int, title: String, content: String?) {
+    override fun postNotification(id: Int, data: Transaction) {
         if (!notificationManager.areNotificationsEnabled()) return
 
         val notification = buildBaseNotification()
-            .setContentTitle(title)
-            .apply {
-                if (!content.isNullOrEmpty()) {
-                    setContentText(content)
-                }
-            }
-            .setContentIntent(buildContentIntent(id))
-            .addAction(buildDeleteAction(id))
-            .addAction(buildMarkExcludedAction(id))
+            .setContentTitle(context.getString(R.string.new_transaction_detected))
+            .setContentText(
+                context.getString(
+                    when (data.type) {
+                        TransactionType.CREDIT -> R.string.amount_credited_notification_message
+                        TransactionType.DEBIT -> R.string.amount_debited_notification_message
+                    },
+                    data.amount
+                )
+            )
+            .setContentIntent(buildContentIntent(data.id))
+            .addAction(buildDeleteAction(data.id))
+            .addAction(buildMarkExcludedAction(data.id))
             .build()
 
         val summaryNotification = buildBaseNotification()
@@ -82,12 +90,7 @@ class AutoAddTransactionNotificationHelper(
         }
     }
 
-    fun updateNotificationToTransactionDeleted(id: Int) {
-        val notification = buildBaseNotification()
-            .setContentTitle(context.getString(R.string.transaction_deleted))
-            .setTimeoutAfter(NotificationHelper.Utils.TIMEOUT_MILLIS)
-            .build()
-
+    override fun updateNotification(id: Int, notification: Notification) {
         notificationManager.notify(id, notification)
     }
 
@@ -95,29 +98,29 @@ class AutoAddTransactionNotificationHelper(
         notificationManager.cancel(id)
     }
 
-    fun cancelAllNotifications() {
+    override fun dismissAllNotifications() {
         notificationManager.cancelAll()
     }
 
-    private fun buildContentIntent(id: Int): PendingIntent? {
+    private fun buildContentIntent(id: Long): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id.toLong()),
+            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id),
             context,
             RivoActivity::class.java
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(id, NotificationHelper.Utils.pendingIntentFlags)
+            getPendingIntent(id.hashCode(), UtilConstants.pendingIntentFlags)
         }
     }
 
-    private fun buildDeleteAction(id: Int): NotificationCompat.Action {
+    private fun buildDeleteAction(id: Long): NotificationCompat.Action {
         val intent = Intent(context, DeleteTransactionActionReceiver::class.java).apply {
-            putExtra(ARG_TRANSACTION_ID, id.toLong())
+            putExtra(ARG_TRANSACTION_ID, id)
         }
         val pendingIntent = PendingIntent.getBroadcast(
-            context, id, intent, NotificationHelper.Utils.pendingIntentFlags
+            context, id.hashCode(), intent, UtilConstants.pendingIntentFlags
         )
 
         return NotificationCompat.Action.Builder(
@@ -127,12 +130,12 @@ class AutoAddTransactionNotificationHelper(
         ).build()
     }
 
-    private fun buildMarkExcludedAction(id: Int): NotificationCompat.Action {
+    private fun buildMarkExcludedAction(id: Long): NotificationCompat.Action {
         val intent = Intent(context, MarkTransactionExcludedActionReceiver::class.java).apply {
-            putExtra(ARG_TRANSACTION_ID, id.toLong())
+            putExtra(ARG_TRANSACTION_ID, id)
         }
         val pendingIntent = PendingIntent.getBroadcast(
-            context, id, intent, NotificationHelper.Utils.pendingIntentFlags
+            context, id.hashCode(), intent, UtilConstants.pendingIntentFlags
         )
 
         return NotificationCompat.Action.Builder(

@@ -11,19 +11,23 @@ import androidx.core.app.TaskStackBuilder
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import kotlin.random.Random
 
 class AppLockNotificationHelper(
     private val context: Context
-) {
+) : NotificationHelper<Unit> {
     private val notificationManager = NotificationManagerCompat.from(context)
+
+    override val channelId: String
+        get() = "${context.packageName}.NOTIFICATION_CHANNEL_APP_LOCK"
 
     init {
         registerChannelGroup()
         registerChannel()
     }
 
-    private fun registerChannelGroup() {
+    override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
             .Builder(NotificationHelper.Groups.others(context))
             .setName(context.getString(R.string.notification_channel_group_others_name))
@@ -31,7 +35,7 @@ class AppLockNotificationHelper(
         notificationManager.createNotificationChannelGroup(group)
     }
 
-    private fun registerChannel() {
+    override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(context.getString(R.string.notification_channel_app_lock_name))
@@ -40,32 +44,24 @@ class AppLockNotificationHelper(
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun getForegroundNotification(
-    ): NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(R.drawable.notification_ic_lock_open)
-        .setContentTitle(
-            context.getString(
-                R.string.app_unlocked,
-                context.getString(R.string.app_name)
-            )
-        )
-        .setContentText(context.getString(R.string.tap_to_open))
-        .setContentIntent(buildContentIntent())
-        .addAction(buildLockAction())
-        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+    override fun buildBaseNotification(): NotificationCompat.Builder =
+        NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.notification_ic_lock_open)
+            .setContentIntent(buildContentIntent())
+            .addAction(buildLockAction())
 
     private fun buildContentIntent(): PendingIntent? {
         val intent = Intent(context, RivoActivity::class.java)
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(Random.nextInt(), NotificationHelper.Utils.pendingIntentFlags)
+            getPendingIntent(Random.nextInt(), UtilConstants.pendingIntentFlags)
         }
     }
 
     private fun buildLockAction(): NotificationCompat.Action {
         val intent = Intent(context, LockAppImmediateReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
-            context, Random.nextInt(), intent, NotificationHelper.Utils.pendingIntentFlags
+            context, Random.nextInt(), intent, UtilConstants.pendingIntentFlags
         )
 
         return NotificationCompat.Action.Builder(
@@ -74,8 +70,4 @@ class AppLockNotificationHelper(
             pendingIntent
         ).build()
     }
-
-
-    private val channelId: String
-        get() = "${context.packageName}.NOTIFICATION_CHANNEL_APP_LOCK"
 }

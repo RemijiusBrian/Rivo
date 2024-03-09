@@ -10,14 +10,16 @@ import com.google.mlkit.nl.entityextraction.EntityExtractionParams
 import com.google.mlkit.nl.entityextraction.EntityExtractor
 import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +31,7 @@ import java.util.Locale
 
 class TransactionSmsService(
     private val repo: AddEditTransactionRepository,
-    private val notificationHelper: AutoAddTransactionNotificationHelper,
+    private val notificationHelper: NotificationHelper<Transaction>,
     private val applicationScope: CoroutineScope,
     private val context: Context
 ) {
@@ -81,27 +83,24 @@ class TransactionSmsService(
                     secondParty
                 )
 
-                val insertedId = repo.saveTransaction(
-                    id = null,
-                    amount = amount,
+                val transaction = Transaction(
+                    id = RivoDatabase.DEFAULT_ID_LONG,
+                    amount = amount.toString(),
                     note = note,
                     timestamp = timestamp,
-                    transactionType = type,
-                    excluded = false, // Transaction added as Included in Expenditure by default when detected from SMS
+                    type = type,
+                    excluded = false,
                     tagId = null,
                     folderId = null
                 )
 
+                val insertedId = repo.saveTransaction(transaction)
+
                 notificationHelper.postNotification(
-                    id = insertedId.toInt(),
-                    title = context.getString(R.string.new_transaction_detected),
-                    content = context.getString(
-                        when (type) {
-                            TransactionType.CREDIT -> R.string.amount_credited_notification_message
-                            TransactionType.DEBIT -> R.string.amount_debited_notification_message
-                        },
-                        TextFormat.currency(amount, currency),
-                        secondParty
+                    id = insertedId.hashCode(),
+                    data = transaction.copy(
+                        id = insertedId,
+                        amount = TextFormat.currency(amount, currency)
                     )
                 )
             }

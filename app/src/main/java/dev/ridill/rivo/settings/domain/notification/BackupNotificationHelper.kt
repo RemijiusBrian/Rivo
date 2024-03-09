@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationCompat
@@ -13,19 +12,23 @@ import androidx.core.app.TaskStackBuilder
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.ui.navigation.destinations.BackupSettingsScreenSpec
 
 class BackupNotificationHelper(
     private val context: Context
-) {
+) : NotificationHelper<String> {
     private val notificationManager = NotificationManagerCompat.from(context)
+
+    override val channelId: String
+        get() = "${context.packageName}.NOTIFICATION_CHANNEL_BACKUPS"
 
     init {
         registerChannelGroup()
         registerChannel()
     }
 
-    private fun registerChannelGroup() {
+    override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
             .Builder(NotificationHelper.Groups.others(context))
             .setName(context.getString(R.string.notification_channel_group_others_name))
@@ -33,7 +36,7 @@ class BackupNotificationHelper(
         notificationManager.createNotificationChannelGroup(group)
     }
 
-    private fun registerChannel() {
+    override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(context.getString(R.string.notification_channel_backups_name))
@@ -42,33 +45,25 @@ class BackupNotificationHelper(
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun buildForegroundNotification(
-        @StringRes titleRes: Int
-    ): NotificationCompat.Builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(R.drawable.ic_notification)
-        .setContentTitle(context.getString(titleRes))
-        .setProgress(100, 0, true)
-        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+    override fun buildBaseNotification(): NotificationCompat.Builder =
+        NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
 
     @SuppressLint("MissingPermission")
-    fun showBackupErrorNotification(
-        @StringRes contentRes: Int
-    ) {
-        if (!notificationManager.areNotificationsEnabled()) return
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_notification)
+    override fun postNotification(id: Int, data: String) {
+        val notification = buildBaseNotification()
             .setContentTitle(context.getString(R.string.error_backup_failed_notification_title))
-            .setContentText(context.getString(contentRes))
+            .setContentText(data)
             .setContentIntent(buildContentIntent())
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .setBigContentTitle(context.getString(contentRes))
+                    .setBigContentTitle(data)
                     .bigText(context.getString(R.string.tap_to_resolve_issues))
             )
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(BACKUP_FAILED_NOTIFICATION_ID, notification)
+        notificationManager.notify(id, notification)
     }
 
     private fun buildContentIntent(): PendingIntent? {
@@ -80,12 +75,7 @@ class BackupNotificationHelper(
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(1, NotificationHelper.Utils.pendingIntentFlags)
+            getPendingIntent(1, UtilConstants.pendingIntentFlags)
         }
     }
-
-    private val channelId: String
-        get() = "${context.packageName}.NOTIFICATION_CHANNEL_BACKUPS"
 }
-
-private const val BACKUP_FAILED_NOTIFICATION_ID = 2

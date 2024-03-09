@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
 @Parcelize
-data class TransactionInput(
+data class Transaction(
     val id: Long,
     val amount: String,
     val note: String,
@@ -19,7 +19,7 @@ data class TransactionInput(
     val excluded: Boolean
 ) : Parcelable {
     companion object {
-        val DEFAULT = TransactionInput(
+        val DEFAULT = Transaction(
             id = RivoDatabase.DEFAULT_ID_LONG,
             amount = String.Empty,
             note = String.Empty,

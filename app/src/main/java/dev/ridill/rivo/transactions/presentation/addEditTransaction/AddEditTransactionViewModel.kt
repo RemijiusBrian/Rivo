@@ -25,7 +25,7 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionInput
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
@@ -57,7 +57,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val currentTransactionId: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
-    private val txInput = savedStateHandle.getStateFlow(TX_INPUT, TransactionInput.DEFAULT)
+    private val txInput = savedStateHandle.getStateFlow(TX_INPUT, Transaction.DEFAULT)
     val amountInput = txInput.map { it.amount }
         .asStateFlow(viewModelScope, String.Empty)
 
@@ -175,10 +175,10 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        val transactionInput = transactionRepo.getTransactionById(transactionIdArg)
-            ?: TransactionInput.DEFAULT
-        savedStateHandle[TX_INPUT] = transactionInput.copy(
-            folderId = linkFolderIdArg ?: transactionInput.folderId
+        val transaction = transactionRepo.getTransactionById(transactionIdArg)
+            ?: Transaction.DEFAULT
+        savedStateHandle[TX_INPUT] = transaction.copy(
+            folderId = linkFolderIdArg ?: transaction.folderId
         )
     }
 
