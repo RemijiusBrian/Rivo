@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -101,6 +102,8 @@ import dev.ridill.rivo.transactions.presentation.components.AmountRecommendation
 import dev.ridill.rivo.transactions.presentation.components.NewTagChip
 import dev.ridill.rivo.transactions.presentation.components.TagChip
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 @Composable
 fun AddEditTransactionScreen(
@@ -130,9 +133,21 @@ fun AddEditTransactionScreen(
     }
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    val dateNow = remember { DateUtil.dateNow() }
+    val selectableDates = remember(dateNow) {
+        object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+                utcTimeMillis < DateUtil.toMillis(
+                    date = dateNow.plusDays(1),
+                    zoneId = ZoneId.of(ZoneOffset.UTC.id)
+                )
+        }
+    }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
-        yearRange = IntRange(DatePickerDefaults.YearRange.first, state.transactionTimestamp.year)
+        yearRange = IntRange(DatePickerDefaults.YearRange.first, dateNow.year),
+        selectableDates = selectableDates
     )
 
     RivoScaffold(

@@ -23,6 +23,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
@@ -34,8 +36,12 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANS
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
-    override val route: String =
-        "add_edit_transaction/{$ARG_TRANSACTION_ID}?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}"
+    override val route: String = """
+        add_edit_transaction/
+        {$ARG_TRANSACTION_ID}
+        ?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}
+    """.trimIndent()
+        .replace(String.NewLine, String.Empty)
 
     override val labelRes: Int = R.string.destination_add_edit_transaction
 
@@ -46,6 +52,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             defaultValue = ARG_INVALID_ID_LONG
         },
         navArgument(ARG_LINK_FOLDER_ID) {
+            type = NavType.StringType
             nullable = true
         }
     )
@@ -70,10 +77,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             newValue = (transactionId ?: ARG_INVALID_ID_LONG).toString()
         )
         .replace(
-            oldValue = "?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}",
-            newValue = transactionFolderId?.let {
-                "?$ARG_LINK_FOLDER_ID=$it"
-            }.orEmpty()
+            oldValue = "{$ARG_LINK_FOLDER_ID}",
+            newValue = transactionFolderId?.toString().orEmpty()
         )
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =

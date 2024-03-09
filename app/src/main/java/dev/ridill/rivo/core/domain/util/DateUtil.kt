@@ -44,6 +44,14 @@ object DateUtil {
         .toInstant()
         .toEpochMilli()
 
+    fun toMillis(
+        date: LocalDate,
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): Long = date
+        .atStartOfDay(zoneId)
+        .toInstant()
+        .toEpochMilli()
+
     fun dateFromMillisWithTime(
         millis: Long,
         time: LocalDateTime = now(),
