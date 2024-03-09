@@ -229,8 +229,8 @@
     <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
     <string name="tag_deleted_with_transactions">Tag deleted with transactions</string>
-    <string name="amount_debited_notification_message">%1$s spent towards %2$s</string>
-    <string name="amount_credited_notification_message">%1$s received from %2$s</string>
+    <string name="amount_debited_notification_message">Spent %s</string>
+    <string name="amount_credited_notification_message">Received %s</string>
     <string name="new_transaction_detected">New Transaction Detected</string>
     <string name="tag_name">Tag Name</string>
     <string name="app_update_in_progress">App update in progress</string>

@@ -2,6 +2,7 @@ package dev.ridill.rivo.settings.domain.backup
 
 import android.content.Context
 import android.content.pm.ServiceInfo
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -12,13 +13,14 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.tryOrNull
+import dev.ridill.rivo.di.BackupFeature
 import dev.ridill.rivo.settings.data.repository.BackupDownloadFailedThrowable
 import dev.ridill.rivo.settings.data.repository.InvalidEncryptionPasswordThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
-import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,7 +33,7 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: BackupRepository,
-    private val notificationHelper: BackupNotificationHelper,
+    @BackupFeature private val notificationHelper: NotificationHelper<String>,
     private val preferencesManager: PreferencesManager
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -94,7 +96,11 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
         setForeground(
             ForegroundInfo(
                 Random.nextInt(),
-                notificationHelper.buildForegroundNotification(R.string.restoring_app_data).build(),
+                notificationHelper.buildBaseNotification()
+                    .setContentTitle(appContext.getString(R.string.restoring_app_data))
+                    .setProgress(100, 0, true)
+                    .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                    .build(),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         )

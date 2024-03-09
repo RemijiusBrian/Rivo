@@ -6,11 +6,11 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionInput
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
-fun TransactionEntity.toTransactionInput(): TransactionInput = TransactionInput(
+fun TransactionEntity.toTransactionInput(): Transaction = Transaction(
     id = id,
     amount = TextFormat.number(
         value = amount,
@@ -25,7 +25,7 @@ fun TransactionEntity.toTransactionInput(): TransactionInput = TransactionInput(
     excluded = isExcluded
 )
 
-fun TransactionInput.toEntity(): TransactionEntity = TransactionEntity(
+fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
     id = id,
     note = note,
     amount = amount.toDoubleOrNull().orZero(),

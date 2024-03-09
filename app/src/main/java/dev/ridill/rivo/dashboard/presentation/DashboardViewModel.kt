@@ -4,10 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
-import dev.ridill.rivo.transactions.domain.notification.AutoAddTransactionNotificationHelper
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -18,9 +19,8 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
     private val signInService: GoogleSignInService,
-    private val autoAddTransactionNotificationHelper: AutoAddTransactionNotificationHelper
+    private val notificationHelper: NotificationHelper<Transaction>
 ) : ViewModel() {
-
     private val currency = repo.getCurrencyPreference()
 
     private val monthlyBudget = repo.getCurrentBudget()
@@ -82,6 +82,6 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun cancelNotifications() {
-        autoAddTransactionNotificationHelper.cancelAllNotifications()
+        notificationHelper.dismissAllNotifications()
     }
 }

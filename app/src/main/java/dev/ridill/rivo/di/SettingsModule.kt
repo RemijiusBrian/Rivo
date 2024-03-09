@@ -11,6 +11,7 @@ import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.BudgetDao
@@ -158,10 +159,11 @@ object SettingsModule {
         @ApplicationContext context: Context
     ): BackupWorkManager = BackupWorkManager(context)
 
+    @BackupFeature
     @Provides
     fun provideBackupNotificationHelper(
         @ApplicationContext context: Context
-    ): BackupNotificationHelper = BackupNotificationHelper(context)
+    ): NotificationHelper<String> = BackupNotificationHelper(context)
 
     @Provides
     fun provideBackupSettingsRepository(
@@ -178,10 +180,11 @@ object SettingsModule {
         cryptoManager = cryptoManager
     )
 
+    @AppLockFeature
     @Provides
     fun provideAppLockNotificationHelper(
         @ApplicationContext context: Context
-    ): AppLockNotificationHelper = AppLockNotificationHelper(context)
+    ): NotificationHelper<Unit> = AppLockNotificationHelper(context)
 
     @Provides
     fun provideAppLockServiceManager(
@@ -200,3 +203,11 @@ object SettingsModule {
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class GoogleApis
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AppLockFeature
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class BackupFeature

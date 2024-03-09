@@ -1,14 +1,18 @@
 package dev.ridill.rivo.settings.domain.appLock
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import dagger.hilt.android.AndroidEntryPoint
+import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.logI
-import dev.ridill.rivo.settings.domain.notification.AppLockNotificationHelper
+import dev.ridill.rivo.di.AppLockFeature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -24,8 +28,9 @@ class AppLockService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob())
     private var timerJob: Job? = null
 
+    @AppLockFeature
     @Inject
-    lateinit var notificationHelper: AppLockNotificationHelper
+    lateinit var notificationHelper: NotificationHelper<Unit>
 
     @Inject
     lateinit var preferencesManager: PreferencesManager
@@ -78,11 +83,21 @@ class AppLockService : Service() {
         stopSelf()
     }
 
+    @SuppressLint("InlinedApi")
     private fun setForeground() {
         ServiceCompat.startForeground(
             this,
             NOTIFICATION_ID,
-            notificationHelper.getForegroundNotification().build(),
+            notificationHelper.buildBaseNotification()
+                .setContentTitle(
+                    getString(
+                        R.string.app_unlocked,
+                        getString(R.string.app_name)
+                    )
+                )
+                .setContentText(getString(R.string.tap_to_open))
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .build(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
     }

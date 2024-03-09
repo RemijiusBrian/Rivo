@@ -10,10 +10,11 @@ import com.google.android.gms.auth.UserRecoverableAuthException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.di.BackupFeature
 import dev.ridill.rivo.settings.data.repository.InvalidEncryptionPasswordThrowable
-import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,7 +25,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: BackupRepository,
-    private val backupNotificationHelper: BackupNotificationHelper,
+    @BackupFeature private val notificationHelper: NotificationHelper<String>,
     private val workManager: BackupWorkManager
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -34,7 +35,10 @@ class GDriveDataBackupWorker @AssistedInject constructor(
             Result.success()
         } catch (t: InvalidEncryptionPasswordThrowable) {
             logE(t) { "InvalidEncryptionPasswordThrowable" }
-            backupNotificationHelper.showBackupErrorNotification(R.string.error_invalid_encryption_password)
+            notificationHelper.postNotification(
+                BACKUP_FAILED_NOTIFICATION_ID,
+                appContext.getString(R.string.error_invalid_encryption_password)
+            )
             workManager.cancelPeriodicBackupWork()
             Result.failure(
                 workDataOf(
@@ -43,7 +47,10 @@ class GDriveDataBackupWorker @AssistedInject constructor(
             )
         } catch (e: UserRecoverableAuthException) {
             logE(e) { "UserRecoverableAuthException" }
-            backupNotificationHelper.showBackupErrorNotification(R.string.error_google_auth_failed)
+            notificationHelper.postNotification(
+                BACKUP_FAILED_NOTIFICATION_ID,
+                appContext.getString(R.string.error_google_auth_failed)
+            )
             workManager.cancelPeriodicBackupWork()
             Result.failure(
                 workDataOf(
@@ -52,7 +59,10 @@ class GDriveDataBackupWorker @AssistedInject constructor(
             )
         } catch (e: GoogleAuthException) {
             logE(e) { "GoogleAuthException" }
-            backupNotificationHelper.showBackupErrorNotification(R.string.error_google_auth_failed)
+            notificationHelper.postNotification(
+                BACKUP_FAILED_NOTIFICATION_ID,
+                appContext.getString(R.string.error_google_auth_failed)
+            )
             workManager.cancelPeriodicBackupWork()
             Result.failure(
                 workDataOf(
@@ -78,3 +88,5 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         else -> Result.retry()
     }
 }
+
+private const val BACKUP_FAILED_NOTIFICATION_ID = 2

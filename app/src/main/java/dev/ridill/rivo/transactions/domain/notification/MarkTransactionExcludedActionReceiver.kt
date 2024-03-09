@@ -4,9 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.navigation.destinations.ARG_TRANSACTION_ID
 import dev.ridill.rivo.di.ApplicationScope
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -23,7 +25,7 @@ class MarkTransactionExcludedActionReceiver : BroadcastReceiver() {
     lateinit var repo: AddEditTransactionRepository
 
     @Inject
-    lateinit var notificationHelper: AutoAddTransactionNotificationHelper
+    lateinit var notificationHelper: NotificationHelper<Transaction>
 
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getLongExtra(ARG_TRANSACTION_ID, -1L)
@@ -31,7 +33,7 @@ class MarkTransactionExcludedActionReceiver : BroadcastReceiver() {
 
         applicationScope.launch {
             repo.toggleExclusionById(id, true)
-            notificationHelper.dismissNotification(id.toInt())
+            notificationHelper.dismissNotification(id.hashCode())
         }
     }
 }

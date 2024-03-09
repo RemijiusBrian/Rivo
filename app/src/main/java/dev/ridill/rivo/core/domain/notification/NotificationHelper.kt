@@ -1,20 +1,18 @@
 package dev.ridill.rivo.core.domain.notification
 
-import android.app.PendingIntent
+import android.app.Notification
 import android.content.Context
 import androidx.core.app.NotificationCompat
 
-interface NotificationHelper {
+interface NotificationHelper<T> {
     val channelId: String
     fun registerChannelGroup()
-
     fun registerChannel()
-
     fun buildBaseNotification(): NotificationCompat.Builder
-
-    fun postNotification(id: Int, title: String, content: String?)
-
-    fun dismissNotification(id: Int)
+    fun postNotification(id: Int, data: T) {}
+    fun updateNotification(id: Int, notification: Notification) {}
+    fun dismissNotification(id: Int) {}
+    fun dismissAllNotifications() {}
 
     object Groups {
         fun transactions(context: Context): String =
@@ -25,9 +23,6 @@ interface NotificationHelper {
     }
 
     object Utils {
-        val pendingIntentFlags: Int
-            get() = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-
         const val TIMEOUT_MILLIS = 5_000L
     }
 }

@@ -4,11 +4,9 @@ import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransactionInput
-import dev.ridill.rivo.transactions.domain.model.TransactionInput
-import dev.ridill.rivo.transactions.domain.model.TransactionType
+import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +26,7 @@ class AddEditTransactionRepositoryImpl(
         )
         .distinctUntilChanged()
 
-    override suspend fun getTransactionById(id: Long): TransactionInput? =
+    override suspend fun getTransactionById(id: Long): Transaction? =
         withContext(Dispatchers.IO) {
             dao.getTransactionById(id)?.toTransactionInput()
         }
@@ -44,33 +42,10 @@ class AddEditTransactionRepositoryImpl(
             else listOf(roundLower, roundLower + (range / 2), roundUpper)
         }
 
-    override suspend fun saveTransaction(transaction: TransactionInput): Long =
+    override suspend fun saveTransaction(transaction: Transaction): Long =
         withContext(Dispatchers.IO) {
             dao.insert(transaction.toEntity()).first()
         }
-
-    override suspend fun saveTransaction(
-        id: Long?,
-        amount: Double,
-        note: String,
-        timestamp: LocalDateTime,
-        transactionType: TransactionType,
-        tagId: Long?,
-        folderId: Long?,
-        excluded: Boolean
-    ): Long = withContext(Dispatchers.IO) {
-        val entity = TransactionEntity(
-            id = id ?: Long.Zero,
-            note = note,
-            amount = amount,
-            timestamp = timestamp,
-            typeName = transactionType.name,
-            tagId = tagId,
-            isExcluded = excluded,
-            folderId = folderId
-        )
-        dao.insert(entity).first()
-    }
 
     override suspend fun deleteTransaction(id: Long) = withContext(Dispatchers.IO) {
         dao.deleteTransactionById(id)
