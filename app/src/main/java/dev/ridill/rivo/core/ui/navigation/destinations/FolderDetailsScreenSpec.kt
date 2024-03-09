@@ -22,6 +22,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
@@ -32,8 +34,13 @@ import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
 import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 
 data object FolderDetailsScreenSpec : ScreenSpec {
-    override val route: String =
-        "folder_details/{$ARG_EXIT_AFTER_CREATE}/{$ARG_FOLDER_ID}?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}"
+    override val route: String = """
+        folder_details
+        /{$ARG_FOLDER_ID}
+        ?$ARG_EXIT_AFTER_CREATE={$ARG_EXIT_AFTER_CREATE}
+        &$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}
+    """.trimIndent()
+        .replace(String.NewLine, String.Empty)
 
     override val labelRes: Int = R.string.destination_folder_details
 
@@ -70,34 +77,29 @@ data object FolderDetailsScreenSpec : ScreenSpec {
 
     fun routeWithArgs(
         transactionFolderId: Long?,
-        txIds: List<Long> = emptyList(),
-        exitAfterClear: Boolean = false
+        exitAfterClear: Boolean = false,
+        txIds: List<Long> = emptyList()
     ): String = route
-        .replace(
-            oldValue = "{$ARG_EXIT_AFTER_CREATE}",
-            newValue = exitAfterClear.toString()
-        )
         .replace(
             oldValue = "{$ARG_FOLDER_ID}",
             newValue = (transactionFolderId ?: ARG_INVALID_ID_LONG).toString()
         )
         .replace(
-            oldValue = "?$ARG_TX_IDS_LIST={$ARG_TX_IDS_LIST}",
-            newValue = txIds.takeIf { it.isNotEmpty() }
-                ?.let {
-                    buildString {
-                        append("?$ARG_TX_IDS_LIST=")
-                        append(it.joinToString(TX_IDS_SEPARATOR))
-                    }
-                }.orEmpty()
+            oldValue = "{$ARG_EXIT_AFTER_CREATE}",
+            newValue = exitAfterClear.toString()
+        )
+        .replace(
+            oldValue = "{$ARG_TX_IDS_LIST}",
+            newValue = txIds.joinToString(TX_IDS_SEPARATOR)
         )
 
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: ARG_INVALID_ID_LONG
 
     fun getTxIdsArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): List<Long> =
-        savedStateHandle.get<String>(ARG_TX_IDS_LIST)?.split(TX_IDS_SEPARATOR)
-            ?.map { it.toLong() }.orEmpty()
+        savedStateHandle.get<String>(ARG_TX_IDS_LIST).orEmpty()
+            .split(TX_IDS_SEPARATOR)
+            .mapNotNull { it.toLongOrNull() }
 
     fun isIdInvalid(folderId: Long): Boolean = folderId == ARG_INVALID_ID_LONG
 

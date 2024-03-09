@@ -12,7 +12,7 @@
     <string name="destination_backup_encryption">Backup Encryption</string>
     <string name="destination_security_settings">Security</string>
     <string name="destination_all_transactions">All Transactions</string>
-    <string name="destination_folders">Folders</string>
+    <string name="destination_folders_graph">Folders</string>
     <string name="destination_folders_list">Folders</string>
     <string name="destination_folder_details">Folder</string>
 
