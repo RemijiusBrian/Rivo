@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
 
 class AlarmManagerTransactionScheduler(
@@ -21,7 +22,7 @@ class AlarmManagerTransactionScheduler(
             context,
             transaction.id.hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            UtilConstants.pendingIntentFlags
         )
 
         alarmManager.setAndAllowWhileIdle(
@@ -37,7 +38,7 @@ class AlarmManagerTransactionScheduler(
                 context,
                 transaction.id.hashCode(),
                 Intent(context, ScheduledTransactionReceiver::class.java),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                UtilConstants.pendingIntentFlags
             )
         )
     }

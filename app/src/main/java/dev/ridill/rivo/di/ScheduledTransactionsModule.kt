@@ -7,8 +7,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.scheduledTransaction.data.local.ScheduledTransactionDao
 import dev.ridill.rivo.scheduledTransaction.data.repository.ScheduledTransactionRepositoryImpl
+import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
 import dev.ridill.rivo.scheduledTransaction.domain.notification.ScheduledTransactionNotificationHelper
 import dev.ridill.rivo.scheduledTransaction.domain.repository.ScheduledTransactionRepository
 import dev.ridill.rivo.scheduledTransaction.domain.transactionScheduler.AlarmManagerTransactionScheduler
@@ -39,5 +41,5 @@ object ScheduledTransactionsModule {
     @Provides
     fun provideScheduledTransactionNotificationHelper(
         @ApplicationContext context: Context
-    ): ScheduledTransactionNotificationHelper = ScheduledTransactionNotificationHelper(context)
+    ): NotificationHelper<ScheduledTransaction> = ScheduledTransactionNotificationHelper(context)
 }

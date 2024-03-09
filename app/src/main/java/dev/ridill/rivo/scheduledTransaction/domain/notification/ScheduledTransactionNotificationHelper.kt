@@ -12,15 +12,22 @@ import androidx.core.app.TaskStackBuilder
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
+import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
 
 class ScheduledTransactionNotificationHelper(
     private val context: Context
-) : NotificationHelper {
+) : NotificationHelper<ScheduledTransaction> {
     private val notificationManager = NotificationManagerCompat.from(context)
 
     override val channelId: String
         get() = "${context.packageName}.NOTIFICATION_CHANNEL_SCHEDULED_TRANSACTIONS"
+
+    init {
+        registerChannelGroup()
+        registerChannel()
+    }
 
     override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
@@ -39,11 +46,6 @@ class ScheduledTransactionNotificationHelper(
         notificationManager.createNotificationChannel(channel)
     }
 
-    init {
-        registerChannelGroup()
-        registerChannel()
-    }
-
     override fun buildBaseNotification(): NotificationCompat.Builder =
         NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
@@ -51,16 +53,18 @@ class ScheduledTransactionNotificationHelper(
             .setOnlyAlertOnce(true)
 
     @SuppressLint("MissingPermission")
-    override fun postNotification(id: Int, title: String, content: String?) {
+    override fun postNotification(id: Int, data: ScheduledTransaction) {
         if (!notificationManager.areNotificationsEnabled()) return
 
         val notification = buildBaseNotification()
-            .setContentTitle(title)
-            .apply {
-                if (!content.isNullOrEmpty()) {
-                    setContentText(content)
-                }
-            }
+            .setContentTitle(context.getString(R.string.scheduled_transaction))
+            .setContentText(
+                context.getString(
+                    R.string.you_have_a_payment_of_amount_due_today,
+                    data.amount.toString()
+//            TextFormat.currency(amount = data.amount, currency = currency)
+                )
+            )
             .setContentIntent(buildContentIntent(id))
             .build()
 
@@ -85,7 +89,7 @@ class ScheduledTransactionNotificationHelper(
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(id, NotificationHelper.Utils.pendingIntentFlags)
+            getPendingIntent(id, UtilConstants.pendingIntentFlags)
         }
     }
 }
