@@ -1,8 +1,6 @@
 package dev.ridill.rivo.scheduledTransaction.domain.repository
 
-import dev.ridill.rivo.scheduledTransaction.data.local.entity.ScheduledTransactionEntity
 import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
-import org.jetbrains.annotations.Async.Schedule
 import java.time.LocalDate
 
 interface ScheduledTransactionRepository {
