@@ -61,7 +61,7 @@ class FolderDetailsViewModel @Inject constructor(
     private val isFolderExcluded = savedStateHandle.getStateFlow(IS_FOLDER_EXCLUDED, false)
 
     private val currency = currencyRepo
-        .getCurrencyCodeForDateOrNext()
+        .getCurrencyForDateOrNext()
 
     private val aggregateAmount = folderDetails.map { it?.aggregateAmount.orZero() }
         .distinctUntilChanged()

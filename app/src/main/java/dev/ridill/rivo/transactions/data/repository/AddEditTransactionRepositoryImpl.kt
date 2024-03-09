@@ -23,7 +23,7 @@ class AddEditTransactionRepositoryImpl(
     private val currencyRepo: CurrencyRepository
 ) : AddEditTransactionRepository {
     override fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency> = currencyRepo
-        .getCurrencyCodeForDateOrNext(
+        .getCurrencyForDateOrNext(
             date = dateTime.toLocalDate()
         )
         .distinctUntilChanged()

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface CurrencyRepository {
-    fun getCurrencyCodeForDateOrNext(
+    fun getCurrencyForDateOrNext(
         date: LocalDate = DateUtil.dateNow()
     ): Flow<Currency>
 

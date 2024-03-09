@@ -16,7 +16,7 @@ import java.time.LocalDate
 class CurrencyRepositoryImpl(
     private val dao: CurrencyDao
 ) : CurrencyRepository {
-    override fun getCurrencyCodeForDateOrNext(date: LocalDate): Flow<Currency> = dao
+    override fun getCurrencyForDateOrNext(date: LocalDate): Flow<Currency> = dao
         .getCurrencyCodeForDateOrNext(date)
         .map { currencyCode ->
             currencyCode?.let {

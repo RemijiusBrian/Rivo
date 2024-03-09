@@ -20,7 +20,7 @@ class DashboardRepositoryImpl(
     private val currencyRepo: CurrencyRepository
 ) : DashboardRepository {
     override fun getCurrencyPreference(): Flow<Currency> = currencyRepo
-        .getCurrencyCodeForDateOrNext()
+        .getCurrencyForDateOrNext()
         .distinctUntilChanged()
 
     override fun getCurrentBudget(): Flow<Long> = budgetRepo

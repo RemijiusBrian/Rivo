@@ -10,6 +10,8 @@ import androidx.room.migration.AutoMigrationSpec
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
+import dev.ridill.rivo.scheduledTransaction.data.local.ScheduledTransactionDao
+import dev.ridill.rivo.scheduledTransaction.data.local.entity.ScheduledTransactionEntity
 import dev.ridill.rivo.settings.data.local.BudgetDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
@@ -28,6 +30,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionEntity::class,
         TagEntity::class,
         FolderEntity::class,
+        ScheduledTransactionEntity::class,
         CurrencyEntity::class,
         ConfigEntity::class
     ],
@@ -35,13 +38,14 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionDetailsView::class,
         FolderAndAggregateAmountView::class
     ],
-    version = 10,
+    version = 11,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),
         AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class),
         AutoMigration(from = 8, to = 9),
-        AutoMigration(from = 9, to = 10)
+        AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11)
     ]
 )
 @TypeConverters(DateTimeConverter::class)
@@ -56,6 +60,7 @@ abstract class RivoDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun tagsDao(): TagsDao
     abstract fun folderDao(): FolderDao
+    abstract fun scheduledTransactionDao(): ScheduledTransactionDao
     abstract fun currencyDao(): CurrencyDao
     abstract fun configDao(): ConfigDao
 

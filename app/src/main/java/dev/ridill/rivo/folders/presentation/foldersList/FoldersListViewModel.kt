@@ -19,7 +19,7 @@ class FoldersListViewModel @Inject constructor(
     currencyRepo: CurrencyRepository
 ) : ViewModel(), FoldersListActions {
     private val currency = currencyRepo
-        .getCurrencyCodeForDateOrNext()
+        .getCurrencyForDateOrNext()
         .distinctUntilChanged()
     private val listMode = repo.getFoldersListMode()
 
