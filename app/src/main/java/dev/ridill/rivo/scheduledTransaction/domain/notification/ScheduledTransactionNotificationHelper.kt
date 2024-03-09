@@ -1,6 +1,7 @@
 package dev.ridill.rivo.scheduledTransaction.domain.notification
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -15,7 +16,9 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
 import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
+import dev.ridill.rivo.scheduledTransaction.domain.transactionScheduler.MarkScheduledTransactionPaidActionReceiver
 
+@SuppressLint("MissingPermission")
 class ScheduledTransactionNotificationHelper(
     private val context: Context
 ) : NotificationHelper<ScheduledTransaction> {
@@ -52,7 +55,6 @@ class ScheduledTransactionNotificationHelper(
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
 
-    @SuppressLint("MissingPermission")
     override fun postNotification(id: Int, data: ScheduledTransaction) {
         if (!notificationManager.areNotificationsEnabled()) return
 
@@ -65,7 +67,8 @@ class ScheduledTransactionNotificationHelper(
 //            TextFormat.currency(amount = data.amount, currency = currency)
                 )
             )
-            .setContentIntent(buildContentIntent(id))
+            .setContentIntent(buildContentIntent(data.id))
+            .addAction(buildMarkPaidAction(data.id))
             .build()
 
         /*val summaryNotification = buildBaseNotification()
@@ -76,20 +79,48 @@ class ScheduledTransactionNotificationHelper(
         notificationManager.notify(id, notification)
     }
 
+    override fun updateNotification(id: Int, notification: Notification) {
+        notificationManager.notify(id, notification)
+
+    }
+
     override fun dismissNotification(id: Int) {
         notificationManager.cancel(id)
     }
 
-    private fun buildContentIntent(id: Int): PendingIntent? {
+    private fun buildContentIntent(id: Long): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id.toLong()), // FIXME: Change URI for appropriate screen
+            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id), // FIXME: Change URI for appropriate screen
             context,
             RivoActivity::class.java
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(id, UtilConstants.pendingIntentFlags)
+            getPendingIntent(id.hashCode(), UtilConstants.pendingIntentFlags)
         }
     }
+
+    private fun buildMarkPaidAction(id: Long): NotificationCompat.Action {
+        val intent = Intent(context, MarkScheduledTransactionPaidActionReceiver::class.java).apply {
+            action = ACTION_MARK_SCHEDULED_TX_PAID
+            putExtra(SCHEDULED_TX_ID, id)
+        }
+        return NotificationCompat.Action.Builder(
+            R.drawable.ic_notification,
+            context.getString(R.string.mark_paid),
+            PendingIntent.getBroadcast(
+                context,
+                id.hashCode(),
+                intent,
+                UtilConstants.pendingIntentFlags
+            )
+        ).build()
+    }
+
+    companion object {
+        const val ACTION_MARK_SCHEDULED_TX_PAID = "ACTION_MARK_SCHEDULED_TX_PAID"
+    }
 }
+
+const val SCHEDULED_TX_ID = "SCHEDULED_TX_ID"

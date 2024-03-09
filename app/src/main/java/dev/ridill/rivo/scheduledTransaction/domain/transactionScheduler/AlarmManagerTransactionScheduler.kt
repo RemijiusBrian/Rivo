@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.UtilConstants
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
 
 class AlarmManagerTransactionScheduler(
@@ -30,6 +31,8 @@ class AlarmManagerTransactionScheduler(
             timeMillis,
             pendingIntent
         )
+
+        logI { "Transaction scheduled for ${transaction.nextPaymentDate}" }
     }
 
     override fun cancel(transaction: ScheduledTransaction) {

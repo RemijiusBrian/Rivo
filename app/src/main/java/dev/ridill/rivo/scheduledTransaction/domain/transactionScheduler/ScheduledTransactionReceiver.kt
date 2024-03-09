@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
 import dev.ridill.rivo.scheduledTransaction.domain.repository.ScheduledTransactionRepository
@@ -31,6 +32,7 @@ class ScheduledTransactionReceiver : BroadcastReceiver() {
             ?: return
         applicationContext.launch {
             val transaction = repo.getTransactionById(id) ?: return@launch
+            logI { "Scheduled transaction triggered" }
             notificationHelper.postNotification(
                 id = transaction.id.hashCode(),
                 data = transaction
