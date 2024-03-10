@@ -12,7 +12,7 @@ fun ScheduledTransactionEntity.toScheduledTransaction(): ScheduledTransaction =
     ScheduledTransaction(
         id = id,
         repeatMode = TransactionRepeatMode.valueOf(repeatModeName),
-        nextPaymentDate = nextPaymentDate,
+        nextReminderDate = nextReminderDate,
         amount = amount,
         note = note,
         type = TransactionType.valueOf(typeName)
@@ -29,4 +29,13 @@ fun ScheduledTransaction.toTransaction(
     tagId = null,
     folderId = null,
     excluded = false
+)
+
+fun ScheduledTransaction.toEntity(): ScheduledTransactionEntity = ScheduledTransactionEntity(
+    id = id,
+    amount = amount,
+    note = note,
+    typeName = type.name,
+    repeatModeName = repeatMode.name,
+    nextReminderDate = nextReminderDate
 )

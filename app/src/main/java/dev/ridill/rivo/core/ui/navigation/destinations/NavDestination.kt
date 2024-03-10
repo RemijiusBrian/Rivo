@@ -12,7 +12,7 @@ sealed interface NavDestination {
                 AllTransactionsScreenSpec,
                 SettingsGraphSpec,
                 TransactionFoldersGraph,
-//                BudgetPlansGraphSpec
+                ScheduledTransactionsGraphSpec
             )
     }
 

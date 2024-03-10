@@ -15,7 +15,8 @@
     <string name="destination_folders_graph">Folders</string>
     <string name="destination_folders_list">Folders</string>
     <string name="destination_folder_details">Folder</string>
-    <string name="destination_budget_plans_graph">Budgets</string>
+    <string name="destination_scheduled_transactions_graph">Scheduled Transactions</string>
+    <string name="destination_scheduled_transactions_list">Scheduled Transactions</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -82,6 +83,7 @@
     <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
     <string name="cd_total_transaction_sum">%1$s amounts to %2$s</string>
+    <string name="cd_transaction_repeat_mode">Repeat transaction</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -182,9 +184,11 @@
     <string name="monthly_budget_input_title">Monthly Budget</string>
     <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
 
-    <string name="transaction_repeat_mode_one_time">One Time</string>
+    <string name="transaction_repeat_mode_one_time">Does not repeat</string>
+    <string name="transaction_repeat_mode_weekly">Weekly</string>
     <string name="transaction_repeat_mode_monthly">Monthly</string>
     <string name="transaction_repeat_mode_bi_monthly">Bi-monthly</string>
+    <string name="transaction_repeat_mode_yearly">Yearly</string>
 
     <string name="new_tag_input_title">New Tag</string>
     <string name="edit_tag_input_title">Edit Tag</string>
@@ -349,4 +353,8 @@
     <string name="you_have_a_payment_of_amount_due_today">You have a payment of %s due today</string>
     <string name="mark_paid">Mark paid</string>
     <string name="transaction_added">Transaction Added</string>
+    <string name="repeat_mode_label_transaction">%s transaction</string>
+    <string name="cancel_schedule">Cancel scheduling</string>
+    <string name="schedule_transaction">Schedule transaction</string>
+    <string name="transaction_scheduled">Transaction Scheduled</string>
 </resources>

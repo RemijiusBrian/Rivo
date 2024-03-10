@@ -15,10 +15,11 @@ class AlarmManagerTransactionScheduler(
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
     override fun schedule(transaction: ScheduledTransaction) {
+        val timeMillis = transaction.nextReminderDate?.let { DateUtil.toMillis(it) }
+            ?: return
         val intent = Intent(context, ScheduledTransactionReceiver::class.java).apply {
             putExtra(TransactionScheduler.TX_ID, transaction.id)
         }
-        val timeMillis = DateUtil.toMillis(transaction.nextPaymentDate)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             transaction.id.hashCode(),
@@ -32,7 +33,7 @@ class AlarmManagerTransactionScheduler(
             pendingIntent
         )
 
-        logI { "Transaction scheduled for ${transaction.nextPaymentDate}" }
+        logI { "Transaction id ${transaction.id} scheduled for ${DateUtil.fromMillis(timeMillis)}" }
     }
 
     override fun cancel(transaction: ScheduledTransaction) {

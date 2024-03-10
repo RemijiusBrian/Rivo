@@ -6,7 +6,7 @@ import java.time.LocalDate
 interface ScheduledTransactionRepository {
     suspend fun getTransactionById(id: Long): ScheduledTransaction?
     suspend fun updateNextPaymentDateForTransactionById(id: Long, nextDate: LocalDate)
-    suspend fun scheduleTransaction(transaction: ScheduledTransaction)
+    suspend fun saveAndScheduleTransaction(transaction: ScheduledTransaction)
     suspend fun cancelTransactionSchedule(transaction: ScheduledTransaction)
     suspend fun rescheduleAllTransactions()
 }

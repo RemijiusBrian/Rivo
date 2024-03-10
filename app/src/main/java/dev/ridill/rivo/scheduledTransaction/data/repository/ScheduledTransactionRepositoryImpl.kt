@@ -1,7 +1,9 @@
 package dev.ridill.rivo.scheduledTransaction.data.repository
 
+import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.scheduledTransaction.data.local.ScheduledTransactionDao
+import dev.ridill.rivo.scheduledTransaction.data.toEntity
 import dev.ridill.rivo.scheduledTransaction.data.toScheduledTransaction
 import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
 import dev.ridill.rivo.scheduledTransaction.domain.repository.ScheduledTransactionRepository
@@ -21,11 +23,19 @@ class ScheduledTransactionRepositoryImpl(
 
     override suspend fun updateNextPaymentDateForTransactionById(id: Long, nextDate: LocalDate) =
         withContext(Dispatchers.IO) {
-            dao.updateNextPaymentDateForTransactionById(id = id, nextDate = nextDate)
+            dao.updateNextReminderDateForTransactionById(id = id, nextDate = nextDate)
         }
 
-    override suspend fun scheduleTransaction(transaction: ScheduledTransaction) {
-        scheduler.schedule(transaction)
+    override suspend fun saveAndScheduleTransaction(transaction: ScheduledTransaction) {
+        withContext(Dispatchers.IO) {
+            val insertedId = dao.insert(transaction.toEntity()).first()
+            scheduler.schedule(
+                transaction = transaction.copy(
+                    id = if (transaction.id > RivoDatabase.DEFAULT_ID_LONG) transaction.id
+                    else insertedId
+                )
+            )
+        }
     }
 
     override suspend fun cancelTransactionSchedule(transaction: ScheduledTransaction) {

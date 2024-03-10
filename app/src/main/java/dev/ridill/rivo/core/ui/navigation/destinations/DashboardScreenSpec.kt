@@ -16,6 +16,7 @@ import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SCHEDULED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object DashboardScreenSpec : ScreenSpec {
@@ -44,6 +45,7 @@ data object DashboardScreenSpec : ScreenSpec {
             when (it) {
                 RESULT_TRANSACTION_DELETED -> R.string.transaction_deleted
                 RESULT_TX_WITHOUT_AMOUNT_IGNORED -> R.string.tx_without_amount_ignored
+                RESULT_TRANSACTION_SCHEDULED -> R.string.transaction_scheduled
                 else -> null
             }?.let { messageRes ->
                 snackbarController.showSnackbar(context.getString(messageRes))

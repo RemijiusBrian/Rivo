@@ -9,5 +9,5 @@ data class ScheduledTransaction(
     val note: String?,
     val type: TransactionType,
     val repeatMode: TransactionRepeatMode,
-    val nextPaymentDate: LocalDate
+    val nextReminderDate: LocalDate?
 )

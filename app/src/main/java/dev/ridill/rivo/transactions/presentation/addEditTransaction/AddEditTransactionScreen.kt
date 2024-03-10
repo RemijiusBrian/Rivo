@@ -29,9 +29,11 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -44,6 +46,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -73,7 +76,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
@@ -83,6 +89,7 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -91,10 +98,13 @@ import dev.ridill.rivo.core.ui.components.TabSelector
 import dev.ridill.rivo.core.ui.components.TabSelectorItem
 import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
+import dev.ridill.rivo.core.ui.components.rememberSnackbarController
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
+import dev.ridill.rivo.scheduledTransaction.domain.model.TransactionRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -102,18 +112,19 @@ import dev.ridill.rivo.transactions.presentation.components.AmountRecommendation
 import dev.ridill.rivo.transactions.presentation.components.NewTagChip
 import dev.ridill.rivo.transactions.presentation.components.TagChip
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
+import kotlinx.coroutines.flow.flowOf
 import java.time.ZoneId
 import java.time.ZoneOffset
 
 @Composable
 fun AddEditTransactionScreen(
+    isEditMode: Boolean,
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
     tagNameInput: () -> String,
     tagColorInput: () -> Color?,
     tagExclusionInput: () -> Boolean?,
-    isEditMode: Boolean,
     folderSearchQuery: () -> String,
     folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
@@ -135,19 +146,27 @@ fun AddEditTransactionScreen(
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val dateNow = remember { DateUtil.dateNow() }
-    val selectableDates = remember(dateNow) {
-        object : SelectableDates {
+    val datePickerState = if (state.isScheduleTxMode) rememberDatePickerState(
+        initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
+        yearRange = IntRange(dateNow.year, DatePickerDefaults.YearRange.last),
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+                utcTimeMillis >= DateUtil.toMillis(
+                    date = dateNow.plusDays(1),
+                    zoneId = ZoneId.of(ZoneOffset.UTC.id)
+                )
+        }
+    )
+    else rememberDatePickerState(
+        initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
+        yearRange = IntRange(DatePickerDefaults.YearRange.first, dateNow.year),
+        selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean =
                 utcTimeMillis < DateUtil.toMillis(
                     date = dateNow.plusDays(1),
                     zoneId = ZoneId.of(ZoneOffset.UTC.id)
                 )
         }
-    }
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
-        yearRange = IntRange(DatePickerDefaults.YearRange.first, dateNow.year),
-        selectableDates = selectableDates
     )
 
     RivoScaffold(
@@ -156,8 +175,7 @@ fun AddEditTransactionScreen(
                 title = {
                     Text(
                         text = stringResource(
-                            id = if (isEditMode) R.string.destination_edit_transaction
-                            else R.string.destination_new_transaction
+                            id = if (isEditMode) R.string.destination_edit_transaction else R.string.destination_new_transaction
                         )
                     )
                 },
@@ -257,6 +275,15 @@ fun AddEditTransactionScreen(
                         .align(Alignment.End)
                 )
 
+                ScheduleForLaterOptions(
+                    scheduleTxModeActive = state.isScheduleTxMode,
+                    onScheduleForLaterToggle = actions::onScheduleLaterToggle,
+                    selectedRepeatMode = state.selectedRepeatMode,
+                    onRepeatModeClick = actions::onRepeatModeClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+
                 TagsList(
                     tagsList = state.tagsList,
                     selectedTagId = state.selectedTagId,
@@ -340,6 +367,14 @@ fun AddEditTransactionScreen(
                 selectedTransformation = state.selectedAmountTransformation,
                 onTransformationSelect = actions::onAmountTransformationSelect,
                 onTransformClick = actions::onAmountTransformationConfirm
+            )
+        }
+
+        if (state.showRepeatModeSelection) {
+            RepeatModeSelectionSheet(
+                onDismiss = actions::onRepeatModeDismiss,
+                selectedRepeatMode = state.selectedRepeatMode,
+                onRepeatModeSelect = actions::onRepeatModeSelect
             )
         }
     }
@@ -567,7 +602,8 @@ private fun ExclusionToggle(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier,
+        horizontalAlignment = Alignment.End
     ) {
         LabelledSwitch(
             labelRes = R.string.mark_excluded_question,
@@ -668,4 +704,148 @@ private fun AmountTransformationSheet(
             .copy(textAlign = TextAlign.End),
         showClearOption = false
     )
+}
+
+@Composable
+private fun ScheduleForLaterOptions(
+    scheduleTxModeActive: Boolean,
+    onScheduleForLaterToggle: () -> Unit,
+    selectedRepeatMode: TransactionRepeatMode,
+    onRepeatModeClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
+    ) {
+        TextButton(
+            onClick = onScheduleForLaterToggle
+        ) {
+            Text(
+                text = stringResource(
+                    id = if (scheduleTxModeActive) R.string.cancel_schedule
+                    else R.string.schedule_transaction
+                ),
+                textDecoration = TextDecoration.Underline
+            )
+        }
+        AnimatedVisibility(visible = scheduleTxModeActive) {
+            TransactionRepeatModeIndicator(
+                selectedRepeatMode = selectedRepeatMode,
+                onClick = onRepeatModeClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun TransactionRepeatModeIndicator(
+    selectedRepeatMode: TransactionRepeatMode,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    InputChip(
+        onClick = onClick,
+        label = {
+            Text(
+                text = stringResource(
+                    R.string.repeat_mode_label_transaction,
+                    stringResource(selectedRepeatMode.labelRes)
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_repeat_duration),
+                contentDescription = stringResource(R.string.cd_transaction_repeat_mode)
+            )
+        },
+        modifier = modifier,
+        selected = false
+    )
+}
+
+@Composable
+private fun RepeatModeSelectionSheet(
+    onDismiss: () -> Unit,
+    selectedRepeatMode: TransactionRepeatMode,
+    onRepeatModeSelect: (TransactionRepeatMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        modifier = modifier,
+        sheetState = rememberModalBottomSheetState(true)
+    ) {
+        TransactionRepeatMode.entries.forEach { repeatMode ->
+            LabelledRadioButton(
+                labelRes = repeatMode.labelRes,
+                selected = selectedRepeatMode == repeatMode,
+                onClick = { onRepeatModeSelect(repeatMode) },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewScreenContent() {
+    RivoTheme {
+        AddEditTransactionScreen(
+            isEditMode = false,
+            snackbarController = rememberSnackbarController(),
+            amountInput = { "" },
+            noteInput = { "" },
+            tagNameInput = { "" },
+            tagColorInput = { Color.Black },
+            tagExclusionInput = { false },
+            folderSearchQuery = { "" },
+            folderList = flowOf(PagingData.empty<Folder>()).collectAsLazyPagingItems(),
+            state = AddEditTransactionState(
+                isScheduleTxMode = true,
+                selectedRepeatMode = TransactionRepeatMode.MONTHLY
+            ),
+            actions = object : AddEditTransactionActions {
+                override fun onAmountChange(value: String) {}
+                override fun onNoteInputFocused() {}
+                override fun onNoteChange(value: String) {}
+                override fun onRecommendedAmountClick(amount: Long) {}
+                override fun onTagClick(tagId: Long) {}
+                override fun onTransactionTimestampClick() {}
+                override fun onTransactionTimestampSelectionDismiss() {}
+                override fun onTransactionTimestampSelectionConfirm(millis: Long) {}
+                override fun onTransactionTypeChange(type: TransactionType) {}
+                override fun onTransactionExclusionToggle(excluded: Boolean) {}
+                override fun onTransformAmountClick() {}
+                override fun onTransformAmountDismiss() {}
+                override fun onAmountTransformationSelect(criteria: AmountTransformation) {}
+                override fun onAmountTransformationConfirm(value: String) {}
+                override fun onDeleteClick() {}
+                override fun onDeleteDismiss() {}
+                override fun onDeleteConfirm() {}
+                override fun onNewTagClick() {}
+                override fun onNewTagNameChange(value: String) {}
+                override fun onNewTagColorSelect(color: Color) {}
+                override fun onNewTagExclusionChange(excluded: Boolean) {}
+                override fun onNewTagInputDismiss() {}
+                override fun onNewTagInputConfirm() {}
+                override fun onAddToFolderClick() {}
+                override fun onRemoveFromFolderClick() {}
+                override fun onFolderSearchQueryChange(query: String) {}
+                override fun onFolderSelectionDismiss() {}
+                override fun onFolderSelect(folder: Folder) {}
+                override fun onCreateFolderClick() {}
+                override fun onScheduleLaterToggle() {}
+                override fun onRepeatModeClick() {}
+                override fun onRepeatModeDismiss() {}
+                override fun onRepeatModeSelect(repeatMode: TransactionRepeatMode) {}
+                override fun onBackNav() {}
+            }
+        )
+    }
 }

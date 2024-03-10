@@ -24,6 +24,6 @@ data class ScheduledTransactionEntity(
     @ColumnInfo(name = "repeat_mode")
     val repeatModeName: String,
 
-    @ColumnInfo(name = "next_payment_date")
-    val nextPaymentDate: LocalDate
+    @ColumnInfo(name = "next_reminder_date")
+    val nextReminderDate: LocalDate?
 )

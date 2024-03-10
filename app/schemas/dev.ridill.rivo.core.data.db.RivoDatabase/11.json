@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 11,
-    "identityHash": "540d5222a923a945373f572d8e36d057",
+    "identityHash": "c195e44d655a7013807cf1f36f9a9fdf",
     "entities": [
       {
         "tableName": "budget_table",
@@ -32,7 +32,7 @@
       },
       {
         "tableName": "transaction_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `note` TEXT NOT NULL, `amount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `type` TEXT NOT NULL DEFAULT 'DEBIT', `is_excluded` INTEGER NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, FOREIGN KEY(`tag_id`) REFERENCES `tag_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`folder_id`) REFERENCES `folder_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `note` TEXT NOT NULL, `amount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `type` TEXT NOT NULL DEFAULT 'DEBIT', `is_excluded` INTEGER NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, `schedule_id` INTEGER, FOREIGN KEY(`tag_id`) REFERENCES `tag_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`folder_id`) REFERENCES `folder_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`schedule_id`) REFERENCES `scheduled_transaction_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -82,6 +82,12 @@
             "columnName": "folder_id",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "scheduleId",
+            "columnName": "schedule_id",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -117,6 +123,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_transaction_table_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
+          },
+          {
+            "name": "index_transaction_table_schedule_id",
+            "unique": false,
+            "columnNames": [
+              "schedule_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_transaction_table_schedule_id` ON `${TABLE_NAME}` (`schedule_id`)"
           }
         ],
         "foreignKeys": [
@@ -137,6 +152,17 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "folder_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "scheduled_transaction_table",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "schedule_id"
             ],
             "referencedColumns": [
               "id"
@@ -228,7 +254,7 @@
       },
       {
         "tableName": "scheduled_transaction_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `repeat_mode` TEXT NOT NULL, `next_payment_date` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -261,10 +287,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "nextPaymentDate",
-            "columnName": "next_payment_date",
+            "fieldPath": "nextReminderDate",
+            "columnName": "next_reminder_date",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -341,7 +367,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '540d5222a923a945373f572d8e36d057')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c195e44d655a7013807cf1f36f9a9fdf')"
     ]
   }
 }

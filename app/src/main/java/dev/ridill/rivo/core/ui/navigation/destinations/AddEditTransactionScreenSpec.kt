@@ -33,6 +33,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_E
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SCHEDULED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
@@ -40,6 +41,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         add_edit_transaction/
         {$ARG_TRANSACTION_ID}
         ?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}
+        &$ARG_IS_SCHEDULE_TX_MODE={$ARG_IS_SCHEDULE_TX_MODE}
     """.trimIndent()
         .replace(String.NewLine, String.Empty)
 
@@ -54,6 +56,11 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         navArgument(ARG_LINK_FOLDER_ID) {
             type = NavType.StringType
             nullable = true
+        },
+        navArgument(ARG_IS_SCHEDULE_TX_MODE) {
+            type = NavType.BoolType
+            nullable = false
+            defaultValue = false
         }
     )
 
@@ -70,7 +77,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun routeWithArg(
         transactionId: Long? = null,
-        transactionFolderId: Long? = null
+        transactionFolderId: Long? = null,
+        isScheduleTxMode: Boolean = false
     ): String = route
         .replace(
             oldValue = "{$ARG_TRANSACTION_ID}",
@@ -80,12 +88,19 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             oldValue = "{$ARG_LINK_FOLDER_ID}",
             newValue = transactionFolderId?.toString().orEmpty()
         )
+        .replace(
+            oldValue = "{$ARG_IS_SCHEDULE_TX_MODE}",
+            newValue = isScheduleTxMode.toString()
+        )
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
 
     fun getFolderIdToLinkFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
         savedStateHandle.get<String?>(ARG_LINK_FOLDER_ID)?.toLongOrNull()
+
+    fun getIsScheduleTxModeFromSavedStateHandle(savedStateHandle: SavedStateHandle): Boolean =
+        savedStateHandle.get<Boolean>(ARG_IS_SCHEDULE_TX_MODE) == true
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
@@ -153,17 +168,24 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                         )
                     )
                 }
+
+                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionScheduled -> {
+                    navController.navigateUpWithResult(
+                        ACTION_ADD_EDIT_TX,
+                        RESULT_TRANSACTION_SCHEDULED
+                    )
+                }
             }
         }
 
         AddEditTransactionScreen(
+            isEditMode = isEditMode,
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagColorInput = { tagInput.value?.color },
             tagExclusionInput = { tagInput.value?.excluded },
-            isEditMode = isEditMode,
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,
             state = state,
@@ -174,6 +196,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
 private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
+private const val ARG_IS_SCHEDULE_TX_MODE = "ARG_IS_SCHEDULE_TX_MODE"
 private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
     "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"
 private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI =

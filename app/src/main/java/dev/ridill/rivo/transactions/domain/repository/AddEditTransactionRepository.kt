@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.domain.repository
 
 import android.icu.util.Currency
+import dev.ridill.rivo.scheduledTransaction.domain.model.TransactionRepeatMode
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
@@ -12,4 +13,5 @@ interface AddEditTransactionRepository {
     suspend fun saveTransaction(transaction: Transaction): Long
     suspend fun deleteTransaction(id: Long)
     suspend fun toggleExclusionById(id: Long, excluded: Boolean)
+    suspend fun saveAndScheduleTransaction(transaction: Transaction, repeatMode: TransactionRepeatMode)
 }

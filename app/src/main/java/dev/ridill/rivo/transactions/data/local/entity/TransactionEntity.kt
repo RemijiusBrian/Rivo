@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
+import dev.ridill.rivo.scheduledTransaction.data.local.entity.ScheduledTransactionEntity
 import java.time.LocalDateTime
 
 @Entity(
@@ -21,9 +22,14 @@ import java.time.LocalDateTime
             entity = FolderEntity::class,
             parentColumns = ["id"],
             childColumns = ["folder_id"]
+        ),
+        ForeignKey(
+            entity = ScheduledTransactionEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["schedule_id"]
         )
     ],
-    indices = [Index("tag_id"), Index("folder_id"), Index("timestamp")]
+    indices = [Index("tag_id"), Index("folder_id"), Index("timestamp"), Index("schedule_id")]
 )
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
@@ -49,5 +55,8 @@ data class TransactionEntity(
     val tagId: Long?,
 
     @ColumnInfo(name = "folder_id")
-    val folderId: Long?
+    val folderId: Long?,
+
+    @ColumnInfo(name = "schedule_id")
+    val scheduleId: Long?
 )

@@ -1,7 +1,12 @@
 package dev.ridill.rivo.transactions.data.repository
 
 import android.icu.util.Currency
+import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.orZero
+import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
+import dev.ridill.rivo.scheduledTransaction.domain.model.TransactionRepeatMode
+import dev.ridill.rivo.scheduledTransaction.domain.repository.ScheduledTransactionRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
@@ -18,6 +23,7 @@ import kotlin.math.roundToLong
 
 class AddEditTransactionRepositoryImpl(
     private val dao: TransactionDao,
+    private val scheduledTransactionRepo: ScheduledTransactionRepository,
     private val currencyRepo: CurrencyRepository
 ) : AddEditTransactionRepository {
     override fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency> = currencyRepo
@@ -55,4 +61,19 @@ class AddEditTransactionRepositoryImpl(
         withContext(Dispatchers.IO) {
             dao.toggleExclusionByIds(listOf(id), excluded)
         }
+
+    override suspend fun saveAndScheduleTransaction(
+        transaction: Transaction,
+        repeatMode: TransactionRepeatMode
+    ) {
+        val scheduledTx = ScheduledTransaction(
+            id = RivoDatabase.DEFAULT_ID_LONG,
+            amount = transaction.amount.toDoubleOrNull().orZero(),
+            note = transaction.note.ifEmpty { null },
+            type = transaction.type,
+            repeatMode = repeatMode,
+            nextReminderDate = transaction.timestamp.toLocalDate()
+        )
+        scheduledTransactionRepo.saveAndScheduleTransaction(scheduledTx)
+    }
 }
