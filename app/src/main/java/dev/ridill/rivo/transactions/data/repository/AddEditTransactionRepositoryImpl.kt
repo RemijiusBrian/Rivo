@@ -3,11 +3,12 @@ package dev.ridill.rivo.transactions.data.repository
 import android.icu.util.Currency
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
-import dev.ridill.rivo.scheduledTransaction.domain.model.ScheduledTransaction
-import dev.ridill.rivo.scheduledTransaction.domain.model.TransactionRepeatMode
-import dev.ridill.rivo.scheduledTransaction.domain.repository.ScheduledTransactionRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
+import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransactionInput
@@ -23,7 +24,7 @@ import kotlin.math.roundToLong
 
 class AddEditTransactionRepositoryImpl(
     private val dao: TransactionDao,
-    private val scheduledTransactionRepo: ScheduledTransactionRepository,
+    private val schedulesRepo: SchedulesRepository,
     private val currencyRepo: CurrencyRepository
 ) : AddEditTransactionRepository {
     override fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency> = currencyRepo
@@ -62,18 +63,38 @@ class AddEditTransactionRepositoryImpl(
             dao.toggleExclusionByIds(listOf(id), excluded)
         }
 
-    override suspend fun saveAndScheduleTransaction(
+    override suspend fun getScheduleById(id: Long): TxSchedule? =
+        schedulesRepo.getScheduleById(id)
+
+    override suspend fun deleteSchedule(id: Long) =
+        schedulesRepo.deleteScheduleById(id)
+
+    override suspend fun saveSchedule(
         transaction: Transaction,
-        repeatMode: TransactionRepeatMode
+        repeatMode: ScheduleRepeatMode
     ) {
-        val scheduledTx = ScheduledTransaction(
-            id = RivoDatabase.DEFAULT_ID_LONG,
+        val scheduledTx = TxSchedule(
+            id = transaction.id,
             amount = transaction.amount.toDoubleOrNull().orZero(),
             note = transaction.note.ifEmpty { null },
             type = transaction.type,
             repeatMode = repeatMode,
             nextReminderDate = transaction.timestamp.toLocalDate()
         )
-        scheduledTransactionRepo.saveAndScheduleTransaction(scheduledTx)
+        val insertedId = schedulesRepo.saveSchedule(scheduledTx)
+            .takeIf { it >= RivoDatabase.DEFAULT_ID_LONG }
+            ?: transaction.id
+        val transactionForSchedule = dao.getTransactionForScheduleAndDate(
+            scheduleId = insertedId,
+            date = transaction.timestamp.toLocalDate()
+        )
+        logD { "Tx for schedule - $transactionForSchedule" }
+        // Set reminder if there isn't a payment corresponding to that schedule already
+        if (transactionForSchedule == null)
+            schedulesRepo.setScheduleReminder(
+                schedule = scheduledTx.copy(
+                    id = insertedId
+                )
+            )
     }
 }

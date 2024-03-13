@@ -10,8 +10,8 @@ import androidx.room.migration.AutoMigrationSpec
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
-import dev.ridill.rivo.scheduledTransaction.data.local.ScheduledTransactionDao
-import dev.ridill.rivo.scheduledTransaction.data.local.entity.ScheduledTransactionEntity
+import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
+import dev.ridill.rivo.transactionSchedules.data.local.entity.TxScheduleEntity
 import dev.ridill.rivo.settings.data.local.BudgetDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
@@ -30,7 +30,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionEntity::class,
         TagEntity::class,
         FolderEntity::class,
-        ScheduledTransactionEntity::class,
+        TxScheduleEntity::class,
         CurrencyEntity::class,
         ConfigEntity::class
     ],
@@ -60,7 +60,7 @@ abstract class RivoDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun tagsDao(): TagsDao
     abstract fun folderDao(): FolderDao
-    abstract fun scheduledTransactionDao(): ScheduledTransactionDao
+    abstract fun txScheduleDao(): TxSchedulesDao
     abstract fun currencyDao(): CurrencyDao
     abstract fun configDao(): ConfigDao
 

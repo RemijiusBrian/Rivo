@@ -55,9 +55,9 @@
         <receiver android:name=".transactions.domain.notification.DeleteTransactionActionReceiver" />
         <receiver android:name=".transactions.domain.notification.MarkTransactionExcludedActionReceiver" />
         <receiver android:name=".settings.domain.notification.LockAppImmediateReceiver" />
-        <receiver android:name=".scheduledTransaction.domain.transactionScheduler.ScheduledTransactionReceiver" />
+        <receiver android:name=".transactionSchedules.domain.transactionScheduler.ScheduleTriggerReceiver" />
         <receiver
-            android:name=".scheduledTransaction.domain.transactionScheduler.TransactionScheduleBootReceiver"
+            android:name=".transactionSchedules.domain.transactionScheduler.TxScheduleBootReceiver"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
@@ -65,14 +65,14 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".scheduledTransaction.domain.transactionScheduler.TransactionScheduleTimeSetReceiver"
+            android:name=".transactionSchedules.domain.transactionScheduler.TxScheduleTimeSetReceiver"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".scheduledTransaction.domain.transactionScheduler.MarkScheduledTransactionPaidActionReceiver" />
+        <receiver android:name=".transactionSchedules.domain.transactionScheduler.MarkScheduleAsPaidActionReceiver" />
         <!-- /Receivers -->
 
         <!-- Services -->

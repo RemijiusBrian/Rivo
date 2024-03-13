@@ -2,7 +2,8 @@ package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import androidx.compose.ui.graphics.Color
 import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.scheduledTransaction.domain.model.TransactionRepeatMode
+import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
@@ -36,9 +37,10 @@ interface AddEditTransactionActions {
     fun onFolderSelectionDismiss()
     fun onFolderSelect(folder: Folder)
     fun onCreateFolderClick()
-    fun onScheduleLaterToggle()
+    fun onAddEditOptionSelect(option: AddEditTxOption)
+    fun onCancelSchedulingClick()
     fun onRepeatModeClick()
     fun onRepeatModeDismiss()
-    fun onRepeatModeSelect(repeatMode: TransactionRepeatMode)
+    fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode)
     fun onBackNav()
 }

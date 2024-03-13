@@ -4,7 +4,6 @@ import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,6 +65,7 @@ import dev.ridill.rivo.core.ui.components.DismissBackground
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.ListLabel
+import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
@@ -396,8 +396,8 @@ private fun TransactionsInFolder(
                                     key = item.date.toString(),
                                     contentType = "TransactionDateSeparator"
                                 ) {
-                                    TransactionDateSeparator(
-                                        date = item.date,
+                                    ListSeparator(
+                                        label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
                                         modifier = Modifier
                                             .animateItemPlacement()
                                     )
@@ -495,28 +495,6 @@ private fun AggregateAmount(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-    }
-}
-
-@Composable
-private fun TransactionDateSeparator(
-    date: LocalDate,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(
-                vertical = SpacingSmall,
-                horizontal = SpacingMedium
-            )
-    ) {
-        Text(
-            text = date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
     }
 }
 

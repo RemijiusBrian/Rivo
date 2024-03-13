@@ -18,6 +18,7 @@ import java.time.LocalDateTime
         folder.id AS folderId,
         folder.name AS folderName,
         folder.created_timestamp AS folderCreatedTimestamp,
+        tx.schedule_id as scheduleId,
         folder.is_excluded AS isFolderExcluded,
         (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) AS overallExcluded
         FROM transaction_table tx
@@ -41,5 +42,6 @@ data class TransactionDetailsView(
     val folderName: String?,
     val folderCreatedTimestamp: LocalDateTime?,
     val isFolderExcluded: Boolean?,
+    val scheduleId: Long?,
     val overallExcluded: Boolean
 )

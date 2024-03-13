@@ -3,9 +3,9 @@ package dev.ridill.rivo.core.domain.service
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import dev.ridill.rivo.scheduledTransaction.domain.transactionScheduler.MarkScheduledTransactionPaidActionReceiver
-import dev.ridill.rivo.scheduledTransaction.domain.transactionScheduler.TransactionScheduleBootReceiver
-import dev.ridill.rivo.scheduledTransaction.domain.transactionScheduler.TransactionScheduleTimeSetReceiver
+import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.MarkScheduleAsPaidActionReceiver
+import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TxScheduleBootReceiver
+import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TxScheduleTimeSetReceiver
 import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
@@ -21,12 +21,12 @@ class ReceiverService(
         toggleReceiver(DeleteTransactionActionReceiver::class.java, enable)
         toggleReceiver(MarkTransactionExcludedActionReceiver::class.java, enable)
         toggleReceiver(LockAppImmediateReceiver::class.java, enable)
-        toggleReceiver(MarkScheduledTransactionPaidActionReceiver::class.java, enable)
+        toggleReceiver(MarkScheduleAsPaidActionReceiver::class.java, enable)
     }
 
     fun enableBootAndTimeSetReceivers() {
-        toggleReceiver(TransactionScheduleBootReceiver::class.java, true)
-        toggleReceiver(TransactionScheduleTimeSetReceiver::class.java, true)
+        toggleReceiver(TxScheduleBootReceiver::class.java, true)
+        toggleReceiver(TxScheduleTimeSetReceiver::class.java, true)
     }
 
     private fun toggleReceiver(receiverClass: Class<*>, enable: Boolean) {

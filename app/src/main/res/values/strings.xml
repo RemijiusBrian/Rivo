@@ -15,8 +15,8 @@
     <string name="destination_folders_graph">Folders</string>
     <string name="destination_folders_list">Folders</string>
     <string name="destination_folder_details">Folder</string>
-    <string name="destination_scheduled_transactions_graph">Scheduled Transactions</string>
-    <string name="destination_scheduled_transactions_list">Scheduled Transactions</string>
+    <string name="destination_tx_schedules_graph">Transaction Schedules</string>
+    <string name="destination_schedules_and_plans_list">Schedules</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -27,7 +27,7 @@
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
     <string name="notification_channel_auto_add_transactions_name">Transactions added from SMS</string>
-    <string name="notification_channel_scheduled_transactions_name">Scheduled transaction</string>
+    <string name="notification_channel_transaction_schedules_name">Transaction Schedules</string>
     <string name="notification_channel_auto_add_transaction_setup_name">Transactions Auto-Add Setup</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
@@ -84,6 +84,8 @@
     <string name="cd_click_to_change_folder">Click to change folder</string>
     <string name="cd_total_transaction_sum">%1$s amounts to %2$s</string>
     <string name="cd_transaction_repeat_mode">Repeat transaction</string>
+    <string name="cd_cancel_scheduling">Cancel scheduling</string>
+    <string name="cd_schedule_of_amount_for_date">Schedule of amount %1$s for next %2$s</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -104,6 +106,7 @@
     <string name="error_incorrect_existing_encryption_password">Current password Incorrect</string>
     <string name="error_google_auth_failed">Failed to authenticate your google account.</string>
     <string name="error_backup_failed_notification_title">Backup Failed</string>
+    <string name="error_schedule_not_found">Schedule not found</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -132,6 +135,7 @@
     <string name="part_of_day_evening">Evening</string>
 
     <string name="delete_transaction_confirmation_title">Delete Transaction?</string>
+    <string name="delete_schedule_confirmation_title">Delete Transaction?</string>
     <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
     <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
     <string name="delete_transaction_folder_confirmation_title">Delete Folder?</string>
@@ -349,12 +353,16 @@
     <string name="tap_to_resolve_issues">Tap to resolve issues</string>
     <string name="checking_for_backups">Checking for backups</string>
     <string name="tx_without_amount_ignored">Transaction without amount ignored</string>
-    <string name="scheduled_transaction">Scheduled Transaction</string>
     <string name="you_have_a_payment_of_amount_due_today">You have a payment of %s due today</string>
     <string name="mark_paid">Mark paid</string>
     <string name="transaction_added">Transaction Added</string>
     <string name="repeat_mode_label_transaction">%s transaction</string>
-    <string name="cancel_schedule">Cancel scheduling</string>
-    <string name="schedule_transaction">Schedule transaction</string>
     <string name="transaction_scheduled">Transaction Scheduled</string>
+    <string name="schedule_for_later">Schedule for later</string>
+    <string name="scheduled_transactions_can_be_found_in_corresponding_screen">*This transaction will be available in the \'%s\' screen</string>
+    <string name="schedule_marked_as_paid">Schedule marked as paid</string>
+    <string name="transaction_schedule">Transaction Schedule</string>
+    <string name="generic_schedule_title">~Schedule</string>
+    <string name="settled">Settled</string>
+    <string name="retired">Retired</string>
 </resources>

@@ -15,21 +15,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +58,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -77,6 +82,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -94,17 +100,20 @@ import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.TabSelector
 import dev.ridill.rivo.core.ui.components.TabSelectorItem
 import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
+import dev.ridill.rivo.core.ui.navigation.destinations.SchedulesAndPlansListScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
-import dev.ridill.rivo.scheduledTransaction.domain.model.TransactionRepeatMode
+import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -115,6 +124,7 @@ import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import kotlinx.coroutines.flow.flowOf
 import java.time.ZoneId
 import java.time.ZoneOffset
+import kotlin.enums.EnumEntries
 
 @Composable
 fun AddEditTransactionScreen(
@@ -189,6 +199,8 @@ fun AddEditTransactionScreen(
                             )
                         }
                     }
+
+                    AddEditOptions(onOptionClick = actions::onAddEditOptionSelect)
                 },
                 scrollBehavior = topAppBarScrollBehavior
             )
@@ -275,14 +287,17 @@ fun AddEditTransactionScreen(
                         .align(Alignment.End)
                 )
 
-                ScheduleForLaterOptions(
-                    scheduleTxModeActive = state.isScheduleTxMode,
-                    onScheduleForLaterToggle = actions::onScheduleLaterToggle,
-                    selectedRepeatMode = state.selectedRepeatMode,
-                    onRepeatModeClick = actions::onRepeatModeClick,
+                AnimatedVisibility(
+                    visible = state.isScheduleTxMode,
                     modifier = Modifier
-                        .fillMaxWidth()
-                )
+                        .align(Alignment.Start)
+                ) {
+                    TransactionRepeatModeIndicator(
+                        selectedRepeatMode = state.selectedRepeatMode,
+                        onClick = actions::onRepeatModeClick,
+                        onCancelClick = actions::onCancelSchedulingClick
+                    )
+                }
 
                 TagsList(
                     tagsList = state.tagsList,
@@ -308,7 +323,8 @@ fun AddEditTransactionScreen(
 
         if (state.showDeleteConfirmation) {
             ConfirmationDialog(
-                titleRes = R.string.delete_transaction_confirmation_title,
+                titleRes = if (state.isScheduleTxMode) R.string.delete_schedule_confirmation_title
+                else R.string.delete_transaction_confirmation_title,
                 contentRes = R.string.action_irreversible_message,
                 onConfirm = actions::onDeleteConfirm,
                 onDismiss = actions::onDeleteDismiss
@@ -707,72 +723,88 @@ private fun AmountTransformationSheet(
 }
 
 @Composable
-private fun ScheduleForLaterOptions(
-    scheduleTxModeActive: Boolean,
-    onScheduleForLaterToggle: () -> Unit,
-    selectedRepeatMode: TransactionRepeatMode,
-    onRepeatModeClick: () -> Unit,
-    modifier: Modifier = Modifier
+private fun AddEditOptions(
+    onOptionClick: (AddEditTxOption) -> Unit,
+    modifier: Modifier = Modifier,
+    options: EnumEntries<AddEditTxOption> = remember { AddEditTxOption.entries }
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
+    var optionsExpanded by remember { mutableStateOf(false) }
+    Box(
+        modifier = modifier
     ) {
-        TextButton(
-            onClick = onScheduleForLaterToggle
-        ) {
-            Text(
-                text = stringResource(
-                    id = if (scheduleTxModeActive) R.string.cancel_schedule
-                    else R.string.schedule_transaction
-                ),
-                textDecoration = TextDecoration.Underline
+        IconButton(onClick = { optionsExpanded = !optionsExpanded }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = stringResource(R.string.cd_options)
             )
         }
-        AnimatedVisibility(visible = scheduleTxModeActive) {
-            TransactionRepeatModeIndicator(
-                selectedRepeatMode = selectedRepeatMode,
-                onClick = onRepeatModeClick
-            )
+
+        DropdownMenu(
+            expanded = optionsExpanded,
+            onDismissRequest = { optionsExpanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(option.labelRes)) },
+                    onClick = {
+                        optionsExpanded = false
+                        onOptionClick(option)
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun TransactionRepeatModeIndicator(
-    selectedRepeatMode: TransactionRepeatMode,
+    selectedRepeatMode: ScheduleRepeatMode,
     onClick: () -> Unit,
+    onCancelClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    InputChip(
-        onClick = onClick,
-        label = {
-            Text(
-                text = stringResource(
-                    R.string.repeat_mode_label_transaction,
-                    stringResource(selectedRepeatMode.labelRes)
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_repeat_duration),
-                contentDescription = stringResource(R.string.cd_transaction_repeat_mode)
-            )
-        },
-        modifier = modifier,
-        selected = false
-    )
+    Column(
+        modifier = modifier
+    ) {
+        ElevatedAssistChip(
+            onClick = onClick,
+            label = {
+                Text(
+                    text = stringResource(
+                        R.string.repeat_mode_label_transaction,
+                        stringResource(selectedRepeatMode.labelRes)
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_repeat_duration),
+                    contentDescription = stringResource(R.string.cd_transaction_repeat_mode)
+                )
+            }
+        )
+
+        SpacerExtraSmall()
+
+        Text(
+            text = stringResource(
+                R.string.scheduled_transactions_can_be_found_in_corresponding_screen,
+                stringResource(SchedulesAndPlansListScreenSpec.labelRes)
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier
+                .widthIn(max = 240.dp)
+        )
+    }
 }
 
 @Composable
 private fun RepeatModeSelectionSheet(
     onDismiss: () -> Unit,
-    selectedRepeatMode: TransactionRepeatMode,
-    onRepeatModeSelect: (TransactionRepeatMode) -> Unit,
+    selectedRepeatMode: ScheduleRepeatMode,
+    onRepeatModeSelect: (ScheduleRepeatMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ModalBottomSheet(
@@ -780,7 +812,7 @@ private fun RepeatModeSelectionSheet(
         modifier = modifier,
         sheetState = rememberModalBottomSheetState(true)
     ) {
-        TransactionRepeatMode.entries.forEach { repeatMode ->
+        ScheduleRepeatMode.entries.forEach { repeatMode ->
             LabelledRadioButton(
                 labelRes = repeatMode.labelRes,
                 selected = selectedRepeatMode == repeatMode,
@@ -808,7 +840,7 @@ private fun PreviewScreenContent() {
             folderList = flowOf(PagingData.empty<Folder>()).collectAsLazyPagingItems(),
             state = AddEditTransactionState(
                 isScheduleTxMode = true,
-                selectedRepeatMode = TransactionRepeatMode.MONTHLY
+                selectedRepeatMode = ScheduleRepeatMode.MONTHLY
             ),
             actions = object : AddEditTransactionActions {
                 override fun onAmountChange(value: String) {}
@@ -840,10 +872,11 @@ private fun PreviewScreenContent() {
                 override fun onFolderSelectionDismiss() {}
                 override fun onFolderSelect(folder: Folder) {}
                 override fun onCreateFolderClick() {}
-                override fun onScheduleLaterToggle() {}
+                override fun onAddEditOptionSelect(option: AddEditTxOption) {}
+                override fun onCancelSchedulingClick() {}
                 override fun onRepeatModeClick() {}
                 override fun onRepeatModeDismiss() {}
-                override fun onRepeatModeSelect(repeatMode: TransactionRepeatMode) {}
+                override fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode) {}
                 override fun onBackNav() {}
             }
         )

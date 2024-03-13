@@ -3,7 +3,9 @@ package dev.ridill.rivo.core.ui.components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -66,9 +68,10 @@ fun <T> CollectFlowEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onCollect: suspend (T) -> Unit
 ) {
-    LaunchedEffect(flow, lifecycleOwner.lifecycle, *keys) {
+    val updatedFlow by rememberUpdatedState(newValue = flow)
+    LaunchedEffect(updatedFlow, lifecycleOwner.lifecycle, *keys) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            flow.collect(onCollect)
+            updatedFlow.collect(onCollect)
         }
     }
 }
