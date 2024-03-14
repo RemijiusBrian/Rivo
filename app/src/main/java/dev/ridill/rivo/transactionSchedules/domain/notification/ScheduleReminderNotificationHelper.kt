@@ -14,7 +14,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.UtilConstants
-import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.SchedulesAndPlansListScreenSpec
 import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
 import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver
 import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleReminder
@@ -92,7 +92,7 @@ class ScheduleReminderNotificationHelper(
     private fun buildContentIntent(id: Long): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id), // FIXME: Change URI for appropriate screen
+            SchedulesAndPlansListScreenSpec.getViewDeeplinkUri(),
             context,
             RivoActivity::class.java
         )
