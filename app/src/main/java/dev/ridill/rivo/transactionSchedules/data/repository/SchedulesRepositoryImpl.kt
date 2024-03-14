@@ -3,7 +3,7 @@ package dev.ridill.rivo.transactionSchedules.data.repository
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
+import dev.ridill.rivo.transactionSchedules.data.local.SchedulesDao
 import dev.ridill.rivo.transactionSchedules.data.toEntity
 import dev.ridill.rivo.transactionSchedules.data.toSchedule
 import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class SchedulesRepositoryImpl(
-    private val dao: TxSchedulesDao,
+    private val dao: SchedulesDao,
     private val scheduler: ScheduleReminder,
     private val receiverService: ReceiverService
 ) : SchedulesRepository {

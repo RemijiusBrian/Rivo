@@ -12,7 +12,7 @@ import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
+import dev.ridill.rivo.transactionSchedules.data.local.SchedulesDao
 import dev.ridill.rivo.transactionSchedules.data.toSchedule
 import dev.ridill.rivo.transactionSchedules.data.toScheduleListItem
 import dev.ridill.rivo.transactionSchedules.data.toTransaction
@@ -28,7 +28,7 @@ import java.time.LocalDate
 
 class SchedulesAndPlansRepositoryImpl(
     private val db: RivoDatabase,
-    private val dao: TxSchedulesDao,
+    private val dao: SchedulesDao,
     private val transactionRepository: AddEditTransactionRepository
 ) : SchedulesAndPlansRepository {
     override fun getSchedules(dateNow: LocalDate): Flow<PagingData<ScheduleListItemUiModel>> =

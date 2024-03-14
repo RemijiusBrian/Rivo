@@ -11,22 +11,22 @@ import dev.ridill.rivo.transactionSchedules.data.local.relation.ScheduleWithLast
 import java.time.LocalDate
 
 @Dao
-interface TxSchedulesDao : BaseDao<TxScheduleEntity> {
+interface SchedulesDao : BaseDao<TxScheduleEntity> {
 
-    @Query("SELECT * FROM transaction_schedules_table WHERE id = :id")
+    @Query("SELECT * FROM schedules_table WHERE id = :id")
     suspend fun getScheduleById(id: Long): TxScheduleEntity?
 
-    @Query("UPDATE transaction_schedules_table SET next_reminder_date = :nextDate WHERE id = :id")
+    @Query("UPDATE schedules_table SET next_reminder_date = :nextDate WHERE id = :id")
     suspend fun updateNextReminderDateForScheduleById(id: Long, nextDate: LocalDate?)
 
-    @Query("SELECT * FROM transaction_schedules_table WHERE next_reminder_date > :date")
+    @Query("SELECT * FROM schedules_table WHERE next_reminder_date > :date")
     suspend fun getAllSchedulesAfterDate(date: LocalDate): List<TxScheduleEntity>
 
     @Transaction
     @Query(
         """
         SELECT *
-        FROM transaction_schedules_table schTx
+        FROM schedules_table schTx
         LEFT OUTER JOIN transaction_table tx ON schTx.id == tx.schedule_id
         WHERE tx.timestamp IS NULL OR tx.timestamp = (SELECT MAX(tx2.timestamp) FROM transaction_table tx2 WHERE tx2.schedule_id = schTx.id)
         ORDER BY CASE

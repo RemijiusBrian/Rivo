@@ -10,7 +10,7 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
+import dev.ridill.rivo.transactionSchedules.data.local.SchedulesDao
 import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesAndPlansRepositoryImpl
 import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesRepositoryImpl
 import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
@@ -27,17 +27,17 @@ import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionReposito
 object SchedulesModules {
 
     @Provides
-    fun provideTxScheduleDao(database: RivoDatabase): TxSchedulesDao =
-        database.txScheduleDao()
+    fun provideSchedulesDao(database: RivoDatabase): SchedulesDao =
+        database.schedulesDao()
 
     @Provides
-    fun provideTransactionScheduler(
+    fun provideScheduleReminder(
         @ApplicationContext context: Context
     ): ScheduleReminder = AlarmManagerScheduleReminder(context)
 
     @Provides
-    fun provideScheduledTransactionRepository(
-        dao: TxSchedulesDao,
+    fun provideScheduleRepository(
+        dao: SchedulesDao,
         scheduler: ScheduleReminder,
         receiverService: ReceiverService
     ): SchedulesRepository = SchedulesRepositoryImpl(
@@ -47,14 +47,14 @@ object SchedulesModules {
     )
 
     @Provides
-    fun provideScheduledTransactionNotificationHelper(
+    fun provideScheduleReminderNotificationHelper(
         @ApplicationContext context: Context
     ): NotificationHelper<Schedule> = ScheduleReminderNotificationHelper(context)
 
     @Provides
     fun provideSchedulesAndPlansRepository(
         db: RivoDatabase,
-        dao: TxSchedulesDao,
+        dao: SchedulesDao,
         addEditTransactionRepository: AddEditTransactionRepository
     ): SchedulesAndPlansRepository = SchedulesAndPlansRepositoryImpl(
         db = db,
