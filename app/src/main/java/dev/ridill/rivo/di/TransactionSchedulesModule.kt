@@ -10,12 +10,12 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
-import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesRepositoryImpl
 import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesAndPlansRepositoryImpl
+import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesRepositoryImpl
 import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
 import dev.ridill.rivo.transactionSchedules.domain.notification.TxScheduleNotificationHelper
-import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesAndPlansRepository
+import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.AlarmManagerTransactionScheduler
 import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TransactionScheduler
 import dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
@@ -23,7 +23,7 @@ import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionReposito
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ScheduledTransactionsModule {
+object TransactionSchedulesModule {
 
     @Provides
     fun provideTxScheduleDao(database: RivoDatabase): TxSchedulesDao =
@@ -50,9 +50,11 @@ object ScheduledTransactionsModule {
 
     @Provides
     fun provideSchedulesAndPlansRepository(
+        db: RivoDatabase,
         dao: TxSchedulesDao,
         addEditTransactionRepository: AddEditTransactionRepository
     ): SchedulesAndPlansRepository = SchedulesAndPlansRepositoryImpl(
+        db = db,
         dao = dao,
         transactionRepository = addEditTransactionRepository
     )

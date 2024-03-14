@@ -1,8 +1,11 @@
 package dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList
 
+import android.content.Context
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,23 +24,22 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
@@ -45,20 +47,22 @@ import dev.ridill.rivo.core.ui.navigation.destinations.SchedulesAndPlansListScre
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleListItemUiModel
-import dev.ridill.rivo.transactionSchedules.domain.model.TxScheduleStatus
 
 @Composable
 fun SchedulesAndPlansListScreen(
+    context: Context = LocalContext.current,
     snackbarController: SnackbarController,
     schedules: LazyPagingItems<ScheduleListItemUiModel>,
     onScheduleClick: (Long?) -> Unit,
     navigateUp: () -> Unit,
     actions: SchedulesAndPlansActions
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     RivoScaffold(
         topBar = {
             TopAppBar(
@@ -77,16 +81,33 @@ fun SchedulesAndPlansListScreen(
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
+            if (schedules.isEmpty()) {
+                item(
+                    key = "EmptyListIndicator",
+                    contentType = "EmptyListIndicator"
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        EmptyListIndicator(
+                            rawResId = R.raw.lottie_empty_list_ghost,
+                            messageRes = R.string.schedules_empty_message
+                        )
+                    }
+                }
+            }
             repeat(schedules.itemCount) { index ->
                 schedules[index]?.let { item ->
                     when (item) {
-                        is ScheduleListItemUiModel.DateSeparator -> {
+                        is ScheduleListItemUiModel.TypeSeparator -> {
                             stickyHeader(
-                                key = item.date,
-                                contentType = "DateSeparator"
+                                key = item.label.asString(context),
+                                contentType = "TypeSeparator"
                             ) {
                                 ListSeparator(
-                                    label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
+                                    label = item.label.asString(),
                                     modifier = Modifier
                                         .animateItemPlacement()
                                 )
@@ -101,25 +122,13 @@ fun SchedulesAndPlansListScreen(
                                 ScheduleListItemCard(
                                     amount = item.scheduleItem.amountFormatted(LocaleUtil.defaultCurrency),
                                     note = item.scheduleItem.note,
-                                    status = item.scheduleItem.status,
-                                    nextReminderDate = item.scheduleItem.nextReminderDate?.toString(),
+                                    nextReminderDate = item.scheduleItem.nextReminderDateFormatted,
+                                    lastPaymentTimestamp = item.scheduleItem.lastPaymentDateFormatted,
                                     onClick = { onScheduleClick(item.scheduleItem.id) },
                                     onMarkPaidClick = { actions.onMarkSchedulePaidClick(item.scheduleItem.id) },
+                                    canMarkPaid = item.scheduleItem.canMarkPaid,
                                     modifier = Modifier
                                         .padding(horizontal = SpacingSmall)
-                                        .animateItemPlacement()
-                                )
-                            }
-                        }
-
-                        ScheduleListItemUiModel.RetiredSeparator -> {
-                            stickyHeader(
-                                key = TxScheduleStatus.RETIRED,
-                                contentType = TxScheduleStatus.RETIRED
-                            ) {
-                                ListSeparator(
-                                    label = stringResource(R.string.retired),
-                                    modifier = Modifier
                                         .animateItemPlacement()
                                 )
                             }
@@ -135,16 +144,13 @@ fun SchedulesAndPlansListScreen(
 private fun ScheduleListItemCard(
     amount: String,
     note: String?,
-    status: TxScheduleStatus,
     nextReminderDate: String?,
+    lastPaymentTimestamp: String?,
     onClick: () -> Unit,
+    canMarkPaid: Boolean,
     onMarkPaidClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isScheduleRetired by remember(status) {
-        derivedStateOf { status == TxScheduleStatus.RETIRED }
-    }
-
     val contentDescriptionText = stringResource(
         R.string.cd_schedule_of_amount_for_date,
         amount,
@@ -202,18 +208,31 @@ private fun ScheduleListItemCard(
                 modifier = Modifier
                     .clip(CardDefaults.shape),
                 overlineContent = {
-                    if (isScheduleRetired) {
+                    /*if (isRetired) {
                         Text(stringResource(R.string.retired))
-                    }
+                    }*/
                 }
             )
-            if (!isScheduleRetired) {
-                TextButton(
-                    onClick = onMarkPaidClick,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                ) {
-                    Text(stringResource(R.string.mark_paid))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .padding(horizontal = SpacingSmall)
+            ) {
+                lastPaymentTimestamp?.let {
+                    Text(
+                        text = stringResource(R.string.last_paid_date, it),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .padding(SpacingExtraSmall)
+                            .weight(Float.One)
+                    )
+                }
+                if (canMarkPaid) {
+                    TextButton(onClick = onMarkPaidClick) {
+                        Text(stringResource(R.string.mark_paid))
+                    }
                 }
             }
         }
@@ -227,12 +246,14 @@ private fun PreviewScheduleListItemCard() {
         ScheduleListItemCard(
             amount = "100",
             note = "Test",
-            status = TxScheduleStatus.DUE,
+//            status = TxScheduleStatus.DUE,
             onMarkPaidClick = {},
             modifier = Modifier
                 .fillMaxWidth(),
             nextReminderDate = "Tomorrow",
-            onClick = {}
+            onClick = {},
+            lastPaymentTimestamp = null,
+            canMarkPaid = true
         )
     }
 }

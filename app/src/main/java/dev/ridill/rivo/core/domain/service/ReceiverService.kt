@@ -3,10 +3,10 @@ package dev.ridill.rivo.core.domain.service
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
 import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.MarkScheduleAsPaidActionReceiver
 import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TxScheduleBootReceiver
 import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TxScheduleTimeSetReceiver
-import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
 import dev.ridill.rivo.transactions.domain.sms.TransactionSmsReceiver

@@ -84,7 +84,6 @@
     <string name="cd_click_to_change_folder">Click to change folder</string>
     <string name="cd_total_transaction_sum">%1$s amounts to %2$s</string>
     <string name="cd_transaction_repeat_mode">Repeat transaction</string>
-    <string name="cd_cancel_scheduling">Cancel scheduling</string>
     <string name="cd_schedule_of_amount_for_date">Schedule of amount %1$s for next %2$s</string>
 
     <!-- Error Messages -->
@@ -363,6 +362,10 @@
     <string name="schedule_marked_as_paid">Schedule marked as paid</string>
     <string name="transaction_schedule">Transaction Schedule</string>
     <string name="generic_schedule_title">~Schedule</string>
-    <string name="settled">Settled</string>
     <string name="retired">Retired</string>
+    <string name="cancel_scheduling">Cancel scheduling</string>
+    <string name="last_paid_date">Last paid: %s</string>
+    <string name="this_month">This Month</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="schedules_empty_message">The schedules you create will appear here</string>
 </resources>

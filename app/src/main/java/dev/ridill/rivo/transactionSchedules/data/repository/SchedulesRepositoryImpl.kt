@@ -34,14 +34,13 @@ class SchedulesRepositoryImpl(
         scheduler.schedule(schedule)
     }
 
-    override suspend fun saveAndSetSchedule(schedule: TxSchedule) {
+    override suspend fun saveScheduleAndSetReminder(schedule: TxSchedule) {
         withContext(Dispatchers.IO) {
             val insertedId = saveSchedule(schedule)
+                .takeIf { it > RivoDatabase.DEFAULT_ID_LONG }
+                ?: schedule.id
             setScheduleReminder(
-                schedule = schedule.copy(
-                    id = if (schedule.id > RivoDatabase.DEFAULT_ID_LONG) schedule.id
-                    else insertedId
-                )
+                schedule = schedule.copy(id = insertedId)
             )
         }
     }

@@ -7,7 +7,7 @@ import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.transactionSchedules.data.local.entity.TxScheduleEntity
-import dev.ridill.rivo.transactionSchedules.data.local.relation.ScheduleWithLastPaidDateRelation
+import dev.ridill.rivo.transactionSchedules.data.local.relation.ScheduleWithLastTransactionRelation
 import java.time.LocalDate
 
 @Dao
@@ -25,26 +25,16 @@ interface TxSchedulesDao : BaseDao<TxScheduleEntity> {
     @Transaction
     @Query(
         """
-        SELECT schTx.id as id,
-        schTx.amount as amount,
-        schTx.note as note,
-        schTx.next_reminder_date as nextReminderDate,
-        (SELECT tx.timestamp
-            FROM transaction_table tx
-            WHERE tx.schedule_id = schTx.id
-            ORDER BY tx.timestamp DESC
-            LIMIT 1
-        ) as lastPaymentTimestamp
+        SELECT *
         FROM transaction_schedules_table schTx
+        LEFT OUTER JOIN transaction_table tx ON schTx.id == tx.schedule_id
+        WHERE tx.timestamp IS NULL OR tx.timestamp = (SELECT MAX(tx2.timestamp) FROM transaction_table tx2 WHERE tx2.schedule_id = schTx.id)
         ORDER BY CASE
-                WHEN (nextReminderDate IS NULL
-                AND strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', lastPaymentTimestamp) <= strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', DATE('now'))
-                ) THEN 1
-                ELSE 0
-            END ASC,
-            nextReminderDate ASC,
-            id DESC
+            WHEN schTx.next_reminder_date IS NULL THEN 2
+            WHEN strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', schTx.next_reminder_date) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', DATE('now')) THEN 0
+            ELSE 1
+            END ASC
     """
     )
-    fun getAllSchedulesWithLastPaidDates(): PagingSource<Int, ScheduleWithLastPaidDateRelation>
+    fun getAllSchedulesWithLastTransaction(): PagingSource<Int, ScheduleWithLastTransactionRelation>
 }

@@ -49,7 +49,7 @@ class ScheduleTriggerReceiver : BroadcastReceiver() {
                     ScheduleRepeatMode.YEARLY -> it.plusYears(1)
                 }
             }
-            repo.saveAndSetSchedule(transaction.copy(nextReminderDate = nextReminderDate))
+            repo.saveScheduleAndSetReminder(transaction.copy(nextReminderDate = nextReminderDate))
         }
     }
 }

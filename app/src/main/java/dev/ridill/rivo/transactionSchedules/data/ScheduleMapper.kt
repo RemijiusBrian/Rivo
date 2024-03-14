@@ -3,11 +3,10 @@ package dev.ridill.rivo.transactionSchedules.data
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactionSchedules.data.local.entity.TxScheduleEntity
-import dev.ridill.rivo.transactionSchedules.data.local.relation.ScheduleWithLastPaidDateRelation
+import dev.ridill.rivo.transactionSchedules.data.local.relation.ScheduleWithLastTransactionRelation
 import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
 import dev.ridill.rivo.transactionSchedules.domain.model.TxScheduleListItem
-import dev.ridill.rivo.transactionSchedules.domain.model.TxScheduleStatus
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
@@ -46,26 +45,14 @@ fun TxSchedule.toEntity(): TxScheduleEntity = TxScheduleEntity(
     nextReminderDate = nextReminderDate
 )
 
-fun ScheduleWithLastPaidDateRelation.toListItem(
-    date: LocalDate
+fun ScheduleWithLastTransactionRelation.toScheduleListItem(
+    dateNow: LocalDate
 ): TxScheduleListItem = TxScheduleListItem(
-    id = id,
-    amount = amount,
-    note = note,
-    nextReminderDate = nextReminderDate,
-    lastPaymentTimestamp = lastPaymentTimestamp,
-    status = when {
-        nextReminderDate == null
-                && lastPaymentTimestamp?.isBefore(
-            date.plusDays(1).atStartOfDay()
-        ) == true -> TxScheduleStatus.RETIRED
-
-        lastPaymentTimestamp == null
-                && nextReminderDate?.isAfter(date) == true -> TxScheduleStatus.UPCOMING
-
-        lastPaymentTimestamp?.month == nextReminderDate?.month
-                && lastPaymentTimestamp?.year == nextReminderDate?.year -> TxScheduleStatus.SETTLED
-
-        else -> TxScheduleStatus.DUE
-    }
+    id = schedule.id,
+    amount = schedule.amount,
+    note = schedule.note,
+    nextReminderDate = schedule.nextReminderDate,
+    lastPaymentTimestamp = transactionEntity?.timestamp,
+    canMarkPaid = schedule.nextReminderDate?.isAfter(dateNow) == true
+            && schedule.nextReminderDate.monthValue == dateNow.monthValue
 )

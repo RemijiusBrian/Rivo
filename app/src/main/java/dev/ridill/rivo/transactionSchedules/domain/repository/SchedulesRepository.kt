@@ -8,7 +8,7 @@ interface SchedulesRepository {
     suspend fun updateNextPaymentDateForScheduleById(id: Long, nextDate: LocalDate)
     suspend fun saveSchedule(schedule: TxSchedule): Long
     suspend fun setScheduleReminder(schedule: TxSchedule)
-    suspend fun saveAndSetSchedule(schedule: TxSchedule)
+    suspend fun saveScheduleAndSetReminder(schedule: TxSchedule)
     suspend fun deleteScheduleById(id: Long)
     suspend fun cancelSchedule(schedule: TxSchedule)
     suspend fun setAllScheduleReminders()

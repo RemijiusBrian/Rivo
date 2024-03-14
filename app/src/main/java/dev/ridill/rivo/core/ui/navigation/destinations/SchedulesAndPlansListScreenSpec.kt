@@ -43,6 +43,7 @@ data object SchedulesAndPlansListScreenSpec : ScreenSpec {
         }
 
         SchedulesAndPlansListScreen(
+            context = context,
             snackbarController = snackbarController,
             schedules = schedulesList,
             onScheduleClick = {

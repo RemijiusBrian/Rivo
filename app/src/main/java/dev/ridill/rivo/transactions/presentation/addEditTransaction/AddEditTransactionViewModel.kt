@@ -441,6 +441,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onCancelSchedulingClick() {
+        savedStateHandle[SHOW_REPEAT_MODE_SELECTION] = false
         toggleScheduling(false)
     }
 

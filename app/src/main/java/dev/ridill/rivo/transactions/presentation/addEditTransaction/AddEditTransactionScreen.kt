@@ -294,8 +294,7 @@ fun AddEditTransactionScreen(
                 ) {
                     TransactionRepeatModeIndicator(
                         selectedRepeatMode = state.selectedRepeatMode,
-                        onClick = actions::onRepeatModeClick,
-                        onCancelClick = actions::onCancelSchedulingClick
+                        onClick = actions::onRepeatModeClick
                     )
                 }
 
@@ -390,7 +389,8 @@ fun AddEditTransactionScreen(
             RepeatModeSelectionSheet(
                 onDismiss = actions::onRepeatModeDismiss,
                 selectedRepeatMode = state.selectedRepeatMode,
-                onRepeatModeSelect = actions::onRepeatModeSelect
+                onRepeatModeSelect = actions::onRepeatModeSelect,
+                onCancelClick = actions::onCancelSchedulingClick
             )
         }
     }
@@ -760,7 +760,6 @@ private fun AddEditOptions(
 private fun TransactionRepeatModeIndicator(
     selectedRepeatMode: ScheduleRepeatMode,
     onClick: () -> Unit,
-    onCancelClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -805,6 +804,7 @@ private fun RepeatModeSelectionSheet(
     onDismiss: () -> Unit,
     selectedRepeatMode: ScheduleRepeatMode,
     onRepeatModeSelect: (ScheduleRepeatMode) -> Unit,
+    onCancelClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ModalBottomSheet(
@@ -820,6 +820,14 @@ private fun RepeatModeSelectionSheet(
                 modifier = Modifier
                     .fillMaxWidth()
             )
+        }
+        Button(
+            onClick = onCancelClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpacingSmall)
+        ) {
+            Text(text = stringResource(R.string.cancel_scheduling))
         }
     }
 }
