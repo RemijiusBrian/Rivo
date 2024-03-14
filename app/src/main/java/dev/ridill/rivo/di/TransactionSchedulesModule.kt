@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
 import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesAndPlansRepositoryImpl
@@ -37,10 +38,12 @@ object TransactionSchedulesModule {
     @Provides
     fun provideScheduledTransactionRepository(
         dao: TxSchedulesDao,
-        scheduler: TransactionScheduler
+        scheduler: TransactionScheduler,
+        receiverService: ReceiverService
     ): SchedulesRepository = SchedulesRepositoryImpl(
         dao = dao,
-        scheduler = scheduler
+        scheduler = scheduler,
+        receiverService = receiverService
     )
 
     @Provides
