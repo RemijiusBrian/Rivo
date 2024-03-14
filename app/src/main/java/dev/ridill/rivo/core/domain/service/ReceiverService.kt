@@ -4,9 +4,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.MarkScheduleAsPaidActionReceiver
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TxScheduleBootReceiver
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TxScheduleTimeSetReceiver
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleRemindersOnBootReceiver
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleRemindersOnTimeSetReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
 import dev.ridill.rivo.transactions.domain.sms.TransactionSmsReceiver
@@ -25,8 +25,8 @@ class ReceiverService(
     }
 
     fun enableBootAndTimeSetReceivers() {
-        toggleReceiver(TxScheduleBootReceiver::class.java, true)
-        toggleReceiver(TxScheduleTimeSetReceiver::class.java, true)
+        toggleReceiver(ScheduleRemindersOnBootReceiver::class.java, true)
+        toggleReceiver(ScheduleRemindersOnTimeSetReceiver::class.java, true)
     }
 
     private fun toggleReceiver(receiverClass: Class<*>, enable: Boolean) {

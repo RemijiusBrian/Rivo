@@ -33,7 +33,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_E
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SCHEDULED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
@@ -41,7 +41,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         add_edit_transaction/
         {$ARG_TRANSACTION_ID}
         ?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}
-        &$ARG_IS_SCHEDULE_TX_MODE={$ARG_IS_SCHEDULE_TX_MODE}
+        &$ARG_IS_SCHEDULE_MODE_ACTIVE={$ARG_IS_SCHEDULE_MODE_ACTIVE}
     """.trimIndent()
         .replace(String.NewLine, String.Empty)
 
@@ -57,7 +57,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             type = NavType.StringType
             nullable = true
         },
-        navArgument(ARG_IS_SCHEDULE_TX_MODE) {
+        navArgument(ARG_IS_SCHEDULE_MODE_ACTIVE) {
             type = NavType.BoolType
             nullable = false
             defaultValue = false
@@ -89,7 +89,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             newValue = transactionFolderId?.toString().orEmpty()
         )
         .replace(
-            oldValue = "{$ARG_IS_SCHEDULE_TX_MODE}",
+            oldValue = "{$ARG_IS_SCHEDULE_MODE_ACTIVE}",
             newValue = isScheduleTxMode.toString()
         )
 
@@ -99,8 +99,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     fun getFolderIdToLinkFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
         savedStateHandle.get<String?>(ARG_LINK_FOLDER_ID)?.toLongOrNull()
 
-    fun getIsScheduleTxModeFromSavedStateHandle(savedStateHandle: SavedStateHandle): Boolean =
-        savedStateHandle.get<Boolean>(ARG_IS_SCHEDULE_TX_MODE) == true
+    fun getIsScheduleModeFromSavedStateHandle(savedStateHandle: SavedStateHandle): Boolean =
+        savedStateHandle.get<Boolean>(ARG_IS_SCHEDULE_MODE_ACTIVE) == true
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
@@ -169,10 +169,10 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                     )
                 }
 
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionScheduled -> {
+                AddEditTransactionViewModel.AddEditTransactionEvent.ScheduleSaved -> {
                     navController.navigateUpWithResult(
                         ACTION_ADD_EDIT_TX,
-                        RESULT_TRANSACTION_SCHEDULED
+                        RESULT_SCHEDULE_SAVED
                     )
                 }
             }
@@ -189,14 +189,16 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,
             state = state,
-            actions = viewModel
+            actions = viewModel,
+            navigateUp = navController::navigateUp
         )
     }
 }
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
 private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
-private const val ARG_IS_SCHEDULE_TX_MODE = "ARG_IS_SCHEDULE_TX_MODE"
+private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
+
 private const val AUTO_ADDED_TRANSACTION_URI_PATTERN =
     "$DEEP_LINK_URI/auto_added_transaction/{$ARG_TRANSACTION_ID}"
 private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI =

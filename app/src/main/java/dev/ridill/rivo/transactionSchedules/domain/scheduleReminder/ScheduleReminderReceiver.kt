@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactionSchedules.domain.transactionScheduler
+package dev.ridill.rivo.transactionSchedules.domain.scheduleReminder
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,15 +8,15 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.ApplicationScope
-import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
 import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ScheduleTriggerReceiver : BroadcastReceiver() {
+class ScheduleReminderReceiver : BroadcastReceiver() {
 
     @ApplicationScope
     @Inject
@@ -26,11 +26,12 @@ class ScheduleTriggerReceiver : BroadcastReceiver() {
     lateinit var repo: SchedulesRepository
 
     @Inject
-    lateinit var notificationHelper: NotificationHelper<TxSchedule>
+    lateinit var notificationHelper: NotificationHelper<Schedule>
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val id = intent?.getLongExtra(TransactionScheduler.TX_ID, -1L)
-            ?.takeIf { it > -1L }
+        if (intent?.action != ScheduleReminder.ACTION) return
+        val id = intent.getLongExtra(ScheduleReminder.EXTRA_SCHEDULE_ID, -1L)
+            .takeIf { it > -1L }
             ?: return
         logI { "Schedule triggered at ${DateUtil.now()}" }
         applicationContext.launch {

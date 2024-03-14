@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactionSchedules.domain.transactionScheduler
+package dev.ridill.rivo.transactionSchedules.domain.scheduleReminder
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,9 +8,8 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.transactionSchedules.data.toTransaction
-import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
-import dev.ridill.rivo.transactionSchedules.domain.notification.SCHEDULED_TX_ID
-import dev.ridill.rivo.transactionSchedules.domain.notification.TxScheduleNotificationHelper
+import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
+import dev.ridill.rivo.transactionSchedules.domain.notification.ScheduleReminderNotificationHelper
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -31,14 +30,14 @@ class MarkScheduleAsPaidActionReceiver : BroadcastReceiver() {
     lateinit var addEditTxRepo: AddEditTransactionRepository
 
     @Inject
-    lateinit var notificationHelper: NotificationHelper<TxSchedule>
+    lateinit var notificationHelper: NotificationHelper<Schedule>
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action != TxScheduleNotificationHelper.ACTION_MARK_SCHEDULED_TX_PAID)
+        if (intent?.action != ScheduleReminderNotificationHelper.ACTION_MARK_SCHEDULED_AS_PAID)
             return
 
         applicationScope.launch {
-            val txId = intent.getLongExtra(SCHEDULED_TX_ID, -1L)
+            val txId = intent.getLongExtra(ScheduleReminder.EXTRA_SCHEDULE_ID, -1L)
                 .takeIf { it > -1L }
                 ?: return@launch
             val transaction = repo.getScheduleById(txId)

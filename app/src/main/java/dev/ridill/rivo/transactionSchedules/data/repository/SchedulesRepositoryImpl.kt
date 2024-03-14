@@ -6,19 +6,19 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
 import dev.ridill.rivo.transactionSchedules.data.toEntity
 import dev.ridill.rivo.transactionSchedules.data.toSchedule
-import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
+import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TransactionScheduler
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleReminder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class SchedulesRepositoryImpl(
     private val dao: TxSchedulesDao,
-    private val scheduler: TransactionScheduler,
+    private val scheduler: ScheduleReminder,
     private val receiverService: ReceiverService
 ) : SchedulesRepository {
-    override suspend fun getScheduleById(id: Long): TxSchedule? =
+    override suspend fun getScheduleById(id: Long): Schedule? =
         withContext(Dispatchers.IO) {
             dao.getScheduleById(id)?.toSchedule()
         }
@@ -28,16 +28,16 @@ class SchedulesRepositoryImpl(
             dao.updateNextReminderDateForScheduleById(id = id, nextDate = nextDate)
         }
 
-    override suspend fun saveSchedule(schedule: TxSchedule) = withContext(Dispatchers.IO) {
+    override suspend fun saveSchedule(schedule: Schedule) = withContext(Dispatchers.IO) {
         dao.insert(schedule.toEntity()).first()
     }
 
-    override suspend fun setScheduleReminder(schedule: TxSchedule) {
-        scheduler.schedule(schedule)
+    override suspend fun setScheduleReminder(schedule: Schedule) {
+        scheduler.setReminder(schedule)
         receiverService.enableBootAndTimeSetReceivers()
     }
 
-    override suspend fun saveScheduleAndSetReminder(schedule: TxSchedule) {
+    override suspend fun saveScheduleAndSetReminder(schedule: Schedule) {
         withContext(Dispatchers.IO) {
             val insertedId = saveSchedule(schedule)
                 .takeIf { it > RivoDatabase.DEFAULT_ID_LONG }
@@ -54,14 +54,14 @@ class SchedulesRepositoryImpl(
         dao.delete(entity)
     }
 
-    override suspend fun cancelSchedule(schedule: TxSchedule) {
+    override suspend fun cancelSchedule(schedule: Schedule) {
         scheduler.cancel(schedule)
     }
 
-    override suspend fun setAllScheduleReminders() = withContext(Dispatchers.IO) {
+    override suspend fun setAllFutureScheduleReminders() = withContext(Dispatchers.IO) {
         dao.getAllSchedulesAfterDate(DateUtil.dateNow())
             .forEach { entity ->
-                scheduler.schedule(entity.toSchedule())
+                scheduler.setReminder(entity.toSchedule())
             }
     }
 }

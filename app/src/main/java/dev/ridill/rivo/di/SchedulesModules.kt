@@ -13,18 +13,18 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.transactionSchedules.data.local.TxSchedulesDao
 import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesAndPlansRepositoryImpl
 import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesRepositoryImpl
-import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
-import dev.ridill.rivo.transactionSchedules.domain.notification.TxScheduleNotificationHelper
+import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
+import dev.ridill.rivo.transactionSchedules.domain.notification.ScheduleReminderNotificationHelper
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesAndPlansRepository
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.AlarmManagerTransactionScheduler
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.TransactionScheduler
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.AlarmManagerScheduleReminder
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleReminder
 import dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
-object TransactionSchedulesModule {
+object SchedulesModules {
 
     @Provides
     fun provideTxScheduleDao(database: RivoDatabase): TxSchedulesDao =
@@ -33,12 +33,12 @@ object TransactionSchedulesModule {
     @Provides
     fun provideTransactionScheduler(
         @ApplicationContext context: Context
-    ): TransactionScheduler = AlarmManagerTransactionScheduler(context)
+    ): ScheduleReminder = AlarmManagerScheduleReminder(context)
 
     @Provides
     fun provideScheduledTransactionRepository(
         dao: TxSchedulesDao,
-        scheduler: TransactionScheduler,
+        scheduler: ScheduleReminder,
         receiverService: ReceiverService
     ): SchedulesRepository = SchedulesRepositoryImpl(
         dao = dao,
@@ -49,7 +49,7 @@ object TransactionSchedulesModule {
     @Provides
     fun provideScheduledTransactionNotificationHelper(
         @ApplicationContext context: Context
-    ): NotificationHelper<TxSchedule> = TxScheduleNotificationHelper(context)
+    ): NotificationHelper<Schedule> = ScheduleReminderNotificationHelper(context)
 
     @Provides
     fun provideSchedulesAndPlansRepository(

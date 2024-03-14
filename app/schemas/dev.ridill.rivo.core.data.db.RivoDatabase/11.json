@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 11,
-    "identityHash": "d2511b21ea9f138a8eb32cb27d0e6d84",
+    "identityHash": "befd144a1b647b50bbdd8049e8fdb89f",
     "entities": [
       {
         "tableName": "budget_table",
@@ -254,7 +254,7 @@
       },
       {
         "tableName": "transaction_schedules_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -279,6 +279,18 @@
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "tagId",
+            "columnName": "tag_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folder_id",
+            "affinity": "INTEGER",
+            "notNull": false
           },
           {
             "fieldPath": "repeatModeName",
@@ -367,7 +379,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd2511b21ea9f138a8eb32cb27d0e6d84')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'befd144a1b647b50bbdd8049e8fdb89f')"
     ]
   }
 }

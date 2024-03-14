@@ -55,12 +55,17 @@ class AddEditTransactionViewModel @Inject constructor(
     private val linkFolderIdArg = AddEditTransactionScreenSpec
         .getFolderIdToLinkFromSavedStateHandle(savedStateHandle)
 
+    private val scheduleModeArg = AddEditTransactionScreenSpec
+        .getIsScheduleModeFromSavedStateHandle(savedStateHandle)
+
     private val isLoading = MutableStateFlow(false)
 
     private val coercedIdArg: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
-    private val isScheduleTxMode = savedStateHandle.getStateFlow(IS_SCHEDULE_TX_MODE, false)
+    private val isReadOnlyMode = savedStateHandle.getStateFlow(IS_READ_ONLY_MODE_ACTIVE, false)
+
+    private val isScheduleTxMode = savedStateHandle.getStateFlow(IS_SCHEDULE_MODE, false)
 
     private val txInput = savedStateHandle.getStateFlow(TX_INPUT, Transaction.DEFAULT)
     val amountInput = txInput.map { it.amount }
@@ -124,6 +129,7 @@ class AddEditTransactionViewModel @Inject constructor(
         .getStateFlow(SELECTED_REPEAT_MODE, ScheduleRepeatMode.NO_REPEAT)
 
     val state = combineTuple(
+        isReadOnlyMode,
         isScheduleTxMode,
         isLoading,
         currency,
@@ -144,6 +150,7 @@ class AddEditTransactionViewModel @Inject constructor(
         showRepeatModeSelection,
         selectedRepeatMode
     ).map { (
+                isReadOnlyMode,
                 isScheduleTxMode,
                 isLoading,
                 currency,
@@ -165,6 +172,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 selectedRepeatMode
             ) ->
         AddEditTransactionState(
+            isReadOnly = isReadOnlyMode,
             isScheduleTxMode = isScheduleTxMode,
             isLoading = isLoading,
             currency = currency,
@@ -194,9 +202,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        val isScheduleModeArg = AddEditTransactionScreenSpec
-            .getIsScheduleTxModeFromSavedStateHandle(savedStateHandle)
-        val transaction: Transaction = if (isScheduleModeArg) {
+        val transaction: Transaction = if (scheduleModeArg) {
             val schedule = transactionRepo.getScheduleById(transactionIdArg)
             savedStateHandle[SELECTED_REPEAT_MODE] = schedule?.repeatMode
                 ?: ScheduleRepeatMode.NO_REPEAT
@@ -207,9 +213,11 @@ class AddEditTransactionViewModel @Inject constructor(
                 txId = transactionIdArg
             )
         } else {
-            transactionRepo.getTransactionById(transactionIdArg)
+            val transaction = transactionRepo.getTransactionById(transactionIdArg)
+            savedStateHandle[IS_READ_ONLY_MODE_ACTIVE] = transaction?.scheduleId != null
+            transaction
         } ?: Transaction.DEFAULT
-        savedStateHandle[IS_SCHEDULE_TX_MODE] = isScheduleModeArg
+        savedStateHandle[IS_SCHEDULE_MODE] = scheduleModeArg
         val dateNow = DateUtil.now()
         savedStateHandle[TX_INPUT] = transaction.copy(
             folderId = linkFolderIdArg ?: transaction.folderId,
@@ -446,7 +454,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     private fun toggleScheduling(enable: Boolean) {
-        savedStateHandle[IS_SCHEDULE_TX_MODE] = enable
+        savedStateHandle[IS_SCHEDULE_MODE] = enable
         if (enable) {
             if (txInput.value.timestamp <= DateUtil.now()) {
                 savedStateHandle[TX_INPUT] = txInput.value
@@ -474,6 +482,10 @@ class AddEditTransactionViewModel @Inject constructor(
     override fun onBackNav() {
         isLoading.update { true }
         viewModelScope.launch {
+            if (isReadOnlyMode.value) {
+                eventBus.send(AddEditTransactionEvent.NavigateUp)
+                return@launch
+            }
             val txInput = txInput.value
             val amountInput = txInput.amount.trim()
             if (amountInput.isEmpty()) {
@@ -494,19 +506,41 @@ class AddEditTransactionViewModel @Inject constructor(
                 )
                 return@launch
             }
+            var scheduleOrTxIdForInsertion = txInput.id
             if (isScheduleTxMode.value) {
+                // False ScheduleModeArg means this input started off as a transaction
+                // and is being changed to a schedule now
+                // so delete the initial transaction before saving the schedule
+                // and reset the id to Default value to save new schedule
+                if (!scheduleModeArg) {
+                    transactionRepo.deleteTransaction(txInput.id)
+                    scheduleOrTxIdForInsertion = RivoDatabase.DEFAULT_ID_LONG
+                }
                 transactionRepo.saveSchedule(
                     transaction = txInput.copy(
+                        id = scheduleOrTxIdForInsertion,
                         amount = evaluatedAmount.toString()
                     ),
                     repeatMode = selectedRepeatMode.value
                 )
                 isLoading.update { false }
-                eventBus.send(AddEditTransactionEvent.TransactionScheduled)
+                eventBus.send(AddEditTransactionEvent.ScheduleSaved)
             } else {
+                // True ScheduleModeArg means this input started off as a schedule
+                // and is being changed to a transaction now
+                // so delete the initial schedule before saving the transaction
+                // and reset the id to Default value to save new transaction
+                var linkedScheduleId = txInput.scheduleId
+                if (scheduleModeArg) {
+                    transactionRepo.deleteSchedule(txInput.id)
+                    linkedScheduleId = null
+                    scheduleOrTxIdForInsertion = RivoDatabase.DEFAULT_ID_LONG
+                }
                 transactionRepo.saveTransaction(
                     transaction = txInput.copy(
-                        amount = evaluatedAmount.toString()
+                        id = scheduleOrTxIdForInsertion,
+                        amount = evaluatedAmount.toString(),
+                        scheduleId = linkedScheduleId
                     )
                 )
                 isLoading.update { false }
@@ -521,11 +555,12 @@ class AddEditTransactionViewModel @Inject constructor(
         data object NavigateUp : AddEditTransactionEvent()
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
         data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
-        data object TransactionScheduled : AddEditTransactionEvent()
+        data object ScheduleSaved : AddEditTransactionEvent()
     }
 }
 
-private const val IS_SCHEDULE_TX_MODE = "IS_SCHEDULE_TX_MODE"
+private const val IS_READ_ONLY_MODE_ACTIVE = "IS_READ_ONLY_MODE_ACTIVE"
+private const val IS_SCHEDULE_MODE = "IS_SCHEDULE_MODE"
 private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
@@ -543,4 +578,4 @@ private const val SELECTED_REPEAT_MODE = "SELECTED_TX_REPEAT_MODE"
 const val ACTION_ADD_EDIT_TX = "ACTION_ADD_EDIT_TX"
 const val RESULT_TX_WITHOUT_AMOUNT_IGNORED = "RESULT_TX_WITHOUT_AMOUNT_IGNORED"
 const val RESULT_TRANSACTION_DELETED = "RESULT_TRANSACTION_DELETED"
-const val RESULT_TRANSACTION_SCHEDULED = "RESULT_TRANSACTION_SCHEDULED"
+const val RESULT_SCHEDULE_SAVED = "RESULT_SCHEDULE_SAVED"

@@ -53,6 +53,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
+import dev.ridill.rivo.core.ui.theme.SelectableColors
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -63,7 +64,8 @@ import dev.ridill.rivo.core.ui.util.exclusion
 @Composable
 fun NewTagChip(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) = InputChip(
     selected = false,
     onClick = onClick,
@@ -74,7 +76,8 @@ fun NewTagChip(
             contentDescription = stringResource(R.string.create_new_tag)
         )
     },
-    modifier = modifier
+    modifier = modifier,
+    enabled = enabled
 )
 
 @Composable
@@ -84,7 +87,8 @@ fun TagChip(
     excluded: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) = FilterChip(
     selected = selected,
     onClick = onClick,
@@ -103,7 +107,8 @@ fun TagChip(
     ),
     modifier = Modifier
         .widthIn(max = TagChipMaxWidth)
-        .then(modifier)
+        .then(modifier),
+    enabled = enabled
 )
 
 private val TagChipMaxWidth = 150.dp
@@ -119,7 +124,7 @@ fun TagInputSheet(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
-    tagColors: List<Color> = TagColors,
+    tagColors: List<Color> = remember { SelectableColors },
     errorMessage: UiText?,
     isEditMode: () -> Boolean,
     onDeleteClick: (() -> Unit)?
@@ -266,20 +271,3 @@ private fun ColorSelector(
 }
 
 private val ColorSelectorSize = 32.dp
-
-val TagColors: List<Color>
-    get() = listOf(
-        Color(0xFF77172E),
-        Color(0xFF692C18),
-        Color(0xFF7C4A03),
-        Color(0xFF274D3B),
-        Color(0xFF0D635D),
-        Color(0xFF246377),
-        Color(0xFF284255),
-        Color(0xFF472E5B),
-        Color(0xFF6C3A4F),
-        Color(0xFF4B443A),
-        Color(0xFF232427)
-    ).map { it.copy(alpha = TAG_COLOR_ALPHA) }
-
-private const val TAG_COLOR_ALPHA = 0.64f

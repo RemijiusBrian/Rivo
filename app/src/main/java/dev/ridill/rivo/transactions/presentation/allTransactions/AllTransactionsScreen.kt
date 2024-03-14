@@ -288,6 +288,7 @@ fun AllTransactionsScreen(
                         selected = transaction.id in state.selectedTransactionIds,
                         excluded = transaction.excluded,
                         folder = transaction.folder,
+                        readOnly = transaction.isReadOnly,
                         modifier = Modifier
                             .then(clickableModifier)
                             .animateItemPlacement()
@@ -1169,6 +1170,7 @@ private fun TransactionCard(
     folder: Folder?,
     selected: Boolean,
     excluded: Boolean,
+    readOnly: Boolean,
     modifier: Modifier = Modifier
 ) = TransactionListItem(
     note = note,
@@ -1181,5 +1183,6 @@ private fun TransactionCard(
     modifier = modifier
         .fillMaxWidth(),
     tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
-    excluded = excluded
+    excluded = excluded,
+    readOnly = readOnly
 )

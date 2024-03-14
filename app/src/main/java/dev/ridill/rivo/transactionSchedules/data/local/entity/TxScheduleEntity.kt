@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import java.time.LocalDate
 
-@Entity(tableName = "transaction_schedules_table")
+@Entity(tableName = "schedules_table")
 data class TxScheduleEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
@@ -20,6 +20,12 @@ data class TxScheduleEntity(
 
     @ColumnInfo(name = "type")
     val typeName: String,
+
+    @ColumnInfo(name = "tag_id")
+    val tagId: Long?,
+
+    @ColumnInfo(name = "folder_id")
+    val folderId: Long?,
 
     @ColumnInfo(name = "repeat_mode")
     val repeatModeName: String,

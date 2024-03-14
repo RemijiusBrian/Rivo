@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactionSchedules.domain.transactionScheduler
+package dev.ridill.rivo.transactionSchedules.domain.scheduleReminder
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TxScheduleBootReceiver : BroadcastReceiver() {
+class ScheduleRemindersOnTimeSetReceiver : BroadcastReceiver() {
 
     @ApplicationScope
     @Inject
@@ -21,9 +21,9 @@ class TxScheduleBootReceiver : BroadcastReceiver() {
     lateinit var repo: SchedulesRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+        if (intent?.action != Intent.ACTION_TIME_CHANGED) return
         applicationScope.launch {
-            repo.setAllScheduleReminders()
+            repo.setAllFutureScheduleReminders()
         }
     }
 }

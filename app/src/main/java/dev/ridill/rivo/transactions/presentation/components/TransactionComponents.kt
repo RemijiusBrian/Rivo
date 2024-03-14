@@ -63,11 +63,11 @@ fun TransactionListItem(
     showTypeIndicator: Boolean = false,
     tag: Tag? = null,
     folder: Folder? = null,
-    overlineContent: @Composable (() -> Unit)? = null,
+    excluded: Boolean = false,
+    readOnly: Boolean = false,
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
-    excluded: Boolean = false
+    shadowElevation: Dp = ListItemDefaults.Elevation
 ) {
     val isNoteEmpty = remember(note) { note.isEmpty() }
     val transactionListItemContentDescription = buildString {
@@ -161,7 +161,16 @@ fun TransactionListItem(
                 }
             }
         },
-        overlineContent = overlineContent,
+        overlineContent = {
+            if (readOnly) {
+                Text(
+                    text = stringResource(R.string.read_only),
+                    fontWeight = FontWeight.SemiBold,
+                    color = LocalContentColor.current
+                        .copy(alpha = ContentAlpha.SUB_CONTENT)
+                )
+            }
+        },
         modifier = Modifier
             .semantics(mergeDescendants = true) {}
             .clearAndSetSemantics {

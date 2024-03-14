@@ -15,17 +15,18 @@ import dev.ridill.rivo.application.RivoActivity
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
-import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
-import dev.ridill.rivo.transactionSchedules.domain.transactionScheduler.MarkScheduleAsPaidActionReceiver
+import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver
+import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleReminder
 
 @SuppressLint("MissingPermission")
-class TxScheduleNotificationHelper(
+class ScheduleReminderNotificationHelper(
     private val context: Context
-) : NotificationHelper<TxSchedule> {
+) : NotificationHelper<Schedule> {
     private val notificationManager = NotificationManagerCompat.from(context)
 
     override val channelId: String
-        get() = "${context.packageName}.NOTIFICATION_CHANNEL_TRANSACTION_SCHEDULES"
+        get() = "${context.packageName}.NOTIFICATION_CHANNEL_SCHEDULE_REMINDERS"
 
     init {
         registerChannelGroup()
@@ -43,7 +44,7 @@ class TxScheduleNotificationHelper(
     override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setName(context.getString(R.string.notification_channel_transaction_schedules_name))
+            .setName(context.getString(R.string.notification_channel_schedule_reminders_name))
             .setGroup(NotificationHelper.Groups.transactions(context))
             .build()
         notificationManager.createNotificationChannel(channel)
@@ -55,11 +56,11 @@ class TxScheduleNotificationHelper(
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
 
-    override fun postNotification(id: Int, data: TxSchedule) {
+    override fun postNotification(id: Int, data: Schedule) {
         if (!notificationManager.areNotificationsEnabled()) return
 
         val notification = buildBaseNotification()
-            .setContentTitle(context.getString(R.string.transaction_schedule))
+            .setContentTitle(context.getString(R.string.schedule_reminder))
             .setContentText(
                 context.getString(
                     R.string.you_have_a_payment_of_amount_due_today,
@@ -103,8 +104,8 @@ class TxScheduleNotificationHelper(
 
     private fun buildMarkPaidAction(id: Long): NotificationCompat.Action {
         val intent = Intent(context, MarkScheduleAsPaidActionReceiver::class.java).apply {
-            action = ACTION_MARK_SCHEDULED_TX_PAID
-            putExtra(SCHEDULED_TX_ID, id)
+            action = ACTION_MARK_SCHEDULED_AS_PAID
+            putExtra(ScheduleReminder.EXTRA_SCHEDULE_ID, id)
         }
         return NotificationCompat.Action.Builder(
             R.drawable.ic_notification,
@@ -119,8 +120,6 @@ class TxScheduleNotificationHelper(
     }
 
     companion object {
-        const val ACTION_MARK_SCHEDULED_TX_PAID = "ACTION_MARK_SCHEDULED_TX_PAID"
+        const val ACTION_MARK_SCHEDULED_AS_PAID = "ACTION_MARK_SCHEDULED_AS_PAID"
     }
 }
-
-const val SCHEDULED_TX_ID = "SCHEDULED_TX_ID"

@@ -7,7 +7,7 @@ import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
-import dev.ridill.rivo.transactionSchedules.domain.model.TxSchedule
+import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
 import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
@@ -63,7 +63,7 @@ class AddEditTransactionRepositoryImpl(
             dao.toggleExclusionByIds(listOf(id), excluded)
         }
 
-    override suspend fun getScheduleById(id: Long): TxSchedule? =
+    override suspend fun getScheduleById(id: Long): Schedule? =
         schedulesRepo.getScheduleById(id)
 
     override suspend fun deleteSchedule(id: Long) =
@@ -73,12 +73,14 @@ class AddEditTransactionRepositoryImpl(
         transaction: Transaction,
         repeatMode: ScheduleRepeatMode
     ) {
-        val scheduledTx = TxSchedule(
+        val scheduledTx = Schedule(
             id = transaction.id,
             amount = transaction.amount.toDoubleOrNull().orZero(),
             note = transaction.note.ifEmpty { null },
             type = transaction.type,
             repeatMode = repeatMode,
+            tagId = transaction.tagId,
+            folderId = transaction.folderId,
             nextReminderDate = transaction.timestamp.toLocalDate()
         )
         val insertedId = schedulesRepo.saveSchedule(scheduledTx)
