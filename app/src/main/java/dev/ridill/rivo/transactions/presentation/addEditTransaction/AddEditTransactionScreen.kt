@@ -112,7 +112,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
-import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag

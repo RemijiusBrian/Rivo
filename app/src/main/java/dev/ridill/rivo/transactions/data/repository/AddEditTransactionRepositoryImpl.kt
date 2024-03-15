@@ -6,9 +6,9 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
-import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
-import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
-import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.Schedule
+import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransactionInput

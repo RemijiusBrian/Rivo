@@ -23,8 +23,8 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.transactionSchedules.data.toTransaction
-import dev.ridill.rivo.transactionSchedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.data.toTransaction
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Tag

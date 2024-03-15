@@ -10,16 +10,16 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.transactionSchedules.data.local.SchedulesDao
-import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesAndPlansRepositoryImpl
-import dev.ridill.rivo.transactionSchedules.data.repository.SchedulesRepositoryImpl
-import dev.ridill.rivo.transactionSchedules.domain.model.Schedule
-import dev.ridill.rivo.transactionSchedules.domain.notification.ScheduleReminderNotificationHelper
-import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesAndPlansRepository
-import dev.ridill.rivo.transactionSchedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.AlarmManagerScheduleReminder
-import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleReminder
-import dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
+import dev.ridill.rivo.schedules.data.local.SchedulesDao
+import dev.ridill.rivo.schedules.data.repository.SchedulesAndPlansRepositoryImpl
+import dev.ridill.rivo.schedules.data.repository.SchedulesRepositoryImpl
+import dev.ridill.rivo.schedules.domain.model.Schedule
+import dev.ridill.rivo.schedules.domain.notification.ScheduleReminderNotificationHelper
+import dev.ridill.rivo.schedules.domain.repository.SchedulesAndPlansRepository
+import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
+import dev.ridill.rivo.schedules.domain.scheduleReminder.AlarmManagerScheduleReminder
+import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleReminder
+import dev.ridill.rivo.schedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 
 @Module

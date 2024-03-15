@@ -10,8 +10,8 @@ import androidx.room.migration.AutoMigrationSpec
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
-import dev.ridill.rivo.transactionSchedules.data.local.SchedulesDao
-import dev.ridill.rivo.transactionSchedules.data.local.entity.TxScheduleEntity
+import dev.ridill.rivo.schedules.data.local.SchedulesDao
+import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.settings.data.local.BudgetDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
@@ -30,7 +30,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionEntity::class,
         TagEntity::class,
         FolderEntity::class,
-        TxScheduleEntity::class,
+        ScheduleEntity::class,
         CurrencyEntity::class,
         ConfigEntity::class
     ],

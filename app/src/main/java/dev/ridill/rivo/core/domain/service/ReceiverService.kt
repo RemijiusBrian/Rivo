@@ -4,9 +4,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
-import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver
-import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleRemindersOnBootReceiver
-import dev.ridill.rivo.transactionSchedules.domain.scheduleReminder.ScheduleRemindersOnTimeSetReceiver
+import dev.ridill.rivo.schedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver
+import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleRemindersOnBootReceiver
+import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleRemindersOnTimeSetReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
 import dev.ridill.rivo.transactions.domain.sms.TransactionSmsReceiver

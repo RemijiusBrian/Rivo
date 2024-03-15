@@ -14,9 +14,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
-import dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList.SchedulesAndPlansListScreen
-import dev.ridill.rivo.transactionSchedules.presentation.schedulesAndPlansList.SchedulesAndPlansListViewModel
+import dev.ridill.rivo.schedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
+import dev.ridill.rivo.schedules.presentation.schedulesAndPlansList.SchedulesAndPlansListScreen
+import dev.ridill.rivo.schedules.presentation.schedulesAndPlansList.SchedulesAndPlansListViewModel
 
 data object SchedulesAndPlansListScreenSpec : ScreenSpec {
     override val route: String = "schedules_and_plans_list"

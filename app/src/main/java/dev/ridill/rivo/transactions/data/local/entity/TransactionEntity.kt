@@ -7,7 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.transactionSchedules.data.local.entity.TxScheduleEntity
+import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import java.time.LocalDateTime
 
 @Entity(
@@ -24,7 +24,7 @@ import java.time.LocalDateTime
             childColumns = ["folder_id"]
         ),
         ForeignKey(
-            entity = TxScheduleEntity::class,
+            entity = ScheduleEntity::class,
             parentColumns = ["id"],
             childColumns = ["schedule_id"],
             onDelete = ForeignKey.SET_NULL
