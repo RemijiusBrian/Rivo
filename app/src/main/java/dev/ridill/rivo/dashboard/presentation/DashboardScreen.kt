@@ -227,7 +227,6 @@ fun DashboardScreen(
                     type = transaction.type,
                     tag = transaction.tag,
                     folder = transaction.folder,
-                    readOnly = transaction.isReadOnly,
                     onClick = { navigateToAddEditTransaction(transaction.id) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -442,7 +441,6 @@ private fun RecentSpendCard(
     type: TransactionType,
     tag: Tag?,
     folder: Folder?,
-    readOnly: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) = Card(
@@ -455,8 +453,7 @@ private fun RecentSpendCard(
         date = date,
         type = type,
         tag = tag,
-        folder = folder,
-        readOnly = readOnly
+        folder = folder
     )
 }
 

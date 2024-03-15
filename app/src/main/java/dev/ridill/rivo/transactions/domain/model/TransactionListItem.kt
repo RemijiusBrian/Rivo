@@ -29,7 +29,4 @@ data class TransactionListItem(
         amount = amount,
         currency = currency
     )
-
-    val isReadOnly: Boolean
-        get() = scheduleId != null
 }

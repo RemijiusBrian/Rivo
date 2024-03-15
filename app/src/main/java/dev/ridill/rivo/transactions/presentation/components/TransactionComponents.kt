@@ -64,7 +64,7 @@ fun TransactionListItem(
     tag: Tag? = null,
     folder: Folder? = null,
     excluded: Boolean = false,
-    readOnly: Boolean = false,
+    overlineContent: @Composable (() -> Unit)? = null,
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
     shadowElevation: Dp = ListItemDefaults.Elevation
@@ -161,16 +161,7 @@ fun TransactionListItem(
                 }
             }
         },
-        overlineContent = {
-            if (readOnly) {
-                Text(
-                    text = stringResource(R.string.read_only),
-                    fontWeight = FontWeight.SemiBold,
-                    color = LocalContentColor.current
-                        .copy(alpha = ContentAlpha.SUB_CONTENT)
-                )
-            }
-        },
+        overlineContent = overlineContent,
         modifier = Modifier
             .semantics(mergeDescendants = true) {}
             .clearAndSetSemantics {

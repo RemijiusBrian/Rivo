@@ -434,7 +434,6 @@ private fun TransactionsInFolder(
                                             type = item.transaction.type,
                                             excluded = item.transaction.excluded,
                                             tag = item.transaction.tag,
-                                            readOnly = item.transaction.isReadOnly,
                                             onClick = { onTransactionClick(item.transaction.id) }
                                         )
                                     }
@@ -507,7 +506,6 @@ private fun TransactionCard(
     type: TransactionType,
     excluded: Boolean,
     tag: Tag?,
-    readOnly: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -522,8 +520,7 @@ private fun TransactionCard(
             type = type,
             tag = tag,
             showTypeIndicator = true,
-            excluded = excluded,
-            readOnly = readOnly
+            excluded = excluded
         )
     }
 }
