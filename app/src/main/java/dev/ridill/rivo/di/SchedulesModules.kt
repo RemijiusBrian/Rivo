@@ -36,7 +36,7 @@ object SchedulesModules {
     ): ScheduleReminder = AlarmManagerScheduleReminder(context)
 
     @Provides
-    fun provideScheduleRepository(
+    fun provideSchedulesRepository(
         dao: SchedulesDao,
         scheduler: ScheduleReminder,
         receiverService: ReceiverService
