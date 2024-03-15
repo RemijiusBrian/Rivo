@@ -32,8 +32,8 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
@@ -189,8 +189,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,
             state = state,
-            actions = viewModel,
-            navigateUp = navController::navigateUp
+            actions = viewModel
         )
     }
 }

@@ -63,8 +63,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val coercedIdArg: Long
         get() = transactionIdArg.coerceAtLeast(RivoDatabase.DEFAULT_ID_LONG)
 
-    private val isReadOnlyMode = savedStateHandle.getStateFlow(IS_READ_ONLY_MODE_ACTIVE, false)
-
     private val isScheduleTxMode = savedStateHandle.getStateFlow(IS_SCHEDULE_MODE, false)
 
     private val txInput = savedStateHandle.getStateFlow(TX_INPUT, Transaction.DEFAULT)
@@ -129,7 +127,6 @@ class AddEditTransactionViewModel @Inject constructor(
         .getStateFlow(SELECTED_REPEAT_MODE, ScheduleRepeatMode.NO_REPEAT)
 
     val state = combineTuple(
-        isReadOnlyMode,
         isScheduleTxMode,
         isLoading,
         currency,
@@ -150,7 +147,6 @@ class AddEditTransactionViewModel @Inject constructor(
         showRepeatModeSelection,
         selectedRepeatMode
     ).map { (
-                isReadOnlyMode,
                 isScheduleTxMode,
                 isLoading,
                 currency,
@@ -172,7 +168,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 selectedRepeatMode
             ) ->
         AddEditTransactionState(
-            isReadOnly = isReadOnlyMode,
             isScheduleTxMode = isScheduleTxMode,
             isLoading = isLoading,
             currency = currency,
@@ -214,7 +209,6 @@ class AddEditTransactionViewModel @Inject constructor(
             )
         } else {
             val transaction = transactionRepo.getTransactionById(transactionIdArg)
-            savedStateHandle[IS_READ_ONLY_MODE_ACTIVE] = transaction?.scheduleId != null
             transaction
         } ?: Transaction.DEFAULT
         savedStateHandle[IS_SCHEDULE_MODE] = scheduleModeArg
@@ -482,10 +476,6 @@ class AddEditTransactionViewModel @Inject constructor(
     override fun onBackNav() {
         isLoading.update { true }
         viewModelScope.launch {
-            if (isReadOnlyMode.value) {
-                eventBus.send(AddEditTransactionEvent.NavigateUp)
-                return@launch
-            }
             val txInput = txInput.value
             val amountInput = txInput.amount.trim()
             if (amountInput.isEmpty()) {
@@ -559,7 +549,6 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 }
 
-private const val IS_READ_ONLY_MODE_ACTIVE = "IS_READ_ONLY_MODE_ACTIVE"
 private const val IS_SCHEDULE_MODE = "IS_SCHEDULE_MODE"
 private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"

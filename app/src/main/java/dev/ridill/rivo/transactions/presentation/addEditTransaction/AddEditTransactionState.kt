@@ -11,7 +11,6 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 data class AddEditTransactionState(
-    val isReadOnly: Boolean = true,
     val isLoading: Boolean = false,
     val currency: Currency = LocaleUtil.defaultCurrency,
     val isScheduleTxMode: Boolean = false,

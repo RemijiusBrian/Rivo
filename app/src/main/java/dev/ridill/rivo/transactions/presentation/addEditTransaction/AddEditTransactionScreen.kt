@@ -138,14 +138,13 @@ fun AddEditTransactionScreen(
     folderSearchQuery: () -> String,
     folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
-    actions: AddEditTransactionActions,
-    navigateUp: () -> Unit
+    actions: AddEditTransactionActions
 ) {
     val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
     BackHandler(
-        enabled = !state.isReadOnly,
+        enabled = true,
         onBack = actions::onBackNav
     )
 
@@ -196,25 +195,18 @@ fun AddEditTransactionScreen(
                         )
                     )
                 },
-                navigationIcon = {
-                    BackArrowButton(
-                        onClick = if (state.isReadOnly) navigateUp
-                        else actions::onBackNav
-                    )
-                },
+                navigationIcon = { BackArrowButton(onClick = actions::onBackNav) },
                 actions = {
-                    if (!state.isReadOnly) {
-                        if (isEditMode) {
-                            IconButton(onClick = actions::onDeleteClick) {
-                                Icon(
-                                    imageVector = Icons.Rounded.DeleteForever,
-                                    contentDescription = stringResource(R.string.cd_delete_transaction)
-                                )
-                            }
+                    if (isEditMode) {
+                        IconButton(onClick = actions::onDeleteClick) {
+                            Icon(
+                                imageVector = Icons.Rounded.DeleteForever,
+                                contentDescription = stringResource(R.string.cd_delete_transaction)
+                            )
                         }
-
-                        AddEditOptions(onOptionClick = actions::onAddEditOptionSelect)
                     }
+
+                    AddEditOptions(onOptionClick = actions::onAddEditOptionSelect)
                 },
                 scrollBehavior = topAppBarScrollBehavior
             )
@@ -235,7 +227,6 @@ fun AddEditTransactionScreen(
                 verticalArrangement = Arrangement.spacedBy(SpacingMedium)
             ) {
                 TransactionTypeSelector(
-                    enabled = !state.isReadOnly,
                     selectedType = state.transactionType,
                     onValueChange = actions::onTransactionTypeChange,
                     modifier = Modifier
@@ -244,7 +235,6 @@ fun AddEditTransactionScreen(
                 )
 
                 AmountInput(
-                    isReadOnly = state.isReadOnly,
                     currency = state.currency,
                     amount = amountInput,
                     onAmountChange = actions::onAmountChange,
@@ -254,13 +244,12 @@ fun AddEditTransactionScreen(
                 )
 
                 NoteInput(
-                    isReadOnly = state.isReadOnly,
                     input = noteInput,
                     onValueChange = actions::onNoteChange,
                     onFocused = actions::onNoteInputFocused
                 )
 
-                if (!state.isReadOnly && !isEditMode) {
+                if (!isEditMode) {
                     AmountRecommendationsRow(
                         currency = state.currency,
                         recommendations = state.amountRecommendations,
@@ -282,7 +271,6 @@ fun AddEditTransactionScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     FolderIndicator(
-                        enabled = !state.isReadOnly,
                         folderName = state.linkedFolderName,
                         onAddToFolderClick = actions::onAddToFolderClick,
                         onRemoveFolderClick = actions::onRemoveFromFolderClick,
@@ -291,7 +279,6 @@ fun AddEditTransactionScreen(
                     )
 
                     TransactionDate(
-                        enabled = !state.isReadOnly,
                         date = state.transactionDateFormatted,
                         onDateClick = actions::onTransactionTimestampClick,
                         modifier = Modifier
@@ -300,7 +287,6 @@ fun AddEditTransactionScreen(
                 }
 
                 ExclusionToggle(
-                    enabled = !state.isReadOnly,
                     excluded = state.isTransactionExcluded,
                     onToggle = actions::onTransactionExclusionToggle,
                     modifier = Modifier
@@ -313,14 +299,12 @@ fun AddEditTransactionScreen(
                         .align(Alignment.Start)
                 ) {
                     TransactionRepeatModeIndicator(
-                        enabled = !state.isReadOnly,
                         selectedRepeatMode = state.selectedRepeatMode,
                         onClick = actions::onRepeatModeClick
                     )
                 }
 
                 TagsList(
-                    enabled = !state.isReadOnly,
                     tagsList = state.tagsList,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagClick,
@@ -420,7 +404,6 @@ fun AddEditTransactionScreen(
 
 @Composable
 private fun AmountInput(
-    isReadOnly: Boolean,
     currency: Currency,
     amount: () -> String,
     onAmountChange: (String) -> Unit,
@@ -463,25 +446,20 @@ private fun AmountInput(
         ),
         visualTransformation = remember { AmountVisualTransformation() },
         trailingIcon = {
-            AnimatedVisibility(visible = !isReadOnly && showTransformButton) {
-                IconButton(
-                    onClick = onTransformClick,
-                    enabled = !isReadOnly
-                ) {
+            AnimatedVisibility(visible = showTransformButton) {
+                IconButton(onClick = onTransformClick) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_gears),
                         contentDescription = stringResource(R.string.cd_transform_amount)
                     )
                 }
             }
-        },
-        readOnly = isReadOnly
+        }
     )
 }
 
 @Composable
 fun NoteInput(
-    isReadOnly: Boolean,
     input: () -> String,
     onValueChange: (String) -> Unit,
     onFocused: () -> Unit,
@@ -506,8 +484,7 @@ fun NoteInput(
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
             errorIndicatorColor = Color.Transparent
-        ),
-        readOnly = isReadOnly
+        )
     )
 }
 
@@ -516,7 +493,6 @@ private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 
 @Composable
 private fun TransactionDate(
-    enabled: Boolean,
     date: String,
     onDateClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -530,10 +506,7 @@ private fun TransactionDate(
             text = date,
             style = MaterialTheme.typography.bodyLarge
         )
-        FilledTonalIconButton(
-            onClick = onDateClick,
-            enabled = enabled
-        ) {
+        FilledTonalIconButton(onClick = onDateClick) {
             Icon(
                 imageVector = Icons.Outlined.CalendarClock,
                 contentDescription = stringResource(R.string.cd_click_to_change_transaction_date)
@@ -544,7 +517,6 @@ private fun TransactionDate(
 
 @Composable
 private fun FolderIndicator(
-    enabled: Boolean,
     folderName: String?,
     onAddToFolderClick: () -> Unit,
     onRemoveFolderClick: () -> Unit,
@@ -565,8 +537,7 @@ private fun FolderIndicator(
                 onClick = {
                     if (isLinked) onRemoveFolderClick()
                     else onAddToFolderClick()
-                },
-                enabled = enabled
+                }
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(
@@ -589,16 +560,13 @@ private fun FolderIndicator(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textDecoration = TextDecoration.Underline,
-                modifier = Modifier
-                    .then(
-                        if (enabled) Modifier.clickable(
-                            onClick = onAddToFolderClick,
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClickLabel = stringResource(R.string.cd_click_to_change_folder),
-                            role = Role.Button
-                        ) else Modifier
-                    )
+                modifier = Modifier.clickable(
+                    onClick = onAddToFolderClick,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClickLabel = stringResource(R.string.cd_click_to_change_folder),
+                    role = Role.Button
+                )
             )
         }
     }
@@ -606,7 +574,6 @@ private fun FolderIndicator(
 
 @Composable
 private fun TransactionTypeSelector(
-    enabled: Boolean,
     selectedType: TransactionType,
     onValueChange: (TransactionType) -> Unit,
     modifier: Modifier = Modifier
@@ -642,7 +609,6 @@ private fun TransactionTypeSelector(
                             contentDescription = it
                         }
                     },
-                enabled = enabled,
                 label = { Text(stringResource(type.labelRes)) }
             )
         }
@@ -651,7 +617,6 @@ private fun TransactionTypeSelector(
 
 @Composable
 private fun ExclusionToggle(
-    enabled: Boolean,
     excluded: Boolean,
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -663,15 +628,13 @@ private fun ExclusionToggle(
         LabelledSwitch(
             labelRes = R.string.mark_excluded_question,
             checked = excluded,
-            onCheckedChange = onToggle,
-            enabled = enabled
+            onCheckedChange = onToggle
         )
     }
 }
 
 @Composable
 fun TagsList(
-    enabled: Boolean,
     tagsList: List<Tag>,
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
@@ -687,18 +650,14 @@ fun TagsList(
             modifier = Modifier,
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            NewTagChip(
-                onClick = onNewTagClick,
-                enabled = enabled
-            )
+            NewTagChip(onClick = onNewTagClick)
             tagsList.forEach { tag ->
                 TagChip(
                     name = tag.name,
                     color = tag.color,
                     excluded = tag.excluded,
                     selected = tag.id == selectedTagId,
-                    onClick = { onTagClick(tag.id) },
-                    enabled = enabled
+                    onClick = { onTagClick(tag.id) }
                 )
             }
         }
@@ -803,7 +762,6 @@ private fun AddEditOptions(
 
 @Composable
 private fun TransactionRepeatModeIndicator(
-    enabled: Boolean,
     selectedRepeatMode: ScheduleRepeatMode,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -828,8 +786,7 @@ private fun TransactionRepeatModeIndicator(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_outline_repeat_duration),
                     contentDescription = stringResource(R.string.cd_transaction_repeat_mode)
                 )
-            },
-            enabled = enabled
+            }
         )
 
         SpacerExtraSmall()
@@ -933,8 +890,7 @@ private fun PreviewScreenContent() {
                 override fun onRepeatModeDismiss() {}
                 override fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode) {}
                 override fun onBackNav() {}
-            },
-            navigateUp = {}
+            }
         )
     }
 }
