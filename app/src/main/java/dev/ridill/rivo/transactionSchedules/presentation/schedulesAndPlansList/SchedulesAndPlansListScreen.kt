@@ -11,14 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NextPlan
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -28,9 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,9 +63,9 @@ fun SchedulesAndPlansListScreen(
     context: Context = LocalContext.current,
     snackbarController: SnackbarController,
     schedules: LazyPagingItems<ScheduleListItemUiModel>,
-    onScheduleClick: (Long?) -> Unit,
+    actions: SchedulesAndPlansActions,
     navigateUp: () -> Unit,
-    actions: SchedulesAndPlansActions
+    navigateToAddEditSchedule: (Long?) -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     RivoScaffold(
@@ -73,7 +78,30 @@ fun SchedulesAndPlansListScreen(
         },
         snackbarController = snackbarController,
         modifier = Modifier
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+        floatingActionButton = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            ) {
+                SmallFloatingActionButton(
+                    onClick = {
+                        // TODO: Navigate to create plan
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.NextPlan,
+                        contentDescription = stringResource(R.string.cd_new_plan_fab)
+                    )
+                }
+                FloatingActionButton(onClick = { navigateToAddEditSchedule(null) }) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_outline_schedule),
+                        contentDescription = stringResource(R.string.cd_new_schedule_fab)
+                    )
+                }
+            }
+        }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -124,7 +152,7 @@ fun SchedulesAndPlansListScreen(
                                     note = item.scheduleItem.note,
                                     nextReminderDate = item.scheduleItem.nextReminderDateFormatted,
                                     lastPaymentTimestamp = item.scheduleItem.lastPaymentDateFormatted,
-                                    onClick = { onScheduleClick(item.scheduleItem.id) },
+                                    onClick = { navigateToAddEditSchedule(item.scheduleItem.id) },
                                     onMarkPaidClick = { actions.onMarkSchedulePaidClick(item.scheduleItem.id) },
                                     canMarkPaid = item.scheduleItem.canMarkPaid,
                                     modifier = Modifier

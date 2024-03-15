@@ -56,16 +56,16 @@ data object SchedulesAndPlansListScreenSpec : ScreenSpec {
             context = context,
             snackbarController = snackbarController,
             schedules = schedulesList,
-            onScheduleClick = {
+            actions = viewModel,
+            navigateUp = navController::navigateUp,
+            navigateToAddEditSchedule = {
                 navController.navigate(
                     AddEditTransactionScreenSpec.routeWithArg(
                         transactionId = it,
                         isScheduleTxMode = true
                     )
                 )
-            },
-            navigateUp = navController::navigateUp,
-            actions = viewModel
+            }
         )
     }
 }
