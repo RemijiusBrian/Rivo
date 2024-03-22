@@ -4,9 +4,9 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.schedules.data.local.relation.ScheduleWithLastTransactionRelation
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItem
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
@@ -20,7 +20,8 @@ fun ScheduleEntity.toSchedule(): Schedule = Schedule(
     note = note,
     type = TransactionType.valueOf(typeName),
     tagId = tagId,
-    folderId = folderId
+    folderId = folderId,
+    planId = planId
 )
 
 fun Schedule.toTransaction(
@@ -46,7 +47,8 @@ fun Schedule.toEntity(): ScheduleEntity = ScheduleEntity(
     repeatModeName = repeatMode.name,
     tagId = tagId,
     folderId = folderId,
-    nextReminderDate = nextReminderDate
+    nextReminderDate = nextReminderDate,
+    planId = planId
 )
 
 fun ScheduleWithLastTransactionRelation.toScheduleListItem(

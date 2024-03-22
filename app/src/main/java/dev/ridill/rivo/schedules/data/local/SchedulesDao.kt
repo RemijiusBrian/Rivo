@@ -28,7 +28,7 @@ interface SchedulesDao : BaseDao<ScheduleEntity> {
         SELECT *
         FROM schedules_table schTx
         LEFT OUTER JOIN transaction_table tx ON schTx.id == tx.schedule_id
-        WHERE tx.timestamp IS NULL OR tx.timestamp = (SELECT MAX(tx2.timestamp) FROM transaction_table tx2 WHERE tx2.schedule_id = schTx.id)
+        WHERE tx.timestamp = (SELECT MAX(tx2.timestamp) FROM transaction_table tx2 WHERE tx2.schedule_id = schTx.id) OR tx.timestamp IS NULL
         ORDER BY CASE
             WHEN schTx.next_reminder_date IS NULL THEN 2
             WHEN strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', schTx.next_reminder_date) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', DATE('now')) THEN 0
@@ -36,5 +36,11 @@ interface SchedulesDao : BaseDao<ScheduleEntity> {
             END ASC
     """
     )
-    fun getAllSchedulesWithLastTransaction(): PagingSource<Int, ScheduleWithLastTransactionRelation>
+    fun getAllSchedulesWithLastTransactionPaged(): PagingSource<Int, ScheduleWithLastTransactionRelation>
+
+    @Query("UPDATE schedules_table SET plan_id = :planId WHERE id IN (:scheduleIds)")
+    suspend fun setPlanIdToSchedules(scheduleIds: Set<Long>, planId: Long?)
+
+    @Query("DELETE FROM schedules_table WHERE id IN (:ids)")
+    suspend fun deleteSchedulesById(ids: Set<Long>)
 }

@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.domain.model
+package dev.ridill.rivo.schedules.domain.model
 
 import android.os.Parcelable
 import androidx.compose.ui.graphics.toArgb
@@ -10,20 +10,21 @@ import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
 @Parcelize
-data class Tag(
+data class PlanInput(
     val id: Long,
     val name: String,
     val colorCode: Int,
-    val createdTimestamp: LocalDateTime,
-    val excluded: Boolean
+    val createdTimestamp: LocalDateTime
 ) : Parcelable {
     companion object {
-        val NEW = Tag(
+        val INITIAL = PlanInput(
             id = RivoDatabase.DEFAULT_ID_LONG,
             name = String.Empty,
             colorCode = RivoSelectableColorsList.first().toArgb(),
-            createdTimestamp = DateUtil.now(),
-            excluded = false
+            createdTimestamp = DateUtil.now()
         )
     }
+
+    val isNew: Boolean
+        get() = id <= RivoDatabase.DEFAULT_ID_LONG
 }

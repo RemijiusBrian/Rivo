@@ -10,16 +10,17 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.schedules.data.local.PlansDao
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
-import dev.ridill.rivo.schedules.data.repository.SchedulesAndPlansRepositoryImpl
+import dev.ridill.rivo.schedules.data.repository.SchedulesDashboardRepositoryImpl
 import dev.ridill.rivo.schedules.data.repository.SchedulesRepositoryImpl
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.notification.ScheduleReminderNotificationHelper
-import dev.ridill.rivo.schedules.domain.repository.SchedulesAndPlansRepository
+import dev.ridill.rivo.schedules.domain.repository.SchedulesDashboardRepository
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.schedules.domain.scheduleReminder.AlarmManagerScheduleReminder
 import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleReminder
-import dev.ridill.rivo.schedules.presentation.schedulesAndPlansList.SchedulesAndPlansListEvent
+import dev.ridill.rivo.schedules.presentation.scheduleDashboard.SchedulesDashboardViewModel
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 
 @Module
@@ -29,6 +30,9 @@ object SchedulesModules {
     @Provides
     fun provideSchedulesDao(database: RivoDatabase): SchedulesDao =
         database.schedulesDao()
+
+    @Provides
+    fun providePlansDao(database: RivoDatabase): PlansDao = database.plansDao()
 
     @Provides
     fun provideScheduleReminder(
@@ -54,14 +58,17 @@ object SchedulesModules {
     @Provides
     fun provideSchedulesAndPlansRepository(
         db: RivoDatabase,
-        dao: SchedulesDao,
+        schedulesDao: SchedulesDao,
+        plansDao: PlansDao,
         addEditTransactionRepository: AddEditTransactionRepository
-    ): SchedulesAndPlansRepository = SchedulesAndPlansRepositoryImpl(
+    ): SchedulesDashboardRepository = SchedulesDashboardRepositoryImpl(
         db = db,
-        dao = dao,
+        schedulesDao = schedulesDao,
+        plansDao = plansDao,
         transactionRepository = addEditTransactionRepository
     )
 
     @Provides
-    fun provideSchedulesAndPlansEventBus(): EventBus<SchedulesAndPlansListEvent> = EventBus()
+    fun provideSchedulesAndPlansEventBus(): EventBus<SchedulesDashboardViewModel.SchedulesAndPlansListEvent> =
+        EventBus()
 }

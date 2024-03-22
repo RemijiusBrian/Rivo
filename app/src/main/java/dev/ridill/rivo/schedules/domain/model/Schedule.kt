@@ -11,5 +11,6 @@ data class Schedule(
     val tagId: Long?,
     val folderId: Long?,
     val repeatMode: ScheduleRepeatMode,
-    val nextReminderDate: LocalDate?
+    val nextReminderDate: LocalDate?,
+    val planId: Long?
 )

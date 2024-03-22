@@ -184,7 +184,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             amountInput = { amount.value },
             noteInput = { note.value },
             tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagColorInput = { tagInput.value?.color },
+            tagColorInput = { tagInput.value?.colorCode },
             tagExclusionInput = { tagInput.value?.excluded },
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,

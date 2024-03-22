@@ -81,7 +81,8 @@ class AddEditTransactionRepositoryImpl(
             repeatMode = repeatMode,
             tagId = transaction.tagId,
             folderId = transaction.folderId,
-            nextReminderDate = transaction.timestamp.toLocalDate()
+            nextReminderDate = transaction.timestamp.toLocalDate(),
+            planId = null
         )
         val insertedId = schedulesRepo.saveSchedule(scheduledTx)
             .takeIf { it >= RivoDatabase.DEFAULT_ID_LONG }

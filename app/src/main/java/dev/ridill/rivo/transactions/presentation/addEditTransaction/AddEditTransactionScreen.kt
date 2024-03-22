@@ -66,6 +66,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
@@ -106,7 +107,7 @@ import dev.ridill.rivo.core.ui.components.TabSelectorItem
 import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.navigation.destinations.SchedulesAndPlansListScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.SchedulesDashboardScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -133,7 +134,7 @@ fun AddEditTransactionScreen(
     amountInput: () -> String,
     noteInput: () -> String,
     tagNameInput: () -> String,
-    tagColorInput: () -> Color?,
+    tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
     folderSearchQuery: () -> String,
     folderList: LazyPagingItems<Folder>,
@@ -340,7 +341,7 @@ fun AddEditTransactionScreen(
             TagInputSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onNewTagNameChange,
-                selectedColor = tagColorInput,
+                selectedColorCode = tagColorInput,
                 onColorSelect = actions::onNewTagColorSelect,
                 excluded = tagExclusionInput,
                 onExclusionToggle = actions::onNewTagExclusionChange,
@@ -654,7 +655,7 @@ fun TagsList(
             tagsList.forEach { tag ->
                 TagChip(
                     name = tag.name,
-                    color = tag.color,
+                    color = Color(tag.colorCode),
                     excluded = tag.excluded,
                     selected = tag.id == selectedTagId,
                     onClick = { onTagClick(tag.id) }
@@ -794,7 +795,7 @@ private fun TransactionRepeatModeIndicator(
         Text(
             text = stringResource(
                 R.string.scheduled_transactions_can_be_found_in_corresponding_screen,
-                stringResource(SchedulesAndPlansListScreenSpec.labelRes)
+                stringResource(SchedulesDashboardScreenSpec.labelRes)
             ),
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier
@@ -846,7 +847,7 @@ private fun PreviewScreenContent() {
             amountInput = { "" },
             noteInput = { "" },
             tagNameInput = { "" },
-            tagColorInput = { Color.Black },
+            tagColorInput = { Color.Black.toArgb() },
             tagExclusionInput = { false },
             folderSearchQuery = { "" },
             folderList = flowOf(PagingData.empty<Folder>()).collectAsLazyPagingItems(),

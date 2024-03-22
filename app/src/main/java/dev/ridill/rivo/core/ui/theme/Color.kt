@@ -78,7 +78,7 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 //val seed = Color(0xFFFFBF00)
 
-val SelectableColors: List<Color>
+val RivoSelectableColorsList: List<Color>
     get() = listOf(
         Color(0xFF77172E),
         Color(0xFF692C18),

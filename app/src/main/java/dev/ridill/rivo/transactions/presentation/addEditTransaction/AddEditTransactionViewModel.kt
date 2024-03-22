@@ -364,7 +364,7 @@ class AddEditTransactionViewModel @Inject constructor(
         val tagInput = tagInput.value ?: return
         viewModelScope.launch {
             val name = tagInput.name.trim()
-            val color = tagInput.color
+            val color = tagInput.colorCode
 
             if (name.isEmpty()) {
                 savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
@@ -377,7 +377,7 @@ class AddEditTransactionViewModel @Inject constructor(
             val insertedId = tagsRepo.saveTag(
                 id = tagInput.id,
                 name = name,
-                color = color,
+                colorCode = color,
                 excluded = tagInput.excluded,
                 timestamp = DateUtil.now()
             )

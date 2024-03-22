@@ -12,13 +12,19 @@ import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.schedules.data.local.PlansDao
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
+import dev.ridill.rivo.schedules.data.local.views.PlanAndAmountsView
+import dev.ridill.rivo.schedules.data.toEntity
+import dev.ridill.rivo.schedules.data.toPlan
 import dev.ridill.rivo.schedules.data.toSchedule
 import dev.ridill.rivo.schedules.data.toScheduleListItem
 import dev.ridill.rivo.schedules.data.toTransaction
+import dev.ridill.rivo.schedules.domain.model.PlanInput
+import dev.ridill.rivo.schedules.domain.model.PlanListItem
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItemUiModel
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
-import dev.ridill.rivo.schedules.domain.repository.SchedulesAndPlansRepository
+import dev.ridill.rivo.schedules.domain.repository.SchedulesDashboardRepository
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -26,16 +32,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
-class SchedulesAndPlansRepositoryImpl(
+class SchedulesDashboardRepositoryImpl(
     private val db: RivoDatabase,
-    private val dao: SchedulesDao,
+    private val schedulesDao: SchedulesDao,
+    private val plansDao: PlansDao,
     private val transactionRepository: AddEditTransactionRepository
-) : SchedulesAndPlansRepository {
+) : SchedulesDashboardRepository {
+    override fun getPlansPaged(date: LocalDate?): Flow<PagingData<PlanListItem>> =
+        Pager(PagingConfig(5)) {
+            plansDao.getPlansActiveOnDatePaged()
+        }.flow
+            .map { pagingData -> pagingData.map(PlanAndAmountsView::toPlan) }
+
     override fun getSchedules(dateNow: LocalDate): Flow<PagingData<ScheduleListItemUiModel>> =
-        Pager(
-            config = PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)
-        ) {
-            dao.getAllSchedulesWithLastTransaction()
+        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+            schedulesDao.getAllSchedulesWithLastTransactionPaged()
         }.flow
             .map { pagingData ->
                 pagingData.map { it.toScheduleListItem(dateNow) }
@@ -55,7 +66,8 @@ class SchedulesAndPlansRepositoryImpl(
                             -> ScheduleListItemUiModel.TypeSeparator(UiText.StringResource(R.string.upcoming))
 
                             before?.scheduleItem?.nextReminderDate != null
-                                    && after?.scheduleItem?.nextReminderDate == null
+                                    && after?.scheduleItem != null
+                                    && after.scheduleItem.nextReminderDate == null
                             -> ScheduleListItemUiModel.TypeSeparator(UiText.StringResource(R.string.retired))
 
                             else -> null
@@ -67,7 +79,7 @@ class SchedulesAndPlansRepositoryImpl(
         withContext(Dispatchers.IO) {
             try {
                 db.withTransaction {
-                    val schedule = dao.getScheduleById(id)
+                    val schedule = schedulesDao.getScheduleById(id)
                         ?: throw ScheduleNotFoundThrowable()
                     val tx = schedule.toSchedule().toTransaction()
                     transactionRepository.saveTransaction(tx)
@@ -80,7 +92,7 @@ class SchedulesAndPlansRepositoryImpl(
                             ScheduleRepeatMode.YEARLY -> it.plusYears(1)
                         }
                     }
-                    dao.updateNextReminderDateForScheduleById(id, nextReminderDate)
+                    schedulesDao.updateNextReminderDateForScheduleById(id, nextReminderDate)
                     Resource.Success(Unit)
                 }
             } catch (t: ScheduleNotFoundThrowable) {
@@ -93,6 +105,25 @@ class SchedulesAndPlansRepositoryImpl(
                 )
             }
         }
+
+    override suspend fun savePlan(input: PlanInput) {
+        withContext(Dispatchers.IO) {
+            plansDao.insert(input.toEntity())
+        }
+    }
+
+    override suspend fun deletePlan(plan: PlanInput) = withContext(Dispatchers.IO) {
+        plansDao.delete(plan.toEntity())
+    }
+
+    override suspend fun assignSchedulesToPlan(scheduleIds: Set<Long>, planId: Long?) =
+        withContext(Dispatchers.IO) {
+            schedulesDao.setPlanIdToSchedules(scheduleIds, planId)
+        }
+
+    override suspend fun deleteSchedulesById(ids: Set<Long>) = withContext(Dispatchers.IO) {
+        schedulesDao.deleteSchedulesById(ids)
+    }
 }
 
 class ScheduleNotFoundThrowable : Throwable("Schedule not found")

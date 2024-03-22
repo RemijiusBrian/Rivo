@@ -87,7 +87,8 @@
     <string name="cd_transaction_repeat_mode">Repeat transaction</string>
     <string name="cd_schedule_of_amount_for_date">Schedule of amount %1$s for next %2$s</string>
     <string name="cd_new_schedule_fab">Create new schedule</string>
-    <string name="cd_new_plan_fab">Create new plan</string>
+    <string name="cd_delete_plan">Delete Plan</string>
+    <string name="cd_delete_selected_schedules">Delete Selected Schedules</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -109,6 +110,7 @@
     <string name="error_google_auth_failed">Failed to authenticate your google account.</string>
     <string name="error_backup_failed_notification_title">Backup Failed</string>
     <string name="error_schedule_not_found">Schedule not found</string>
+    <string name="error_plan_name">Plan name cannot be empty</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -142,6 +144,8 @@
     <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
     <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
     <string name="delete_transaction_folder_confirmation_title">Delete Folder?</string>
+    <string name="delete_plan_confirmation_title">Delete Plan?</string>
+    <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
@@ -304,6 +308,7 @@
     <string name="transaction_type_label_debit">Debit</string>
     <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
     <string name="tags_list_empty_message">Your tags will appear here</string>
+    <string name="plans_list_empty_message">Your plans will appear here</string>
     <string name="all_transactions_list_empty_message">You don\'t have any transactions yet</string>
     <string name="folders_list_empty_message">You don\'t have any Folders yet</string>
     <string name="transactions_in_folder_list_empty_message">There aren\'t any transactions in this folder</string>
@@ -374,4 +379,12 @@
     <string name="edit_schedule">Edit Schedule</string>
     <string name="new_schedule">New Schedule</string>
     <string name="schedule_reminder">Schedule Reminder</string>
+    <string name="create_new_plan">Create new plan</string>
+    <string name="new_plan">New Plan</string>
+    <string name="edit_plan">Edit Plan</string>
+    <string name="plans">Plans</string>
+    <string name="schedules">Schedules</string>
+    <string name="tap_plan_to_assign_selected_schedules">Tap on a plan to assign selected schedules</string>
+    <string name="plan_name_label">Enter plan name</string>
+    <string name="percent_complete">%s Complete</string>
 </resources>

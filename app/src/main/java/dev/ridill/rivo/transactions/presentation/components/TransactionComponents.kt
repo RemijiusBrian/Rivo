@@ -154,7 +154,7 @@ fun TransactionListItem(
                 tag?.let {
                     TagIndicator(
                         name = it.name,
-                        color = it.color,
+                        color = Color(it.colorCode),
                         modifier = Modifier
                             .weight(weight = Float.One, fill = false)
                     )

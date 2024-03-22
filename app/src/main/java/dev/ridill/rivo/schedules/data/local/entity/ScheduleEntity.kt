@@ -2,11 +2,23 @@ package dev.ridill.rivo.schedules.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import java.time.LocalDate
 
-@Entity(tableName = "schedules_table")
+@Entity(
+    tableName = "schedules_table",
+    foreignKeys = [
+        ForeignKey(
+            entity = SchedulePlanEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["plan_id"]
+        )
+    ],
+    indices = [Index("plan_id")]
+)
 data class ScheduleEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
@@ -31,5 +43,8 @@ data class ScheduleEntity(
     val repeatModeName: String,
 
     @ColumnInfo(name = "next_reminder_date")
-    val nextReminderDate: LocalDate?
+    val nextReminderDate: LocalDate?,
+
+    @ColumnInfo(name = "plan_id")
+    val planId: Long?
 )
