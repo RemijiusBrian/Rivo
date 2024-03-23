@@ -23,7 +23,7 @@ class AllTransactionsRepositoryImpl(
     private val currencyRepo: CurrencyRepository
 ) : AllTransactionsRepository {
     override fun getCurrencyPreference(date: LocalDate): Flow<Currency> = currencyRepo
-        .getCurrencyCodeForDateOrNext(date)
+        .getCurrencyForDateOrNext(date)
 
     override suspend fun deleteTransactionsByIds(ids: List<Long>) = withContext(Dispatchers.IO) {
         dao.deleteMultipleTransactionsById(ids)

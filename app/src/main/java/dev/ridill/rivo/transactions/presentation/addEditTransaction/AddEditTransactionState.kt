@@ -4,14 +4,16 @@ import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 data class AddEditTransactionState(
     val isLoading: Boolean = false,
     val currency: Currency = LocaleUtil.defaultCurrency,
+    val isScheduleTxMode: Boolean = false,
     val amountRecommendations: List<Long> = emptyList(),
     val tagsList: List<Tag> = emptyList(),
     val selectedTagId: Long? = null,
@@ -25,7 +27,9 @@ data class AddEditTransactionState(
     val newTagError: UiText? = null,
     val showDateTimePicker: Boolean = false,
     val showFolderSelection: Boolean = false,
-    val linkedFolderName: String? = null
+    val linkedFolderName: String? = null,
+    val showRepeatModeSelection: Boolean = false,
+    val selectedRepeatMode: ScheduleRepeatMode = ScheduleRepeatMode.NO_REPEAT
 ) {
     val transactionDateFormatted: String
         get() = transactionTimestamp.format(DateUtil.Formatters.localizedDateMedium)

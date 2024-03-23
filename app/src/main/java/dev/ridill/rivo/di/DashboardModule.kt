@@ -4,8 +4,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.dashboard.data.repository.DashboardRepositoryImpl
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
+import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
+import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
@@ -15,12 +18,17 @@ import dev.ridill.rivo.transactions.data.local.TransactionDao
 object DashboardModule {
     @Provides
     fun provideDashboardRepository(
-        transactionDao: TransactionDao,
+        currencyRepository: CurrencyRepository,
         budgetRepository: BudgetRepository,
-        currencyRepository: CurrencyRepository
+        transactionDao: TransactionDao,
+        schedulesDao: SchedulesDao
     ): DashboardRepository = DashboardRepositoryImpl(
-        transactionDao = transactionDao,
+        currencyRepo = currencyRepository,
         budgetRepo = budgetRepository,
-        currencyRepo = currencyRepository
+        transactionDao = transactionDao,
+        schedulesDao = schedulesDao
     )
+
+    @Provides
+    fun provideDashboardEventBus(): EventBus<DashboardViewModel.DashboardEvent> = EventBus()
 }

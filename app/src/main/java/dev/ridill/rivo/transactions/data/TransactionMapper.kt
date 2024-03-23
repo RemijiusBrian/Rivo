@@ -22,7 +22,8 @@ fun TransactionEntity.toTransactionInput(): Transaction = Transaction(
     type = TransactionType.valueOf(typeName),
     folderId = folderId,
     tagId = tagId,
-    excluded = isExcluded
+    excluded = isExcluded,
+    scheduleId = scheduleId
 )
 
 fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
@@ -33,7 +34,8 @@ fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
     typeName = type.name,
     isExcluded = excluded,
     tagId = tagId,
-    folderId = folderId
+    folderId = folderId,
+    scheduleId = scheduleId
 )
 
 fun TransactionDetailsView.toTransactionListItem(): TransactionListItem {
@@ -68,7 +70,8 @@ fun TransactionDetailsView.toTransactionListItem(): TransactionListItem {
         type = TransactionType.valueOf(transactionTypeName),
         isTransactionExcluded = isTransactionExcluded,
         tag = tag,
-        folder = folder
+        folder = folder,
+        scheduleId = scheduleId
     )
 }
 
@@ -80,5 +83,6 @@ fun TransactionListItem.toEntity(): TransactionEntity = TransactionEntity(
     typeName = type.name,
     isExcluded = isTransactionExcluded,
     tagId = tag?.id,
-    folderId = folder?.id
+    folderId = folder?.id,
+    scheduleId = scheduleId
 )

@@ -284,10 +284,10 @@ class AllTransactionsViewModel @Inject constructor(
                 return@launch
             }
 
-            val color = tagInput.color
+            val colorCode = tagInput.colorCode
             tagsRepo.saveTag(
                 name = name,
-                color = color,
+                colorCode = colorCode,
                 id = tagInput.id,
                 timestamp = tagInput.createdTimestamp,
                 excluded = tagInput.excluded

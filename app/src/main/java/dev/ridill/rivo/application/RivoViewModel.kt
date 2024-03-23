@@ -92,17 +92,17 @@ class RivoViewModel @Inject constructor(
             }
     }
 
-    fun onAppStop() = viewModelScope.launch {
+    fun runAppLockProcess() = viewModelScope.launch {
         val preferences = preferences.first()
         if (!preferences.appLockEnabled || preferences.isAppLocked) return@launch
         appLockServiceManager.startAppAutoLockTimer()
     }
 
-    fun onAppStart() = viewModelScope.launch {
-        startAppLockServices()
+    fun runAppUnlockAppProcess() = viewModelScope.launch {
+        startAppUnlockOrServiceStop()
     }
 
-    private suspend fun startAppLockServices() {
+    private suspend fun startAppUnlockOrServiceStop() {
         val preferences = preferences.first()
         if (!preferences.appLockEnabled) return
         if (preferences.isAppLocked) {

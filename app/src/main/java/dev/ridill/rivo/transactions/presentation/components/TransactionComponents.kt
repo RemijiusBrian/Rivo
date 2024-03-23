@@ -63,11 +63,11 @@ fun TransactionListItem(
     showTypeIndicator: Boolean = false,
     tag: Tag? = null,
     folder: Folder? = null,
+    excluded: Boolean = false,
     overlineContent: @Composable (() -> Unit)? = null,
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
-    excluded: Boolean = false
+    shadowElevation: Dp = ListItemDefaults.Elevation
 ) {
     val isNoteEmpty = remember(note) { note.isEmpty() }
     val transactionListItemContentDescription = buildString {
@@ -154,7 +154,7 @@ fun TransactionListItem(
                 tag?.let {
                     TagIndicator(
                         name = it.name,
-                        color = it.color,
+                        color = Color(it.colorCode),
                         modifier = Modifier
                             .weight(weight = Float.One, fill = false)
                     )

@@ -115,16 +115,12 @@ class RivoActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkAppPermissions()
+        viewModel.runAppUnlockAppProcess()
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.onAppStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.onAppStop()
+    override fun onPause() {
+        super.onPause()
+        viewModel.runAppLockProcess()
     }
 
     private fun checkAppPermissions() {

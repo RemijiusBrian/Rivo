@@ -18,6 +18,9 @@ interface NotificationHelper<T> {
         fun transactions(context: Context): String =
             "${context.packageName}.NOTIFICATION_CHANNEL_GROUP_TRANSACTIONS"
 
+        fun schedules(context: Context): String =
+            "${context.packageName}.NOTIFICATION_CHANNEL_GROUP_NOTIFICATION"
+
         fun others(context: Context): String =
             "${context.packageName}.NOTIFICATION_CHANNEL_GROUP_OTHERS"
     }

@@ -10,6 +10,7 @@ import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.TransactionAmountLimits
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Dao
@@ -127,4 +128,10 @@ interface TransactionDao : BaseDao<TransactionEntity> {
 
     @Query("UPDATE transaction_table SET folder_id = NULL WHERE id IN (:ids)")
     suspend fun removeFolderFromTransactionsByIds(ids: List<Long>)
+
+    @Query("SELECT * FROM transaction_table WHERE schedule_id = :scheduleId AND strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date)")
+    suspend fun getTransactionForScheduleAndDate(
+        scheduleId: Long,
+        date: LocalDate
+    ): TransactionEntity?
 }

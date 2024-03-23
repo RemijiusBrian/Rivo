@@ -56,22 +56,23 @@ class FolderDetailsRepositoryImpl(
         .map { pagingData ->
             pagingData.map { TransactionListItemUIModel.TransactionItem(it) }
         }
-        .map {
-            it.insertSeparators<TransactionListItemUIModel.TransactionItem, TransactionListItemUIModel>
-            { before, after ->
-                if (before?.transaction?.timestamp
+        .map { pagingData ->
+            pagingData
+                .insertSeparators<TransactionListItemUIModel.TransactionItem, TransactionListItemUIModel>
+                { before, after ->
+                    if (before?.transaction?.timestamp
+                            ?.withDayOfMonth(1)
+                            ?.toLocalDate()
+                        != after?.transaction?.timestamp
+                            ?.withDayOfMonth(1)
+                            ?.toLocalDate()
+                    ) after?.transaction?.timestamp
                         ?.withDayOfMonth(1)
                         ?.toLocalDate()
-                    != after?.transaction?.timestamp
-                        ?.withDayOfMonth(1)
-                        ?.toLocalDate()
-                ) after?.transaction?.timestamp
-                    ?.withDayOfMonth(1)
-                    ?.toLocalDate()
-                    ?.let { localDate ->
-                        TransactionListItemUIModel.DateSeparator(localDate)
-                    } else null
-            }
+                        ?.let { localDate ->
+                            TransactionListItemUIModel.DateSeparator(localDate)
+                        } else null
+                }
         }
 
 

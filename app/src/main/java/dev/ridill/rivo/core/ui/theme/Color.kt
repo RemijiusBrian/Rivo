@@ -78,6 +78,22 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 //val seed = Color(0xFFFFBF00)
 
+val RivoSelectableColorsList: List<Color>
+    get() = listOf(
+        Color(0xFF77172E),
+        Color(0xFF692C18),
+        Color(0xFF7C4A03),
+        Color(0xFF274D3B),
+        Color(0xFF0D635D),
+        Color(0xFF246377),
+        Color(0xFF284255),
+        Color(0xFF472E5B),
+        Color(0xFF6C3A4F),
+        Color(0xFF4B443A),
+        Color(0xFF232427)
+    ).map { it.copy(alpha = 0.64f) }
+
+
 object ContentAlpha {
     const val PERCENT_16 = 0.16f
     const val PERCENT_32 = 0.32f

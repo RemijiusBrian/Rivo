@@ -14,7 +14,8 @@ data class TransactionListItem(
     val type: TransactionType,
     val isTransactionExcluded: Boolean,
     val tag: Tag?,
-    val folder: Folder?
+    val folder: Folder?,
+    val scheduleId: Long?
 ) {
     val date: LocalDate
         get() = timestamp.toLocalDate()

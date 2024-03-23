@@ -1,7 +1,6 @@
 package dev.ridill.rivo.folders.presentation.foldersList
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -43,13 +41,13 @@ import dev.ridill.rivo.core.domain.model.ListMode
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
+import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.exclusion
 import dev.ridill.rivo.core.ui.util.isEmpty
@@ -136,8 +134,8 @@ fun FoldersListScreen(
                                         contentType = "AggregateTypeSeparator",
                                         span = StaggeredGridItemSpan.FullLine
                                     ) {
-                                        FolderAggregateTypeSeparator(
-                                            type = item.type,
+                                        ListSeparator(
+                                            label = stringResource(item.type.labelRes),
                                             modifier = Modifier
                                                 .animateItemPlacement()
                                         )
@@ -198,29 +196,6 @@ private fun FolderListOptions(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun FolderAggregateTypeSeparator(
-    type: AggregateType,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.small)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(
-                vertical = SpacingSmall,
-                horizontal = SpacingMedium
-            )
-    ) {
-        Text(
-            text = stringResource(type.labelRes),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
     }
 }
 
@@ -378,13 +353,5 @@ private fun AggregateAmountText(
                 else null
             )
         }
-        /*Text(
-            text = stringResource(type.labelRes),
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textDecoration = if (type == AggregateType.BALANCED) TextDecoration.Underline
-            else null
-        )*/
     }
 }

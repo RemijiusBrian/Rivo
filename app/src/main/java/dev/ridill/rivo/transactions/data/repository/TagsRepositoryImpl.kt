@@ -1,7 +1,5 @@
 package dev.ridill.rivo.transactions.data.repository
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
@@ -44,14 +42,14 @@ class TagsRepositoryImpl(
     override suspend fun saveTag(
         id: Long,
         name: String,
-        color: Color,
+        colorCode: Int,
         excluded: Boolean,
         timestamp: LocalDateTime
     ): Long = withContext(Dispatchers.IO) {
         val entity = TagEntity(
             id = id,
             name = name,
-            colorCode = color.toArgb(),
+            colorCode = colorCode,
             createdTimestamp = timestamp,
             isExcluded = excluded
         )

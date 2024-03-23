@@ -36,13 +36,15 @@ class FoldersListRepositoryImpl(
         .map { pagingData ->
             pagingData.map { FolderUIModel.FolderListItem(it) }
         }
-        .map {
-            it.insertSeparators<FolderUIModel.FolderListItem, FolderUIModel> { before, after ->
-                if (before?.folderDetails?.aggregateType != after?.folderDetails?.aggregateType)
-                    after?.folderDetails?.aggregateType
-                        ?.let { FolderUIModel.AggregateTypeSeparator(it) }
-                else null
-            }
+        .map { pagingData ->
+            pagingData
+                .insertSeparators<FolderUIModel.FolderListItem, FolderUIModel>
+                { before, after ->
+                    if (before?.folderDetails?.aggregateType != after?.folderDetails?.aggregateType)
+                        after?.folderDetails?.aggregateType
+                            ?.let { FolderUIModel.AggregateTypeSeparator(it) }
+                    else null
+                }
         }
 
     override fun getFoldersListMode(): Flow<ListMode> = configDao

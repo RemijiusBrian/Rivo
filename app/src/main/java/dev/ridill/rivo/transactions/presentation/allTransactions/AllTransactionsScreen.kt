@@ -135,7 +135,7 @@ fun AllTransactionsScreen(
     state: AllTransactionsState,
     isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
-    tagColorInput: () -> Color?,
+    tagInputColorCode: () -> Int?,
     tagExclusionInput: () -> Boolean?,
     folderSearchQuery: () -> String,
     foldersList: LazyPagingItems<Folder>,
@@ -321,7 +321,7 @@ fun AllTransactionsScreen(
             TagInputSheet(
                 nameInput = tagNameInput,
                 onNameChange = actions::onTagInputNameChange,
-                selectedColor = tagColorInput,
+                selectedColorCode = tagInputColorCode,
                 onColorSelect = actions::onTagInputColorSelect,
                 excluded = tagExclusionInput,
                 onExclusionToggle = actions::onTagInputExclusionChange,
@@ -774,188 +774,6 @@ private fun DateIndicator(
         }
     }
 }
-
-/*@Composable
-private fun TransactionsList(
-    listState: LazyListState,
-    currency: Currency,
-    totalSumAmount: Double,
-    typeFilter: TransactionType?,
-    listLabel: UiText,
-    transactionsList: List<TransactionListItem>,
-    selectedTransactionIds: Set<Long>,
-    selectionState: ToggleableState,
-    onSelectionStateChange: () -> Unit,
-    onToggleTransactionTypeFilter: () -> Unit,
-    showExcludedTransactions: Boolean,
-    onTransactionOptionClick: (TransactionOption) -> Unit,
-    multiSelectionModeActive: Boolean,
-    onTransactionClick: (Long) -> Unit,
-    onTxLongPress: (Long) -> Unit,
-    onTxSelectionChange: (Long) -> Unit,
-    listContentPadding: PaddingValues,
-    onToggleShowExcludedTransactions: (Boolean) -> Unit,
-    onDeleteSelectedTransactions: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val isListEmpty by remember(transactionsList) {
-        derivedStateOf { transactionsList.isEmpty() }
-    }
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        if (isListEmpty) {
-            EmptyListIndicator(
-                resId = R.raw.lottie_empty_list_ghost,
-                messageRes = R.string.all_transactions_list_empty_message
-            )
-        }
-        Column(
-            modifier = Modifier
-                .matchParentSize()
-        ) {
-            TotalSumAmount(
-                multiSelectionModeActive = multiSelectionModeActive,
-                sumAmount = totalSumAmount,
-                currency = currency,
-                type = typeFilter,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
-            )
-
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(
-                        vertical = SpacingSmall,
-                        horizontal = SpacingMedium
-                    )
-            )
-
-            TransactionListLabelAndOptions(
-                listLabel = listLabel,
-                onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-                showExcludedTransactions = showExcludedTransactions,
-                onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
-                multiSelectionModeActive = multiSelectionModeActive,
-                multiSelectionState = selectionState,
-                onSelectionStateChange = onSelectionStateChange,
-                onDeleteClick = onDeleteSelectedTransactions,
-                onTransactionOptionClick = onTransactionOptionClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-
-            LazyColumn(
-                contentPadding = listContentPadding,
-                verticalArrangement = Arrangement.spacedBy(SpacingSmall),
-                state = listState
-            ) {
-                items(
-                    items = transactionsList,
-                    key = { it.id },
-                    contentType = { "TransactionCard" }
-                ) { transaction ->
-                    val clickableModifier = if (multiSelectionModeActive) Modifier
-                        .toggleable(
-                            value = transaction.id in selectedTransactionIds,
-                            onValueChange = { onTxSelectionChange(transaction.id) }
-                        )
-                    else Modifier.combinedClickable(
-                        role = Role.Button,
-                        onClick = { onTransactionClick(transaction.id) },
-                        onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
-                        onLongClick = { onTxLongPress(transaction.id) },
-                        onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
-                    )
-
-                    TransactionCard(
-                        note = transaction.note,
-                        amount = transaction.amountFormattedWithCurrency(currency),
-                        date = transaction.date,
-                        type = transaction.type,
-                        selected = transaction.id in selectedTransactionIds,
-                        excluded = transaction.excluded,
-                        folder = transaction.folder,
-                        modifier = Modifier
-                            .then(clickableModifier)
-                            .animateItemPlacement()
-                    )
-                }
-            }
-        }
-    }
-}*/
-
-//private val AutoScrollThreshold = 40.dp
-
-/*fun Modifier.transactionListDragHandler(
-    lazyListState: LazyListState,
-    selectedIds: () -> Set<Long>,
-    hapticController: HapticFeedback,
-    autoScrollThreshold: Float,
-    onDragStart: (Long) -> Unit = {},
-    onTxPointed: (Long) -> Unit = {},
-    setAutoScrollSpeed: (Float) -> Unit = {}
-): Modifier = this.then(
-    pointerInput(autoScrollThreshold, onDragStart, onTxPointed, setAutoScrollSpeed) {
-        fun txIdAtOffset(hitPoint: Offset): Long? = lazyListState
-            .layoutInfo
-            .visibleItemsInfo
-            .find { itemInfo ->
-                val itemTopOffset = itemInfo.index * itemInfo.size
-                val itemBottomOffset = itemTopOffset + itemInfo.size
-                val hitPointY = hitPoint.round().y
-
-                hitPointY in itemTopOffset..itemBottomOffset
-            }?.key as? Long
-
-        var initialTxId: Long? = null
-        var currentTxId: Long? = null
-        detectDragGesturesAfterLongPress(
-            onDragStart = { offset ->
-                hapticController.performHapticFeedback(HapticFeedbackType.LongPress)
-                txIdAtOffset(offset)?.let { id ->
-                    if (!selectedIds().contains(id)) {
-                        initialTxId = id
-                        currentTxId = id
-                        onDragStart(id)
-                    }
-                }
-            },
-            onDragCancel = {
-                setAutoScrollSpeed(Float.Zero)
-                initialTxId = null
-            },
-            onDragEnd = {
-                setAutoScrollSpeed(Float.Zero)
-                initialTxId = null
-            },
-            onDrag = { change, _ ->
-                if (initialTxId != null) {
-                    val distFromBottom =
-                        lazyListState.layoutInfo.viewportSize.height - change.position.y
-                    val distFromTop = change.position.y
-                    setAutoScrollSpeed(
-                        when {
-                            distFromBottom < autoScrollThreshold -> autoScrollThreshold - distFromBottom
-                            distFromTop < autoScrollThreshold -> -(autoScrollThreshold - distFromTop)
-                            else -> Float.Zero
-                        }
-                    )
-
-                    txIdAtOffset(change.position)?.let { pointerTxId ->
-                        if (currentTxId != pointerTxId) {
-                            onTxPointed(pointerTxId)
-                            currentTxId = pointerTxId
-                        }
-                    }
-                }
-            }
-        )
-    }
-)*/
 
 @Composable
 private fun TransactionListLabelAndOptions(

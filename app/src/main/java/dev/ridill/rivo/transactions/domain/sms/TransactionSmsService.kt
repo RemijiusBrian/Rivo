@@ -91,7 +91,8 @@ class TransactionSmsService(
                     type = type,
                     excluded = false,
                     tagId = null,
-                    folderId = null
+                    folderId = null,
+                    scheduleId = null
                 )
 
                 val insertedId = repo.saveTransaction(transaction)

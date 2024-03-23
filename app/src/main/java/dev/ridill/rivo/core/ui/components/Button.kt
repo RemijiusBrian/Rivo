@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -63,5 +64,22 @@ fun ButtonWithLoadingIndicator(
                 Text(stringResource(textRes))
             }
         }
+    }
+}
+
+@Composable
+fun CancelButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = stringResource(R.string.action_cancel)
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = contentDescription
+        )
     }
 }

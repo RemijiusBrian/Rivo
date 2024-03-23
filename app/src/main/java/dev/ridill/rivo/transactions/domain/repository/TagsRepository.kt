@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.domain.repository
 
-import androidx.compose.ui.graphics.Color
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TagInfo
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +15,7 @@ interface TagsRepository {
     suspend fun saveTag(
         id: Long,
         name: String,
-        color: Color,
+        colorCode: Int,
         excluded: Boolean,
         timestamp: LocalDateTime
     ): Long

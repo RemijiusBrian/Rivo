@@ -15,6 +15,8 @@
     <string name="destination_folders_graph">Folders</string>
     <string name="destination_folders_list">Folders</string>
     <string name="destination_folder_details">Folder</string>
+    <string name="destination_schedules_graph">Schedules</string>
+    <string name="destination_all_schedules">All Schedules</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -25,6 +27,8 @@
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
     <string name="notification_channel_auto_add_transactions_name">Transactions added from SMS</string>
+    <string name="notification_channel_group_schedules_name">Schedules</string>
+    <string name="notification_channel_schedule_reminders_name">Schedule Reminders</string>
     <string name="notification_channel_auto_add_transaction_setup_name">Transactions Auto-Add Setup</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
@@ -80,6 +84,10 @@
     <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
     <string name="cd_total_transaction_sum">%1$s amounts to %2$s</string>
+    <string name="cd_transaction_repeat_mode">Repeat transaction</string>
+    <string name="cd_schedule_of_amount_for_date">Schedule of amount %1$s for next %2$s</string>
+    <string name="cd_new_schedule_fab">Create new schedule</string>
+    <string name="cd_delete_selected_schedules">Delete Selected Schedules</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -100,6 +108,7 @@
     <string name="error_incorrect_existing_encryption_password">Current password Incorrect</string>
     <string name="error_google_auth_failed">Failed to authenticate your google account.</string>
     <string name="error_backup_failed_notification_title">Backup Failed</string>
+    <string name="error_schedule_not_found">Schedule not found</string>
 
     <!-- Action Labels -->
     <string name="action_confirm">Confirm</string>
@@ -111,6 +120,7 @@
     <string name="action_ok">OK</string>
     <string name="action_skip">Skip</string>
     <string name="action_undo">Undo</string>
+    <string name="action_view">View</string>
 
     <!-- Texts -->
     <string name="welcome_flow_page_welcome_title">Welcome to\n%s</string>
@@ -128,9 +138,11 @@
     <string name="part_of_day_evening">Evening</string>
 
     <string name="delete_transaction_confirmation_title">Delete Transaction?</string>
+    <string name="delete_schedule_confirmation_title">Delete Schedule?</string>
     <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
     <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
     <string name="delete_transaction_folder_confirmation_title">Delete Folder?</string>
+    <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
@@ -179,6 +191,12 @@
 
     <string name="monthly_budget_input_title">Monthly Budget</string>
     <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
+
+    <string name="transaction_repeat_mode_one_time">Does not repeat</string>
+    <string name="transaction_repeat_mode_weekly">Weekly</string>
+    <string name="transaction_repeat_mode_monthly">Monthly</string>
+    <string name="transaction_repeat_mode_bi_monthly">Bi-monthly</string>
+    <string name="transaction_repeat_mode_yearly">Yearly</string>
 
     <string name="new_tag_input_title">New Tag</string>
     <string name="edit_tag_input_title">Edit Tag</string>
@@ -333,11 +351,32 @@
     <string name="encryption_password_updated">Encryption password updated</string>
     <string name="forgot_password">Forgot Password</string>
     <string name="backup_encryption_message">Your backup is encrypted in your google storage.\n\nTo restore your data from encrypted backup on a new device, you will need your password.</string>
-
     <string name="aggregate_type_balanced">Balanced</string>
     <string name="aggregate_type_debit">Agg. Debit</string>
     <string name="aggregate_type_credit">Agg. Credit</string>
     <string name="tap_to_resolve_issues">Tap to resolve issues</string>
     <string name="checking_for_backups">Checking for backups</string>
     <string name="tx_without_amount_ignored">Transaction without amount ignored</string>
+    <string name="you_have_a_payment_of_amount_due_today">You have a payment of %s due today</string>
+    <string name="mark_paid">Mark paid</string>
+    <string name="transaction_added">Transaction Added</string>
+    <string name="repeat_mode_label_transaction">%s transaction</string>
+    <string name="schedule_saved">Schedule Saved</string>
+    <string name="schedule_for_later">Schedule for later</string>
+    <string name="scheduled_transactions_can_be_found_in_corresponding_screen">*This transaction will be available in the \'%s\' screen</string>
+    <string name="schedule_marked_as_paid">Schedule marked as paid</string>
+    <string name="generic_schedule_title">~Schedule</string>
+    <string name="retired">Retired</string>
+    <string name="cancel_scheduling">Cancel scheduling</string>
+    <string name="last_paid_date">Last paid: %s</string>
+    <string name="this_month">This Month</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="schedules_empty_message">The schedules you create will appear here</string>
+    <string name="edit_schedule">Edit Schedule</string>
+    <string name="new_schedule">New Schedule</string>
+    <string name="schedule_reminder">Schedule Reminder</string>
+    <string name="budget_includes_credit_amount_of_value">Budget amount shown here includes a credit amount of %s</string>
+    <string name="schedule_name_of_amount">Schedule %1$s of %2$s coming up.</string>
+    <string name="due_on_date">Due on %s</string>
+    <string name="upcoming_schedules">Upcoming Schedules</string>
 </resources>

@@ -13,6 +13,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:name=".application.RivoApplication"
         android:allowBackup="false"
@@ -39,7 +41,7 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
-        <!-- Expense SMS Receivers -->
+        <!-- Receivers -->
         <receiver
             android:name=".transactions.domain.sms.TransactionSmsReceiver"
             android:enabled="false"
@@ -53,9 +55,27 @@
         <receiver android:name=".transactions.domain.notification.DeleteTransactionActionReceiver" />
         <receiver android:name=".transactions.domain.notification.MarkTransactionExcludedActionReceiver" />
         <receiver android:name=".settings.domain.notification.LockAppImmediateReceiver" />
-        <!-- Receivers -->
+        <receiver android:name=".schedules.domain.scheduleReminder.ScheduleReminderReceiver" />
+        <receiver
+            android:name=".schedules.domain.scheduleReminder.ScheduleRemindersOnBootReceiver"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".schedules.domain.scheduleReminder.ScheduleRemindersOnTimeSetReceiver"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".schedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver" />
+        <!-- /Receivers -->
 
-        <!-- WorkManager Foreground Service -->
+        <!-- Services -->
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
@@ -69,6 +89,7 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="@string/app_lock_service_special_use_message" />
         </service>
+        <!-- /Services -->
 
         <provider
             android:name="androidx.startup.InitializationProvider"

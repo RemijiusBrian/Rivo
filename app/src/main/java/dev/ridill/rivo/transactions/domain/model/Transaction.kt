@@ -16,6 +16,7 @@ data class Transaction(
     val type: TransactionType,
     val tagId: Long?,
     val folderId: Long?,
+    val scheduleId: Long?,
     val excluded: Boolean
 ) : Parcelable {
     companion object {
@@ -27,7 +28,8 @@ data class Transaction(
             type = TransactionType.DEBIT,
             tagId = null,
             folderId = null,
-            excluded = false
+            excluded = false,
+            scheduleId = null
         )
     }
 }

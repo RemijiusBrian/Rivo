@@ -18,7 +18,7 @@ class SettingsRepositoryImpl(
     override suspend fun updateCurrentBudget(value: Long) = budgetRepo.saveBudget(value)
 
     override fun getCurrencyPreference(): Flow<Currency> = currencyRepo
-        .getCurrencyCodeForDateOrNext()
+        .getCurrencyForDateOrNext()
         .distinctUntilChanged()
 
     override suspend fun updateCurrency(currency: Currency) = currencyRepo.saveCurrency(currency)

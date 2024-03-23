@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -9,14 +10,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 
 data object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
@@ -40,13 +40,30 @@ data object DashboardScreenSpec : ScreenSpec {
             navBackStackEntry = navBackStackEntry,
             context,
             snackbarController,
-        ) {
-            when (it) {
-                RESULT_TRANSACTION_DELETED -> R.string.transaction_deleted
-                RESULT_TX_WITHOUT_AMOUNT_IGNORED -> R.string.tx_without_amount_ignored
-                else -> null
-            }?.let { messageRes ->
-                snackbarController.showSnackbar(context.getString(messageRes))
+            onResult = viewModel::onNavResult
+        )
+
+        CollectFlowEffect(
+            flow = viewModel.events,
+            snackbarController,
+            context
+        ) { event ->
+            when (event) {
+                DashboardViewModel.DashboardEvent.ScheduleSaved -> {
+                    snackbarController.showSnackbar(
+                        message = context.getString(R.string.schedule_saved),
+                        actionLabel = context.getString(R.string.action_view),
+                        onSnackbarResult = { result ->
+                            if (result == SnackbarResult.ActionPerformed) {
+                                navController.navigate(ScheduledTransactionsGraphSpec.route)
+                            }
+                        }
+                    )
+                }
+
+                is DashboardViewModel.DashboardEvent.ShowUiMessage -> {
+                    snackbarController.showSnackbar(event.uiText.asString(context))
+                }
             }
         }
 
@@ -61,7 +78,9 @@ data object DashboardScreenSpec : ScreenSpec {
                 navController.navigate(AllTransactionsScreenSpec.route)
             },
             navigateToAddEditTransaction = {
-                navController.navigate(AddEditTransactionScreenSpec.routeWithArg(it))
+                navController.navigate(
+                    AddEditTransactionScreenSpec.routeWithArg(it)
+                )
             },
             navigateToBottomNavDestination = {
                 navController.navigate(it.route)
