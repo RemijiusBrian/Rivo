@@ -4,7 +4,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
@@ -12,10 +11,8 @@ import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.BudgetDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
-import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BudgetRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.CurrencyRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
@@ -37,7 +34,7 @@ object SettingsViewModelModule {
     fun provideBudgetRepository(
         dao: BudgetDao
     ): BudgetRepository = BudgetRepositoryImpl(dao)
-    
+
     @Provides
     fun provideMiscConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
 
