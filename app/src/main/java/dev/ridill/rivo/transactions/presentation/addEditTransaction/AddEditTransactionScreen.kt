@@ -102,8 +102,6 @@ import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
-import dev.ridill.rivo.core.ui.components.TabSelector
-import dev.ridill.rivo.core.ui.components.TabSelectorItem
 import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
@@ -673,6 +671,7 @@ private fun AmountTransformationSheet(
     onTransformClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val transformationsCount = remember { AmountTransformation.entries.size }
     val input = rememberSaveable { mutableStateOf(String.Empty) }
     val keyboardOptions = remember {
         KeyboardOptions(
@@ -699,17 +698,21 @@ private fun AmountTransformationSheet(
         onValueChange = { input.value = it },
         onDismiss = onDismiss,
         text = {
-            TabSelector(
-                values = { AmountTransformation.entries },
-                selectedItem = { selectedTransformation },
+            SingleChoiceSegmentedButtonRow(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
-            ) { transformation ->
-                TabSelectorItem(
-                    selected = transformation == selectedTransformation,
-                    onClick = { onTransformationSelect(transformation) },
-                    text = { Text(stringResource(transformation.labelRes)) }
-                )
+            ) {
+                AmountTransformation.entries.forEachIndexed { index, transformation ->
+                    SegmentedButton(
+                        selected = selectedTransformation == transformation,
+                        onClick = { onTransformationSelect(transformation) },
+                        shape = SegmentedButtonDefaults
+                            .itemShape(index = index, count = transformationsCount)
+                    ) {
+                        Text(stringResource(transformation.labelRes))
+                    }
+                }
             }
         },
         actionButton = {
