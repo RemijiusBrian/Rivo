@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 11,
-    "identityHash": "c444b2034e13d834a4eb194fd4c28044",
+    "identityHash": "a6ae6b9ec69791d097fffde6426fb123",
     "entities": [
       {
         "tableName": "budget_table",
@@ -254,7 +254,7 @@
       },
       {
         "tableName": "schedules_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT, `plan_id` INTEGER, FOREIGN KEY(`plan_id`) REFERENCES `schedule_plan_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -303,72 +303,6 @@
             "columnName": "next_reminder_date",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "planId",
-            "columnName": "plan_id",
-            "affinity": "INTEGER",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_schedules_table_plan_id",
-            "unique": false,
-            "columnNames": [
-              "plan_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_schedules_table_plan_id` ON `${TABLE_NAME}` (`plan_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "schedule_plan_table",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "plan_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "schedule_plan_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `color_code` INTEGER NOT NULL, `created_timestamp` TEXT NOT NULL)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "colorCode",
-            "columnName": "color_code",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createdTimestamp",
-            "columnName": "created_timestamp",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -441,15 +375,11 @@
       {
         "viewName": "folder_and_aggregate_amount_view",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT folder.id AS id,\n        folder.name AS name,\n        folder.created_timestamp AS createdTimestamp,\n        folder.is_excluded as excluded,\n        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')\n        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')\n        ) AS aggregateAmount\n        FROM folder_table folder"
-      },
-      {
-        "viewName": "plan_and_amounts_view",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pln.id AS planId,\n            pln.name AS planName,\n            pln.color_code AS planColorCode,\n            pln.created_timestamp AS planCreatedTimestamp,\n            SUM(IFNULL(sch.amount, 0.0)) AS totalLinkedAmount,\n            SUM(IFNULL(tx.amount, 0.0)) AS paidAmount\n        FROM schedule_plan_table pln\n        LEFT OUTER JOIN schedules_table sch ON pln.id = sch.plan_id\n        LEFT OUTER JOIN transaction_table tx ON sch.id = tx.schedule_id\n        GROUP BY planId"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c444b2034e13d834a4eb194fd4c28044')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a6ae6b9ec69791d097fffde6426fb123')"
     ]
   }
 }

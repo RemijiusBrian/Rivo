@@ -12,8 +12,8 @@ import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -49,6 +49,8 @@ class DashboardViewModel @Inject constructor(
         budgetInclCredits - debits
     }.distinctUntilChanged()
 
+    private val upcomingSchedules = repo.getActiveSchedules()
+
     private val recentSpends = repo.getRecentSpends()
 
     private val signedInUsername = MutableStateFlow<String?>(null)
@@ -57,14 +59,18 @@ class DashboardViewModel @Inject constructor(
         currency,
         budgetInclCredits,
         spentAmount,
+        creditAmount,
         balance,
+        upcomingSchedules,
         recentSpends,
         signedInUsername
     ).map { (
                 currency,
                 budgetInclCredits,
                 spentAmount,
+                creditAmount,
                 balance,
+                upcomingSchedules,
                 recentSpends,
                 signedInUsername
             ) ->
@@ -72,7 +78,9 @@ class DashboardViewModel @Inject constructor(
             currency = currency,
             balance = balance,
             spentAmount = spentAmount,
+            creditAmount = creditAmount,
             monthlyBudgetInclCredits = budgetInclCredits,
+            upcomingSchedules = upcomingSchedules,
             recentSpends = recentSpends,
             signedInUsername = signedInUsername
         )

@@ -3,6 +3,10 @@ package dev.ridill.rivo.dashboard.data.repository
 import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
+import dev.ridill.rivo.schedules.data.local.SchedulesDao
+import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
+import dev.ridill.rivo.schedules.data.toActiveSchedule
+import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
@@ -15,9 +19,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class DashboardRepositoryImpl(
-    private val transactionDao: TransactionDao,
+    private val currencyRepo: CurrencyRepository,
     private val budgetRepo: BudgetRepository,
-    private val currencyRepo: CurrencyRepository
+    private val transactionDao: TransactionDao,
+    private val schedulesDao: SchedulesDao
 ) : DashboardRepository {
     override fun getCurrencyPreference(): Flow<Currency> = currencyRepo
         .getCurrencyForDateOrNext()
@@ -36,6 +41,10 @@ class DashboardRepositoryImpl(
         typeName = TransactionType.CREDIT.name,
         dateTime = DateUtil.now()
     ).distinctUntilChanged()
+
+    override fun getActiveSchedules(): Flow<List<UpcomingSchedule>> = schedulesDao
+        .getUpcomingSchedulesForDate(DateUtil.dateNow())
+        .map { entities -> entities.map(ScheduleEntity::toActiveSchedule) }
 
     override fun getRecentSpends(): Flow<List<TransactionListItem>> = transactionDao
         .getTransactionsList(

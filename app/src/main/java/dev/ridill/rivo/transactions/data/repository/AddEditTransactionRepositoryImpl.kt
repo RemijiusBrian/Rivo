@@ -5,10 +5,10 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.model.Schedule
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransactionInput
@@ -81,8 +81,7 @@ class AddEditTransactionRepositoryImpl(
             repeatMode = repeatMode,
             tagId = transaction.tagId,
             folderId = transaction.folderId,
-            nextReminderDate = transaction.timestamp.toLocalDate(),
-            planId = null
+            nextReminderDate = transaction.timestamp.toLocalDate()
         )
         val insertedId = schedulesRepo.saveSchedule(scheduledTx)
             .takeIf { it >= RivoDatabase.DEFAULT_ID_LONG }

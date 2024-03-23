@@ -17,12 +17,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.schedules.presentation.scheduleDashboard.SchedulesDashboardScreen
-import dev.ridill.rivo.schedules.presentation.scheduleDashboard.SchedulesDashboardViewModel
+import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesScreen
+import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesViewModel
 
-data object SchedulesDashboardScreenSpec : ScreenSpec {
-    override val route: String = "schedules_dashboard"
-    override val labelRes: Int = R.string.destination_schedules_and_plans_list
+data object AllSchedulesScreenSpec : ScreenSpec {
+    override val route: String = "all_schedules"
+    override val labelRes: Int = R.string.destination_all_schedules
 
     override val deepLinks: List<NavDeepLink> = listOf(
         navDeepLink {
@@ -39,11 +39,9 @@ data object SchedulesDashboardScreenSpec : ScreenSpec {
         navController: NavHostController,
         navBackStackEntry: NavBackStackEntry
     ) {
-        val viewModel: SchedulesDashboardViewModel = hiltViewModel(navBackStackEntry)
-        val schedulesList = viewModel.scheduledTransactions.collectAsLazyPagingItems()
-        val plansList = viewModel.plansList.collectAsLazyPagingItems()
+        val viewModel: AllSchedulesViewModel = hiltViewModel(navBackStackEntry)
+        val allSchedulesPagingItems = viewModel.schedulesPagingData.collectAsLazyPagingItems()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val planInput = viewModel.planInput.collectAsStateWithLifecycle()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -54,21 +52,17 @@ data object SchedulesDashboardScreenSpec : ScreenSpec {
             context
         ) { event ->
             when (event) {
-                is SchedulesDashboardViewModel.SchedulesAndPlansListEvent.ShowUiMessage -> {
+                is AllSchedulesViewModel.AllSchedulesEvent.ShowUiMessage -> {
                     snackbarController.showSnackbar(event.uiText.asString(context))
                 }
             }
         }
 
-        SchedulesDashboardScreen(
+        AllSchedulesScreen(
             context = context,
             snackbarController = snackbarController,
-            schedules = schedulesList,
-            plansList = plansList,
+            allSchedulesPagingItems = allSchedulesPagingItems,
             state = state,
-            planInputName = { planInput.value?.name.orEmpty() },
-            planInputColorCode = { planInput.value?.colorCode },
-            isNewPlan = planInput.value?.isNew,
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToAddEditSchedule = {
@@ -83,4 +77,4 @@ data object SchedulesDashboardScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_DEEPLINK = "$DEEP_LINK_URI/view_schedules_dashboard"
+private const val VIEW_DEEPLINK = "$DEEP_LINK_URI/view_all_schedules"

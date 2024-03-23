@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -26,6 +29,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,6 +39,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,14 +56,17 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.PartOfDay
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
+import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
@@ -72,8 +80,10 @@ import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
+import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -88,6 +98,14 @@ fun DashboardScreen(
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    val areUpcomingSchedulesEmpty by remember(state.upcomingSchedules) {
+        derivedStateOf { state.upcomingSchedules.isEmpty() }
+    }
+    val areRecentSpendsEmpty by remember(state.recentSpends) {
+        derivedStateOf { state.recentSpends.isEmpty() }
+    }
+
     RivoScaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -146,8 +164,6 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                start = SpacingMedium,
-                end = SpacingMedium,
                 bottom = SpacingListEnd
             )
         ) {
@@ -159,10 +175,54 @@ fun DashboardScreen(
                     currency = state.currency,
                     balance = state.balance,
                     budget = state.monthlyBudgetInclCredits,
+                    creditAmount = state.creditAmount,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillParentMaxWidth()
+                        .padding(horizontal = SpacingMedium)
                         .animateItemPlacement()
                 )
+            }
+
+            if (!areUpcomingSchedulesEmpty) {
+                item(
+                    key = "UpcomingSchedulesRow",
+                    contentType = "UpcomingSchedulesRow"
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(vertical = SpacingSmall)
+                            .animateItemPlacement(),
+                        shape = MaterialTheme.shapes.large
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(vertical = SpacingSmall)
+                                .fillParentMaxWidth()
+                        ) {
+                            ListLabel(
+                                text = stringResource(R.string.upcoming_schedules),
+                                modifier = Modifier
+                                    .padding(horizontal = SpacingMedium),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            SpacerSmall()
+
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .padding(horizontal = SpacingMedium),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            UpcomingSchedulesRow(
+                                currency = state.currency,
+                                upcomingSchedules = state.upcomingSchedules,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
+                    }
+                }
             }
 
             stickyHeader(
@@ -171,17 +231,15 @@ fun DashboardScreen(
             ) {
                 Surface(
                     modifier = Modifier
+                        .fillParentMaxWidth()
                         .animateItemPlacement()
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+                        verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+                        modifier = Modifier
+                            .padding(horizontal = SpacingMedium)
                     ) {
-                        SpacerSmall()
-                        Text(
-                            text = stringResource(R.string.recent_spends),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier
-                        )
+                        ListLabel(text = stringResource(R.string.recent_spends))
 
                         SpentAmountAndAllTransactionsButton(
                             currency = state.currency,
@@ -196,7 +254,7 @@ fun DashboardScreen(
                 }
             }
 
-            if (state.recentSpends.isEmpty()) {
+            if (areRecentSpendsEmpty) {
                 item(
                     key = "EmptyListIndicator",
                     contentType = "EmptyListIndicator"
@@ -229,7 +287,7 @@ fun DashboardScreen(
                     folder = transaction.folder,
                     onClick = { navigateToAddEditTransaction(transaction.id) },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillParentMaxWidth()
                         .animateItemPlacement()
                 )
             }
@@ -278,6 +336,7 @@ private fun BalanceAndBudget(
     currency: Currency,
     balance: Double,
     budget: Double,
+    creditAmount: Double,
     modifier: Modifier = Modifier
 ) {
     val balanceAndBudgetContentDescription = stringResource(
@@ -303,13 +362,21 @@ private fun BalanceAndBudget(
                 .alignBy(LastBaseline)
         ) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
                 tooltip = {
-                    PlainTooltip {
-                        Text(stringResource(R.string.budget_includes_credited_amounts))
-                    }
+                    RichTooltip(
+                        title = { Text(stringResource(R.string.budget_includes_credited_amounts)) },
+                        text = {
+                            Text(
+                                text = stringResource(
+                                    R.string.budget_includes_credit_amount_of_value,
+                                    TextFormat.currency(creditAmount, currency)
+                                )
+                            )
+                        }
+                    )
                 },
-                state = rememberTooltipState()
+                state = rememberTooltipState(isPersistent = true)
             ) {
                 Row {
                     VerticalNumberSpinnerContent(
@@ -432,6 +499,82 @@ private fun SpentAmountAndAllTransactionsButton(
         }
     }
 }
+
+@Composable
+private fun UpcomingSchedulesRow(
+    currency: Currency,
+    upcomingSchedules: List<UpcomingSchedule>,
+    modifier: Modifier = Modifier,
+) {
+
+    LazyRow(
+        contentPadding = PaddingValues(
+            top = SpacingSmall,
+            bottom = SpacingSmall,
+            start = SpacingMedium,
+            end = SpacingListEnd
+        ),
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+    ) {
+        items(
+            items = upcomingSchedules,
+            key = { it.id },
+            contentType = { "UpcomingScheduleCard" }
+        ) { schedule ->
+            UpcomingScheduleCard(
+                name = schedule.note,
+                amount = schedule.amountFormatted(currency),
+                dueDate = schedule.dueDateFormatted,
+                modifier = Modifier
+                    .fillParentMaxWidth(UPCOMING_SCHEDULE_CARD_PARENT_WIDTH_FRACTION)
+                    .animateItemPlacement()
+            )
+        }
+    }
+}
+
+private const val UPCOMING_SCHEDULE_CARD_PARENT_WIDTH_FRACTION = 0.80f
+
+@Composable
+private fun UpcomingScheduleCard(
+    name: UiText,
+    amount: String,
+    dueDate: String,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(
+                    horizontal = SpacingMedium,
+                    vertical = SpacingSmall
+                )
+                .heightIn(min = UpcomingScheduleCardMinHeight)
+        ) {
+            Text(
+                text = stringResource(R.string.schedule_name_of_amount, name.asString(), amount),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(weight = Float.One)
+
+            HorizontalDivider()
+
+            Text(
+                text = stringResource(R.string.due_on_date, dueDate),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+private val UpcomingScheduleCardMinHeight = 100.dp
 
 @Composable
 private fun RecentSpendCard(

@@ -107,7 +107,7 @@ import dev.ridill.rivo.core.ui.components.TabSelectorItem
 import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.navigation.destinations.SchedulesDashboardScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
@@ -795,7 +795,7 @@ private fun TransactionRepeatModeIndicator(
         Text(
             text = stringResource(
                 R.string.scheduled_transactions_can_be_found_in_corresponding_screen,
-                stringResource(SchedulesDashboardScreenSpec.labelRes)
+                stringResource(AllSchedulesScreenSpec.labelRes)
             ),
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier

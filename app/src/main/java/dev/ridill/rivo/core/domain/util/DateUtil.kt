@@ -86,6 +86,12 @@ object DateUtil {
                 .appendPattern(" EEE")
                 .toFormatter()
 
+        val EEE_ddth_commaSep: DateTimeFormatter
+            get() = DateTimeFormatterBuilder()
+                .appendPattern("EEE, ")
+                .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)
+                .toFormatter()
+
         fun prettyDateAgo(
             date: LocalDate
         ): UiText {

@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,7 +49,8 @@ fun ListLabel(
     style: TextStyle = MaterialTheme.typography.labelLarge,
     fontWeight: FontWeight = FontWeight.SemiBold,
     maxLines: Int = Int.One,
-    overflow: TextOverflow = TextOverflow.Ellipsis
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = Color.Unspecified
 ) {
     Text(
         text = text,
@@ -56,6 +58,7 @@ fun ListLabel(
         style = style,
         fontWeight = fontWeight,
         maxLines = maxLines,
-        overflow = overflow
+        overflow = overflow,
+        color = color
     )
 }

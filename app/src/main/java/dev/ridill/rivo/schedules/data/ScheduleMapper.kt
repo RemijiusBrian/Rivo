@@ -2,8 +2,10 @@ package dev.ridill.rivo.schedules.data
 
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.schedules.data.local.relation.ScheduleWithLastTransactionRelation
+import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItem
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
@@ -20,8 +22,7 @@ fun ScheduleEntity.toSchedule(): Schedule = Schedule(
     note = note,
     type = TransactionType.valueOf(typeName),
     tagId = tagId,
-    folderId = folderId,
-    planId = planId
+    folderId = folderId
 )
 
 fun Schedule.toTransaction(
@@ -47,8 +48,7 @@ fun Schedule.toEntity(): ScheduleEntity = ScheduleEntity(
     repeatModeName = repeatMode.name,
     tagId = tagId,
     folderId = folderId,
-    nextReminderDate = nextReminderDate,
-    planId = planId
+    nextReminderDate = nextReminderDate
 )
 
 fun ScheduleWithLastTransactionRelation.toScheduleListItem(
@@ -61,4 +61,12 @@ fun ScheduleWithLastTransactionRelation.toScheduleListItem(
     lastPaymentTimestamp = transactionEntity?.timestamp,
     canMarkPaid = schedule.nextReminderDate?.isAfter(dateNow) == true
             && schedule.nextReminderDate.monthValue == dateNow.monthValue
+)
+
+fun ScheduleEntity.toActiveSchedule(): UpcomingSchedule = UpcomingSchedule(
+    id = id,
+    note = note?.let { UiText.DynamicString(it) }
+        ?: UiText.StringResource(TransactionType.valueOf(typeName).labelRes),
+    amount = amount,
+    dueDate = nextReminderDate ?: DateUtil.dateNow()
 )
