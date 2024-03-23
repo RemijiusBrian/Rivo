@@ -430,7 +430,7 @@ private fun Balance(
             Text(
                 text = TextFormat.currency(amount = it, currency = currency),
                 style = MaterialTheme.typography.displayLarge
-                    .copy(lineBreak = LineBreak.Heading),
+                    .copy(lineBreak = LineBreak.Simple),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = MaterialTheme.colorScheme.primary
