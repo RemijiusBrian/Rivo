@@ -11,7 +11,7 @@ import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
-import dev.ridill.rivo.transactions.data.toTransactionInput
+import dev.ridill.rivo.transactions.data.toTransaction
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class AddEditTransactionRepositoryImpl(
 
     override suspend fun getTransactionById(id: Long): Transaction? =
         withContext(Dispatchers.IO) {
-            dao.getTransactionById(id)?.toTransactionInput()
+            dao.getTransactionById(id)?.toTransaction()
         }
 
     override fun getAmountRecommendations(): Flow<List<Long>> = dao.getTransactionAmountRange()
@@ -55,12 +55,12 @@ class AddEditTransactionRepositoryImpl(
         }
 
     override suspend fun deleteTransaction(id: Long) = withContext(Dispatchers.IO) {
-        dao.deleteTransactionById(id)
+        dao.deleteById(id)
     }
 
     override suspend fun toggleExclusionById(id: Long, excluded: Boolean) =
         withContext(Dispatchers.IO) {
-            dao.toggleExclusionByIds(listOf(id), excluded)
+            dao.toggleExclusionByIds(setOf(id), excluded)
         }
 
     override suspend fun getScheduleById(id: Long): Schedule? =

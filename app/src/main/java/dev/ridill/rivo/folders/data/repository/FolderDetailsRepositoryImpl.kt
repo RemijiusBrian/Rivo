@@ -76,10 +76,10 @@ class FolderDetailsRepositoryImpl(
         }
 
 
-    override suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: List<Long>) =
+    override suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: Set<Long>) =
         withContext(Dispatchers.IO) {
             transactionDao.setFolderIdToTransactionsByIds(
-                transactionIds = transactionIds,
+                ids = transactionIds,
                 folderId = folderId
             )
         }
@@ -94,7 +94,7 @@ class FolderDetailsRepositoryImpl(
 
     override suspend fun removeTransactionFromFolderById(transactionId: Long) =
         withContext(Dispatchers.IO) {
-            transactionDao.setFolderIdToTransactionsByIds(listOf(transactionId), null)
+            transactionDao.setFolderIdToTransactionsByIds(setOf(transactionId), null)
         }
 
     override suspend fun addTransactionToFolder(transaction: TransactionListItem) {

@@ -13,31 +13,17 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
-import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.settings.data.local.BudgetDao
-import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.BudgetRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.CurrencyRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
-import dev.ridill.rivo.settings.domain.notification.AppLockNotificationHelper
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
-import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
-import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
-import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
-import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
-import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -47,16 +33,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object SettingsModule {
-
-    @Provides
-    fun provideBudgetDao(database: RivoDatabase): BudgetDao = database.budgetDao()
-
-    @Provides
-    fun provideBudgetRepository(
-        dao: BudgetDao
-    ): BudgetRepository = BudgetRepositoryImpl(dao)
-
+object SettingsSingletonModule {
     @Provides
     fun provideCurrencyDao(database: RivoDatabase): CurrencyDao = database.currencyDao()
 
@@ -66,27 +43,9 @@ object SettingsModule {
     ): CurrencyRepository = CurrencyRepositoryImpl(dao)
 
     @Provides
-    fun provideMiscConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
-
-    @Provides
-    fun provideSettingsRepository(
-        budgetRepository: BudgetRepository,
-        currencyRepository: CurrencyRepository
-    ): SettingsRepository = SettingsRepositoryImpl(
-        budgetRepo = budgetRepository,
-        currencyRepo = currencyRepository
-    )
-
-    @Provides
-    fun provideSettingsEventBus(): EventBus<SettingsViewModel.SettingsEvent> = EventBus()
-
-    @Provides
     fun provideGoogleSignInService(
         @ApplicationContext context: Context
     ): GoogleSignInService = GoogleSignInService(context)
-
-    @Provides
-    fun provideBackupSettingsEventBus(): EventBus<BackupSettingsViewModel.BackupEvent> = EventBus()
 
     @GoogleApis
     @Provides
@@ -166,47 +125,14 @@ object SettingsModule {
     ): NotificationHelper<String> = BackupNotificationHelper(context)
 
     @Provides
-    fun provideBackupSettingsRepository(
-        dao: ConfigDao,
-        signInService: GoogleSignInService,
-        preferencesManager: PreferencesManager,
-        backupWorkManager: BackupWorkManager,
-        cryptoManager: CryptoManager
-    ): BackupSettingsRepository = BackupSettingsRepositoryImpl(
-        dao = dao,
-        signInService = signInService,
-        preferencesManager = preferencesManager,
-        backupWorkManager = backupWorkManager,
-        cryptoManager = cryptoManager
-    )
-
-    @AppLockFeature
-    @Provides
-    fun provideAppLockNotificationHelper(
-        @ApplicationContext context: Context
-    ): NotificationHelper<Unit> = AppLockNotificationHelper(context)
-
-    @Provides
     fun provideAppLockServiceManager(
         @ApplicationContext context: Context
     ): AppLockServiceManager = AppLockServiceManager(context)
-
-    @Provides
-    fun provideSecuritySettingsEventBus(): EventBus<SecuritySettingsViewModel.SecuritySettingsEvent> =
-        EventBus()
-
-    @Provides
-    fun provideBackupEncryptionEventBus(): EventBus<BackupEncryptionViewModel.BackupEncryptionEvent> =
-        EventBus()
 }
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class GoogleApis
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class AppLockFeature
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

@@ -389,7 +389,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     private suspend fun toggleTransactionExclusion(ids: Set<Long>, excluded: Boolean) {
         transactionRepo.toggleTransactionExclusionByIds(
-            ids = ids.toList(),
+            ids = ids,
             excluded = excluded
         )
         dismissMultiSelectionMode()
@@ -409,7 +409,7 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     private suspend fun removeTransactionsFromFolders(ids: Set<Long>) {
-        transactionRepo.removeTransactionsFromFolders(ids.toList())
+        transactionRepo.removeTransactionsFromFolders(ids)
         dismissMultiSelectionMode()
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_removed_from_their_folders)))
     }
@@ -426,7 +426,7 @@ class AllTransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             transactionRepo.addTransactionsToFolderByIds(
-                transactionIds = selectedIds.toList(),
+                ids = selectedIds,
                 folderId = folder.id
             )
             savedStateHandle[SHOW_FOLDER_SELECTION] = false
@@ -446,7 +446,7 @@ class AllTransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             savedStateHandle[SHOW_FOLDER_SELECTION] = false
-            eventBus.send(AllTransactionsEvent.NavigateToFolderDetailsWithIds(selectedIds.toList()))
+            eventBus.send(AllTransactionsEvent.NavigateToFolderDetailsWithIds(selectedIds))
             dismissMultiSelectionMode()
         }
     }
@@ -474,7 +474,7 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     private suspend fun deleteTransactions(ids: Set<Long>) {
-        transactionRepo.deleteTransactionsByIds(ids.toList())
+        transactionRepo.deleteTransactionsByIds(ids)
     }
 
     override fun onTagLongClick(tagId: Long) {
@@ -524,7 +524,7 @@ class AllTransactionsViewModel @Inject constructor(
     sealed class AllTransactionsEvent {
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent()
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent()
-        data class NavigateToFolderDetailsWithIds(val transactionIds: List<Long>) :
+        data class NavigateToFolderDetailsWithIds(val transactionIds: Set<Long>) :
             AllTransactionsEvent()
     }
 }

@@ -54,11 +54,12 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                 }
 
                 is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
-                    val route = FolderDetailsScreenSpec.routeWithArgs(
-                        transactionFolderId = null,
-                        txIds = event.transactionIds
+                    navController.navigate(
+                        route = FolderDetailsScreenSpec.routeWithArgs(
+                            transactionFolderId = null,
+                            txIds = event.transactionIds
+                        )
                     )
-                    navController.navigate(route)
                 }
             }
         }

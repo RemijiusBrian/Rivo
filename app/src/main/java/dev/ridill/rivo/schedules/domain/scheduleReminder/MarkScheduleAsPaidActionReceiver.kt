@@ -6,12 +6,12 @@ import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.di.ApplicationScope
-import dev.ridill.rivo.schedules.data.toTransaction
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.notification.ScheduleReminderNotificationHelper
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
+import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,7 +27,7 @@ class MarkScheduleAsPaidActionReceiver : BroadcastReceiver() {
     lateinit var repo: SchedulesRepository
 
     @Inject
-    lateinit var addEditTxRepo: AddEditTransactionRepository
+    lateinit var txRepo: TransactionRepository
 
     @Inject
     lateinit var notificationHelper: NotificationHelper<Schedule>
@@ -37,19 +37,27 @@ class MarkScheduleAsPaidActionReceiver : BroadcastReceiver() {
             return
 
         applicationScope.launch {
-            val txId = intent.getLongExtra(ScheduleReminder.EXTRA_SCHEDULE_ID, -1L)
+            val scheduleId = intent.getLongExtra(ScheduleReminder.EXTRA_SCHEDULE_ID, -1L)
                 .takeIf { it > -1L }
                 ?: return@launch
-            val transaction = repo.getScheduleById(txId)
-                ?.toTransaction()
+            val schedule = repo.getScheduleById(scheduleId)
                 ?: return@launch
 
-            addEditTxRepo.saveTransaction(transaction)
+            txRepo.saveTransaction(
+                amount = schedule.amount,
+                note = schedule.note,
+                timestamp = DateUtil.now(),
+                type = schedule.type,
+                tagId = schedule.tagId,
+                folderId = schedule.folderId,
+                scheduleId = scheduleId,
+                excluded = false
+            )
             notificationHelper.updateNotification(
-                id = txId.hashCode(),
+                id = scheduleId.hashCode(),
                 notification = notificationHelper
                     .buildBaseNotification()
-                    .setContentTitle(context?.getString(R.string.transaction_added))
+                    .setContentTitle(context?.getString(R.string.schedule_marked_as_paid))
                     .setTimeoutAfter(NotificationHelper.Utils.TIMEOUT_MILLIS)
                     .build()
             )

@@ -25,7 +25,7 @@ class AllTransactionsRepositoryImpl(
     override fun getCurrencyPreference(date: LocalDate): Flow<Currency> = currencyRepo
         .getCurrencyForDateOrNext(date)
 
-    override suspend fun deleteTransactionsByIds(ids: List<Long>) = withContext(Dispatchers.IO) {
+    override suspend fun deleteTransactionsByIds(ids: Set<Long>) = withContext(Dispatchers.IO) {
         dao.deleteMultipleTransactionsById(ids)
     }
 
@@ -64,17 +64,17 @@ class AllTransactionsRepositoryImpl(
     override suspend fun toggleShowExcludedTransactions(show: Boolean) =
         preferencesManager.updateShowExcludedTransactions(show)
 
-    override suspend fun toggleTransactionExclusionByIds(ids: List<Long>, excluded: Boolean) =
+    override suspend fun toggleTransactionExclusionByIds(ids: Set<Long>, excluded: Boolean) =
         withContext(Dispatchers.IO) {
             dao.toggleExclusionByIds(ids, excluded)
         }
 
-    override suspend fun addTransactionsToFolderByIds(transactionIds: List<Long>, folderId: Long) =
+    override suspend fun addTransactionsToFolderByIds(ids: Set<Long>, folderId: Long) =
         withContext(Dispatchers.IO) {
-            dao.setFolderIdToTransactionsByIds(transactionIds = transactionIds, folderId = folderId)
+            dao.setFolderIdToTransactionsByIds(ids = ids, folderId = folderId)
         }
 
-    override suspend fun removeTransactionsFromFolders(ids: List<Long>) =
+    override suspend fun removeTransactionsFromFolders(ids: Set<Long>) =
         withContext(Dispatchers.IO) {
             dao.removeFolderFromTransactionsByIds(ids)
         }

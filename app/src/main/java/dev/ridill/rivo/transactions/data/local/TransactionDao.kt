@@ -115,19 +115,19 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     fun getYearsFromTransactions(): Flow<List<Int>>
 
     @Query("UPDATE transaction_table SET is_excluded = :exclude WHERE id IN (:ids)")
-    suspend fun toggleExclusionByIds(ids: List<Long>, exclude: Boolean)
+    suspend fun toggleExclusionByIds(ids: Set<Long>, exclude: Boolean)
 
     @Query("DELETE FROM transaction_table WHERE id = :id")
-    suspend fun deleteTransactionById(id: Long)
+    suspend fun deleteById(id: Long)
 
     @Query("DELETE FROM transaction_table WHERE id IN (:ids)")
-    suspend fun deleteMultipleTransactionsById(ids: List<Long>)
+    suspend fun deleteMultipleTransactionsById(ids: Set<Long>)
 
-    @Query("UPDATE transaction_table SET folder_id = :folderId WHERE id IN (:transactionIds)")
-    suspend fun setFolderIdToTransactionsByIds(transactionIds: List<Long>, folderId: Long?)
+    @Query("UPDATE transaction_table SET folder_id = :folderId WHERE id IN (:ids)")
+    suspend fun setFolderIdToTransactionsByIds(ids: Set<Long>, folderId: Long?)
 
     @Query("UPDATE transaction_table SET folder_id = NULL WHERE id IN (:ids)")
-    suspend fun removeFolderFromTransactionsByIds(ids: List<Long>)
+    suspend fun removeFolderFromTransactionsByIds(ids: Set<Long>)
 
     @Query("SELECT * FROM transaction_table WHERE schedule_id = :scheduleId AND strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date)")
     suspend fun getTransactionForScheduleAndDate(

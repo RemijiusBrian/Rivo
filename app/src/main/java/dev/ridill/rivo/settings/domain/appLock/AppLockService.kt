@@ -87,7 +87,7 @@ class AppLockService : Service() {
     private fun setForeground() {
         ServiceCompat.startForeground(
             this,
-            NOTIFICATION_ID,
+            notificationId,
             notificationHelper.buildBaseNotification()
                 .setContentTitle(
                     getString(
@@ -127,6 +127,7 @@ class AppLockService : Service() {
         LOCK_APP_IMMEDIATELY,
         STOP_SERVICE
     }
-}
 
-private const val NOTIFICATION_ID = 6545
+    private val notificationId: Int
+        get() = "${applicationContext.packageName}.APP_LOCK_NOTIFICATION_ID".hashCode()
+}

@@ -10,7 +10,6 @@ import com.google.mlkit.nl.entityextraction.EntityExtractionParams
 import com.google.mlkit.nl.entityextraction.EntityExtractor
 import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.WhiteSpace
@@ -18,9 +17,10 @@ import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
+import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -30,7 +30,8 @@ import java.time.LocalDateTime
 import java.util.Locale
 
 class TransactionSmsService(
-    private val repo: AddEditTransactionRepository,
+    private val currencyRepo: CurrencyRepository,
+    private val transactionRepo: TransactionRepository,
     private val notificationHelper: NotificationHelper<Transaction>,
     private val applicationScope: CoroutineScope,
     private val context: Context
@@ -55,7 +56,7 @@ class TransactionSmsService(
             if (!extractor.isModelDownloaded.await()) return@launch
 
             val dateTimeNow = DateUtil.now()
-            val currency = repo.getCurrencyPreference(dateTimeNow).first()
+            val currency = currencyRepo.getCurrencyForDateOrNext(dateTimeNow.toLocalDate()).first()
             val messages = getSmsFromIntent(data)
             for (message in messages) {
                 val content = message.messageBody
@@ -83,24 +84,16 @@ class TransactionSmsService(
                     secondParty
                 )
 
-                val transaction = Transaction(
-                    id = RivoDatabase.DEFAULT_ID_LONG,
-                    amount = amount.toString(),
+                val insertedTx = transactionRepo.saveTransaction(
+                    amount = amount,
                     note = note,
                     timestamp = timestamp,
-                    type = type,
-                    excluded = false,
-                    tagId = null,
-                    folderId = null,
-                    scheduleId = null
+                    type = type
                 )
 
-                val insertedId = repo.saveTransaction(transaction)
-
                 notificationHelper.postNotification(
-                    id = insertedId.hashCode(),
-                    data = transaction.copy(
-                        id = insertedId,
+                    id = insertedTx.id.hashCode(),
+                    data = insertedTx.copy(
                         amount = TextFormat.currency(amount, currency)
                     )
                 )

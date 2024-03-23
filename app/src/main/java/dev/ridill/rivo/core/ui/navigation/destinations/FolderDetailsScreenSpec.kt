@@ -78,7 +78,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     fun routeWithArgs(
         transactionFolderId: Long?,
         exitAfterClear: Boolean = false,
-        txIds: List<Long> = emptyList()
+        txIds: Set<Long> = emptySet()
     ): String = route
         .replace(
             oldValue = "{$ARG_FOLDER_ID}",
@@ -96,10 +96,11 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: ARG_INVALID_ID_LONG
 
-    fun getTxIdsArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): List<Long> =
+    fun getTxIdsArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Set<Long> =
         savedStateHandle.get<String>(ARG_TX_IDS_LIST).orEmpty()
             .split(TX_IDS_SEPARATOR)
             .mapNotNull { it.toLongOrNull() }
+            .toSet()
 
     fun isIdInvalid(folderId: Long): Boolean = folderId == ARG_INVALID_ID_LONG
 

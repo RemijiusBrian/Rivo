@@ -10,7 +10,7 @@ import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
-fun TransactionEntity.toTransactionInput(): Transaction = Transaction(
+fun TransactionEntity.toTransaction(): Transaction = Transaction(
     id = id,
     amount = TextFormat.number(
         value = amount,

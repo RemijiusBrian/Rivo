@@ -55,7 +55,7 @@ data object DashboardScreenSpec : ScreenSpec {
                         actionLabel = context.getString(R.string.action_view),
                         onSnackbarResult = { result ->
                             if (result == SnackbarResult.ActionPerformed) {
-                                navController.navigate(ScheduledTransactionsGraphSpec.route)
+                                navController.navigate(SchedulesGraphSpec.route)
                             }
                         }
                     )

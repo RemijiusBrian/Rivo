@@ -22,7 +22,7 @@ interface FolderDetailsRepository {
         folderId: Long
     ): Flow<PagingData<TransactionListItemUIModel>>
 
-    suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: List<Long>)
+    suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: Set<Long>)
     suspend fun removeTransactionFromFolderById(transactionId: Long)
     suspend fun addTransactionToFolder(transaction: TransactionListItem)
 }

@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 interface AllTransactionsRepository {
     fun getCurrencyPreference(date: LocalDate): Flow<Currency>
-    suspend fun deleteTransactionsByIds(ids: List<Long>)
+    suspend fun deleteTransactionsByIds(ids: Set<Long>)
     fun getTransactionYearsList(): Flow<List<Int>>
     fun getAmountAggregate(
         date: LocalDate,
@@ -26,7 +26,7 @@ interface AllTransactionsRepository {
 
     fun getShowExcludedTransactions(): Flow<Boolean>
     suspend fun toggleShowExcludedTransactions(show: Boolean)
-    suspend fun toggleTransactionExclusionByIds(ids: List<Long>, excluded: Boolean)
-    suspend fun addTransactionsToFolderByIds(transactionIds: List<Long>, folderId: Long)
-    suspend fun removeTransactionsFromFolders(ids: List<Long>)
+    suspend fun toggleTransactionExclusionByIds(ids: Set<Long>, excluded: Boolean)
+    suspend fun addTransactionsToFolderByIds(ids: Set<Long>, folderId: Long)
+    suspend fun removeTransactionsFromFolders(ids: Set<Long>)
 }

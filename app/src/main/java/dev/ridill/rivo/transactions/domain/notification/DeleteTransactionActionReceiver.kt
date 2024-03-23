@@ -10,7 +10,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.navigation.destinations.ARG_TRANSACTION_ID
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
+import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class DeleteTransactionActionReceiver : BroadcastReceiver() {
     lateinit var applicationScope: CoroutineScope
 
     @Inject
-    lateinit var repo: AddEditTransactionRepository
+    lateinit var repo: TransactionRepository
 
     @Inject
     lateinit var notificationHelper: NotificationHelper<Transaction>
@@ -33,7 +33,7 @@ class DeleteTransactionActionReceiver : BroadcastReceiver() {
         if (id < Long.Zero) return
 
         applicationScope.launch {
-            repo.deleteTransaction(id)
+            repo.delete(id)
             notificationHelper.updateNotification(
                 id = id.hashCode(),
                 notification = notificationHelper.buildBaseNotification()
