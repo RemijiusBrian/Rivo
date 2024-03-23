@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.AssistChip
@@ -40,11 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -124,7 +123,7 @@ fun AllSchedulesScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = { navigateToAddEditSchedule(null) }) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_schedule),
+                    imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.cd_new_schedule_fab)
                 )
             }
