@@ -32,7 +32,11 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         try {
             repo.performAppDataBackup()
             logI { "Backup Completed" }
-            Result.success()
+            Result.success(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.backup_complete)
+                )
+            )
         } catch (t: InvalidEncryptionPasswordThrowable) {
             logE(t) { "InvalidEncryptionPasswordThrowable" }
             notificationHelper.postNotification(
