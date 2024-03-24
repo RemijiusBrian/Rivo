@@ -13,6 +13,7 @@ interface AllTransactionsRepository {
     fun getAmountAggregate(
         date: LocalDate,
         type: TransactionType?,
+        tagId: Long?,
         addExcluded: Boolean,
         selectedTxIds: Set<Long>?
     ): Flow<Double>

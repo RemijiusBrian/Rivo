@@ -100,15 +100,23 @@ class AllTransactionsViewModel @Inject constructor(
     }.distinctUntilChanged()
         .asStateFlow(viewModelScope, ToggleableState.Off)
 
-    private val totalAmount = combineTuple(
-        selectedTransactionIds,
+    private val aggregateAmount = combineTuple(
         selectedDate,
         transactionTypeFilter,
-        showExcludedTransactions
-    ).flatMapLatest { (selectedTxIds, date, type, addExcluded) ->
+        selectedTagId,
+        showExcludedTransactions,
+        selectedTransactionIds
+    ).flatMapLatest { (
+                          date,
+                          type,
+                          selectedTagId,
+                          addExcluded,
+                          selectedTxIds
+                      ) ->
         transactionRepo.getAmountAggregate(
             date = date,
             type = type,
+            tagId = selectedTagId,
             addExcluded = addExcluded,
             selectedTxIds = selectedTxIds.ifEmpty { null }
         )
@@ -150,7 +158,7 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         yearsList,
         currency,
-        totalAmount,
+        aggregateAmount,
         tagsWithExpenditures,
         selectedTagId,
         transactionTypeFilter,
@@ -169,7 +177,7 @@ class AllTransactionsViewModel @Inject constructor(
                 selectedDate,
                 yearsList,
                 currency,
-                totalAmount,
+                aggregateAmount,
                 tagsWithExpenditures,
                 selectedTagId,
                 transactionTypeFilter,
@@ -189,7 +197,7 @@ class AllTransactionsViewModel @Inject constructor(
             selectedDate = selectedDate,
             yearsList = yearsList,
             currency = currency,
-            totalAmount = totalAmount,
+            aggregateAmount = aggregateAmount,
             tagsWithExpenditures = tagsWithExpenditures,
             selectedTagId = selectedTagId,
             selectedTransactionTypeFilter = transactionTypeFilter,

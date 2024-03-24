@@ -229,7 +229,7 @@ fun AllTransactionsScreen(
                     yearsList = state.yearsList,
                     onYearSelect = actions::onYearSelect,
                     multiSelectionModeActive = state.transactionMultiSelectionModeActive,
-                    totalSumAmount = state.totalAmount,
+                    totalSumAmount = state.aggregateAmount,
                     currency = state.currency,
                     selectedTxTypeFilter = state.selectedTransactionTypeFilter,
                     listLabel = state.transactionListLabel,
