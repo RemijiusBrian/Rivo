@@ -17,6 +17,10 @@ data class Tag(
     val createdTimestamp: LocalDateTime,
     val excluded: Boolean
 ) : Parcelable {
+
+    val createdTimestampFormatted: String
+        get() = createdTimestamp.format(DateUtil.Formatters.localizedDateMedium)
+
     companion object {
         val NEW = Tag(
             id = RivoDatabase.DEFAULT_ID_LONG,

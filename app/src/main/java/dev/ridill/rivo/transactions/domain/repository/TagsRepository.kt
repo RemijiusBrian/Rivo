@@ -1,15 +1,14 @@
 package dev.ridill.rivo.transactions.domain.repository
 
+import androidx.paging.PagingData
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagInfo
+import dev.ridill.rivo.transactions.domain.model.TagSelector
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface TagsRepository {
-    fun getAllTags(): Flow<List<Tag>>
-    fun getTagsWithExpenditures(date: LocalDate): Flow<List<TagInfo>>
-
+    fun getTagSelectorsPagingData(): Flow<PagingData<TagSelector>>
+    fun getTagsPagingData(): Flow<PagingData<Tag>>
     suspend fun assignTagToTransactions(tagId: Long, ids: List<Long>)
     suspend fun untagTransactions(ids: List<Long>)
     suspend fun saveTag(

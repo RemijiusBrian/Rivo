@@ -378,4 +378,6 @@
     <string name="schedule_name_of_amount">Schedule %1$s of %2$s coming up.</string>
     <string name="due_on_date">Due on %s</string>
     <string name="upcoming_schedules">Upcoming Schedules</string>
+    <string name="created_colon_timestamp_value">Created: %s</string>
+    <string name="asterisk_long_press_to_edit">*Long press to edit</string>
 </resources>

@@ -52,9 +52,8 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    private val tagsWithExpenditures = selectedDate.flatMapLatest { date ->
-        tagsRepo.getTagsWithExpenditures(date = date)
-    }
+    val tagsPagingData = tagsRepo.getTagsPagingData()
+        .cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
 
@@ -100,15 +99,23 @@ class AllTransactionsViewModel @Inject constructor(
     }.distinctUntilChanged()
         .asStateFlow(viewModelScope, ToggleableState.Off)
 
-    private val totalAmount = combineTuple(
-        selectedTransactionIds,
+    private val aggregateAmount = combineTuple(
         selectedDate,
         transactionTypeFilter,
-        showExcludedTransactions
-    ).flatMapLatest { (selectedTxIds, date, type, addExcluded) ->
+        selectedTagId,
+        showExcludedTransactions,
+        selectedTransactionIds
+    ).flatMapLatest { (
+                          date,
+                          type,
+                          selectedTagId,
+                          addExcluded,
+                          selectedTxIds
+                      ) ->
         transactionRepo.getAmountAggregate(
             date = date,
             type = type,
+            tagId = selectedTagId,
             addExcluded = addExcluded,
             selectedTxIds = selectedTxIds.ifEmpty { null }
         )
@@ -150,8 +157,7 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         yearsList,
         currency,
-        totalAmount,
-        tagsWithExpenditures,
+        aggregateAmount,
         selectedTagId,
         transactionTypeFilter,
         transactionListLabel,
@@ -169,8 +175,7 @@ class AllTransactionsViewModel @Inject constructor(
                 selectedDate,
                 yearsList,
                 currency,
-                totalAmount,
-                tagsWithExpenditures,
+                aggregateAmount,
                 selectedTagId,
                 transactionTypeFilter,
                 transactionListLabel,
@@ -189,8 +194,7 @@ class AllTransactionsViewModel @Inject constructor(
             selectedDate = selectedDate,
             yearsList = yearsList,
             currency = currency,
-            totalAmount = totalAmount,
-            tagsWithExpenditures = tagsWithExpenditures,
+            aggregateAmount = aggregateAmount,
             selectedTagId = selectedTagId,
             selectedTransactionTypeFilter = transactionTypeFilter,
             transactionList = transactionList,

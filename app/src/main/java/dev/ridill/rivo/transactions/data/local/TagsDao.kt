@@ -1,45 +1,19 @@
 package dev.ridill.rivo.transactions.data.local
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
-import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
-import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
-import kotlinx.coroutines.flow.Flow
-import java.time.LocalDateTime
 
 @Dao
 interface TagsDao : BaseDao<TagEntity> {
-
     @Query("SELECT * FROM tag_table ORDER BY name ASC")
-    fun getAllTags(): Flow<List<TagEntity>>
+    fun getAllTagsPaged(): PagingSource<Int, TagEntity>
 
     @Query("SELECT * FROM tag_table WHERE id = :id")
     suspend fun getTagById(id: Long): TagEntity?
-
-    @Transaction
-    @Query(
-        """
-        SELECT tag.id as id,
-        tag.name as name,
-        tag.color_code as colorCode,
-        tag.created_timestamp as createdTimestamp,
-        tag.is_excluded as isExcluded,
-        (SELECT IFNULL(SUM(subTx.amount), 0.0)
-            FROM transaction_table subTx
-            WHERE subTx.tag_id = tag.id
-            AND strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', subTx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date)
-            AND subTx.type = 'DEBIT'   
-        ) as amount
-        FROM tag_table tag
-        ORDER BY name ASC, datetime(createdTimestamp) DESC
-    """
-    )
-    fun getTagsWithExpenditureForDate(
-        date: LocalDateTime
-    ): Flow<List<TagWithExpenditureRelation>>
 
     @Query("UPDATE transaction_table SET tag_id = :tagId WHERE id IN (:ids)")
     suspend fun assignTagToTransactionsByIds(tagId: Long, ids: List<Long>)

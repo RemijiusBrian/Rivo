@@ -1,34 +1,41 @@
 package dev.ridill.rivo.transactions.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.entity.TagEntity
-import dev.ridill.rivo.transactions.data.local.relations.TagWithExpenditureRelation
 import dev.ridill.rivo.transactions.data.toTag
-import dev.ridill.rivo.transactions.data.toTagInfo
+import dev.ridill.rivo.transactions.data.toTagSelector
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagInfo
+import dev.ridill.rivo.transactions.domain.model.TagSelector
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 class TagsRepositoryImpl(
     private val dao: TagsDao
 ) : TagsRepository {
-
-    override fun getAllTags(): Flow<List<Tag>> = dao.getAllTags()
-        .map { it.map(TagEntity::toTag) }
+    override fun getTagSelectorsPagingData(): Flow<PagingData<TagSelector>> =
+        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+            dao.getAllTagsPaged()
+        }.flow
+            .map { pagingData -> pagingData.map(TagEntity::toTagSelector) }
 
     override suspend fun getTagById(id: Long): Tag? = withContext(Dispatchers.IO) {
         dao.getTagById(id)?.toTag()
     }
 
-    override fun getTagsWithExpenditures(date: LocalDate): Flow<List<TagInfo>> = dao
-        .getTagsWithExpenditureForDate(date.atStartOfDay())
-        .map { it.map(TagWithExpenditureRelation::toTagInfo) }
+    override fun getTagsPagingData(): Flow<PagingData<Tag>> =
+        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+            dao.getAllTagsPaged()
+        }.flow
+            .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
     override suspend fun assignTagToTransactions(tagId: Long, ids: List<Long>) =
         withContext(Dispatchers.IO) {

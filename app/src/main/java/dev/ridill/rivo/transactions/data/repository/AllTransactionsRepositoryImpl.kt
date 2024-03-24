@@ -36,11 +36,13 @@ class AllTransactionsRepositoryImpl(
     override fun getAmountAggregate(
         date: LocalDate,
         type: TransactionType?,
+        tagId: Long?,
         addExcluded: Boolean,
         selectedTxIds: Set<Long>?
     ): Flow<Double> = dao.getAmountAggregate(
         dateTime = date.atStartOfDay(),
         selectedTxIds = selectedTxIds,
+        tagId = tagId,
         typeName = type?.name,
         addExcluded = addExcluded
     ).distinctUntilChanged()
