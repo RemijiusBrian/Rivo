@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -46,7 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LastBaseline
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -84,7 +81,6 @@ import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -95,7 +91,7 @@ import kotlin.math.absoluteValue
 fun FolderDetailsScreen(
     snackbarController: SnackbarController,
     state: FolderDetailsState,
-    transactionsList: LazyPagingItems<TransactionListItemUIModel>,
+    transactionPagingItems: LazyPagingItems<TransactionListItemUIModel>,
     folderName: () -> String,
     actions: FolderDetailsActions,
     navigateToAddEditTransaction: (Long?) -> Unit,
@@ -156,67 +152,128 @@ fun FolderDetailsScreen(
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
             .imePadding()
     ) { paddingValues ->
-        val localLayoutDirection = LocalLayoutDirection.current
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                    start = paddingValues.calculateStartPadding(localLayoutDirection),
-                    end = paddingValues.calculateEndPadding(localLayoutDirection)
-                )
-                .padding(top = SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(
+                top = SpacingMedium,
+                bottom = SpacingListEnd
+            ),
+            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            NameField(
-                name = folderName,
-                onNameChange = actions::onNameChange,
-                editModeActive = state.editModeActive,
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-            )
-
-            LabelledSwitch(
-                labelRes = R.string.mark_excluded_question,
-                checked = state.isExcluded,
-                onCheckedChange = actions::onExclusionToggle,
-                enabled = state.editModeActive,
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
-                    .align(Alignment.End)
-            )
-
-            AggregateAmountAndCreatedDate(
-                currency = state.currency,
-                aggregateAmount = state.aggregateAmount,
-                aggregateType = state.aggregateType,
-                date = state.createdTimestampFormatted,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
-            )
+            item(
+                key = "FolderDetails",
+                contentType = "FolderDetails"
+            ) {
+                FolderDetails(
+                    folderName = folderName,
+                    onNameChange = actions::onNameChange,
+                    editModeActive = state.editModeActive,
+                    isExcluded = state.isExcluded,
+                    onExclusionToggle = actions::onExclusionToggle,
+                    currency = state.currency,
+                    aggregateAmount = state.aggregateAmount,
+                    aggregateType = state.aggregateType,
+                    createdTimestamp = state.createdTimestampFormatted,
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .animateItemPlacement()
+                )
+            }
 
             if (!state.isNewFolder) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(horizontal = SpacingMedium)
-                )
-                TransactionsInFolder(
-                    currency = state.currency,
-                    onTransactionClick = { navigateToAddEditTransaction(it) },
-                    onNewTransactionClick = { navigateToAddEditTransaction(null) },
-                    onTransactionSwipeDismiss = actions::onTransactionSwipeToDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(Float.One),
-                    insetPadding = paddingValues,
-                    pagingItems = transactionsList
-                )
+                stickyHeader(
+                    key = "TransactionListHeader",
+                    contentType = "TransactionListHeader"
+                ) {
+                    TransactionListHeader(
+                        onNewTransactionClick = { navigateToAddEditTransaction(null) },
+                        modifier = Modifier
+                            .fillParentMaxWidth()
+                            .padding(horizontal = SpacingMedium)
+                            .animateItemPlacement()
+                    )
+                }
+
+                if (transactionPagingItems.isEmpty()) {
+                    item(
+                        key = "EmptyListIndicator",
+                        contentType = "EmptyListIndicator"
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .fillParentMaxWidth(0.5f)
+                                .animateItemPlacement()
+                        ) {
+                            EmptyListIndicator(
+                                rawResId = R.raw.lottie_empty_list_ghost,
+                                messageRes = R.string.transactions_in_folder_list_empty_message
+                            )
+                        }
+                    }
+                }
+
+                repeat(transactionPagingItems.itemCount) { index ->
+                    transactionPagingItems[index]?.let { item ->
+                        when (item) {
+                            is TransactionListItemUIModel.DateSeparator -> {
+                                stickyHeader(
+                                    key = item.date.toString(),
+                                    contentType = "TransactionDateSeparator"
+                                ) {
+                                    ListSeparator(
+                                        label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
+                                        modifier = Modifier
+                                            .animateItemPlacement()
+                                    )
+                                }
+                            }
+
+                            is TransactionListItemUIModel.TransactionItem -> {
+                                item(
+                                    key = item.transaction.id,
+                                    contentType = "TransactionListItem"
+                                ) {
+                                    SwipeToDismissContainer(
+                                        item = item.transaction,
+                                        onDismiss = actions::onTransactionSwipeToDismiss,
+                                        backgroundContent = {
+                                            DismissBackground(
+                                                swipeDismissState = it,
+                                                icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
+                                                contentDescription = stringResource(R.string.cd_remove_from_folder),
+                                                enableDismissFromEndToStart = false,
+                                                modifier = Modifier
+                                                    .padding(horizontal = SpacingLarge)
+                                            )
+                                        },
+                                        enableDismissFromEndToStart = false,
+                                        modifier = Modifier
+                                            .animateItemPlacement()
+                                    ) {
+                                        TransactionCard(
+                                            note = item.transaction.note,
+                                            amount = item.transaction
+                                                .amountFormattedWithCurrency(state.currency),
+                                            date = item.transaction.date,
+                                            type = item.transaction.type,
+                                            excluded = item.transaction.excluded,
+                                            tag = item.transaction.tag,
+                                            onClick = { navigateToAddEditTransaction(item.transaction.id) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
         if (state.showDeleteConfirmation) {
-            if (transactionsList.itemCount == 0) {
+            if (transactionPagingItems.itemCount == 0) {
                 ConfirmationDialog(
                     titleRes = R.string.delete_transaction_folder_confirmation_title,
                     contentRes = R.string.action_irreversible_message,
@@ -235,6 +292,55 @@ fun FolderDetailsScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FolderDetails(
+    folderName: () -> String,
+    onNameChange: (String) -> Unit,
+    editModeActive: Boolean,
+    isExcluded: Boolean,
+    onExclusionToggle: (Boolean) -> Unit,
+    currency: Currency,
+    aggregateAmount: Double,
+    aggregateType: AggregateType,
+    createdTimestamp: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .padding(horizontal = SpacingMedium),
+        verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+    ) {
+        NameField(
+            name = folderName,
+            onNameChange = onNameChange,
+            editModeActive = editModeActive,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
+        LabelledSwitch(
+            labelRes = R.string.mark_excluded_question,
+            checked = isExcluded,
+            onCheckedChange = onExclusionToggle,
+            enabled = editModeActive,
+            modifier = Modifier
+                .align(Alignment.End)
+        )
+
+        AggregateAmountAndCreatedDate(
+            currency = currency,
+            aggregateAmount = aggregateAmount,
+            aggregateType = aggregateType,
+            date = createdTimestamp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = SpacingMedium)
+        )
+
+        HorizontalDivider()
     }
 }
 
@@ -271,7 +377,6 @@ private fun NameField(
         readOnly = !editModeActive,
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
-            .fillMaxWidth()
             .focusRequester(focusRequester),
         label = { Text(stringResource(R.string.label_transaction_folder_name)) },
         colors = TextFieldDefaults.colors(
@@ -340,109 +445,21 @@ private fun FolderCreatedDate(
 }
 
 @Composable
-private fun TransactionsInFolder(
-    currency: Currency,
-    onTransactionClick: (Long) -> Unit,
+private fun TransactionListHeader(
     onNewTransactionClick: () -> Unit,
-    onTransactionSwipeDismiss: (TransactionListItem) -> Unit,
-    modifier: Modifier = Modifier,
-    insetPadding: PaddingValues = PaddingValues(),
-    pagingItems: LazyPagingItems<TransactionListItemUIModel>
+    modifier: Modifier = Modifier
 ) {
-    Box(
+    Row(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        if (pagingItems.isEmpty()) {
-            EmptyListIndicator(
-                rawResId = R.raw.lottie_empty_list_ghost,
-                messageRes = R.string.transactions_in_folder_list_empty_message
+        ListLabel(stringResource(R.string.transactions))
+        FilledTonalIconButton(onClick = onNewTransactionClick) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = stringResource(R.string.cd_new_transaction_fab)
             )
-        }
-        Column(
-            modifier = Modifier
-                .matchParentSize()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ListLabel(stringResource(R.string.transactions))
-                FilledTonalIconButton(onClick = onNewTransactionClick) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.cd_new_transaction_fab)
-                    )
-                }
-            }
-
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    top = SpacingSmall,
-                    bottom = insetPadding.calculateBottomPadding() + SpacingListEnd
-                ),
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
-            ) {
-                repeat(pagingItems.itemCount) { index ->
-                    pagingItems[index]?.let { item ->
-                        when (item) {
-                            is TransactionListItemUIModel.DateSeparator -> {
-                                stickyHeader(
-                                    key = item.date.toString(),
-                                    contentType = "TransactionDateSeparator"
-                                ) {
-                                    ListSeparator(
-                                        label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
-                                        modifier = Modifier
-                                            .animateItemPlacement()
-                                    )
-                                }
-                            }
-
-                            is TransactionListItemUIModel.TransactionItem -> {
-                                item(
-                                    key = item.transaction.id,
-                                    contentType = "TransactionListItem"
-                                ) {
-                                    SwipeToDismissContainer(
-                                        item = item.transaction,
-                                        onDismiss = { onTransactionSwipeDismiss(it) },
-                                        backgroundContent = {
-                                            DismissBackground(
-                                                swipeDismissState = it,
-                                                icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
-                                                contentDescription = stringResource(R.string.cd_remove_from_folder),
-                                                enableDismissFromEndToStart = false,
-                                                modifier = Modifier
-                                                    .padding(horizontal = SpacingLarge)
-                                            )
-                                        },
-                                        enableDismissFromEndToStart = false,
-                                        modifier = Modifier
-                                            .animateItemPlacement()
-                                    ) {
-                                        TransactionCard(
-                                            note = item.transaction.note,
-                                            amount = item.transaction
-                                                .amountFormattedWithCurrency(currency),
-                                            date = item.transaction.date,
-                                            type = item.transaction.type,
-                                            excluded = item.transaction.excluded,
-                                            tag = item.transaction.tag,
-                                            onClick = { onTransactionClick(item.transaction.id) }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

@@ -71,7 +71,7 @@ class FolderDetailsViewModel @Inject constructor(
 
     private val editModeActive = savedStateHandle.getStateFlow(EDIT_MODE_ACTIVE, false)
 
-    val transactionsList = folderIdFlow.flatMapLatest {
+    val transactionPagingData = folderIdFlow.flatMapLatest {
         repo.getPagedTransactionsInFolder(it)
     }.cachedIn(viewModelScope)
 
