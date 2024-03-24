@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -64,6 +65,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -124,6 +126,9 @@ import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -358,17 +363,19 @@ private fun TagsInfoList(
     onNewTagClick: () -> Unit,
     tagAssignModeActive: Boolean,
     onAssignToTransactions: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tagsListState: LazyListState = rememberLazyListState(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
-    val lazyListState = rememberLazyListState()
+    var scrollJob: Job? = remember { null }
     val isTagsEmpty by remember {
         derivedStateOf { tagsPagingItems.isEmpty() }
     }
 
     // Prevent tags list starting of at last index
-    LaunchedEffect(lazyListState, isTagsEmpty) {
+    LaunchedEffect(tagsListState, isTagsEmpty) {
         if (!isTagsEmpty) {
-            lazyListState.scrollToItem(0)
+            tagsListState.scrollToItem(0)
         }
     }
 
@@ -417,7 +424,7 @@ private fun TagsInfoList(
                     end = SpacingListEnd
                 ),
                 horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
-                state = lazyListState
+                state = tagsListState
             ) {
                 items(
                     count = tagsPagingItems.itemCount,
@@ -432,7 +439,13 @@ private fun TagsInfoList(
                             isExcluded = tag.excluded,
                             createdTimestamp = tag.createdTimestampFormatted,
                             isSelected = selected,
-                            onSelect = { onTagSelect(tag.id) },
+                            onSelect = {
+                                scrollJob?.cancel()
+                                scrollJob = coroutineScope.launch {
+                                    onTagSelect(tag.id)
+                                    tagsListState.animateScrollToItem(index)
+                                }
+                            },
                             onLongClick = { onTagLongClick(tag.id) },
                             tagAssignModeActive = tagAssignModeActive,
                             onAssignToTransactions = { onAssignToTransactions(tag.id) },
