@@ -5,11 +5,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.AnimationConstants
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -28,7 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -71,8 +70,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -86,10 +83,11 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
@@ -104,10 +102,12 @@ import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
+import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
+import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -116,9 +116,10 @@ import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusion
+import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
-import dev.ridill.rivo.transactions.domain.model.TagInfo
+import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
@@ -132,6 +133,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun AllTransactionsScreen(
     snackbarController: SnackbarController,
+    tagsPagingItems: LazyPagingItems<Tag>,
     state: AllTransactionsState,
     isTagInputEditMode: () -> Boolean,
     tagNameInput: () -> String,
@@ -204,8 +206,7 @@ fun AllTransactionsScreen(
                 contentType = "TagsHorizontalList"
             ) {
                 TagsInfoList(
-                    currency = state.currency,
-                    tags = state.tagsWithExpenditures,
+                    tagsPagingItems = tagsPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagSelect = actions::onTagSelect,
                     onTagLongClick = actions::onTagLongClick,
@@ -346,12 +347,11 @@ fun AllTransactionsScreen(
     }
 }
 
-private val TagsRowMinHeight = 120.dp
+private val TagsRowMinHeight = 100.dp
 
 @Composable
 private fun TagsInfoList(
-    currency: Currency,
-    tags: List<TagInfo>,
+    tagsPagingItems: LazyPagingItems<Tag>,
     selectedTagId: Long?,
     onTagSelect: (Long) -> Unit,
     onTagLongClick: (Long) -> Unit,
@@ -361,8 +361,8 @@ private fun TagsInfoList(
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
-    val isTagsEmpty by remember(tags) {
-        derivedStateOf { tags.isEmpty() }
+    val isTagsEmpty by remember {
+        derivedStateOf { tagsPagingItems.isEmpty() }
     }
 
     // Prevent tags list starting of at last index
@@ -420,29 +420,41 @@ private fun TagsInfoList(
                 state = lazyListState
             ) {
                 items(
-                    items = tags,
-                    key = { it.id },
-                    contentType = { "TagInfoCard" }
-                ) { tag ->
-                    val selected = tag.id == selectedTagId
-                    TagInfoCard(
-                        name = tag.name,
-                        color = tag.color,
-                        isExcluded = tag.excluded,
-                        expenditureAmount = TextFormat.currency(tag.expenditure, currency),
-                        isSelected = selected,
-                        onSelect = { onTagSelect(tag.id) },
-                        onLongClick = { onTagLongClick(tag.id) },
-                        tagAssignModeActive = tagAssignModeActive,
-                        onAssignToTransactions = { onAssignToTransactions(tag.id) },
-                        modifier = Modifier
-                            .fillParentMaxHeight()
-                            .animateItemPlacement()
-                    )
+                    count = tagsPagingItems.itemCount,
+                    key = tagsPagingItems.itemKey { it.id },
+                    contentType = tagsPagingItems.itemContentType { "TagCard" }
+                ) { index ->
+                    tagsPagingItems[index]?.let { tag ->
+                        val selected = tag.id == selectedTagId
+                        TagCard(
+                            name = tag.name,
+                            color = Color(tag.colorCode),
+                            isExcluded = tag.excluded,
+                            createdTimestamp = tag.createdTimestampFormatted,
+                            isSelected = selected,
+                            onSelect = { onTagSelect(tag.id) },
+                            onLongClick = { onTagLongClick(tag.id) },
+                            tagAssignModeActive = tagAssignModeActive,
+                            onAssignToTransactions = { onAssignToTransactions(tag.id) },
+                            modifier = Modifier
+                                .animateContentSize()
+                                .fillParentMaxHeight()
+                                .then(
+                                    if (selected) Modifier
+                                        .fillParentMaxWidth()
+                                    else Modifier
+                                        .widthIn(
+                                            min = TagInfoCardMinWidth,
+                                            max = TagInfoCardMaxWidth
+                                        )
+                                )
+                                .animateItemPlacement()
+                        )
+                    }
                 }
             }
         }
-        AnimatedVisibility(visible = tagAssignModeActive && tags.isNotEmpty()) {
+        AnimatedVisibility(visible = tagAssignModeActive && !isTagsEmpty) {
             Text(
                 text = stringResource(R.string.tap_tag_to_assign_to_selected_transactions),
                 style = MaterialTheme.typography.bodyMedium,
@@ -455,43 +467,41 @@ private fun TagsInfoList(
     }
 }
 
+private val TagInfoCardMinWidth = 100.dp
+private val TagInfoCardMaxWidth = 200.dp
+
 @Composable
-private fun TagInfoCard(
+private fun TagCard(
     name: String,
     color: Color,
     isExcluded: Boolean,
-    expenditureAmount: String,
     isSelected: Boolean,
+    createdTimestamp: String,
     onSelect: () -> Unit,
     onLongClick: () -> Unit,
     tagAssignModeActive: Boolean,
     onAssignToTransactions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val transition = updateTransition(
-        targetState = isSelected,
-        label = "IsSelectedTransition"
-    )
-    val textScale by transition.animateFloat(
-        label = "TextScale",
-        targetValueByState = { if (it) 1f else 0.72f }
-    )
-    val widthMultiplier by transition.animateFloat(
-        label = "TagInfoCardWidthMultiplier",
-        targetValueByState = { if (it) 2f else 1f }
-    )
     val contentColor = remember(color) { color.contentColor() }
-
     val clickableModifier = if (tagAssignModeActive) Modifier.clickable(
         onClick = onAssignToTransactions,
         onClickLabel = stringResource(R.string.cd_tap_tag_to_assign_to_transactions)
     )
-    else Modifier.combinedClickable(
+    else if (isSelected) Modifier.combinedClickable(
         onClick = onSelect,
         onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions),
         onLongClick = onLongClick,
         onLongClickLabel = stringResource(R.string.cd_long_press_tag_to_edit)
     )
+    else Modifier.clickable(
+        onClick = onSelect,
+        onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions)
+    )
+
+    val showLongPressMessage by remember(isSelected, tagAssignModeActive) {
+        derivedStateOf { isSelected && !tagAssignModeActive }
+    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -499,46 +509,47 @@ private fun TagInfoCard(
             contentColor = contentColor
         ),
         modifier = modifier
-            .width(TagInfoCardWidth * widthMultiplier)
             .then(clickableModifier)
     ) {
         Column(
-            modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleLarge
-                    .copy(
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Tags,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(IconSizeSmall)
+                )
+                SpacerSmall()
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
-                        textMotion = TextMotion.Animated,
                         lineBreak = LineBreak.Heading
                     ),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textDecoration = TextDecoration.exclusion(isExcluded),
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = textScale
-                        scaleY = textScale
-                        transformOrigin = TransformOrigin(0f, 0f)
-                    }
-            )
-
-            if (isSelected) {
-                Text(
-                    text = stringResource(R.string.amount_worth_spent, expenditureAmount),
-                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    textDecoration = TextDecoration.exclusion(isExcluded),
+                    modifier = Modifier
                 )
             }
 
-            if (!tagAssignModeActive) {
+            Text(
+                text = stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
+                style = MaterialTheme.typography.labelMedium,
+                color = contentColor
+                    .copy(alpha = ContentAlpha.SUB_CONTENT)
+            )
+
+            AnimatedVisibility(showLongPressMessage) {
                 Text(
-                    text = stringResource(R.string.cd_long_press_tag_to_edit),
+                    text = stringResource(R.string.asterisk_long_press_to_edit),
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -548,8 +559,6 @@ private fun TagInfoCard(
         }
     }
 }
-
-private val TagInfoCardWidth = 116.dp
 
 @Composable
 private fun TransactionListHeader(

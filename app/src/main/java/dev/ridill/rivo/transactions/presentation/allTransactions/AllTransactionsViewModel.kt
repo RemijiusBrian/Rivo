@@ -52,9 +52,8 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    private val tagsWithExpenditures = selectedDate.flatMapLatest { date ->
-        tagsRepo.getTagsWithExpenditures(date = date)
-    }
+    val tagsPagingData = tagsRepo.getTagsPagingData()
+        .cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
 
@@ -159,7 +158,6 @@ class AllTransactionsViewModel @Inject constructor(
         yearsList,
         currency,
         aggregateAmount,
-        tagsWithExpenditures,
         selectedTagId,
         transactionTypeFilter,
         transactionListLabel,
@@ -178,7 +176,6 @@ class AllTransactionsViewModel @Inject constructor(
                 yearsList,
                 currency,
                 aggregateAmount,
-                tagsWithExpenditures,
                 selectedTagId,
                 transactionTypeFilter,
                 transactionListLabel,
@@ -198,7 +195,6 @@ class AllTransactionsViewModel @Inject constructor(
             yearsList = yearsList,
             currency = currency,
             aggregateAmount = aggregateAmount,
-            tagsWithExpenditures = tagsWithExpenditures,
             selectedTagId = selectedTagId,
             selectedTransactionTypeFilter = transactionTypeFilter,
             transactionList = transactionList,

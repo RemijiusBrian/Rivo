@@ -119,6 +119,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
+        val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
         val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
         val folderList = viewModel.foldersList.collectAsLazyPagingItems()
 
@@ -186,6 +187,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagColorInput = { tagInput.value?.colorCode },
             tagExclusionInput = { tagInput.value?.excluded },
+            tagsPagingItems = tagsPagingItems,
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,
             state = state,

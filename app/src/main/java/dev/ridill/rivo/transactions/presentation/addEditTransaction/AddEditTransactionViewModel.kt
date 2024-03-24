@@ -76,7 +76,8 @@ class AddEditTransactionViewModel @Inject constructor(
 
     val noteInput = txInput.map { it.note }
 
-    private val tagsList = tagsRepo.getAllTags()
+    val tagsPagingData = tagsRepo.getTagSelectorsPagingData()
+        .cachedIn(viewModelScope)
     private val selectedTagId = txInput.map { it.tagId }
         .distinctUntilChanged()
 
@@ -133,7 +134,6 @@ class AddEditTransactionViewModel @Inject constructor(
         amountRecommendations,
         amountTransformation,
         showAmountTransformationInput,
-        tagsList,
         selectedTagId,
         transactionTimestamp,
         transactionType,
@@ -153,7 +153,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 amountRecommendations,
                 amountTransformation,
                 showAmountTransformationInput,
-                tagsList,
                 selectedTagId,
                 transactionTimestamp,
                 transactionType,
@@ -172,7 +171,6 @@ class AddEditTransactionViewModel @Inject constructor(
             isLoading = isLoading,
             currency = currency,
             amountRecommendations = amountRecommendations,
-            tagsList = tagsList,
             selectedTagId = selectedTagId,
             transactionTimestamp = transactionTimestamp,
             isTransactionExcluded = isTransactionExcluded,

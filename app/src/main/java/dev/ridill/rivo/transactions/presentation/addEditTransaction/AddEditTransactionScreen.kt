@@ -114,7 +114,7 @@ import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.transactions.domain.model.TagSelector
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
 import dev.ridill.rivo.transactions.presentation.components.NewTagChip
@@ -134,6 +134,7 @@ fun AddEditTransactionScreen(
     tagNameInput: () -> String,
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
+    tagsPagingItems: LazyPagingItems<TagSelector>,
     folderSearchQuery: () -> String,
     folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
@@ -304,7 +305,7 @@ fun AddEditTransactionScreen(
                 }
 
                 TagsList(
-                    tagsList = state.tagsList,
+                    tagsPagingItems = tagsPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagClick,
                     onNewTagClick = actions::onNewTagClick,
@@ -634,7 +635,7 @@ private fun ExclusionToggle(
 
 @Composable
 fun TagsList(
-    tagsList: List<Tag>,
+    tagsPagingItems: LazyPagingItems<TagSelector>,
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onNewTagClick: () -> Unit,
@@ -650,14 +651,16 @@ fun TagsList(
             horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
             NewTagChip(onClick = onNewTagClick)
-            tagsList.forEach { tag ->
-                TagChip(
-                    name = tag.name,
-                    color = Color(tag.colorCode),
-                    excluded = tag.excluded,
-                    selected = tag.id == selectedTagId,
-                    onClick = { onTagClick(tag.id) }
-                )
+            repeat(tagsPagingItems.itemCount) { index ->
+                tagsPagingItems[index]?.let { tag ->
+                    TagChip(
+                        name = tag.name,
+                        color = tag.color,
+                        excluded = tag.excluded,
+                        selected = tag.id == selectedTagId,
+                        onClick = { onTagClick(tag.id) }
+                    )
+                }
             }
         }
     }
@@ -854,6 +857,7 @@ private fun PreviewScreenContent() {
             tagExclusionInput = { false },
             folderSearchQuery = { "" },
             folderList = flowOf(PagingData.empty<Folder>()).collectAsLazyPagingItems(),
+            tagsPagingItems = flowOf(PagingData.empty<TagSelector>()).collectAsLazyPagingItems(),
             state = AddEditTransactionState(
                 isScheduleTxMode = true,
                 selectedRepeatMode = ScheduleRepeatMode.MONTHLY

@@ -30,6 +30,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
+        val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
         val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
@@ -66,6 +67,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         AllTransactionsScreen(
             snackbarController = snackbarController,
+            tagsPagingItems = tagsPagingItems,
             state = state,
             tagNameInput = { tagInput.value?.name.orEmpty() },
             tagInputColorCode = { tagInput.value?.colorCode },
