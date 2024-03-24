@@ -140,7 +140,10 @@ class RivoActivity : AppCompatActivity() {
             .canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators) == BiometricManager.BIOMETRIC_SUCCESS
         if (!canAuthenticate) return
 
-        val title = getString(R.string.biometric_prompt_title)
+        val title = getString(
+            R.string.biometric_prompt_title_app_name,
+            getString(R.string.app_name)
+        )
         val subtitle = getString(R.string.biometric_or_screen_lock_prompt_message)
         val authPromptCallback = object : AuthPromptCallback() {
             override fun onAuthenticationError(

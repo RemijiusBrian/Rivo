@@ -103,7 +103,10 @@ private inline fun startBiometricAuthentication(
     crossinline onAuthSuccess: () -> Unit
 ) {
     val activity = context.findActivity() as FragmentActivity
-    val title = context.getString(R.string.biometric_prompt_title)
+    val title = context.getString(
+        R.string.biometric_prompt_title_app_name,
+        context.getString(R.string.app_name)
+    )
     val subtitle = context.getString(R.string.biometric_or_screen_lock_prompt_message)
     val authPromptCallback = object : AuthPromptCallback() {
         override fun onAuthenticationSucceeded(
