@@ -247,8 +247,7 @@ private fun NotificationPermissionWarning(
     ) {
         Icon(
             imageVector = Icons.Rounded.NotificationsOff,
-            contentDescription = stringResource(R.string.cd_notification_off_warning),
-            tint = MaterialTheme.colorScheme.error
+            contentDescription = stringResource(R.string.cd_notification_off_warning)
         )
     }
 }
