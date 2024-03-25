@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -15,8 +16,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
+import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
+import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesScreen
 import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesViewModel
 
@@ -46,6 +50,10 @@ data object AllSchedulesScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
+        val notificationPermissionState = if (BuildUtil.isNotificationRuntimePermissionNeeded())
+            rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+        else null
+
         CollectFlowEffect(
             flow = viewModel.events,
             snackbarController,
@@ -55,12 +63,17 @@ data object AllSchedulesScreenSpec : ScreenSpec {
                 is AllSchedulesViewModel.AllSchedulesEvent.ShowUiMessage -> {
                     snackbarController.showSnackbar(event.uiText.asString(context))
                 }
+
+                AllSchedulesViewModel.AllSchedulesEvent.RequestNotificationPermission -> {
+                    context.launchAppNotificationSettings()
+                }
             }
         }
 
         AllSchedulesScreen(
             context = context,
             snackbarController = snackbarController,
+            notificationPermissionState = notificationPermissionState,
             allSchedulesPagingItems = allSchedulesPagingItems,
             state = state,
             actions = viewModel,

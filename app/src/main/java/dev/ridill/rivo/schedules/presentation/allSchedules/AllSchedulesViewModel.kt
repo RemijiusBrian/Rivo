@@ -26,6 +26,9 @@ class AllSchedulesViewModel @Inject constructor(
     private val eventBus: EventBus<AllSchedulesEvent>
 ) : ViewModel(), AllSchedulesActions {
 
+    private val showNotificationRationale = savedStateHandle
+        .getStateFlow(SHOW_NOTIFICATION_RATIONALE, false)
+
     private val currency = currencyRepo.getCurrencyForDateOrNext()
 
     val schedulesPagingData = repo.getAllSchedules()
@@ -41,17 +44,20 @@ class AllSchedulesViewModel @Inject constructor(
         .getStateFlow(SHOW_DELETE_SELECTED_SCHEDULES_CONFIRMATION, false)
 
     val state = combineTuple(
+        showNotificationRationale,
         currency,
         multiSelectionModeActive,
         selectedScheduleIds,
         showDeleteSelectedSchedulesConfirmation
     ).map { (
+                showNotificationRationale,
                 currency,
                 multiSelectionModeActive,
                 selectedScheduleIds,
                 showDeleteSelectedSchedulesConfirmation
             ) ->
         AllSchedulesState(
+            showNotificationRationale = showNotificationRationale,
             currency = currency,
             multiSelectionModeActive = multiSelectionModeActive,
             selectedScheduleIds = selectedScheduleIds,
@@ -60,6 +66,21 @@ class AllSchedulesViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, AllSchedulesState())
 
     val events = eventBus.eventFlow
+
+    override fun onNotificationWarningClick() {
+        savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = true
+    }
+
+    override fun onNotificationRationaleDismiss() {
+        savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = false
+    }
+
+    override fun onNotificationRationaleAgree() {
+        viewModelScope.launch {
+            savedStateHandle[SHOW_NOTIFICATION_RATIONALE] = false
+            eventBus.send(AllSchedulesEvent.RequestNotificationPermission)
+        }
+    }
 
     override fun onMarkSchedulePaidClick(id: Long) {
         viewModelScope.launch {
@@ -108,9 +129,11 @@ class AllSchedulesViewModel @Inject constructor(
 
     sealed class AllSchedulesEvent {
         data class ShowUiMessage(val uiText: UiText) : AllSchedulesEvent()
+        data object RequestNotificationPermission : AllSchedulesEvent()
     }
 }
 
+private const val SHOW_NOTIFICATION_RATIONALE = "SHOW_NOTIFICATION_RATIONALE"
 private const val SELECTED_SCHEDULE_IDS = "SELECTED_SCHEDULE_IDS"
 private const val SHOW_DELETE_SELECTED_SCHEDULES_CONFIRMATION =
     "SHOW_DELETE_SELECTED_SCHEDULES_CONFIRMATION"

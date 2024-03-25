@@ -88,6 +88,7 @@
     <string name="cd_schedule_of_amount_for_date">Schedule of amount %1$s for next %2$s</string>
     <string name="cd_new_schedule_fab">Create new schedule</string>
     <string name="cd_delete_selected_schedules">Delete Selected Schedules</string>
+    <string name="cd_notification_off_warning">Warning! Notifications permission is required but is currently off</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -146,7 +147,7 @@
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
-    <string name="permission_rationale_notification">%s will post notifications to provide updates regarding various activities like Data Backup and Auto-added Transactions</string>
+    <string name="permission_rationale_notification">%s needs permission to post notifications to provide updates regarding various activities like Data Backup, auto-added Transactions, and schedules.</string>
     <string name="permission_sms">Receive SMS Messages</string>
     <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
 
