@@ -10,7 +10,7 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 
 fun <T : Any> LazyPagingItems<T>.isEmpty(): Boolean = this.itemCount == 0
-fun <T : Any> LazyPagingItems<T>.isNotEmpty(): Boolean = !this.isEmpty()
+//fun <T : Any> LazyPagingItems<T>.isNotEmpty(): Boolean = !this.isEmpty()
 
 fun Modifier.mergedContentDescription(
     contentDescription: String?
