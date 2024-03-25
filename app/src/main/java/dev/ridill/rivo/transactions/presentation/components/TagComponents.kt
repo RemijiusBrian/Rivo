@@ -28,7 +28,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
@@ -39,7 +38,7 @@ import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.core.ui.util.exclusion
+import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 
 @Composable
 fun NewTagChip(
@@ -77,8 +76,7 @@ fun TagChip(
             text = name,
             textAlign = TextAlign.Center,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            textDecoration = TextDecoration.exclusion(excluded)
+            overflow = TextOverflow.Ellipsis
         )
     },
     colors = FilterChipDefaults.filterChipColors(
@@ -87,7 +85,8 @@ fun TagChip(
     ),
     modifier = Modifier
         .widthIn(max = TagChipMaxWidth)
-        .then(modifier),
+        .then(modifier)
+        .exclusionGraphicsLayer(excluded),
     enabled = enabled
 )
 

@@ -55,7 +55,7 @@ fun SetBudgetPage(
             .verticalScroll(rememberScrollState())
     ) {
         MediumDisplayText(
-            title = stringResource(R.string.welcome_flow_page_set_budget_title),
+            title = stringResource(R.string.onboarding_page_set_budget_title),
             modifier = Modifier
                 .padding(vertical = SpacingMedium)
         )
@@ -99,7 +99,7 @@ private fun BudgetInput(
         modifier = modifier
     ) {
         Text(
-            text = stringResource(R.string.welcome_flow_page_set_budget_message),
+            text = stringResource(R.string.onboarding_page_set_budget_message),
             style = MaterialTheme.typography.titleMedium
         )
         SpacerSmall()

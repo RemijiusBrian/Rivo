@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.rounded.NotificationsOff
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,6 +57,8 @@ import dev.ridill.rivo.core.ui.components.CancelButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.ListSeparator
+import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
+import dev.ridill.rivo.core.ui.components.PermissionState
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
@@ -72,6 +76,7 @@ import dev.ridill.rivo.schedules.domain.model.ScheduleListItemUiModel
 fun AllSchedulesScreen(
     context: Context = LocalContext.current,
     snackbarController: SnackbarController,
+    notificationPermissionState: PermissionState?,
     state: AllSchedulesState,
     allSchedulesPagingItems: LazyPagingItems<ScheduleListItemUiModel>,
     actions: AllSchedulesActions,
@@ -79,6 +84,9 @@ fun AllSchedulesScreen(
     navigateToAddEditSchedule: (Long?) -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val isNotificationPermissionGranted by remember(notificationPermissionState) {
+        derivedStateOf { notificationPermissionState?.isGranted != false }
+    }
 
     BackHandler(
         enabled = state.multiSelectionModeActive,
@@ -113,6 +121,11 @@ fun AllSchedulesScreen(
                                 contentDescription = stringResource(R.string.cd_delete_selected_schedules)
                             )
                         }
+                    }
+                    if (!state.multiSelectionModeActive && !isNotificationPermissionGranted) {
+                        NotificationPermissionWarning(
+                            onClick = actions::onNotificationWarningClick
+                        )
                     }
                 }
             )
@@ -208,6 +221,34 @@ fun AllSchedulesScreen(
                 onDismiss = actions::onDeleteSelectedSchedulesDismiss
             )
         }
+
+        if (state.showNotificationRationale) {
+            PermissionRationaleDialog(
+                icon = Icons.Outlined.Notifications,
+                rationaleText = stringResource(
+                    R.string.permission_rationale_notification,
+                    stringResource(R.string.app_name)
+                ),
+                onDismiss = actions::onNotificationRationaleDismiss,
+                onSettingsClick = actions::onNotificationRationaleAgree
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotificationPermissionWarning(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.NotificationsOff,
+            contentDescription = stringResource(R.string.cd_notification_off_warning)
+        )
     }
 }
 

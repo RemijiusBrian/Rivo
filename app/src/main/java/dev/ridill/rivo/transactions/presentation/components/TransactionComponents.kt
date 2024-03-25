@@ -34,7 +34,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -47,7 +46,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
-import dev.ridill.rivo.core.ui.util.exclusion
+import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -100,7 +99,6 @@ fun TransactionListItem(
                     .ifEmpty { stringResource(type.labelRes) },
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                textDecoration = TextDecoration.exclusion(excluded),
                 modifier = Modifier
                     .fillMaxWidth(),
                 color = LocalContentColor.current.copy(
@@ -167,7 +165,8 @@ fun TransactionListItem(
             .clearAndSetSemantics {
                 contentDescription = transactionListItemContentDescription
             }
-            .then(modifier),
+            .then(modifier)
+            .exclusionGraphicsLayer(excluded),
         colors = colors,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
@@ -261,6 +260,5 @@ private fun FolderIndicator(
         )
     }
 }
-
 
 private val SmallIndicatorSize = 12.dp

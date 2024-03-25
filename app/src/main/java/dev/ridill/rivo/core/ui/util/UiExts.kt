@@ -1,14 +1,16 @@
 package dev.ridill.rivo.core.ui.util
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.paging.compose.LazyPagingItems
+import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
 
 fun <T : Any> LazyPagingItems<T>.isEmpty(): Boolean = this.itemCount == 0
-fun <T : Any> LazyPagingItems<T>.isNotEmpty(): Boolean = !this.isEmpty()
+//fun <T : Any> LazyPagingItems<T>.isNotEmpty(): Boolean = !this.isEmpty()
 
 fun Modifier.mergedContentDescription(
     contentDescription: String?
@@ -20,5 +22,8 @@ fun Modifier.mergedContentDescription(
         }
     }
 
-fun TextDecoration.Companion.exclusion(excluded: Boolean): TextDecoration? =
-    if (excluded) LineThrough else null
+fun Modifier.exclusionGraphicsLayer(excluded: Boolean): Modifier = this
+    .graphicsLayer {
+        alpha = if (excluded) ContentAlpha.EXCLUDED
+        else Float.One
+    }

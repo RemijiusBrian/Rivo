@@ -2,7 +2,7 @@
     <string name="app_name">Rivo</string>
 
     <!-- Destination Labels -->
-    <string name="destination_welcome_flow">Welcome Flow</string>
+    <string name="destination_onboarding">Onboarding</string>
     <string name="destination_dashboard">Dashboard</string>
     <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
     <string name="destination_new_transaction">New Transaction</string>
@@ -88,6 +88,7 @@
     <string name="cd_schedule_of_amount_for_date">Schedule of amount %1$s for next %2$s</string>
     <string name="cd_new_schedule_fab">Create new schedule</string>
     <string name="cd_delete_selected_schedules">Delete Selected Schedules</string>
+    <string name="cd_notification_off_warning">Warning! Notifications permission is required but is currently off</string>
 
     <!-- Error Messages -->
     <string name="error_invalid_amount">Please enter a valid amount</string>
@@ -123,13 +124,14 @@
     <string name="action_view">View</string>
 
     <!-- Texts -->
-    <string name="welcome_flow_page_welcome_title">Welcome to\n%s</string>
-    <string name="welcome_flow_page_google_sign_in_title">Google Sign In</string>
-    <string name="welcome_flow_page_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
-    <string name="welcome_flow_page_restore_data_title">Backup Found</string>
-    <string name="welcome_flow_page_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
-    <string name="welcome_flow_page_set_budget_title">Set your monthly Budget</string>
-    <string name="welcome_flow_page_set_budget_message">Enter your budget for each month</string>
+    <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
+    <string name="onboarding_page_permissions_title">Permissions</string>
+    <string name="onboarding_page_google_sign_in_title">Google Sign In</string>
+    <string name="onboarding_page_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
+    <string name="onboarding_page_restore_data_title">Backup Found</string>
+    <string name="onboarding_page_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
+    <string name="onboarding_page_set_budget_title">Set your monthly Budget</string>
+    <string name="onboarding_page_set_budget_message">Enter your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
 
     <string name="part_of_day_morning">Morning</string>
@@ -146,7 +148,7 @@
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
-    <string name="permission_rationale_notification">%s will post notifications to provide updates regarding various activities like Data Backup and Auto-added Transactions</string>
+    <string name="permission_rationale_notification">%s needs permission to post notifications to provide updates regarding various activities like Data Backup, auto-added Transactions, and schedules.</string>
     <string name="permission_sms">Receive SMS Messages</string>
     <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
 

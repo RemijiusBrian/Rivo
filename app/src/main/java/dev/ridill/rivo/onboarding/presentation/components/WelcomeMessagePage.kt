@@ -28,7 +28,7 @@ fun WelcomeMessagePage(
     ) {
         MediumDisplayText(
             title = stringResource(
-                R.string.welcome_flow_page_welcome_title,
+                R.string.onboarding_page_welcome_title,
                 stringResource(R.string.app_name)
             ),
             modifier = Modifier
