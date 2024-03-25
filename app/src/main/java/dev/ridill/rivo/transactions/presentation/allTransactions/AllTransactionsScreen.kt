@@ -84,7 +84,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
@@ -117,7 +116,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.core.ui.util.exclusion
+import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
@@ -523,6 +522,7 @@ private fun TagCard(
         ),
         modifier = modifier
             .then(clickableModifier)
+            .exclusionGraphicsLayer(isExcluded)
     ) {
         Column(
             modifier = Modifier
@@ -548,7 +548,6 @@ private fun TagCard(
                     ),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    textDecoration = TextDecoration.exclusion(isExcluded),
                     modifier = Modifier
                 )
             }

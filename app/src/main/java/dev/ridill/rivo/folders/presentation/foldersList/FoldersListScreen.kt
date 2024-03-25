@@ -49,7 +49,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.core.ui.util.exclusion
+import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
@@ -236,6 +236,7 @@ private fun FolderCard(
         onClick = onClick,
         modifier = modifier
             .mergedContentDescription(folderContentDescription)
+            .exclusionGraphicsLayer(excluded)
     ) {
         Crossfade(
             targetState = listMode,
@@ -257,8 +258,7 @@ private fun FolderCard(
                                 text = name,
                                 style = nameStyle,
                                 maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                textDecoration = TextDecoration.exclusion(excluded)
+                                overflow = TextOverflow.Ellipsis
                             )
 
                             Text(
@@ -288,8 +288,7 @@ private fun FolderCard(
                             text = name,
                             style = nameStyle,
                             maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            textDecoration = TextDecoration.exclusion(excluded)
+                            overflow = TextOverflow.Ellipsis
                         )
 
                         Text(
