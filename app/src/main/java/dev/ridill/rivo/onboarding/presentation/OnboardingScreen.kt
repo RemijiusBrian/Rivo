@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
@@ -38,7 +39,7 @@ import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.onboarding.presentation.components.GoogleSignInPage
-import dev.ridill.rivo.onboarding.presentation.components.NotificationPermissionPage
+import dev.ridill.rivo.onboarding.presentation.components.PermissionsPage
 import dev.ridill.rivo.onboarding.presentation.components.SetBudgetPage
 import dev.ridill.rivo.onboarding.presentation.components.WelcomeMessagePage
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
@@ -47,6 +48,7 @@ import dev.ridill.rivo.settings.domain.modal.BackupDetails
 fun OnboardingScreen(
     snackbarController: SnackbarController,
     pagerState: PagerState,
+    permissionsState: MultiplePermissionsState,
     restoreStatusText: UiText?,
     isLoading: Boolean,
     availableBackup: BackupDetails?,
@@ -91,10 +93,11 @@ fun OnboardingScreen(
                         WelcomeMessagePage()
                     }
 
-                    OnboardingPage.NOTIFICATION_PERMISSION.ordinal -> {
-                        NotificationPermissionPage(
-                            onGivePermissionClick = actions::onGiveNotificationPermissionClick,
-                            onSkipClick = actions::onSkipNotificationPermission
+                    OnboardingPage.APP_PERMISSIONS.ordinal -> {
+                        PermissionsPage(
+                            permissionsState = permissionsState,
+                            onGivePermissionClick = actions::onGivePermissionsClick,
+                            onSkipClick = actions::onSkipPermissionsClick
                         )
                     }
 

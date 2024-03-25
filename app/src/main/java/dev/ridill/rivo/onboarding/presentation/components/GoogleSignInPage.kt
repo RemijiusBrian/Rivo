@@ -70,20 +70,20 @@ fun GoogleSignInPage(
         ) {
             MediumDisplayText(
                 title = stringResource(
-                    id = if (isRestoreAvailable) R.string.welcome_flow_page_restore_data_title
-                    else R.string.welcome_flow_page_google_sign_in_title
+                    id = if (isRestoreAvailable) R.string.onboarding_page_restore_data_title
+                    else R.string.onboarding_page_google_sign_in_title
                 ),
                 modifier = Modifier
                     .padding(vertical = SpacingMedium)
             )
             Text(
                 text = if (isRestoreAvailable) stringResource(
-                    R.string.welcome_flow_page_restore_data_message,
+                    R.string.onboarding_page_restore_data_message,
                     availableBackupDetails?.getParsedDateTime()
                         ?.format(DateUtil.Formatters.localizedDateMediumTimeShort)
                         .orEmpty()
                 )
-                else stringResource(R.string.welcome_flow_page_google_sign_in_message),
+                else stringResource(R.string.onboarding_page_google_sign_in_message),
                 style = MaterialTheme.typography.titleLarge
             )
 

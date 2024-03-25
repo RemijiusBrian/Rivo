@@ -2,7 +2,7 @@
     <string name="app_name">Rivo</string>
 
     <!-- Destination Labels -->
-    <string name="destination_welcome_flow">Welcome Flow</string>
+    <string name="destination_onboarding">Onboarding</string>
     <string name="destination_dashboard">Dashboard</string>
     <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
     <string name="destination_new_transaction">New Transaction</string>
@@ -124,13 +124,14 @@
     <string name="action_view">View</string>
 
     <!-- Texts -->
-    <string name="welcome_flow_page_welcome_title">Welcome to\n%s</string>
-    <string name="welcome_flow_page_google_sign_in_title">Google Sign In</string>
-    <string name="welcome_flow_page_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
-    <string name="welcome_flow_page_restore_data_title">Backup Found</string>
-    <string name="welcome_flow_page_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
-    <string name="welcome_flow_page_set_budget_title">Set your monthly Budget</string>
-    <string name="welcome_flow_page_set_budget_message">Enter your budget for each month</string>
+    <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
+    <string name="onboarding_page_permissions_title">Permissions</string>
+    <string name="onboarding_page_google_sign_in_title">Google Sign In</string>
+    <string name="onboarding_page_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
+    <string name="onboarding_page_restore_data_title">Backup Found</string>
+    <string name="onboarding_page_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
+    <string name="onboarding_page_set_budget_title">Set your monthly Budget</string>
+    <string name="onboarding_page_set_budget_message">Enter your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
 
     <string name="part_of_day_morning">Morning</string>

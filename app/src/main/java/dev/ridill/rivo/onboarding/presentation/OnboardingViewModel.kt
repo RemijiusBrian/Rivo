@@ -91,7 +91,7 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    override fun onGiveNotificationPermissionClick() {
+    override fun onGivePermissionsClick() {
         viewModelScope.launch {
             if (BuildUtil.isNotificationRuntimePermissionNeeded())
                 eventBus.send(OnboardingEvent.LaunchNotificationPermissionRequest)
@@ -100,14 +100,15 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    override fun onSkipNotificationPermission() {
+    override fun onSkipPermissionsClick() {
         viewModelScope.launch {
             eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
         }
     }
 
-    override fun onNotificationPermissionResponse(granted: Boolean) {
-        if (granted) viewModelScope.launch {
+    fun onPermissionsRequestResult(result: Map<String, Boolean>) {
+        val areAllGranted = result.all { it.value }
+        if (areAllGranted) viewModelScope.launch {
             eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
         }
     }

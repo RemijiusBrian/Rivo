@@ -16,7 +16,8 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.rememberPermissionState
+import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsLauncher
+import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.util.restartApplication
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
@@ -25,7 +26,7 @@ import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
 
 data object OnboardingScreenSpec : ScreenSpec {
     override val route: String = "welcome_flow"
-    override val labelRes: Int = R.string.destination_welcome_flow
+    override val labelRes: Int = R.string.destination_onboarding
 
     @Composable
     override fun Content(
@@ -47,12 +48,14 @@ data object OnboardingScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        val notificationPermissionLauncher = if (BuildUtil.isNotificationRuntimePermissionNeeded())
-            rememberPermissionState(
-                permission = Manifest.permission.POST_NOTIFICATIONS,
-                onPermissionResult = viewModel::onNotificationPermissionResponse
+        val permissionsState = rememberMultiplePermissionsState(
+            permissions = if (BuildUtil.isNotificationRuntimePermissionNeeded())
+                listOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.RECEIVE_SMS)
+            else listOf(Manifest.permission.RECEIVE_SMS),
+            launcher = rememberMultiplePermissionsLauncher(
+                onResult = viewModel::onPermissionsRequestResult
             )
-        else null
+        )
 
         val signInLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
@@ -67,7 +70,7 @@ data object OnboardingScreenSpec : ScreenSpec {
                 }
 
                 OnboardingViewModel.OnboardingEvent.LaunchNotificationPermissionRequest -> {
-                    notificationPermissionLauncher?.launchRequest()
+                    permissionsState.launchRequest()
                 }
 
                 is OnboardingViewModel.OnboardingEvent.ShowUiMessage -> {
@@ -98,6 +101,7 @@ data object OnboardingScreenSpec : ScreenSpec {
         OnboardingScreen(
             snackbarController = snackbarController,
             pagerState = pagerState,
+            permissionsState = permissionsState,
             restoreStatusText = restoreStatusText,
             isLoading = isLoading,
             availableBackup = availableBackup,
