@@ -1,8 +1,5 @@
 package dev.ridill.rivo.transactions.domain.autoDetection
 
-import dev.ridill.rivo.core.domain.util.tryOrNull
-import org.junit.Assert.*
-
 import org.junit.Before
 import org.junit.Test
 
@@ -23,6 +20,6 @@ class RegexTransactionDataExtractorTest {
                 "On 26-03\n" +
                 "Ref 408666163985\n" +
                 "Not You? Call 18002586161/SMS BLOCK UPI to 7308080808"
-            regexExtractor.extractData(message)
+        regexExtractor.extractData(message)
     }
 }
