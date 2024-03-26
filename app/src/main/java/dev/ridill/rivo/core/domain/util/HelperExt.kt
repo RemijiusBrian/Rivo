@@ -8,6 +8,7 @@ import java.util.UUID
 val Double.Companion.Zero: Double get() = 0.0
 fun Double?.orZero(): Double = this ?: Double.Zero
 inline fun Double.ifInfinite(value: () -> Double): Double = if (this.isInfinite()) value() else this
+inline fun Double.ifNaN(value: () -> Double): Double = if (this.isNaN()) value() else this
 
 val Float.Companion.Zero: Float get() = 0f
 val Float.Companion.One: Float get() = 1f

@@ -43,7 +43,7 @@
 
         <!-- Receivers -->
         <receiver
-            android:name=".transactions.domain.sms.TransactionSmsReceiver"
+            android:name=".transactions.domain.autoDetection.TransactionSmsReceiver"
             android:enabled="false"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
