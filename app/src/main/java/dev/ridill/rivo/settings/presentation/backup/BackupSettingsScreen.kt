@@ -101,7 +101,9 @@ fun BackupSettingsScreen(
 
                     PreviousBackupDetails(
                         lastBackupDate = state.lastBackupDateFormatted?.asString(),
-                        lastBackupTime = state.getBackupTimeFormatted(DateFormat.is24HourFormat(context)),
+                        lastBackupTime = state.getBackupTimeFormatted(
+                            is24HourFormat = DateFormat.is24HourFormat(context)
+                        ),
                         onBackupNowClick = actions::onBackupNowClick,
                         isBackupRunning = state.isBackupRunning
                     )
