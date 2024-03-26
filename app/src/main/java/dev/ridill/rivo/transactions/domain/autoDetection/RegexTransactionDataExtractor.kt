@@ -134,51 +134,51 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
     private fun processText(string: String): List<String> {
         var message = string.lowercase(LocaleUtil.defaultLocale)
         // remove '-'
-        message = message.replace("/-/g".toRegex(), String.Empty)
+        message = message.replace("-".toRegex(), String.Empty)
         // remove '!'
-        message = message.replace("/!/g".toRegex(), "")
+        message = message.replace("!".toRegex(), "")
         // remove ':'
-        message = message.replace("/:/g".toRegex(), " ")
+        message = message.replace(":".toRegex(), " ")
         // remove '/'
-        message = message.replace("//g".toRegex(), "")
+        message = message.replace("/".toRegex(), "")
         // remove '='
-        message = message.replace("/=/g".toRegex(), " ")
+        message = message.replace("=".toRegex(), " ")
         // remove '{}'
-        message = message.replace("/[{}]/g".toRegex(), " ")
+        message = message.replace("[{}]".toRegex(), " ")
         // remove \n
-        message = message.replace("/\n/g".toRegex(), " ")
+        message = message.replace("\n".toRegex(), " ")
         // remove \r
-        message = message.replace("/\r/g".toRegex(), " ")
+        message = message.replace("(?g)\r".toRegex(), " ")
         // remove 'ending'
-        message = message.replace("/ending/g".toRegex(), "")
+        message = message.replace("ending".toRegex(), "")
         // replace 'x'
-        message = message.replace("/x|[*]/g".toRegex(), "")
+        message = message.replace("x|[*]".toRegex(), "")
         // // remove 'is' 'with'
-        // message = message.replace(/\bis\b|\bwith\b/g, '')
+        // message = message.replace(\bis\b|\bwith\b, '')
         // replace 'is'
-        message = message.replace("/is/g".toRegex(), "")
+        message = message.replace("is".toRegex(), "")
         // replace 'with'
-        message = message.replace("/with/g".toRegex(), "")
+        message = message.replace("with".toRegex(), "")
         // remove 'no.'
-        message = message.replace("/no\\./g".toRegex(), "")
+        message = message.replace("no\\.".toRegex(), "")
         // replace all ac, acct, account with ac
-        message = message.replace("/\bac\b|\bacct\b|\baccount\b/g".toRegex(), "ac")
+        message = message.replace("\bac\b|\bacct\b|\baccount\b".toRegex(), "ac")
         // replace all 'rs' with 'rs. '
-        message = message.replace("/rs(?=\\w)/g".toRegex(), "rs. ")
+        message = message.replace("rs(?=\\w)".toRegex(), "rs. ")
         // replace all 'rs ' with 'rs. '
-        message = message.replace("/rs /g".toRegex(), "rs. ")
+        message = message.replace("rs ".toRegex(), "rs. ")
         // replace all inr with rs.
-        message = message.replace("/inr(?=\\w)/g".toRegex(), "rs. ")
+        message = message.replace("inr(?=\\w)".toRegex(), "rs. ")
         //
-        message = message.replace("/inr /g".toRegex(), "rs. ")
+        message = message.replace("inr ".toRegex(), "rs. ")
         // replace all 'rs. ' with 'rs.'
-        message = message.replace("/rs\\. /g".toRegex(), "rs.")
+        message = message.replace("rs\\. ".toRegex(), "rs.")
         // replace all 'rs.' with 'rs. '
-        message = message.replace("/rs\\.(?=\\w)/g".toRegex(), "rs. ")
+        message = message.replace("rs\\.(?=\\w)".toRegex(), "rs. ")
         // replace all 'debited' with ' debited '
-        message = message.replace("/debited/g".toRegex(), " debited ")
+        message = message.replace("debited".toRegex(), " debited ")
         // replace all 'credited' with ' credited '
-        message = message.replace("/credited/g".toRegex(), " credited ")
+        message = message.replace("credited".toRegex(), " credited ")
         // combine words
         /*combinedWords.forEach((word) => {
             message = message.replace(word.regex, word.word);
