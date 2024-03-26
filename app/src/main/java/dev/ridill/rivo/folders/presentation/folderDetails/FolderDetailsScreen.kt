@@ -5,7 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -59,8 +58,8 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.DismissBackground
-import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
+import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
@@ -201,17 +200,10 @@ fun FolderDetailsScreen(
                         key = "EmptyListIndicator",
                         contentType = "EmptyListIndicator"
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillParentMaxWidth()
-                                .fillParentMaxWidth(0.5f)
-                                .animateItemPlacement()
-                        ) {
-                            EmptyListIndicator(
-                                rawResId = R.raw.lottie_empty_list_ghost,
-                                messageRes = R.string.transactions_in_folder_list_empty_message
-                            )
-                        }
+                        ListEmptyIndicatorItem(
+                            rawResId = R.raw.lottie_empty_list_ghost,
+                            messageRes = R.string.transactions_in_folder_list_empty_message
+                        )
                     }
                 }
 

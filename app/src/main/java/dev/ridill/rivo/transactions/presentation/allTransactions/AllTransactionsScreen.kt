@@ -94,7 +94,7 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
-import dev.ridill.rivo.core.ui.components.EmptyListIndicator
+import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -255,49 +255,43 @@ fun AllTransactionsScreen(
                     key = "ListEmptyIndicator",
                     contentType = "ListEmptyIndicator"
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        EmptyListIndicator(
-                            rawResId = R.raw.lottie_empty_list_ghost,
-                            messageRes = R.string.recent_spends_list_empty_message
-                        )
-                    }
-                }
-            } else {
-                items(
-                    items = state.transactionList,
-                    key = { it.id },
-                    contentType = { "TransactionCard" }
-                ) { transaction ->
-                    val clickableModifier = if (state.transactionMultiSelectionModeActive) Modifier
-                        .toggleable(
-                            value = transaction.id in state.selectedTransactionIds,
-                            onValueChange = { actions.onTransactionSelectionChange(transaction.id) }
-                        )
-                    else Modifier.combinedClickable(
-                        role = Role.Button,
-                        onClick = { navigateToAddEditTransaction(transaction.id) },
-                        onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
-                        onLongClick = { actions.onTransactionLongPress(transaction.id) },
-                        onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
+                    ListEmptyIndicatorItem(
+                        rawResId = R.raw.lottie_empty_list_ghost,
+                        messageRes = R.string.all_transactions_list_empty_message,
+                        heightFraction = 0.25f
                     )
+                }
+            }
+            items(
+                items = state.transactionList,
+                key = { it.id },
+                contentType = { "TransactionCard" }
+            ) { transaction ->
+                val clickableModifier = if (state.transactionMultiSelectionModeActive) Modifier
+                    .toggleable(
+                        value = transaction.id in state.selectedTransactionIds,
+                        onValueChange = { actions.onTransactionSelectionChange(transaction.id) }
+                    )
+                else Modifier.combinedClickable(
+                    role = Role.Button,
+                    onClick = { navigateToAddEditTransaction(transaction.id) },
+                    onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
+                    onLongClick = { actions.onTransactionLongPress(transaction.id) },
+                    onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
+                )
 
-                    TransactionCard(
-                        note = transaction.note,
-                        amount = transaction.amountFormattedWithCurrency(state.currency),
-                        date = transaction.date,
-                        type = transaction.type,
-                        selected = transaction.id in state.selectedTransactionIds,
-                        excluded = transaction.excluded,
-                        folder = transaction.folder,
-                        modifier = Modifier
-                            .then(clickableModifier)
-                            .animateItemPlacement()
-                    )
-                }
+                TransactionCard(
+                    note = transaction.note,
+                    amount = transaction.amountFormattedWithCurrency(state.currency),
+                    date = transaction.date,
+                    type = transaction.type,
+                    selected = transaction.id in state.selectedTransactionIds,
+                    excluded = transaction.excluded,
+                    folder = transaction.folder,
+                    modifier = Modifier
+                        .then(clickableModifier)
+                        .animateItemPlacement()
+                )
             }
         }
 
