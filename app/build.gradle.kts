@@ -122,6 +122,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.org.jetbrains.kotlin.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -186,9 +187,6 @@ dependencies {
 
     // Google Play Services
     implementation(libs.com.google.android.gms.play.services.auth)
-
-    // ML Kit Entity Extraction
-    implementation(libs.com.google.mlkit.entityextraction)
 
     // Retrofit
     implementation(libs.com.squareup.retrofit2.retrofit)

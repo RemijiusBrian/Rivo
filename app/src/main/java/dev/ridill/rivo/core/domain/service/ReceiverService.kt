@@ -9,7 +9,7 @@ import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleRemindersOnBoot
 import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleRemindersOnTimeSetReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
-import dev.ridill.rivo.transactions.domain.sms.TransactionSmsReceiver
+import dev.ridill.rivo.transactions.domain.autoDetection.TransactionSmsReceiver
 
 class ReceiverService(
     private val context: Context

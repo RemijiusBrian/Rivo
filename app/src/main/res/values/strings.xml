@@ -26,10 +26,9 @@
 
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
-    <string name="notification_channel_auto_add_transactions_name">Transactions added from SMS</string>
+    <string name="notification_channel_transaction_auto_detect_name">Transaction Auto-Detect</string>
     <string name="notification_channel_group_schedules_name">Schedules</string>
     <string name="notification_channel_schedule_reminders_name">Schedule Reminders</string>
-    <string name="notification_channel_auto_add_transaction_setup_name">Transactions Auto-Add Setup</string>
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
     <string name="notification_channel_app_lock_name">App Lock</string>

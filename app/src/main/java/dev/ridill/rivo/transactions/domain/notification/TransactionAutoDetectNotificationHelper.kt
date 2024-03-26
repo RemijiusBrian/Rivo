@@ -20,7 +20,7 @@ import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 @SuppressLint("MissingPermission")
-class AutoAddTransactionNotificationHelper(
+class TransactionAutoDetectNotificationHelper(
     private val context: Context
 ) : NotificationHelper<Transaction> {
     private val notificationManager = NotificationManagerCompat.from(context)
@@ -31,10 +31,10 @@ class AutoAddTransactionNotificationHelper(
     }
 
     override val channelId: String
-        get() = "${context.packageName}.NOTIFICATION_CHANNEL_TRANSACTION_AUTO_ADD"
+        get() = "${context.packageName}.NOTIFICATION_CHANNEL_TRANSACTION_AUTO_DETECT"
 
     private val summaryId: String
-        get() = "${context.packageName}.AUTO_ADDED_TRANSACTIONS_SUMMARY"
+        get() = "${context.packageName}.AUTO_DETECTED_TRANSACTIONS_SUMMARY"
 
     override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
@@ -47,7 +47,7 @@ class AutoAddTransactionNotificationHelper(
     override fun registerChannel() {
         val channel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setName(context.getString(R.string.notification_channel_auto_add_transactions_name))
+            .setName(context.getString(R.string.notification_channel_transaction_auto_detect_name))
             .setGroup(NotificationHelper.Groups.transactions(context))
             .build()
         notificationManager.createNotificationChannel(channel)

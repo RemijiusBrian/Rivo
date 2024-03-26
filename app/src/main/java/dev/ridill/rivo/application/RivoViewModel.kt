@@ -10,7 +10,6 @@ import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
-import dev.ridill.rivo.transactions.domain.sms.SMSModelDownloadManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,7 +23,6 @@ import javax.inject.Inject
 class RivoViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val receiverService: ReceiverService,
-    private val smsModelDownloadManager: SMSModelDownloadManager,
     private val appLockServiceManager: AppLockServiceManager,
     private val eventBus: EventBus<RivoEvent>,
     private val backupSettingsRepo: BackupSettingsRepository
@@ -56,8 +54,6 @@ class RivoViewModel @Inject constructor(
         preferences.map { it.autoAddTransactionEnabled }
             .collectLatest { enabled ->
                 receiverService.toggleSmsReceiver(enabled)
-                if (enabled)
-                    smsModelDownloadManager.downloadSMSModelIfNeeded()
             }
     }
 

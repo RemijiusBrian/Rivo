@@ -7,6 +7,7 @@ com-google-devtools-ksp = "1.9.22-1.0.17"
 core-ktx = "1.12.0"
 kotlin-bom = "1.9.23"
 activity-compose = "1.8.2"
+appcompat = "1.6.1"
 junit = "4.13.2"
 androidx-junit = "1.1.5"
 espresso-core = "3.5.1"
@@ -36,8 +37,6 @@ firebase-bom = "32.8.0"
 
 play-services-auth = "21.0.0"
 
-google-mlkit-entity-extraction = "16.0.0-beta5"
-
 retrofit = "2.10.0"
 logging-interceptor = "4.12.0"
 
@@ -52,6 +51,7 @@ com-google-truth = "1.4.2"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 org-jetbrains-kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin-bom" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-junit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
@@ -113,9 +113,6 @@ com-google-firebase-analytics-ktx = { group = "com.google.firebase", name = "fir
 
 # Google Play Services
 com-google-android-gms-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
-
-# Google MLKit
-com-google-mlkit-entityextraction = { group = "com.google.mlkit", name = "entity-extraction", version.ref = "google-mlkit-entity-extraction" }
 
 # Retrofit
 com-squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

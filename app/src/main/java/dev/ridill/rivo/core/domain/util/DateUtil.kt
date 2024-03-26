@@ -18,8 +18,11 @@ object DateUtil {
 
     fun dateNow(): LocalDate = LocalDate.now()
 
-    fun parse(value: String): LocalDateTime? = tryOrNull {
-        LocalDateTime.parse(value)
+    fun parse(
+        value: String,
+        formatter: DateTimeFormatter = Formatters.isoLocalDateTime
+    ): LocalDateTime? = tryOrNull {
+        LocalDateTime.parse(value, formatter)
     }
 
     fun getPartOfDay(): PartOfDay = when (now().hour) {
@@ -65,6 +68,8 @@ object DateUtil {
         .toLocalDateTime()
 
     object Formatters {
+        val isoLocalDateTime: DateTimeFormatter
+            get() = DateTimeFormatter.ISO_LOCAL_DATE_TIME
         val localizedTimeShort: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 
