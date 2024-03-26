@@ -25,6 +25,7 @@ interface SchedulesDao : BaseDao<ScheduleEntity> {
     suspend fun getAllSchedulesAfterDate(date: LocalDate): List<ScheduleEntity>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
         SELECT *
@@ -38,7 +39,6 @@ interface SchedulesDao : BaseDao<ScheduleEntity> {
             END ASC
     """
     )
-    @RewriteQueriesToDropUnusedColumns
     fun getAllSchedulesWithLastTransactionPaged(): PagingSource<Int, ScheduleWithLastTransactionRelation>
 
     @Transaction
