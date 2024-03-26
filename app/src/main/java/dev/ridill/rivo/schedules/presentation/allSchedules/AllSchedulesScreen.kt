@@ -8,7 +8,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,7 +54,7 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.CancelButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
-import dev.ridill.rivo.core.ui.components.EmptyListIndicator
+import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.PermissionState
@@ -153,17 +152,22 @@ fun AllSchedulesScreen(
                     key = "EmptyListIndicator",
                     contentType = "EmptyListIndicator"
                 ) {
-                    Box(
+                    ListEmptyIndicatorItem(
+                        rawResId = R.raw.lottie_empty_list_ghost,
+                        messageRes = R.string.schedules_empty_message
+                    )
+                    /*Box(
                         modifier = Modifier
                             .fillParentMaxWidth()
-                            .fillParentMaxHeight(0.5f),
+                            .fillParentMaxHeight(0.5f)
+                            .animateItemPlacement(),
                         contentAlignment = Alignment.Center
                     ) {
                         EmptyListIndicator(
                             rawResId = R.raw.lottie_empty_list_ghost,
                             messageRes = R.string.schedules_empty_message
                         )
-                    }
+                    }*/
                 }
             }
             repeat(allSchedulesPagingItems.itemCount) { index ->

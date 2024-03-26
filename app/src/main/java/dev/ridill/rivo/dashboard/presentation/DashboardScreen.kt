@@ -61,7 +61,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.PartOfDay
-import dev.ridill.rivo.core.ui.components.EmptyListIndicator
+import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -263,17 +263,22 @@ fun DashboardScreen(
                     key = "EmptyListIndicator",
                     contentType = "EmptyListIndicator"
                 ) {
-                    Box(
+                    ListEmptyIndicatorItem(
+                        rawResId = R.raw.lottie_empty_list_ghost,
+                        messageRes = R.string.recent_spends_list_empty_message
+                    )
+                    /*Box(
                         modifier = Modifier
                             .fillParentMaxWidth()
-                            .fillParentMaxHeight(0.5f),
+                            .fillParentMaxHeight(0.5f)
+                            .animateItemPlacement(),
                         contentAlignment = Alignment.Center
                     ) {
                         EmptyListIndicator(
                             rawResId = R.raw.lottie_empty_list_ghost,
                             messageRes = R.string.recent_spends_list_empty_message
                         )
-                    }
+                    }*/
                 }
             }
 

@@ -68,21 +68,21 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Query(
         """
         SELECT (
-            SELECT IFNULL(SUM(t1.amount), 0.0)
-            FROM transaction_table t1
-            WHERE (:typeName = 'DEBIT' OR type = 'DEBIT')
-            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
-            AND (:tagId IS NULL OR t1.tag_id = :tagId)
-            AND (:addExcluded = 1 OR t1.is_excluded = 0)
-            AND (COALESCE(:selectedTxIds, '') = '' OR t1.id IN (:selectedTxIds))
+            SELECT IFNULL(SUM(t1.transactionAmount), 0.0)
+            FROM transaction_details_view t1
+            WHERE (:typeName = 'DEBIT' OR t1.transactionTypeName = 'DEBIT')
+            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+            AND (:tagId IS NULL OR t1.tagId = :tagId)
+            AND (:addExcluded = 1 OR t1.overallExcluded = 0)
+            AND (COALESCE(:selectedTxIds, '') = '' OR t1.transactionId IN (:selectedTxIds))
             ) - (
-            SELECT IFNULL(SUM(t2.amount), 0.0)
-            FROM transaction_table t2
-            WHERE (:typeName = 'CREDIT' OR type = 'CREDIT')
-            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
-            AND (:tagId IS NULL OR t2.tag_id = :tagId)
-            AND (:addExcluded = 1 OR t2.is_excluded = 0)
-            AND (COALESCE(:selectedTxIds, '') = '' OR t2.id IN (:selectedTxIds))
+            SELECT IFNULL(SUM(t2.transactionAmount), 0.0)
+            FROM transaction_details_view t2
+            WHERE (:typeName = 'CREDIT' OR t2.transactionTypeName = 'CREDIT')
+            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+            AND (:tagId IS NULL OR t2.tagId = :tagId)
+            AND (:addExcluded = 1 OR t2.overallExcluded = 0)
+            AND (COALESCE(:selectedTxIds, '') = '' OR t2.transactionId IN (:selectedTxIds))
         )
     """
     )
