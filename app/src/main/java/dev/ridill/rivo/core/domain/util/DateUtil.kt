@@ -18,12 +18,11 @@ object DateUtil {
 
     fun dateNow(): LocalDate = LocalDate.now()
 
-    fun parse(
+    fun parseDateTime(
         value: String,
         formatter: DateTimeFormatter = Formatters.isoLocalDateTime
-    ): LocalDateTime? = tryOrNull {
-        LocalDateTime.parse(value, formatter)
-    }
+    ): LocalDateTime? = tryOrNull { LocalDateTime.parse(value, formatter) }
+
 
     fun getPartOfDay(): PartOfDay = when (now().hour) {
         in (0..11) -> PartOfDay.MORNING
@@ -115,6 +114,19 @@ object DateUtil {
 
             return UiText.DynamicString(date.format(localizedDateLong))
         }
+
+        fun formatterWithDefault(
+            pattern: String,
+            dateTime: LocalDateTime = now()
+        ): DateTimeFormatter = DateTimeFormatterBuilder()
+            .appendPattern(pattern)
+            .parseDefaulting(ChronoField.YEAR, dateTime.year.toLong())
+            .parseDefaulting(ChronoField.MONTH_OF_YEAR, dateTime.monthValue.toLong())
+            .parseDefaulting(ChronoField.DAY_OF_MONTH, dateTime.dayOfMonth.toLong())
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, dateTime.hour.toLong())
+            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, dateTime.minute.toLong())
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, dateTime.second.toLong())
+            .toFormatter()
 
         private val ordinalsMap: Map<Long, String>
             get() {

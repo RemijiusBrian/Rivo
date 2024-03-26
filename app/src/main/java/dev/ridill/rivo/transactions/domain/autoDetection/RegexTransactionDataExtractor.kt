@@ -6,9 +6,10 @@ import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.ifNaN
+import dev.ridill.rivo.core.domain.util.logD
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * [TransactionDataExtractor] implementation using [Regex] pattern matching.
@@ -29,12 +30,16 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         val processedContent = processText(messageBody)
 
         val amount = getTransactionAmount(processedContent)
+        logD { "Extracted amount - $amount" }
         val merchant = getMerchant(processedContent)
             ?: throw TransactionDataExtractionFailedThrowable()
+        logD { "Extracted merchant - $merchant" }
         val transactionType = getTransactionType(processedContent)
             ?: throw TransactionDataExtractionFailedThrowable()
-        val timestamp = getTimestamp(processedContent)
+        logD { "Extracted type - $transactionType" }
+        val timestamp = getTimestamp(messageBody)
             ?: throw TransactionDataExtractionFailedThrowable()
+        logD { "Extracted timestamp - $timestamp" }
 
         return ExtractedTransactionData(
             amount = amount,
@@ -111,14 +116,84 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         }
     }
 
-    private fun getTimestamp(content: List<String>): LocalDateTime? {
-        val contentString = content.joinToString(String.WhiteSpace)
-        return timestampRegex.find(contentString)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.let {
-                DateUtil.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd:HH:mm:ss"))
+    private fun getTimestamp(messageBody: String): LocalDateTime? {
+        val timestampMatchGroups = timestampRegex.find(messageBody)?.groupValues
+        logD { "Timestamp match groups - $timestampMatchGroups" }
+        println("Timestamp match groups - $timestampMatchGroups")
+        if (timestampMatchGroups.isNullOrEmpty()) return null
+
+        val dateString = timestampMatchGroups.getOrNull(1)
+            ?: return null
+        logD { "Date string - $dateString" }
+        println("Date string - $dateString")
+        val timeString = timestampMatchGroups.getOrNull(3).orEmpty()
+        logD { "Time string - $timeString" }
+        println("Time string - $timeString")
+        val timestampPattern = buildString {
+            val isFirstSubUnitA4DigitYear = dateString.substringBefore('-').length == 4
+
+            var subUnitCount = 0
+
+            // Build date section
+            if (isFirstSubUnitA4DigitYear) {
+                dateString.forEach { dateChar ->
+                    if (dateChar.isDigit()) {
+                        when (subUnitCount) {
+                            0 -> append("y")
+                            1 -> append("M")
+                            else -> append("d")
+                        }
+                    } else {
+                        // separator
+                        append(dateChar)
+                        subUnitCount += 1
+                    }
+                }
+            } else {
+                dateString.forEach { dateChar ->
+                    if (dateChar.isDigit()) {
+                        when (subUnitCount) {
+                            0 -> append("d")
+                            1 -> append("M")
+                            else -> append("y")
+                        }
+                    } else {
+                        // separator
+                        append(dateChar)
+                        subUnitCount += 1
+                    }
+                }
             }
+
+            subUnitCount = 0
+            timeString.forEach {
+                if (it.isDigit()) {
+                    when (subUnitCount) {
+                        // Sub unit count 1 -> HH section
+                        1 -> append("H")
+                        // Sub unit count 1 -> mm section
+                        2 -> append("m")
+                        // Sub unit count 1 -> ss section
+                        else -> append("s")
+                    }
+                } else {
+                    // Non digit value -> ':' separator
+                    // increment subUnitCount
+                    append(it)
+                    subUnitCount += 1
+                }
+            }
+        }.trim()
+
+        println("Built parse pattern - $timestampPattern")
+        val timestampString = "$dateString${timeString}".trim()
+        logI { "Timestamp string - $timestampString" }
+        println("Timestamp string - $timestampString")
+
+        return DateUtil.parseDateTime(
+            value = timestampString,
+            formatter = DateUtil.Formatters.formatterWithDefault(timestampPattern)
+        )
     }
 
     private fun getNextWord(source: String, searchWord: String, count: Int = 1): String {
@@ -196,5 +271,6 @@ private const val CREDIT_PATTERN =
     "(?i)(?:credited|credit|deposited|added|received|refund|repayment)"
 private const val DEBIT_PATTERN = "(?i)(?:debited|debit|deducted)"
 private const val MISC_PAYMENT_PATTERN =
-    "(?i)(?:payment|spent|paid|used\\s+at|charged|transaction\\son|transaction\\sfee|tran|booked|purchased|sent\\s+to|purchase\\s+of)"
-private const val TIMESTAMP_PATTERN = "(?i)on\\s+(\\d{4}-\\d{2}-\\d{2}:\\d{2}:\\d{2}:\\d{2})"
+    "(?i)(?:payment|spent|paid|used\\s+at|charged|transaction\\son|transaction\\sfee|tran|booked|purchased|sent|sent\\s+to|purchase\\s+of)"
+private const val TIMESTAMP_PATTERN =
+    "(?i)on\\s+(\\d{2,4}-\\d{2}(-\\d{2})?(:\\d{2}:\\d{2}:\\d{2})?)"
