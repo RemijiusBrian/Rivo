@@ -79,7 +79,7 @@ fun GoogleSignInPage(
             Text(
                 text = if (isRestoreAvailable) stringResource(
                     R.string.onboarding_page_restore_data_message,
-                    availableBackupDetails?.getParsedDateTime()
+                    availableBackupDetails?.getParsedTimestamp()
                         ?.format(DateUtil.Formatters.localizedDateMediumTimeShort)
                         .orEmpty()
                 )

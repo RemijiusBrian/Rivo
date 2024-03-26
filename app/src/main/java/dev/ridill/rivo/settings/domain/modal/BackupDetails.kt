@@ -11,5 +11,5 @@ data class BackupDetails(
     val id: String,
     val timestamp: String
 ) : Parcelable {
-    fun getParsedDateTime(): LocalDateTime? = DateUtil.parse(timestamp)
+    fun getParsedTimestamp(): LocalDateTime? = DateUtil.parseDateTime(timestamp)
 }

@@ -73,7 +73,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             WHERE (:typeName = 'DEBIT' OR type = 'DEBIT')
             AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
             AND (:tagId IS NULL OR t1.tag_id = :tagId)
-            AND (:addExcluded = 1 OR is_excluded = 0)
+            AND (:addExcluded = 1 OR t1.is_excluded = 0)
             AND (COALESCE(:selectedTxIds, '') = '' OR t1.id IN (:selectedTxIds))
             ) - (
             SELECT IFNULL(SUM(t2.amount), 0.0)
@@ -81,7 +81,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             WHERE (:typeName = 'CREDIT' OR type = 'CREDIT')
             AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
             AND (:tagId IS NULL OR t2.tag_id = :tagId)
-            AND (:addExcluded = 1 OR is_excluded = 0)
+            AND (:addExcluded = 1 OR t2.is_excluded = 0)
             AND (COALESCE(:selectedTxIds, '') = '' OR t2.id IN (:selectedTxIds))
         )
     """
