@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
  *
  * This implementation is not my own
  * and was adopted from the [transaction-sms-parser](https://github.com/saurabhgupta050890/transaction-sms-parser) library
- * by user **saurabhgupta050890**. Checkout GitHub page [here.](https://github.com/saurabhgupta050890)
+ * by user **saurabhgupta050890**. Checkout their GitHub page [here.](https://github.com/saurabhgupta050890)
  */
 
 class RegexTransactionDataExtractor : TransactionDataExtractor {
