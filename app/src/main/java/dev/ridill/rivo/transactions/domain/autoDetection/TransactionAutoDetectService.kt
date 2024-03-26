@@ -30,7 +30,7 @@ class TransactionAutoDetectService(
             )
 
             notificationHelper.postNotification(
-                id = insertedTx.id.toInt(),
+                id = insertedTx.id.hashCode(),
                 data = insertedTx
             )
         }
