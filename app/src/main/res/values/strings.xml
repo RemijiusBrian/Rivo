@@ -258,6 +258,7 @@
     <string name="restore">Restore</string>
     <string name="choose_backup_interval">Choose Backup Interval</string>
     <string name="backup_now">Backup Now</string>
+    <string name="downloading_app_data">Downloading App Data</string>
     <string name="restoring_app_data">Restoring App Data</string>
     <string name="data_restore_in_progress">Data restore in progress</string>
     <string name="restarting_app">Restarting App</string>

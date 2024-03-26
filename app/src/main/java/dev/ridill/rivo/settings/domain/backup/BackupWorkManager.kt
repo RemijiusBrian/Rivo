@@ -1,7 +1,6 @@
 package dev.ridill.rivo.settings.domain.backup
 
 import android.content.Context
-import androidx.lifecycle.asFlow
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -13,7 +12,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.google.gson.Gson
 import dev.ridill.rivo.core.domain.util.toUUID
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
@@ -25,8 +23,8 @@ class BackupWorkManager(
 ) {
     private val workManager = WorkManager.getInstance(context)
 
-    private val backupRestoreWorkerTag: String
-        get() = "${context.packageName}.DATA_BACKUP_RESTORE_WORKER"
+    private val dataBackupWorkerTag: String
+        get() = "${context.packageName}.DATA_BACKUP_WORKER_TAG"
 
     private val oneTimeBackupWorkName: String
         get() = "${context.packageName}.ONE_TIME_DATA_BACKUP_WORK"
@@ -34,14 +32,24 @@ class BackupWorkManager(
     private val periodicBackupWorkName: String
         get() = "${context.packageName}.PERIODIC_DATA_BACKUP_WORK"
 
+    private val oneTimeDataDownloadWorkName: String
+        get() = "${context.packageName}.ONE_TIME_DOWNLOAD_WORK"
+
+    private val dataRestoreWorkerTag: String
+        get() = "${context.packageName}.DATA_RESTORE_WORKER_TAG"
+
     private val oneTimeRestoreWorkName: String
         get() = "${context.packageName}.ONE_TIME_DATA_RESTORE_WORK"
 
     companion object {
         const val WORK_INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
         const val KEY_MESSAGE = "KEY_MESSAGE"
-        const val KEY_DETAILS_INPUT = "KEY_DETAILS_INPUT"
+        const val KEY_BACKUP_FILE_ID = "KEY_BACKUP_FILE_ID"
+        const val KEY_BACKUP_TIMESTAMP = "KEY_BACKUP_DATE"
         const val KEY_PASSWORD_HASH = "KEY_PASSWORD_HASH"
+
+        const val RESTORE_WORKER_NOTIFICATION_ID = "RESTORE_WORKER_NOTIFICATION"
+        const val BACKUP_WORKER_NOTIFICATION_ID = "BACKUP_WORKER_NOTIFICATION"
 
         private const val BACKOFF_DELAY_MINUTES = 10L
     }
@@ -59,7 +67,7 @@ class BackupWorkManager(
             .setConstraints(buildBackupConstraints())
             .setId(periodicBackupWorkName.toUUID())
             .addTag("$WORK_INTERVAL_TAG_PREFIX${interval.name}")
-            .addTag(backupRestoreWorkerTag)
+            .addTag(dataBackupWorkerTag)
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 BACKOFF_DELAY_MINUTES,
@@ -75,8 +83,7 @@ class BackupWorkManager(
     }
 
     fun getPeriodicBackupWorkInfoFlow(): Flow<WorkInfo?> = workManager
-        .getWorkInfoByIdLiveData(periodicBackupWorkName.toUUID())
-        .asFlow()
+        .getWorkInfoByIdFlow(periodicBackupWorkName.toUUID())
 
     fun cancelPeriodicBackupWork() {
         workManager.cancelWorkById(periodicBackupWorkName.toUUID())
@@ -86,7 +93,7 @@ class BackupWorkManager(
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(oneTimeBackupWorkName.toUUID())
-            .addTag(backupRestoreWorkerTag)
+            .addTag(dataBackupWorkerTag)
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 BACKOFF_DELAY_MINUTES,
@@ -102,21 +109,30 @@ class BackupWorkManager(
     }
 
     fun getImmediateBackupWorkInfoFlow(): Flow<WorkInfo?> = workManager
-        .getWorkInfoByIdLiveData(oneTimeBackupWorkName.toUUID())
-        .asFlow()
+        .getWorkInfoByIdFlow(oneTimeBackupWorkName.toUUID())
 
-    fun runImmediateRestoreWork(details: BackupDetails, passwordHash: String) {
-        val jsonData = Gson().toJson(details)
-        val workRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
+    fun runImmediateRestoreWork(backupDetails: BackupDetails, passwordHash: String) {
+        val downloadDataWorkRequest = OneTimeWorkRequestBuilder<GDriveDataDownloadWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .addTag(dataRestoreWorkerTag)
+            .setId(oneTimeDataDownloadWorkName.toUUID())
+            .setInputData(
+                workDataOf(
+                    KEY_BACKUP_FILE_ID to backupDetails.id,
+                    KEY_BACKUP_TIMESTAMP to backupDetails.timestamp
+                )
+            )
+            .build()
+        val restoreWorkRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
+            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .addTag(dataRestoreWorkerTag)
             .setId(oneTimeRestoreWorkName.toUUID())
             .setInputData(
                 workDataOf(
-                    KEY_DETAILS_INPUT to jsonData,
                     KEY_PASSWORD_HASH to passwordHash
                 )
             )
-            .addTag(backupRestoreWorkerTag)
+            .addTag(dataBackupWorkerTag)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiresStorageNotLow(true)
@@ -125,19 +141,24 @@ class BackupWorkManager(
             )
             .build()
 
-        workManager.enqueueUniqueWork(
-            oneTimeRestoreWorkName,
-            ExistingWorkPolicy.REPLACE,
-            workRequest
-        )
+        workManager
+            .beginUniqueWork(
+                oneTimeBackupWorkName,
+                ExistingWorkPolicy.REPLACE,
+                downloadDataWorkRequest
+            )
+            .then(restoreWorkRequest)
+            .enqueue()
     }
 
+    fun getRestoreDownloadWorkInfoFlow(): Flow<WorkInfo?> = workManager
+        .getWorkInfoByIdFlow(oneTimeDataDownloadWorkName.toUUID())
+
     fun getImmediateRestoreWorkInfoFlow(): Flow<WorkInfo?> = workManager
-        .getWorkInfoByIdLiveData(oneTimeRestoreWorkName.toUUID())
-        .asFlow()
+        .getWorkInfoByIdFlow(oneTimeRestoreWorkName.toUUID())
 
     fun cancelAllWorks() {
-        workManager.cancelAllWorkByTag(backupRestoreWorkerTag)
+        workManager.cancelAllWorkByTag(dataBackupWorkerTag)
     }
 
     fun getBackupIntervalFromWorkInfo(info: WorkInfo): BackupInterval? {

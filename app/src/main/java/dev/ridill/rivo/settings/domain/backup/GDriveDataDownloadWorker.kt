@@ -11,63 +11,48 @@ import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.BackupFeature
 import dev.ridill.rivo.settings.data.repository.BackupDownloadFailedThrowable
-import dev.ridill.rivo.settings.data.repository.InvalidEncryptionPasswordThrowable
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.crypto.BadPaddingException
-import javax.crypto.IllegalBlockSizeException
 
 @HiltWorker
-class GDriveDataRestoreWorker @AssistedInject constructor(
+class GDriveDataDownloadWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted params: WorkerParameters,
     private val repo: BackupRepository,
     @BackupFeature private val notificationHelper: NotificationHelper<String>,
-    private val preferencesManager: PreferencesManager
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
+        val timestamp = inputData.getString(BackupWorkManager.KEY_BACKUP_TIMESTAMP)
+            ?.let { DateUtil.parse(it) }
+            ?: return@withContext Result.failure(
+                workDataOf(
+                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_download_backup_failed)
+                )
+            )
         try {
-            val passwordHash = inputData.getString(BackupWorkManager.KEY_PASSWORD_HASH).orEmpty()
-                .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
-            val timestamp = inputData.getString(BackupWorkManager.KEY_BACKUP_TIMESTAMP)
-                ?.let { DateUtil.parse(it) }
+            val backupFileId = inputData.getString(BackupWorkManager.KEY_BACKUP_FILE_ID)
                 ?: throw BackupDownloadFailedThrowable()
-            logI { "Starting data restore from cache" }
-            repo.performAppDataRestoreFromCache(passwordHash, timestamp)
-            preferencesManager.updateNeedsConfigRestore(true)
-            preferencesManager.updateLastBackupTimestamp(timestamp)
-            logI { "Backup Restored" }
-            repo.tryClearLocalCache()
-            logI { "Cleared cache" }
-            Result.success()
-        } catch (t: InvalidEncryptionPasswordThrowable) {
-            logE(t) { "InvalidEncryptionPasswordThrowable" }
-            Result.failure(
+            repo.downloadAndCacheBackupData(backupFileId, timestamp)
+            logI { "Backup data downloaded and cached" }
+            Result.success(
                 workDataOf(
-                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_invalid_encryption_password)
+                    BackupWorkManager.KEY_BACKUP_TIMESTAMP to timestamp.toString()
                 )
             )
-        } catch (e: IllegalBlockSizeException) {
-            logE(e) { "IllegalBlockSizeException" }
-            Result.failure(
+        } catch (t: RestoreCacheAlreadyExistsThrowable) {
+            logE(t) { "RestoreCacheAlreadyExistsThrowable" }
+            logI { "Backup data already exists, so moving forward with restore" }
+            Result.success(
                 workDataOf(
-                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_incorrect_encryption_password)
-                )
-            )
-        } catch (e: BadPaddingException) {
-            logE(e) { "BadPaddingException" }
-            Result.failure(
-                workDataOf(
-                    BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_incorrect_encryption_password)
+                    BackupWorkManager.KEY_BACKUP_TIMESTAMP to timestamp.toString()
                 )
             )
         } catch (t: BackupDownloadFailedThrowable) {
@@ -92,7 +77,7 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
             ForegroundInfo(
                 BackupWorkManager.RESTORE_WORKER_NOTIFICATION_ID.hashCode(),
                 notificationHelper.buildBaseNotification()
-                    .setContentTitle(appContext.getString(R.string.restoring_app_data))
+                    .setContentTitle(appContext.getString(R.string.downloading_app_data))
                     .setProgress(100, 0, true)
                     .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                     .build(),

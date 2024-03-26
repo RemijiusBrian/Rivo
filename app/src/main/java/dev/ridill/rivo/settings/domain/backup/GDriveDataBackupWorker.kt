@@ -40,7 +40,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         } catch (t: InvalidEncryptionPasswordThrowable) {
             logE(t) { "InvalidEncryptionPasswordThrowable" }
             notificationHelper.postNotification(
-                BACKUP_FAILED_NOTIFICATION_ID,
+                BackupWorkManager.BACKUP_WORKER_NOTIFICATION_ID.hashCode(),
                 appContext.getString(R.string.error_invalid_encryption_password)
             )
             workManager.cancelPeriodicBackupWork()
@@ -52,7 +52,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         } catch (e: UserRecoverableAuthException) {
             logE(e) { "UserRecoverableAuthException" }
             notificationHelper.postNotification(
-                BACKUP_FAILED_NOTIFICATION_ID,
+                BackupWorkManager.BACKUP_WORKER_NOTIFICATION_ID.hashCode(),
                 appContext.getString(R.string.error_google_auth_failed)
             )
             workManager.cancelPeriodicBackupWork()
@@ -64,7 +64,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         } catch (e: GoogleAuthException) {
             logE(e) { "GoogleAuthException" }
             notificationHelper.postNotification(
-                BACKUP_FAILED_NOTIFICATION_ID,
+                BackupWorkManager.BACKUP_WORKER_NOTIFICATION_ID.hashCode(),
                 appContext.getString(R.string.error_google_auth_failed)
             )
             workManager.cancelPeriodicBackupWork()
@@ -92,5 +92,3 @@ class GDriveDataBackupWorker @AssistedInject constructor(
         else -> Result.retry()
     }
 }
-
-private const val BACKUP_FAILED_NOTIFICATION_ID = 2

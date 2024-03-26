@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
+import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
@@ -60,26 +61,42 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun collectRestoreWorkState() = viewModelScope.launch {
-        backupWorkManager.getImmediateRestoreWorkInfoFlow().collectLatest { info ->
-            val state = info?.state
-            _isLoading.update { state == WorkInfo.State.RUNNING }
-            savedStateHandle[RESTORE_STATE_TEXT] = when (state) {
-                WorkInfo.State.RUNNING -> UiText.StringResource(R.string.data_restore_in_progress)
-                WorkInfo.State.SUCCEEDED -> UiText.StringResource(R.string.restarting_app)
+        combineTuple(
+            backupWorkManager.getRestoreDownloadWorkInfoFlow(),
+            backupWorkManager.getImmediateRestoreWorkInfoFlow()
+        ).collectLatest { (downloadInfo, restoreInfo) ->
+            val isDownloadRunning = downloadInfo?.state == WorkInfo.State.RUNNING
+            val isRestoreRunning = restoreInfo?.state == WorkInfo.State.RUNNING
+
+            _isLoading.update { isDownloadRunning || isRestoreRunning }
+            savedStateHandle[RESTORE_STATE_TEXT] = when {
+                isDownloadRunning -> UiText.StringResource(R.string.downloading_app_data)
+                isRestoreRunning -> UiText.StringResource(R.string.data_restore_in_progress)
+                restoreInfo?.state == WorkInfo.State.SUCCEEDED -> UiText.StringResource(R.string.restarting_app)
                 else -> null
             }
 
-            when (state) {
-                WorkInfo.State.SUCCEEDED -> {
+            when {
+                restoreInfo?.state == WorkInfo.State.SUCCEEDED -> {
                     savedStateHandle[AVAILABLE_BACKUP] = null
                     preferencesManager.concludeOnboarding()
                     eventBus.send(OnboardingEvent.RestartApplication)
                 }
 
-                WorkInfo.State.FAILED -> {
+                downloadInfo?.state == WorkInfo.State.FAILED -> {
                     eventBus.send(
                         OnboardingEvent.ShowUiMessage(
-                            info.outputData.getString(BackupWorkManager.KEY_MESSAGE)
+                            downloadInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
+                                ?.let { UiText.DynamicString(it) }
+                                ?: UiText.StringResource(R.string.error_app_data_restore_failed)
+                        )
+                    )
+                }
+
+                restoreInfo?.state == WorkInfo.State.FAILED -> {
+                    eventBus.send(
+                        OnboardingEvent.ShowUiMessage(
+                            restoreInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
                                 ?: UiText.StringResource(R.string.error_app_data_restore_failed)
                         )
@@ -179,7 +196,10 @@ class OnboardingViewModel @Inject constructor(
         val backupDetails = availableBackup.value ?: return
         val passwordHash = cryptoManager.hash(password)
         savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = false
-        backupWorkManager.runImmediateRestoreWork(backupDetails, passwordHash)
+        backupWorkManager.runImmediateRestoreWork(
+            backupDetails = backupDetails,
+            passwordHash = passwordHash
+        )
     }
 
     override fun onSkipDataRestore() {

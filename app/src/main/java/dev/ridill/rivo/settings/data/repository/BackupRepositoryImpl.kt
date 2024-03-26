@@ -20,6 +20,8 @@ import dev.ridill.rivo.settings.data.toBackupDetails
 import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.DB_BACKUP_FILE_NAME
+import dev.ridill.rivo.settings.domain.backup.RestoreCacheAlreadyExistsThrowable
+import dev.ridill.rivo.settings.domain.backup.RestoreFailedThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +32,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.time.LocalDateTime
 import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 
@@ -129,29 +132,43 @@ class BackupRepositoryImpl(
     }
 
     @Throws(
+        RestoreFailedThrowable::class,
+        RestoreCacheAlreadyExistsThrowable::class,
+        BackupDownloadFailedThrowable::class,
+        BackupCachingFailedThrowable::class
+    )
+    override suspend fun downloadAndCacheBackupData(fileId: String, timestamp: LocalDateTime) {
+        withContext(Dispatchers.IO) {
+            if (backupService.doesRestoreCacheExist(timestamp))
+                throw RestoreCacheAlreadyExistsThrowable()
+
+            logI { "Downloading data from GDrive" }
+            val response = gDriveApi.downloadFile(fileId)
+            val fileBody = response.body()
+                ?: throw BackupDownloadFailedThrowable()
+            logI { "Downloaded backup data" }
+            backupService.cacheDownloadedRestoreData(fileBody.byteStream(), timestamp)
+            logI { "Cached restore data" }
+        }
+    }
+
+    @Throws(
+        RestoreFailedThrowable::class,
         BackupDownloadFailedThrowable::class,
         BackupCachingFailedThrowable::class,
         IllegalBlockSizeException::class,
         BadPaddingException::class
     )
-    override suspend fun performAppDataRestore(
-        details: BackupDetails,
-        passwordHash: String
-    ) = withContext(Dispatchers.IO) {
-        logI { "Restoring Backup" }
-        val response = gDriveApi.downloadFile(details.id)
-        val fileBody = response.body()
-            ?: throw BackupDownloadFailedThrowable()
-        logI { "Downloaded backup data" }
-
-        backupService.restoreBackupFile(
-            dataInputStream = fileBody.byteStream(),
-            password = passwordHash
-        )
-        preferencesManager.updateEncryptionPasswordHash(passwordHash)
-        details.getParsedDateTime()?.let { preferencesManager.updateLastBackupTimestamp(it) }
-        logI { "Updated last backup timestamp" }
-    }
+    override suspend fun performAppDataRestoreFromCache(
+        passwordHash: String,
+        timestamp: LocalDateTime
+    ) =
+        withContext(Dispatchers.IO) {
+            logI { "Restoring Backup from cache" }
+            backupService.restoreBackupFromCache(passwordHash, timestamp)
+            preferencesManager.updateEncryptionPasswordHash(passwordHash)
+            logI { "Updated last backup timestamp" }
+        }
 
     override suspend fun tryClearLocalCache() {
         tryOrNull("Clearing cacheDir exception") {

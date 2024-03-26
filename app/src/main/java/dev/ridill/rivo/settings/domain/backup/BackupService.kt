@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
+import java.time.LocalDateTime
 import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 
@@ -20,13 +21,14 @@ class BackupService(
     private val cryptoManager: CryptoManager
 ) {
     @Throws(
+        RestoreFailedThrowable::class,
         BackupCachingFailedThrowable::class,
         IllegalBlockSizeException::class,
         BadPaddingException::class
     )
-    suspend fun restoreBackupFile(
-        dataInputStream: InputStream,
-        password: String
+    suspend fun restoreBackupFromCache(
+        password: String,
+        timestamp: LocalDateTime
     ) = withContext(Dispatchers.IO) {
         val dbPath = database.openHelper.readableDatabase.path
         val dbFile = dbPath?.let { File(it) } ?: throw BackupCachingFailedThrowable()
@@ -37,7 +39,10 @@ class BackupService(
         logI { "Create decrypted cache" }
         val decryptedCache = File(cachePath, "DecryptedCache.backup")
 
-        dataInputStream.use dataInputStream@{ inputStream ->
+        val restoreCache = File(cachePath, buildRestoreCacheFileName(timestamp))
+        if (!restoreCache.exists()) throw RestoreFailedThrowable()
+
+        restoreCache.inputStream().use restoreCacheInputStream@{ inputStream ->
             val ivSizeBytes = ByteArray(Int.SIZE_BYTES)
             inputStream.read(ivSizeBytes)
             val ivSize = ivSizeBytes.toInt()
@@ -195,10 +200,41 @@ class BackupService(
     }
 
     private fun backupFileName(): String = "${DateUtil.now()}-$DB_BACKUP_FILE_NAME"
+
+    fun doesRestoreCacheExist(timestamp: LocalDateTime): Boolean {
+        val cachePath = context.externalCacheDir ?: throw RestoreFailedThrowable()
+        val restoreCacheFile = File(cachePath, buildRestoreCacheFileName(timestamp))
+        return restoreCacheFile.exists()
+    }
+
+    @Throws(
+        RestoreFailedThrowable::class,
+        RestoreCacheAlreadyExistsThrowable::class
+    )
+    suspend fun cacheDownloadedRestoreData(
+        dataStream: InputStream,
+        dateTime: LocalDateTime
+    ) = withContext(Dispatchers.IO) {
+        val cachePath = context.externalCacheDir ?: throw RestoreFailedThrowable()
+        logI { "Create Restore Data Cache" }
+        val restoreDataCache = File(cachePath, buildRestoreCacheFileName(dateTime))
+        if (restoreDataCache.exists()) throw RestoreCacheAlreadyExistsThrowable()
+        dataStream.use downloadedInputStream@{ inputStream ->
+            restoreDataCache.outputStream().use restoreCacheOutputStream@{ outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+    }
+
+    private fun buildRestoreCacheFileName(timestamp: LocalDateTime): String =
+        "$timestamp-$RESTORE_CACHE_FILE"
 }
 
 private const val SQLITE_WAL_FILE_SUFFIX = "-wal"
 private const val SQLITE_SHM_FILE_SUFFIX = "-shm"
 const val DB_BACKUP_FILE_NAME = "Rivo_db.backup"
+private const val RESTORE_CACHE_FILE = "RestoreCache.backup"
 
 class BackupCachingFailedThrowable : Throwable("Failed to create backup cache")
+class RestoreFailedThrowable : Throwable("Failed to restore data")
+class RestoreCacheAlreadyExistsThrowable : Throwable("Restore cache already exists")
