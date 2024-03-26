@@ -30,7 +30,7 @@ data object FoldersListScreenSpec : ScreenSpec {
     ) {
         val viewModel: FoldersListViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val foldersList = viewModel.folderListPagingData.collectAsLazyPagingItems()
+        val foldersPagingItems = viewModel.folderListPagingData.collectAsLazyPagingItems()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -51,7 +51,7 @@ data object FoldersListScreenSpec : ScreenSpec {
 
         FoldersListScreen(
             snackbarController = snackbarController,
-            foldersList = foldersList,
+            foldersPagingItems = foldersPagingItems,
             state = state,
             actions = viewModel,
             navigateToFolderDetails = {

@@ -25,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,13 +62,16 @@ import kotlin.math.absoluteValue
 @Composable
 fun FoldersListScreen(
     snackbarController: SnackbarController,
-    foldersList: LazyPagingItems<FolderUIModel>,
+    foldersPagingItems: LazyPagingItems<FolderUIModel>,
     state: FoldersListState,
     actions: FoldersListActions,
     navigateToFolderDetails: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val areFoldersListEmpty by remember {
+        derivedStateOf { foldersPagingItems.isEmpty() }
+    }
     RivoScaffold(
         topBar = {
             TopAppBar(
@@ -101,7 +106,7 @@ fun FoldersListScreen(
             Box(
                 contentAlignment = Alignment.Center
             ) {
-                if (foldersList.isEmpty()) {
+                if (areFoldersListEmpty) {
                     EmptyListIndicator(
                         rawResId = R.raw.lottie_empty_list_ghost,
                         messageRes = R.string.folders_list_empty_message
@@ -125,8 +130,8 @@ fun FoldersListScreen(
                     horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
                     verticalItemSpacing = SpacingMedium
                 ) {
-                    repeat(foldersList.itemCount) { index ->
-                        foldersList[index]?.let { item ->
+                    repeat(foldersPagingItems.itemCount) { index ->
+                        foldersPagingItems[index]?.let { item ->
                             when (item) {
                                 is FolderUIModel.AggregateTypeSeparator -> {
                                     item(

@@ -267,18 +267,6 @@ fun DashboardScreen(
                         rawResId = R.raw.lottie_empty_list_ghost,
                         messageRes = R.string.recent_spends_list_empty_message
                     )
-                    /*Box(
-                        modifier = Modifier
-                            .fillParentMaxWidth()
-                            .fillParentMaxHeight(0.5f)
-                            .animateItemPlacement(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        EmptyListIndicator(
-                            rawResId = R.raw.lottie_empty_list_ghost,
-                            messageRes = R.string.recent_spends_list_empty_message
-                        )
-                    }*/
                 }
             }
 

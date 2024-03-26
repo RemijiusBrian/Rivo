@@ -86,6 +86,9 @@ fun AllSchedulesScreen(
     val isNotificationPermissionGranted by remember(notificationPermissionState) {
         derivedStateOf { notificationPermissionState?.isGranted != false }
     }
+    val areSchedulesEmpty by remember {
+        derivedStateOf { allSchedulesPagingItems.isEmpty() }
+    }
 
     BackHandler(
         enabled = state.multiSelectionModeActive,
@@ -147,7 +150,7 @@ fun AllSchedulesScreen(
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
-            if (allSchedulesPagingItems.isEmpty()) {
+            if (areSchedulesEmpty) {
                 item(
                     key = "EmptyListIndicator",
                     contentType = "EmptyListIndicator"
@@ -156,18 +159,6 @@ fun AllSchedulesScreen(
                         rawResId = R.raw.lottie_empty_list_ghost,
                         messageRes = R.string.schedules_empty_message
                     )
-                    /*Box(
-                        modifier = Modifier
-                            .fillParentMaxWidth()
-                            .fillParentMaxHeight(0.5f)
-                            .animateItemPlacement(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        EmptyListIndicator(
-                            rawResId = R.raw.lottie_empty_list_ghost,
-                            messageRes = R.string.schedules_empty_message
-                        )
-                    }*/
                 }
             }
             repeat(allSchedulesPagingItems.itemCount) { index ->

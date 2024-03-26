@@ -149,7 +149,7 @@ fun AllTransactionsScreen(
     navigateToAddEditTransaction: (Long) -> Unit,
     navigateUp: () -> Unit
 ) {
-    val isTransactionListEmpty by remember(state) {
+    val isTransactionListEmpty by remember(state.transactionList) {
         derivedStateOf { state.transactionList.isEmpty() }
     }
 

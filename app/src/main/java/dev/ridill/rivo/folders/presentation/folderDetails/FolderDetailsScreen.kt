@@ -33,6 +33,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -96,6 +97,9 @@ fun FolderDetailsScreen(
     navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
+    val areTransactionsEmpty by remember {
+        derivedStateOf { transactionPagingItems.isEmpty() }
+    }
     BackHandler(
         enabled = state.editModeActive,
         onBack = actions::onEditDismiss
@@ -195,7 +199,7 @@ fun FolderDetailsScreen(
                     )
                 }
 
-                if (transactionPagingItems.isEmpty()) {
+                if (areTransactionsEmpty) {
                     item(
                         key = "EmptyListIndicator",
                         contentType = "EmptyListIndicator"
