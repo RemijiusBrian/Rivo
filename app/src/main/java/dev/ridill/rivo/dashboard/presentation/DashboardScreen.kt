@@ -237,7 +237,7 @@ fun DashboardScreen(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(SpacingSmall),
                         modifier = Modifier
-                            .padding(horizontal = SpacingMedium)
+                            .padding(SpacingMedium)
                     ) {
                         ListLabel(text = stringResource(R.string.recent_spends))
 
