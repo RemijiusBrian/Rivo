@@ -1,6 +1,7 @@
 package dev.ridill.rivo.settings.presentation.backup
 
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import java.time.LocalDateTime
@@ -8,7 +9,6 @@ import java.time.chrono.IsoChronology
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
-import java.util.Locale
 
 data class BackupSettingsState(
     val accountEmail: String? = null,
@@ -26,7 +26,7 @@ data class BackupSettingsState(
             null,
             FormatStyle.SHORT,
             IsoChronology.INSTANCE,
-            Locale.getDefault()
+            LocaleUtil.defaultLocale
         )
 
         if (is24HourFormat) {
