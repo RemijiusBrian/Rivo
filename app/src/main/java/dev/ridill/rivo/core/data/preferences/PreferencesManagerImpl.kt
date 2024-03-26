@@ -39,7 +39,7 @@ class PreferencesManagerImpl(
             )
             val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED].orFalse()
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
-                ?.let { DateUtil.parse(it) }
+                ?.let { DateUtil.parseDateTime(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE].orFalse()
             val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED].orFalse()
             val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS].orTrue()
