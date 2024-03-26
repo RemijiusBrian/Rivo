@@ -148,7 +148,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         // remove \n
         message = message.replace("\n".toRegex(), " ")
         // remove \r
-        message = message.replace("(?g)\r".toRegex(), " ")
+        message = message.replace("\r".toRegex(), " ")
         // remove 'ending'
         message = message.replace("ending".toRegex(), "")
         // replace 'x'
