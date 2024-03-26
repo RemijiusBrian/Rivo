@@ -506,7 +506,6 @@ private fun UpcomingSchedulesRow(
     upcomingSchedules: List<UpcomingSchedule>,
     modifier: Modifier = Modifier,
 ) {
-
     LazyRow(
         contentPadding = PaddingValues(
             top = SpacingSmall,
