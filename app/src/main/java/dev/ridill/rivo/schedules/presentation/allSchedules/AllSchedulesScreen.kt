@@ -294,6 +294,9 @@ private fun ScheduleListItemCard(
         border = BorderStroke(
             width = BorderWidthStandard,
             color = borderColor
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         )
     ) {
         Column {
