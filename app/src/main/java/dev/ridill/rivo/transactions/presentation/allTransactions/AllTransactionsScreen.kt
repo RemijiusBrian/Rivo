@@ -238,9 +238,9 @@ fun AllTransactionsScreen(
                     currency = state.currency,
                     selectedTxTypeFilter = state.selectedTransactionTypeFilter,
                     listLabel = state.transactionListLabel,
-                    showExcludedTransactions = state.showExcludedTransactions,
+                    showExcludedOption = state.showExcludedOption,
                     onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
-                    onToggleShowExcludedTransactions = actions::onToggleShowExcludedTransactions,
+                    onToggleShowExcludedOption = actions::onToggleShowExcludedOption,
                     multiSelectionState = state.transactionSelectionState,
                     onSelectionStateChange = actions::onSelectionStateChange,
                     onDeleteClick = actions::onDeleteSelectedTransactionsClick,
@@ -577,9 +577,9 @@ private fun TransactionListHeader(
     currency: Currency,
     selectedTxTypeFilter: TransactionType?,
     listLabel: UiText,
-    showExcludedTransactions: Boolean,
+    showExcludedOption: Boolean,
     onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedTransactions: (Boolean) -> Unit,
+    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -623,8 +623,8 @@ private fun TransactionListHeader(
             TransactionListLabelAndOptions(
                 listLabel = listLabel,
                 onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-                showExcludedTransactions = showExcludedTransactions,
-                onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
+                showExcludedOption = showExcludedOption,
+                onToggleShowExcludedOption = onToggleShowExcludedOption,
                 multiSelectionModeActive = multiSelectionModeActive,
                 multiSelectionState = multiSelectionState,
                 onSelectionStateChange = onSelectionStateChange,
@@ -793,9 +793,9 @@ private fun DateIndicator(
 @Composable
 private fun TransactionListLabelAndOptions(
     listLabel: UiText,
-    showExcludedTransactions: Boolean,
+    showExcludedOption: Boolean,
     onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedTransactions: (Boolean) -> Unit,
+    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
@@ -816,9 +816,9 @@ private fun TransactionListLabelAndOptions(
         ) { ListLabel(text = it) }
 
         TransactionListOptions(
-            showExcludedTransactions = showExcludedTransactions,
+            showExcludedOption = showExcludedOption,
             onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-            onToggleShowExcludedTransactions = onToggleShowExcludedTransactions,
+            onToggleShowExcludedOption = onToggleShowExcludedOption,
             multiSelectionModeActive = multiSelectionModeActive,
             onTransactionOptionClick = onTransactionOptionClick,
             selectionState = multiSelectionState,
@@ -830,9 +830,9 @@ private fun TransactionListLabelAndOptions(
 
 @Composable
 private fun TransactionListOptions(
-    showExcludedTransactions: Boolean,
+    showExcludedOption: Boolean,
     onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedTransactions: (Boolean) -> Unit,
+    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     onTransactionOptionClick: (TransactionOption) -> Unit,
     selectionState: ToggleableState,
@@ -899,14 +899,14 @@ private fun TransactionListOptions(
                         text = {
                             Text(
                                 text = stringResource(
-                                    id = if (showExcludedTransactions) R.string.hide_excluded_transactions
+                                    id = if (showExcludedOption) R.string.hide_excluded_transactions
                                     else R.string.show_excluded_transactions
                                 )
                             )
                         },
                         onClick = {
                             menuExpanded = false
-                            onToggleShowExcludedTransactions(!showExcludedTransactions)
+                            onToggleShowExcludedOption(!showExcludedOption)
                         }
                     )
                 }

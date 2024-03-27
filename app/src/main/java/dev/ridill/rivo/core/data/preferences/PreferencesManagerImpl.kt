@@ -42,8 +42,8 @@ class PreferencesManagerImpl(
                 ?.let { DateUtil.parseDateTime(it) }
             val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE].orFalse()
             val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED].orFalse()
-            val showExcludedTransactions = preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS].orTrue()
-            val showBalancedFolders = preferences[Keys.SHOW_BALANCED_FOLDERS].orTrue()
+            val allTransactionsShowExcludedOption =
+                preferences[Keys.ALL_TX_SHOW_EXCLUDED_OPTION].orTrue()
             val appLockEnabled = preferences[Keys.APP_LOCK_ENABLED].orFalse()
             val appAutoLockInterval = AppAutoLockInterval.valueOf(
                 preferences[Keys.APP_AUTO_LOCK_INTERVAL] ?: AppAutoLockInterval.ONE_MINUTE.name
@@ -59,8 +59,7 @@ class PreferencesManagerImpl(
                 lastBackupDateTime = lastBackupDateTime,
                 needsConfigRestore = needsConfigRestore,
                 autoAddTransactionEnabled = autoAddTransactionEnabled,
-                showExcludedTransactions = showExcludedTransactions,
-                showBalancedFolders = showBalancedFolders,
+                allTransactionsShowExcludedOption = allTransactionsShowExcludedOption,
                 appLockEnabled = appLockEnabled,
                 appAutoLockInterval = appAutoLockInterval,
                 isAppLocked = isAppLocked,
@@ -117,18 +116,10 @@ class PreferencesManagerImpl(
         }
     }
 
-    override suspend fun updateShowExcludedTransactions(show: Boolean) {
+    override suspend fun updateAllTransactionsShowExcludedOption(show: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.SHOW_EXCLUDED_TRANSACTIONS] = show
-            }
-        }
-    }
-
-    override suspend fun updateShowBalancedFolders(show: Boolean) {
-        withContext(Dispatchers.IO) {
-            dataStore.edit { preferences ->
-                preferences[Keys.SHOW_BALANCED_FOLDERS] = show
+                preferences[Keys.ALL_TX_SHOW_EXCLUDED_OPTION] = show
             }
         }
     }
@@ -180,8 +171,7 @@ class PreferencesManagerImpl(
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
         val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
         val AUTO_ADD_TRANSACTION_ENABLED = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
-        val SHOW_EXCLUDED_TRANSACTIONS = booleanPreferencesKey("SHOW_EXCLUDED_TRANSACTIONS")
-        val SHOW_BALANCED_FOLDERS = booleanPreferencesKey("SHOW_BALANCED_FOLDERS")
+        val ALL_TX_SHOW_EXCLUDED_OPTION = booleanPreferencesKey("ALL_TX_SHOW_EXCLUDED_OPTION")
         val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")
         val APP_AUTO_LOCK_INTERVAL = stringPreferencesKey("APP_AUTO_LOCK_INTERVAL")
         val IS_APP_LOCKED = booleanPreferencesKey("IS_APP_LOCKED")

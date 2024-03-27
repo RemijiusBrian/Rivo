@@ -25,8 +25,8 @@ interface AllTransactionsRepository {
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>>
 
-    fun getShowExcludedTransactions(): Flow<Boolean>
-    suspend fun toggleShowExcludedTransactions(show: Boolean)
+    fun getShowExcludedOption(): Flow<Boolean>
+    suspend fun toggleShowExcludedOption(show: Boolean)
     suspend fun toggleTransactionExclusionByIds(ids: Set<Long>, excluded: Boolean)
     suspend fun addTransactionsToFolderByIds(ids: Set<Long>, folderId: Long)
     suspend fun removeTransactionsFromFolders(ids: Set<Long>)

@@ -59,12 +59,12 @@ class AllTransactionsRepositoryImpl(
         showExcluded = showExcluded
     ).map { it.map(TransactionDetailsView::toTransactionListItem) }
 
-    override fun getShowExcludedTransactions(): Flow<Boolean> =
-        preferencesManager.preferences.map { it.showExcludedTransactions }
+    override fun getShowExcludedOption(): Flow<Boolean> =
+        preferencesManager.preferences.map { it.allTransactionsShowExcludedOption }
             .distinctUntilChanged()
 
-    override suspend fun toggleShowExcludedTransactions(show: Boolean) =
-        preferencesManager.updateShowExcludedTransactions(show)
+    override suspend fun toggleShowExcludedOption(show: Boolean) =
+        preferencesManager.updateAllTransactionsShowExcludedOption(show)
 
     override suspend fun toggleTransactionExclusionByIds(ids: Set<Long>, excluded: Boolean) =
         withContext(Dispatchers.IO) {

@@ -17,7 +17,7 @@ interface AllTransactionsActions {
     fun onTagInputDismiss()
     fun onTagInputConfirm()
     fun onTransactionTypeFilterToggle()
-    fun onToggleShowExcludedTransactions(value: Boolean)
+    fun onToggleShowExcludedOption(value: Boolean)
     fun onTransactionLongPress(id: Long)
     fun onTransactionSelectionChange(id: Long)
     fun onSelectionStateChange()

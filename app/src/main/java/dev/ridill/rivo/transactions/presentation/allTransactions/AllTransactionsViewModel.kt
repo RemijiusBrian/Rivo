@@ -52,12 +52,12 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    val tagsPagingData = tagsRepo.getTagsPagingData()
+    val tagsPagingData = tagsRepo.getTagsPagingData(true)
         .cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
 
-    private val showExcludedTransactions = transactionRepo.getShowExcludedTransactions()
+    private val showExcludedOption = transactionRepo.getShowExcludedOption()
 
     private val transactionTypeFilter = savedStateHandle
         .getStateFlow<TransactionType?>(TRANSACTION_TYPE_FILTER, null)
@@ -66,7 +66,7 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         selectedTagId,
         transactionTypeFilter,
-        showExcludedTransactions
+        showExcludedOption
     ).flatMapLatest { (
                           date,
                           tagId,
@@ -103,7 +103,7 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         transactionTypeFilter,
         selectedTagId,
-        showExcludedTransactions,
+        showExcludedOption,
         selectedTransactionIds
     ).flatMapLatest { (
                           date,
@@ -169,7 +169,7 @@ class AllTransactionsViewModel @Inject constructor(
         showDeleteTagConfirmation,
         showTagInput,
         tagInputError,
-        showExcludedTransactions,
+        showExcludedOption,
         showFolderSelection
     ).map { (
                 selectedDate,
@@ -187,7 +187,7 @@ class AllTransactionsViewModel @Inject constructor(
                 showDeleteTagConfirmation,
                 showTagInput,
                 tagInputError,
-                showExcludedTransactions,
+                showExcludedOption,
                 showFolderSelection
             ) ->
         AllTransactionsState(
@@ -206,7 +206,7 @@ class AllTransactionsViewModel @Inject constructor(
             showDeleteTagConfirmation = showDeleteTagConfirmation,
             showTagInput = showTagInput,
             tagInputError = tagInputError,
-            showExcludedTransactions = showExcludedTransactions,
+            showExcludedOption = showExcludedOption,
             showFolderSelection = showFolderSelection
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
@@ -316,9 +316,9 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    override fun onToggleShowExcludedTransactions(value: Boolean) {
+    override fun onToggleShowExcludedOption(value: Boolean) {
         viewModelScope.launch {
-            transactionRepo.toggleShowExcludedTransactions(value)
+            transactionRepo.toggleShowExcludedOption(value)
         }
     }
 
