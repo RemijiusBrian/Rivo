@@ -19,9 +19,9 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
-import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
+import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 
 @Module
@@ -51,7 +51,7 @@ object SettingsViewModelModule {
     fun provideSettingsEventBus(): EventBus<SettingsViewModel.SettingsEvent> = EventBus()
 
     @Provides
-    fun provideBackupSettingsEventBus(): EventBus<BackupSettingsViewModel.BackupEvent> = EventBus()
+    fun provideBackupSettingsEventBus(): EventBus<BackupSettingsViewModel.BackupSettingsEvent> = EventBus()
 
     @Provides
     fun provideBackupSettingsRepository(

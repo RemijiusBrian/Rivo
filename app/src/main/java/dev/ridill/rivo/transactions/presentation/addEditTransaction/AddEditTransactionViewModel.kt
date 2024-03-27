@@ -471,13 +471,16 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[SHOW_REPEAT_MODE_SELECTION] = false
     }
 
-    override fun onBackNav() {
-        isLoading.update { true }
+    override fun onSaveClick() {
         viewModelScope.launch {
             val txInput = txInput.value
             val amountInput = txInput.amount.trim()
             if (amountInput.isEmpty()) {
-                eventBus.send(AddEditTransactionEvent.TransactionWithoutAmountIgnored)
+                eventBus.send(
+                    AddEditTransactionEvent.ShowUiMessage(
+                        UiText.StringResource(R.string.error_invalid_amount, true)
+                    )
+                )
                 return@launch
             }
             val isExp = evalService.isExpression(amountInput)
@@ -494,9 +497,11 @@ class AddEditTransactionViewModel @Inject constructor(
                 )
                 return@launch
             }
+            isLoading.update { true }
             var scheduleOrTxIdForInsertion = txInput.id
             if (isScheduleTxMode.value) {
-                // False ScheduleModeArg means this input started off as a transaction
+                // Saving schedule
+                // scheduleModeArg = false means this input started off as a transaction
                 // and is being changed to a schedule now
                 // so delete the initial transaction before saving the schedule
                 // and reset the id to Default value to save new schedule
@@ -514,7 +519,8 @@ class AddEditTransactionViewModel @Inject constructor(
                 isLoading.update { false }
                 eventBus.send(AddEditTransactionEvent.ScheduleSaved)
             } else {
-                // True ScheduleModeArg means this input started off as a schedule
+                // Saving transaction
+                // scheduleModeArg = true means this input started off as a schedule
                 // and is being changed to a transaction now
                 // so delete the initial schedule before saving the transaction
                 // and reset the id to Default value to save new transaction
@@ -532,18 +538,17 @@ class AddEditTransactionViewModel @Inject constructor(
                     )
                 )
                 isLoading.update { false }
-                eventBus.send(AddEditTransactionEvent.NavigateUp)
+                eventBus.send(AddEditTransactionEvent.TransactionSaved)
             }
         }
     }
 
-    sealed class AddEditTransactionEvent {
-        data object TransactionDeleted : AddEditTransactionEvent()
-        data object TransactionWithoutAmountIgnored : AddEditTransactionEvent()
-        data object NavigateUp : AddEditTransactionEvent()
-        data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent()
-        data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent()
-        data object ScheduleSaved : AddEditTransactionEvent()
+    sealed interface AddEditTransactionEvent {
+        data object TransactionDeleted : AddEditTransactionEvent
+        data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent
+        data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent
+        data object TransactionSaved : AddEditTransactionEvent
+        data object ScheduleSaved : AddEditTransactionEvent
     }
 }
 
@@ -562,7 +567,7 @@ private const val SELECTED_AMOUNT_TRANSFORMATION = "SELECTED_AMOUNT_TRANSFORMATI
 private const val SHOW_REPEAT_MODE_SELECTION = "SHOW_REPEAT_MODE_SELECTION"
 private const val SELECTED_REPEAT_MODE = "SELECTED_TX_REPEAT_MODE"
 
-const val ACTION_ADD_EDIT_TX = "ACTION_ADD_EDIT_TX"
-const val RESULT_TX_WITHOUT_AMOUNT_IGNORED = "RESULT_TX_WITHOUT_AMOUNT_IGNORED"
+const val ACTION_ADD_EDIT_TX_OR_SCHEDULE = "ACTION_ADD_EDIT_TX_OR_SCHEDULE"
 const val RESULT_TRANSACTION_DELETED = "RESULT_TRANSACTION_DELETED"
+const val RESULT_TRANSACTION_SAVED = "RESULT_TRANSACTION_SAVED"
 const val RESULT_SCHEDULE_SAVED = "RESULT_SCHEDULE_SAVED"

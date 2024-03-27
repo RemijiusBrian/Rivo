@@ -29,12 +29,12 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String = """
@@ -138,20 +138,9 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             when (event) {
                 AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
                     navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX,
+                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
                         RESULT_TRANSACTION_DELETED
                     )
-                }
-
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionWithoutAmountIgnored -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX,
-                        RESULT_TX_WITHOUT_AMOUNT_IGNORED
-                    )
-                }
-
-                AddEditTransactionViewModel.AddEditTransactionEvent.NavigateUp -> {
-                    navController.navigateUp()
                 }
 
                 is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
@@ -170,9 +159,16 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                     )
                 }
 
+                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionSaved -> {
+                    navController.navigateUpWithResult(
+                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
+                        RESULT_TRANSACTION_SAVED
+                    )
+                }
+
                 AddEditTransactionViewModel.AddEditTransactionEvent.ScheduleSaved -> {
                     navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX,
+                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
                         RESULT_SCHEDULE_SAVED
                     )
                 }
@@ -191,7 +187,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             folderSearchQuery = { folderSearchQuery.value },
             folderList = folderList,
             state = state,
-            actions = viewModel
+            actions = viewModel,
+            navigateUp = navController::navigateUp
         )
     }
 }

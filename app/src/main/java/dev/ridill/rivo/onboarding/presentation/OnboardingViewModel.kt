@@ -230,13 +230,13 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    sealed class OnboardingEvent {
-        data class NavigateToPage(val page: OnboardingPage) : OnboardingEvent()
-        data object OnboardingConcluded : OnboardingEvent()
-        data class ShowUiMessage(val uiText: UiText) : OnboardingEvent()
-        data object LaunchNotificationPermissionRequest : OnboardingEvent()
-        data class LaunchGoogleSignIn(val intent: Intent) : OnboardingEvent()
-        data object RestartApplication : OnboardingEvent()
+    sealed interface OnboardingEvent {
+        data class NavigateToPage(val page: OnboardingPage) : OnboardingEvent
+        data object OnboardingConcluded : OnboardingEvent
+        data class ShowUiMessage(val uiText: UiText) : OnboardingEvent
+        data object LaunchNotificationPermissionRequest : OnboardingEvent
+        data class LaunchGoogleSignIn(val intent: Intent) : OnboardingEvent
+        data object RestartApplication : OnboardingEvent
     }
 }
 

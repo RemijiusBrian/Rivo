@@ -14,7 +14,7 @@ import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TX_WITHOUT_AMOUNT_IGNORED
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -104,8 +104,8 @@ class DashboardViewModel @Inject constructor(
             RESULT_TRANSACTION_DELETED ->
                 DashboardEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_deleted))
 
-            RESULT_TX_WITHOUT_AMOUNT_IGNORED ->
-                DashboardEvent.ShowUiMessage(UiText.StringResource(R.string.tx_without_amount_ignored))
+            RESULT_TRANSACTION_SAVED ->
+                DashboardEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_saved))
 
             RESULT_SCHEDULE_SAVED -> DashboardEvent.ScheduleSaved
             else -> null
@@ -116,8 +116,8 @@ class DashboardViewModel @Inject constructor(
         notificationHelper.dismissAllNotifications()
     }
 
-    sealed class DashboardEvent {
-        data class ShowUiMessage(val uiText: UiText) : DashboardEvent()
-        data object ScheduleSaved : DashboardEvent()
+    sealed interface DashboardEvent {
+        data class ShowUiMessage(val uiText: UiText) : DashboardEvent
+        data object ScheduleSaved : DashboardEvent
     }
 }

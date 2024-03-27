@@ -127,9 +127,9 @@ class AllSchedulesViewModel @Inject constructor(
         }
     }
 
-    sealed class AllSchedulesEvent {
-        data class ShowUiMessage(val uiText: UiText) : AllSchedulesEvent()
-        data object RequestNotificationPermission : AllSchedulesEvent()
+    sealed interface AllSchedulesEvent {
+        data class ShowUiMessage(val uiText: UiText) : AllSchedulesEvent
+        data object RequestNotificationPermission : AllSchedulesEvent
     }
 }
 

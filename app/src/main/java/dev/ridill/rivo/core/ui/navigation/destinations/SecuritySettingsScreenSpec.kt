@@ -33,8 +33,8 @@ import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
-import dev.ridill.rivo.settings.presentation.security.SecuritySettingsScreen
-import dev.ridill.rivo.settings.presentation.security.SecuritySettingsViewModel
+import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsScreen
+import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
 
 data object SecuritySettingsScreenSpec : ScreenSpec {
     override val route: String = "security_settings"
@@ -81,7 +81,7 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         LaunchedEffect(snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
-                    SecuritySettingsViewModel.SecuritySettingsEvent.LaunchAuthentication -> {
+                    SecuritySettingsViewModel.SecuritySettingsEvent.LaunchBiometricAuthentication -> {
                         when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
                             BiometricManager.BIOMETRIC_SUCCESS -> {
                                 startBiometricAuthentication(

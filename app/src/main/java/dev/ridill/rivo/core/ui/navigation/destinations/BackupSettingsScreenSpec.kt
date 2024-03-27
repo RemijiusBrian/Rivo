@@ -23,8 +23,8 @@ import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
-import dev.ridill.rivo.settings.presentation.backup.BackupSettingsScreen
-import dev.ridill.rivo.settings.presentation.backup.BackupSettingsViewModel
+import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
+import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 
 data object BackupSettingsScreenSpec : ScreenSpec {
@@ -71,18 +71,18 @@ data object BackupSettingsScreenSpec : ScreenSpec {
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
-                is BackupSettingsViewModel.BackupEvent.ShowUiMessage -> {
+                is BackupSettingsViewModel.BackupSettingsEvent.ShowUiMessage -> {
                     snackbarController.showSnackbar(
                         event.uiText.asString(context),
                         event.uiText.isErrorText
                     )
                 }
 
-                is BackupSettingsViewModel.BackupEvent.LaunchGoogleSignIn -> {
+                is BackupSettingsViewModel.BackupSettingsEvent.LaunchGoogleSignIn -> {
                     googleSignInLauncher.launch(event.intent)
                 }
 
-                BackupSettingsViewModel.BackupEvent.NavigateToBackupEncryptionScreen -> {
+                BackupSettingsViewModel.BackupSettingsEvent.NavigateToBackupEncryptionScreen -> {
                     navController.navigate(BackupEncryptionScreenSpec.route)
                 }
             }

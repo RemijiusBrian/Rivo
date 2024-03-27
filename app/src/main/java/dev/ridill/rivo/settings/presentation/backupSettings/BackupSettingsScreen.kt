@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backup
+package dev.ridill.rivo.settings.presentation.backupSettings
 
 import android.content.Context
 import android.text.format.DateFormat

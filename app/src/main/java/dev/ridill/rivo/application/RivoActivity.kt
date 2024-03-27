@@ -44,7 +44,7 @@ import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
-import dev.ridill.rivo.settings.presentation.security.AppLockScreen
+import dev.ridill.rivo.settings.presentation.securitySettings.AppLockScreen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
