@@ -525,11 +525,11 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    sealed class AllTransactionsEvent {
-        data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent()
-        data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent()
+    sealed interface AllTransactionsEvent {
+        data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent
+        data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
         data class NavigateToFolderDetailsWithIds(val transactionIds: Set<Long>) :
-            AllTransactionsEvent()
+            AllTransactionsEvent
     }
 }
 

@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.security
+package dev.ridill.rivo.settings.presentation.securitySettings
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility

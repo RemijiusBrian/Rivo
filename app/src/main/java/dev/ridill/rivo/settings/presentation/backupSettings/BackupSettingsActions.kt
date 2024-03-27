@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backup
+package dev.ridill.rivo.settings.presentation.backupSettings
 
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 

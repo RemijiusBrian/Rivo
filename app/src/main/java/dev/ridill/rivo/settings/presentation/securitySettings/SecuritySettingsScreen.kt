@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.security
+package dev.ridill.rivo.settings.presentation.securitySettings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column

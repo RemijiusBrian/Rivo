@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.backup
+package dev.ridill.rivo.settings.presentation.backupSettings
 
 import android.content.Intent
 import androidx.activity.result.ActivityResult
@@ -33,7 +33,7 @@ class BackupSettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: BackupSettingsRepository,
     private val preferencesManager: PreferencesManager,
-    private val eventBus: EventBus<BackupEvent>
+    private val eventBus: EventBus<BackupSettingsEvent>
 ) : ViewModel(), BackupSettingsActions {
 
     private val backupAccountEmail = repo.getBackupAccount()
@@ -105,7 +105,7 @@ class BackupSettingsViewModel @Inject constructor(
             // Even if backup was run long back
             if (hasBackupJobRunThisSession) {
                 info?.outputData?.getString(BackupWorkManager.KEY_MESSAGE)?.let {
-                    eventBus.send(BackupEvent.ShowUiMessage(UiText.DynamicString(it)))
+                    eventBus.send(BackupSettingsEvent.ShowUiMessage(UiText.DynamicString(it)))
                 }
             }
         }
@@ -123,19 +123,19 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupAccountClick() {
         viewModelScope.launch {
             val intent = repo.getSignInIntent()
-            eventBus.send(BackupEvent.LaunchGoogleSignIn(intent))
+            eventBus.send(BackupSettingsEvent.LaunchGoogleSignIn(intent))
         }
     }
 
     fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
         when (val resource = repo.signInUser(result)) {
             is Resource.Error -> {
-                resource.message?.let { eventBus.send(BackupEvent.ShowUiMessage(it)) }
+                resource.message?.let { eventBus.send(BackupSettingsEvent.ShowUiMessage(it)) }
             }
 
             is Resource.Success -> {
                 if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
-                    eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                    eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
                 }
             }
         }
@@ -144,7 +144,7 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupIntervalPreferenceClick() {
         viewModelScope.launch {
             if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
-                eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
                 return@launch
             }
             savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = true
@@ -165,7 +165,7 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupNowClick() {
         viewModelScope.launch {
             if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
-                eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+                eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
                 return@launch
             }
 
@@ -175,7 +175,7 @@ class BackupSettingsViewModel @Inject constructor(
 
     override fun onEncryptionPreferenceClick() {
         viewModelScope.launch {
-            eventBus.send(BackupEvent.NavigateToBackupEncryptionScreen)
+            eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
         }
     }
 
@@ -183,7 +183,7 @@ class BackupSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             when (result) {
                 ENCRYPTION_PASSWORD_UPDATED -> {
-                    eventBus.send(BackupEvent.ShowUiMessage(UiText.StringResource(R.string.encryption_password_updated)))
+                    eventBus.send(BackupSettingsEvent.ShowUiMessage(UiText.StringResource(R.string.encryption_password_updated)))
                     val interval = backupInterval.first()
                     repo.runBackupJob(interval)
                 }
@@ -193,10 +193,10 @@ class BackupSettingsViewModel @Inject constructor(
         }
     }
 
-    sealed class BackupEvent {
-        data class ShowUiMessage(val uiText: UiText) : BackupEvent()
-        data object NavigateToBackupEncryptionScreen : BackupEvent()
-        data class LaunchGoogleSignIn(val intent: Intent) : BackupEvent()
+    sealed interface BackupSettingsEvent {
+        data class ShowUiMessage(val uiText: UiText) : BackupSettingsEvent
+        data object NavigateToBackupEncryptionScreen : BackupSettingsEvent
+        data class LaunchGoogleSignIn(val intent: Intent) : BackupSettingsEvent
     }
 }
 

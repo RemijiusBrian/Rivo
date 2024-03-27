@@ -44,6 +44,7 @@
     <string name="cd_navigate_back">Navigate Back</string>
     <string name="cd_delete_transaction">Delete transaction</string>
     <string name="cd_save_transaction">Save transaction</string>
+    <string name="cd_save_schedule">Save schedule</string>
     <string name="cd_transaction_type_selector">Transaction type selector, set to %s</string>
     <string name="cd_transaction_type_selector_unselected">Tap to change transaction type to %s</string>
     <string name="cd_enter_amount">Enter amount</string>
@@ -234,6 +235,7 @@
     <string name="amount_zero">0</string>
     <string name="add_a_note">Add a Note</string>
     <string name="transaction_deleted">Transaction Deleted</string>
+    <string name="transaction_saved">Transaction Saved</string>
     <string name="choose_theme">Choose Theme</string>
     <string name="budget_updated">Your budget has been updated</string>
     <string name="enter_budget">Enter Budget</string>
@@ -358,7 +360,6 @@
     <string name="aggregate_type_credit">Agg. Credit</string>
     <string name="tap_to_resolve_issues">Tap to resolve issues</string>
     <string name="checking_for_backups">Checking for backups</string>
-    <string name="tx_without_amount_ignored">Transaction without amount ignored</string>
     <string name="you_have_a_payment_of_amount_due_today">You have a payment of %s due today</string>
     <string name="mark_paid">Mark paid</string>
     <string name="repeat_mode_label_transaction">%s transaction</string>

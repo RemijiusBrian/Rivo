@@ -42,5 +42,5 @@ interface AddEditTransactionActions {
     fun onRepeatModeClick()
     fun onRepeatModeDismiss()
     fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode)
-    fun onBackNav()
+    fun onSaveClick()
 }

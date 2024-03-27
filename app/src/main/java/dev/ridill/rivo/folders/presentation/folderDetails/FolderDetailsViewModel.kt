@@ -245,13 +245,13 @@ class FolderDetailsViewModel @Inject constructor(
         repo.addTransactionToFolder(transaction)
     }
 
-    sealed class FolderDetailsEvent {
-        data object NavigateUp : FolderDetailsEvent()
-        data class ShowUiMessage(val uiText: UiText) : FolderDetailsEvent()
-        data object FolderDeleted : FolderDetailsEvent()
-        data class NavigateUpWithFolderId(val folderId: Long) : FolderDetailsEvent()
+    sealed interface FolderDetailsEvent {
+        data object NavigateUp : FolderDetailsEvent
+        data class ShowUiMessage(val uiText: UiText) : FolderDetailsEvent
+        data object FolderDeleted : FolderDetailsEvent
+        data class NavigateUpWithFolderId(val folderId: Long) : FolderDetailsEvent
         data class TransactionRemovedFromGroup(val transaction: TransactionListItem) :
-            FolderDetailsEvent()
+            FolderDetailsEvent
     }
 }
 

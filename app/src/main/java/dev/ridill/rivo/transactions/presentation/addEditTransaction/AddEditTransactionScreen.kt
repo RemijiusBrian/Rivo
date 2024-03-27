@@ -1,7 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import android.icu.util.Currency
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
@@ -23,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
@@ -31,6 +31,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -138,15 +139,11 @@ fun AddEditTransactionScreen(
     folderSearchQuery: () -> String,
     folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
-    actions: AddEditTransactionActions
+    actions: AddEditTransactionActions,
+    navigateUp: () -> Unit
 ) {
     val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-
-    BackHandler(
-        enabled = true,
-        onBack = actions::onBackNav
-    )
 
     LaunchedEffect(isEditMode) {
         if (!isEditMode)
@@ -195,7 +192,7 @@ fun AddEditTransactionScreen(
                         )
                     )
                 },
-                navigationIcon = { BackArrowButton(onClick = actions::onBackNav) },
+                navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 actions = {
                     if (isEditMode) {
                         IconButton(onClick = actions::onDeleteClick) {
@@ -210,6 +207,17 @@ fun AddEditTransactionScreen(
                 },
                 scrollBehavior = topAppBarScrollBehavior
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = actions::onSaveClick) {
+                Icon(
+                    imageVector = Icons.Rounded.Save,
+                    contentDescription = stringResource(
+                        id = if (state.isScheduleTxMode) R.string.cd_save_schedule
+                        else R.string.cd_save_transaction
+                    )
+                )
+            }
         },
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -897,8 +905,9 @@ private fun PreviewScreenContent() {
                 override fun onRepeatModeClick() {}
                 override fun onRepeatModeDismiss() {}
                 override fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode) {}
-                override fun onBackNav() {}
-            }
+                override fun onSaveClick() {}
+            },
+            navigateUp = {}
         )
     }
 }

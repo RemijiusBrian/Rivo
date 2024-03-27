@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.presentation.security
+package dev.ridill.rivo.settings.presentation.securitySettings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,7 +37,7 @@ class SecuritySettingsViewModel @Inject constructor(
                 preferencesManager.updateAppLockEnabled(false)
                 return@launch
             }
-            eventBus.send(SecuritySettingsEvent.LaunchAuthentication)
+            eventBus.send(SecuritySettingsEvent.LaunchBiometricAuthentication)
         }
     }
 
@@ -60,6 +60,6 @@ class SecuritySettingsViewModel @Inject constructor(
     }
 
     sealed interface SecuritySettingsEvent {
-        data object LaunchAuthentication : SecuritySettingsEvent
+        data object LaunchBiometricAuthentication : SecuritySettingsEvent
     }
 }

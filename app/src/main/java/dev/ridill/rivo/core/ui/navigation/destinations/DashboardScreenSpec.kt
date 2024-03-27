@@ -16,7 +16,7 @@ import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX
+import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
 
 data object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
@@ -36,7 +36,7 @@ data object DashboardScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         DestinationResultEffect(
-            key = ACTION_ADD_EDIT_TX,
+            key = ACTION_ADD_EDIT_TX_OR_SCHEDULE,
             navBackStackEntry = navBackStackEntry,
             context,
             snackbarController,
