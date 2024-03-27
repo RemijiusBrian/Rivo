@@ -52,7 +52,7 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    val tagsPagingData = tagsRepo.getTagsPagingData(true)
+    val tagsPagingData = tagsRepo.getTagsPagingData()
         .cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
