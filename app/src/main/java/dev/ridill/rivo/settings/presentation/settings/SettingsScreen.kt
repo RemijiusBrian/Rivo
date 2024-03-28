@@ -130,8 +130,8 @@ fun SettingsScreen(
             )
 
             SwitchPreference(
-                titleRes = R.string.preference_auto_add_transactions,
-                summary = stringResource(R.string.preference_auto_add_transactions_summary),
+                titleRes = R.string.preference_auto_detect_transactions,
+                summary = stringResource(R.string.preference_auto_detect_transactions_summary),
                 value = state.autoAddTransactionEnabled,
                 onValueChange = actions::onToggleAutoAddTransactions
             )

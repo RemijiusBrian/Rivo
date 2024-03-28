@@ -162,8 +162,8 @@
     <string name="preference_set_budget_summary">Tap to update your budget</string>
     <string name="preference_current_budget_summary">Your budget is set to %s</string>
     <string name="preference_currency">Currency</string>
-    <string name="preference_auto_add_transactions">Auto Add Transactions</string>
-    <string name="preference_auto_add_transactions_summary">Try to add transactions from SMS</string>
+    <string name="preference_auto_detect_transactions">Auto-detect Transactions</string>
+    <string name="preference_auto_detect_transactions_summary">Try to add transactions from SMS</string>
     <string name="preference_source_code">Source Code</string>
     <string name="preference_version">Version</string>
     <string name="preference_backup">Backup</string>
@@ -327,7 +327,6 @@
     <string name="folder_sort_criteria_by_aggregate">Aggregate Amount</string>
     <string name="sort_order_ascending">Ascending</string>
     <string name="sort_order_descending">Descending</string>
-    <string name="setting_up_transaction_auto_add_feature">Setting up Transaction Auto Add Feature</string>
     <string name="received_from_sender">Received from %s</string>
     <string name="spent_towards_receiver">Spent towards %s</string>
     <string name="amount_transformation_label_divide_by">Divide By</string>
