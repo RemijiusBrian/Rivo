@@ -1,17 +1,18 @@
 package dev.ridill.rivo.transactions.domain.autoDetection
 
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 class RegexTransactionDataExtractorTest {
 
-    private lateinit var regexExtractor: TransactionDataExtractor
+    private lateinit var extractor: TransactionDataExtractor
     private lateinit var messageList: List<String>
 
     @Before
     fun setUp() {
-        regexExtractor = RegexTransactionDataExtractor()
+        extractor = RegexTransactionDataExtractor()
         messageList = listOf(
             """Amt Sent Rs.250.00
                 From HDFC Bank A/C *1643
@@ -19,7 +20,15 @@ class RegexTransactionDataExtractorTest {
                 On 27-03
                 Ref 408718670922 
                 Not You? Call 18002586161/SMS BLOCK UPI to 7308080808
-            """.trimIndent()
+            """.trimIndent(),
+            """Amt Sent Rs.3000.00
+From HDFC Bank A/C *1643
+To MARVIN CLEMENT
+On 28-03
+Ref 408856589439
+Not You? Call 18002586161/SMS BLOCK UPI to 7308080808""",
+            """HDFC Bank: Rs. 90.00 credited to a/c XXXXXX1643 on 28-03-24 by a/c linked to VPA clementmarvin05-1@okicici (UPI Ref No  408837405314).""",
+            """HDFC Bank: Rs. 3000.00 credited to a/c XXXXXX1643 on 28-03-24 by a/c linked to VPA clementmarvin05-1@okicici (UPI Ref No  408824098233)."""
         )
     }
 
@@ -29,9 +38,23 @@ class RegexTransactionDataExtractorTest {
     }
 
     @Test
+    fun testValidOriginAddress_returnsTrue() {
+        val originAddress = "AX-HDFCBX"
+        val result = extractor.isOriginValidOrg(originAddress)
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun testInvalidOriginAddress_returnsFalse() {
+        val originAddress = "9846631098"
+        val result = extractor.isOriginValidOrg(originAddress)
+        assertThat(result).isFalse()
+    }
+
+    @Test
     fun testExtractDataAgainstMultipleMessages_testPasses() {
         messageList.forEach { message ->
-            val data = regexExtractor.extractData(message)
+            val data = extractor.extractData(message)
             println("Extracted Data - $data")
         }
     }

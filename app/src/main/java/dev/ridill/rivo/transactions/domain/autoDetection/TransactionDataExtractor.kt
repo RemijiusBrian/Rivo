@@ -4,6 +4,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 interface TransactionDataExtractor {
+    fun isOriginValidOrg(originatingAddress: String): Boolean
 
     @Throws(TransactionDataExtractionFailedThrowable::class)
     fun extractData(messageBody: String): ExtractedTransactionData

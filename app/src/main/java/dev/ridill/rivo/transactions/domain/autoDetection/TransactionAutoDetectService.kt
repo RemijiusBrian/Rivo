@@ -18,8 +18,8 @@ class TransactionAutoDetectService(
     @ApplicationScope private val applicationScope: CoroutineScope
 ) {
     fun detectTransactionsFromMessages(messages: List<SmsMessage>) = applicationScope.launch {
-        val orgRegex = ORG_ADDRESS_PATTERN.toRegex()
-        val messagesFromOrg = messages.filter { orgRegex.matches(it.displayMessageBody.orEmpty()) }
+        val messagesFromOrg = messages
+            .filter { extractor.isOriginValidOrg(it.displayOriginatingAddress.orEmpty()) }
         val dateTimeNow = DateUtil.now()
         for (message in messagesFromOrg) {
             try {
@@ -45,5 +45,3 @@ class TransactionAutoDetectService(
         }
     }
 }
-
-private const val ORG_ADDRESS_PATTERN = "(?i)\\w{2}-\\w{6}"
