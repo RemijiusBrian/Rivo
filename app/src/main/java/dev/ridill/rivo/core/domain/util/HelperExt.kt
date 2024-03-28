@@ -31,8 +31,8 @@ val String.Companion.WhiteSpace: String get() = " "
 val String.Companion.NewLine: String get() = "\n"
 fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())
 
-fun List<String>.toPrettyString(locale: Locale = LocaleUtil.defaultLocale): String = buildString {
-    this@toPrettyString.forEach { word ->
+fun List<String>.joinToCapitalizedString(locale: Locale = LocaleUtil.defaultLocale): String = buildString {
+    this@joinToCapitalizedString.forEach { word ->
         if (word.length == 1) {
             append(word.uppercase(locale))
         } else {
@@ -43,7 +43,7 @@ fun List<String>.toPrettyString(locale: Locale = LocaleUtil.defaultLocale): Stri
                 }
             )
         }
-        if (word != this@toPrettyString.lastOrNull()) append(String.WhiteSpace)
+        if (word != this@joinToCapitalizedString.lastOrNull()) append(String.WhiteSpace)
     }
 }
 

@@ -34,6 +34,7 @@ datastore-preferences = "1.0.0"
 androidx-biometric = "1.2.0-alpha05"
 
 firebase-bom = "32.8.0"
+firebase-crashlytics-gradle = "2.9.9"
 
 play-services-auth = "21.0.0"
 
@@ -109,7 +110,8 @@ androidx-biometric-ktx = { group = "androidx.biometric", name = "biometric-ktx",
 
 # Firebase
 com-google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
-com-google-firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
+com-google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+com-google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 
 # Google Play Services
 com-google-android-gms-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
@@ -134,3 +136,4 @@ com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", versio
 com-google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 org-jetbrains-kotlin-plugin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools-ksp" }
+com-google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }

@@ -6,9 +6,9 @@ import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.ifNaN
+import dev.ridill.rivo.core.domain.util.joinToCapitalizedString
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.logI
-import dev.ridill.rivo.core.domain.util.toPrettyString
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
@@ -34,15 +34,12 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         logD { "Extracted amount - $amount" }
         println("Extracted amount - $amount")
         val secondParty = extractSecondParty(processedContent)
-            ?: throw TransactionDataExtractionFailedThrowable()
         logD { "Extracted merchant - $secondParty" }
         println("Extracted merchant - $secondParty")
         val transactionType = extractTransactionType(processedContent)
-            ?: throw TransactionDataExtractionFailedThrowable()
         logD { "Extracted type - $transactionType" }
         println("Extracted type - $transactionType")
         val timestamp = extractTimestamp(messageBody)
-            ?: throw TransactionDataExtractionFailedThrowable()
         logD { "Extracted timestamp - $timestamp" }
         println("Extracted timestamp - $timestamp")
 
@@ -54,24 +51,25 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         )
     }
 
+    @Throws(TransactionDataExtractionFailedThrowable::class)
     private fun extractTransactionAmount(content: List<String>): Double {
         println("Content for amount extraction - $content")
         val index = content.indexOfFirst { it.startsWith("rs.") }
             .takeIf { it > -1 }
-            .also { println("Index - $it") }
-            ?: return Double.Zero
+            ?: throw TransactionDataExtractionFailedThrowable("Failed to find 'rs' keyword in message content: '$content'")
 
-        val amount = content[index + 1]
+        val amountString = content[index + 1]
+        val amount = amountString
             .removePrefix("rs.")
             .replace(",", String.Empty)
-            .also { println("Amount string - $it") }
             .toDoubleOrNull()
-            ?: Double.Zero
+            ?: throw TransactionDataExtractionFailedThrowable("Failed parsing amount string '$amountString' to double")
 
         return amount.ifNaN { Double.Zero }
     }
 
-    private fun extractSecondParty(content: List<String>): String? {
+    @Throws(TransactionDataExtractionFailedThrowable::class)
+    private fun extractSecondParty(content: List<String>): String {
         val joinedString = content.joinToString(String.WhiteSpace)
         println("Second party joined string - $joinedString")
         var secondParty: String? = null
@@ -103,9 +101,10 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
             var secondPartyStartIndex = content.indexOf("at")
             if (secondPartyStartIndex <= -1) {
                 secondPartyStartIndex = content.indexOf("to")
-                println("Found index of to - $secondPartyStartIndex")
+                println("Found index of 'to' - $secondPartyStartIndex")
             }
-            if (secondPartyStartIndex <= -1) return null
+            if (secondPartyStartIndex <= -1)
+                throw TransactionDataExtractionFailedThrowable("Failed to find start index of second party keyword in content: '$content'")
 
             val secondPartyEndIndex = content
                 .subList(secondPartyStartIndex + 1, content.size)
@@ -113,36 +112,39 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
                 .indexOf("on")
                 .also { println("Second party end index - $it") }
                 .takeIf { it > -1 }
-                ?: return null
+                ?: throw TransactionDataExtractionFailedThrowable("Failed to find ending index of second party in content: '$content'")
 
             secondParty = content
                 .subList(secondPartyStartIndex + 1, secondPartyStartIndex + secondPartyEndIndex + 1)
                 .also { println("Second party sublist - $it") }
-                .toPrettyString()
+                .joinToCapitalizedString()
         }
 
         return secondParty.trim('.', ',', ' ', '-', '_')
     }
 
-    private fun extractTransactionType(content: List<String>): TransactionType? {
+    @Throws(TransactionDataExtractionFailedThrowable::class)
+    private fun extractTransactionType(content: List<String>): TransactionType {
         val contentString = content.joinToString(String.WhiteSpace)
 
         return when (true) {
             contentString.contains(debitRegex) -> TransactionType.DEBIT
             contentString.contains(miscPaymentRegex) -> TransactionType.DEBIT
             contentString.contains(creditRegex) -> TransactionType.CREDIT
-            else -> null
+            else -> throw TransactionDataExtractionFailedThrowable("Failed to find type match in content string: '$contentString'")
         }
     }
 
-    private fun extractTimestamp(messageBody: String): LocalDateTime? {
+    @Throws(TransactionDataExtractionFailedThrowable::class)
+    private fun extractTimestamp(messageBody: String): LocalDateTime {
         val timestampMatchGroups = timestampRegex.find(messageBody)?.groupValues
         logD { "Timestamp match groups - $timestampMatchGroups" }
         println("Timestamp match groups - $timestampMatchGroups")
-        if (timestampMatchGroups.isNullOrEmpty()) return null
+        if (timestampMatchGroups.isNullOrEmpty())
+            throw TransactionDataExtractionFailedThrowable("Failed to find timestamp match groups in message body: '$messageBody'")
 
         val dateString = timestampMatchGroups.getOrNull(1)
-            ?: return null
+            ?: throw TransactionDataExtractionFailedThrowable("Failed to get date string from match groups: '$timestampMatchGroups'")
         logD { "Date string - $dateString" }
         println("Date string - $dateString")
         val timeString = timestampMatchGroups.getOrNull(3).orEmpty()
@@ -213,6 +215,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
             value = timestampString,
             formatter = DateUtil.Formatters.formatterWithDefault(timestampPattern)
         )
+            ?: throw TransactionDataExtractionFailedThrowable("Failed to parse '$timestampString' with built pattern '$timestampPattern'")
     }
 
     /*private fun getNextWord(source: String, searchWord: String, count: Int = 1): String {
