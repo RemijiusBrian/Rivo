@@ -245,5 +245,5 @@ private fun ScreenContent(
     }
 }
 
-private const val UNLOCK_ICON_ANIM_DURATION = 1000
+private const val UNLOCK_ICON_ANIM_DURATION = 800
 private const val APP_SCREEN_VISIBILITY_ANIM_DURATION = 500
