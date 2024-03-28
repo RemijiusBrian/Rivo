@@ -8,6 +8,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.ifNaN
 import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.core.domain.util.toPrettyString
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
@@ -29,51 +30,62 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
     override fun extractData(messageBody: String): ExtractedTransactionData {
         val processedContent = processText(messageBody)
 
-        val amount = getTransactionAmount(processedContent)
+        val amount = extractTransactionAmount(processedContent)
         logD { "Extracted amount - $amount" }
-        val merchant = getMerchant(processedContent)
+        println("Extracted amount - $amount")
+        val secondParty = extractSecondParty(processedContent)
             ?: throw TransactionDataExtractionFailedThrowable()
-        logD { "Extracted merchant - $merchant" }
-        val transactionType = getTransactionType(processedContent)
+        logD { "Extracted merchant - $secondParty" }
+        println("Extracted merchant - $secondParty")
+        val transactionType = extractTransactionType(processedContent)
             ?: throw TransactionDataExtractionFailedThrowable()
         logD { "Extracted type - $transactionType" }
-        val timestamp = getTimestamp(messageBody)
+        println("Extracted type - $transactionType")
+        val timestamp = extractTimestamp(messageBody)
             ?: throw TransactionDataExtractionFailedThrowable()
         logD { "Extracted timestamp - $timestamp" }
+        println("Extracted timestamp - $timestamp")
 
         return ExtractedTransactionData(
             amount = amount,
             paymentTimestamp = timestamp,
             transactionType = transactionType,
-            secondParty = merchant
+            secondParty = secondParty
         )
     }
 
-    private fun getTransactionAmount(content: List<String>): Double {
+    private fun extractTransactionAmount(content: List<String>): Double {
+        println("Content for amount extraction - $content")
         val index = content.indexOfFirst { it.startsWith("rs.") }
             .takeIf { it > -1 }
+            .also { println("Index - $it") }
             ?: return Double.Zero
 
-        val amount = content[index]
+        val amount = content[index + 1]
             .removePrefix("rs.")
+            .replace(",", String.Empty)
+            .also { println("Amount string - $it") }
             .toDoubleOrNull()
             ?: Double.Zero
 
         return amount.ifNaN { Double.Zero }
     }
 
-    private fun getMerchant(content: List<String>): String? {
+    private fun extractSecondParty(content: List<String>): String? {
         val joinedString = content.joinToString(String.WhiteSpace)
-        var merchant: String? = null
+        println("Second party joined string - $joinedString")
+        var secondParty: String? = null
         if ("vpa" in content) {
+            println("Content contains vpa")
             val index = content.indexOf("vpa")
             if (index < content.lastIndex) {
                 val nextStr = content[index + 1]
-                merchant = nextStr
+                secondParty = nextStr
+                println("Got vpa of second party - $secondParty")
             }
         }
 
-        var match = ""
+        /*var match = ""
         upiKeywords.forEach { keyword ->
             if (joinedString.indexOf(keyword) > 0) {
                 match = keyword
@@ -82,30 +94,37 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
 
         if (match.isNotEmpty()) {
             val nextWord = getNextWord(joinedString, match)
+            println("Next work from vpa - $nextWord")
 
-            if (merchant.isNullOrEmpty()) merchant = nextWord
+            if (secondParty.isNullOrEmpty()) secondParty = nextWord
+        }*/
+
+        if (secondParty.isNullOrEmpty()) {
+            var secondPartyStartIndex = content.indexOf("at")
+            if (secondPartyStartIndex <= -1) {
+                secondPartyStartIndex = content.indexOf("to")
+                println("Found index of to - $secondPartyStartIndex")
+            }
+            if (secondPartyStartIndex <= -1) return null
+
+            val secondPartyEndIndex = content
+                .subList(secondPartyStartIndex + 1, content.size)
+                .also { println("sublist to find end index - $it") }
+                .indexOf("on")
+                .also { println("Second party end index - $it") }
+                .takeIf { it > -1 }
+                ?: return null
+
+            secondParty = content
+                .subList(secondPartyStartIndex + 1, secondPartyStartIndex + secondPartyEndIndex + 1)
+                .also { println("Second party sublist - $it") }
+                .toPrettyString()
         }
 
-        if (merchant.isNullOrEmpty()) {
-            val index = content.indexOf("at")
-            if (index > -1) {
-                merchant = content[index + 1]
-            }
-            val wordAfter = content[index + 2]
-            if (wordAfter != "on") {
-                merchant = "$merchant $wordAfter"
-            }
-        }
-
-        return merchant
-            ?.trim('.', ',', ' ', '-', '_')
-            ?.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(LocaleUtil.defaultLocale)
-                else it.toString()
-            }
+        return secondParty.trim('.', ',', ' ', '-', '_')
     }
 
-    private fun getTransactionType(content: List<String>): TransactionType? {
+    private fun extractTransactionType(content: List<String>): TransactionType? {
         val contentString = content.joinToString(String.WhiteSpace)
 
         return when (true) {
@@ -116,7 +135,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         }
     }
 
-    private fun getTimestamp(messageBody: String): LocalDateTime? {
+    private fun extractTimestamp(messageBody: String): LocalDateTime? {
         val timestampMatchGroups = timestampRegex.find(messageBody)?.groupValues
         logD { "Timestamp match groups - $timestampMatchGroups" }
         println("Timestamp match groups - $timestampMatchGroups")
@@ -196,7 +215,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         )
     }
 
-    private fun getNextWord(source: String, searchWord: String, count: Int = 1): String {
+    /*private fun getNextWord(source: String, searchWord: String, count: Int = 1): String {
         val splits = source.split(searchWord, ignoreCase = true, limit = 2)
         splits.getOrNull(1)?.let { nextGroup ->
             val workSplitRegex = "/[^0-9a-zA-Z]+/gi".toRegex()
@@ -204,7 +223,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         }
 
         return String.Empty
-    }
+    }*/
 
     private fun processText(string: String): List<String> {
         var message = string.lowercase(LocaleUtil.defaultLocale)
@@ -225,35 +244,35 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         // remove \r
         message = message.replace("\r".toRegex(), " ")
         // remove 'ending'
-        message = message.replace("ending".toRegex(), "")
+        message = message.replace("ending ".toRegex(), "")
         // replace 'x'
         message = message.replace("x|[*]".toRegex(), "")
         // // remove 'is' 'with'
         // message = message.replace(\bis\b|\bwith\b, '')
         // replace 'is'
-        message = message.replace("is".toRegex(), "")
+        message = message.replace("(?i)is ".toRegex(), "")
         // replace 'with'
-        message = message.replace("with".toRegex(), "")
+        message = message.replace("(?i)with ".toRegex(), "")
         // remove 'no.'
-        message = message.replace("no\\.".toRegex(), "")
+        message = message.replace("(?i)no. ".toRegex(), "")
         // replace all ac, acct, account with ac
-        message = message.replace("\bac\b|\bacct\b|\baccount\b".toRegex(), "ac")
+        message = message.replace("(?i)\bac\b|\bacct\b|\baccount\b".toRegex(), "ac")
         // replace all 'rs' with 'rs. '
-        message = message.replace("rs(?=\\w)".toRegex(), "rs. ")
+        message = message.replace("(?i)rs(?=\\w)".toRegex(), "rs. ")
         // replace all 'rs ' with 'rs. '
-        message = message.replace("rs ".toRegex(), "rs. ")
+        message = message.replace("(?i)rs ".toRegex(), "rs. ")
         // replace all inr with rs.
-        message = message.replace("inr(?=\\w)".toRegex(), "rs. ")
+        message = message.replace("(?i)inr(?=\\w)".toRegex(), "rs. ")
         //
-        message = message.replace("inr ".toRegex(), "rs. ")
+        message = message.replace("(?i)inr ".toRegex(), "rs. ")
         // replace all 'rs. ' with 'rs.'
-        message = message.replace("rs\\. ".toRegex(), "rs.")
+        message = message.replace("(?i)rs. ".toRegex(), "rs.")
         // replace all 'rs.' with 'rs. '
-        message = message.replace("rs\\.(?=\\w)".toRegex(), "rs. ")
+        message = message.replace("(?i)rs.(?=\\w)".toRegex(), "rs. ")
         // replace all 'debited' with ' debited '
-        message = message.replace("debited".toRegex(), " debited ")
+        message = message.replace("(?i)debited".toRegex(), " debited ")
         // replace all 'credited' with ' credited '
-        message = message.replace("credited".toRegex(), " credited ")
+        message = message.replace("(?i)credited".toRegex(), " credited ")
         // combine words
         /*combinedWords.forEach((word) => {
             message = message.replace(word.regex, word.word);
@@ -261,10 +280,10 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         return message.split(" ").filter { it.isNotEmpty() }
     }
 
-    companion object {
+    /*companion object {
         val upiKeywords: List<String>
             get() = listOf("upi", "ref no", "upi ref", "upi ref no")
-    }
+    }*/
 }
 
 private const val CREDIT_PATTERN =
