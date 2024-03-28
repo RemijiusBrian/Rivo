@@ -115,8 +115,8 @@ fun TransactionListItem(
         leadingContent = { TransactionDate(date) },
         trailingContent = {
             Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(SpacingSmall, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = amount,
@@ -129,8 +129,10 @@ fun TransactionListItem(
                 )
                 if (showTypeIndicator) {
                     Icon(
-                        imageVector = type.directionIcon,
+                        imageVector = ImageVector.vectorResource(type.iconRes),
                         contentDescription = stringResource(type.labelRes),
+                        modifier = Modifier
+                            .size(TypeIndicatorSize)
                     )
                 }
             }
@@ -172,6 +174,8 @@ fun TransactionListItem(
         shadowElevation = shadowElevation
     )
 }
+
+private val TypeIndicatorSize = 16.dp
 
 @Composable
 fun TransactionDate(
