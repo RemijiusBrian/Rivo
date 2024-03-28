@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.com.google.dagger.hilt.android)
     alias(libs.plugins.com.google.gms.google.services)
     alias(libs.plugins.com.google.devtools.ksp)
+    alias(libs.plugins.com.google.firebase.crashlytics)
 }
 
 android {
@@ -183,7 +184,8 @@ dependencies {
 
     // Firebase
     implementation(platform(libs.com.google.firebase.bom))
-    implementation(libs.com.google.firebase.analytics.ktx)
+    implementation(libs.com.google.firebase.analytics)
+    implementation(libs.com.google.firebase.crashlytics)
 
     // Google Play Services
     implementation(libs.com.google.android.gms.play.services.auth)
