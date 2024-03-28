@@ -62,8 +62,8 @@ class OnboardingViewModel @Inject constructor(
 
     private fun collectRestoreWorkState() = viewModelScope.launch {
         combineTuple(
-            backupWorkManager.getRestoreDownloadWorkInfoFlow(),
-            backupWorkManager.getImmediateRestoreWorkInfoFlow()
+            backupWorkManager.getRestoreDataDownloadWorkInfoFlow(),
+            backupWorkManager.getImmediateDataRestoreWorkInfoFlow()
         ).collectLatest { (downloadInfo, restoreInfo) ->
             val isDownloadRunning = downloadInfo?.state == WorkInfo.State.RUNNING
             val isRestoreRunning = restoreInfo?.state == WorkInfo.State.RUNNING

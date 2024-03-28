@@ -32,11 +32,11 @@ class BackupWorkManager(
     private val periodicBackupWorkName: String
         get() = "${context.packageName}.PERIODIC_DATA_BACKUP_WORK"
 
-    private val oneTimeDataDownloadWorkName: String
-        get() = "${context.packageName}.ONE_TIME_DOWNLOAD_WORK"
-
     private val dataRestoreWorkerTag: String
         get() = "${context.packageName}.DATA_RESTORE_WORKER_TAG"
+
+    private val oneTimeDataDownloadWorkName: String
+        get() = "${context.packageName}.ONE_TIME_DATA_DOWNLOAD_WORK"
 
     private val oneTimeRestoreWorkName: String
         get() = "${context.packageName}.ONE_TIME_DATA_RESTORE_WORK"
@@ -55,11 +55,6 @@ class BackupWorkManager(
     }
 
     fun schedulePeriodicBackupWork(interval: BackupInterval) {
-        if (interval == BackupInterval.MANUAL) {
-            cancelPeriodicBackupWork()
-            return
-        }
-
         val workRequest = PeriodicWorkRequestBuilder<GDriveDataBackupWorker>(
             interval.daysInterval,
             TimeUnit.DAYS
@@ -93,6 +88,7 @@ class BackupWorkManager(
         val workRequest = OneTimeWorkRequestBuilder<GDriveDataBackupWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setId(oneTimeBackupWorkName.toUUID())
+            .addTag("$WORK_INTERVAL_TAG_PREFIX${BackupInterval.MANUAL.name}")
             .addTag(dataBackupWorkerTag)
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
@@ -112,7 +108,7 @@ class BackupWorkManager(
         .getWorkInfoByIdFlow(oneTimeBackupWorkName.toUUID())
 
     fun runImmediateRestoreWork(backupDetails: BackupDetails, passwordHash: String) {
-        val downloadDataWorkRequest = OneTimeWorkRequestBuilder<GDriveDataDownloadWorker>()
+        val dataDownloadWorkRequest = OneTimeWorkRequestBuilder<GDriveDataDownloadWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .addTag(dataRestoreWorkerTag)
             .setId(oneTimeDataDownloadWorkName.toUUID())
@@ -123,7 +119,7 @@ class BackupWorkManager(
                 )
             )
             .build()
-        val restoreWorkRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
+        val dataRestoreWorkRequest = OneTimeWorkRequestBuilder<GDriveDataRestoreWorker>()
             .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .addTag(dataRestoreWorkerTag)
             .setId(oneTimeRestoreWorkName.toUUID())
@@ -132,7 +128,6 @@ class BackupWorkManager(
                     KEY_PASSWORD_HASH to passwordHash
                 )
             )
-            .addTag(dataBackupWorkerTag)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiresStorageNotLow(true)
@@ -141,24 +136,23 @@ class BackupWorkManager(
             )
             .build()
 
-        workManager
-            .beginUniqueWork(
-                oneTimeBackupWorkName,
-                ExistingWorkPolicy.REPLACE,
-                downloadDataWorkRequest
-            )
-            .then(restoreWorkRequest)
+        workManager.beginUniqueWork(
+            oneTimeRestoreWorkName,
+            ExistingWorkPolicy.REPLACE,
+            dataDownloadWorkRequest
+        )
+            .then(dataRestoreWorkRequest)
             .enqueue()
     }
 
-    fun getRestoreDownloadWorkInfoFlow(): Flow<WorkInfo?> = workManager
+    fun getRestoreDataDownloadWorkInfoFlow(): Flow<WorkInfo?> = workManager
         .getWorkInfoByIdFlow(oneTimeDataDownloadWorkName.toUUID())
 
-    fun getImmediateRestoreWorkInfoFlow(): Flow<WorkInfo?> = workManager
+    fun getImmediateDataRestoreWorkInfoFlow(): Flow<WorkInfo?> = workManager
         .getWorkInfoByIdFlow(oneTimeRestoreWorkName.toUUID())
 
     fun cancelAllWorks() {
-        workManager.cancelAllWorkByTag(dataBackupWorkerTag)
+        workManager.cancelAllWork()
     }
 
     fun getBackupIntervalFromWorkInfo(info: WorkInfo): BackupInterval? {

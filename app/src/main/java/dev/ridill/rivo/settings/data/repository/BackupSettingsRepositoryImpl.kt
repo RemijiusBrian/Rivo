@@ -97,7 +97,12 @@ class BackupSettingsRepositoryImpl(
                 backupWorkManager.cancelAllWorks()
                 return@withContext
             }
-            backupWorkManager.schedulePeriodicBackupWork(interval)
+            if (interval == BackupInterval.MANUAL) {
+                backupWorkManager.cancelPeriodicBackupWork()
+                backupWorkManager.runImmediateBackupWork()
+            } else {
+                backupWorkManager.schedulePeriodicBackupWork(interval)
+            }
         }
 
     override fun runBackupJob(interval: BackupInterval) {
