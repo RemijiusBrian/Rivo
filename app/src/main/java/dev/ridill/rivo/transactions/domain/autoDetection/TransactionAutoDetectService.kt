@@ -22,27 +22,26 @@ class TransactionAutoDetectService(
         val messagesFromOrg = messages.filter { orgRegex.matches(it.displayMessageBody.orEmpty()) }
         val dateTimeNow = DateUtil.now()
         for (message in messagesFromOrg) {
-            val data = try {
-                extractor.extractData(message.messageBody)
+            try {
+                val data = extractor.extractData(message.messageBody)
+                if (data.paymentTimestamp.isAfter(dateTimeNow)) continue
+
+                val insertedTx = transactionRepo.saveTransaction(
+                    amount = data.amount,
+                    timestamp = data.paymentTimestamp,
+                    note = data.secondParty.orEmpty(),
+                    type = data.transactionType
+                )
+
+                notificationHelper.postNotification(
+                    id = insertedTx.id.hashCode(),
+                    data = insertedTx
+                )
+            } catch (t: TransactionDataExtractionFailedThrowable) {
+                Firebase.crashlytics.recordException(t)
             } catch (t: Throwable) {
                 Firebase.crashlytics.recordException(t)
-                null
             }
-                ?: continue
-
-            if (data.paymentTimestamp.isAfter(dateTimeNow)) continue
-
-            val insertedTx = transactionRepo.saveTransaction(
-                amount = data.amount,
-                timestamp = data.paymentTimestamp,
-                note = data.secondParty.orEmpty(),
-                type = data.transactionType
-            )
-
-            notificationHelper.postNotification(
-                id = insertedTx.id.hashCode(),
-                data = insertedTx
-            )
         }
     }
 }

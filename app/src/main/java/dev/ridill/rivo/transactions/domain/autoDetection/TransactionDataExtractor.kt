@@ -16,4 +16,4 @@ data class ExtractedTransactionData(
     val secondParty: String?
 )
 
-class TransactionDataExtractionFailedThrowable : Throwable("Failed to extract transaction data")
+class TransactionDataExtractionFailedThrowable(message: String) : Throwable(message)
