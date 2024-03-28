@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -38,7 +37,6 @@ class BackupSettingsRepositoryImpl(
     private val cryptoManager: CryptoManager
 ) : BackupSettingsRepository {
     private val _backupAccount = MutableStateFlow<GoogleSignInAccount?>(null)
-    private val _backupInterval = MutableStateFlow(BackupInterval.MANUAL)
 
     override fun getBackupAccount(): StateFlow<GoogleSignInAccount?> =
         _backupAccount.asStateFlow()
@@ -78,12 +76,9 @@ class BackupSettingsRepositoryImpl(
 
     override fun getPeriodicBackupWorkInfo(): Flow<WorkInfo?> =
         backupWorkManager.getPeriodicBackupWorkInfoFlow()
-            .onEach { info ->
-                info?.let { backupWorkManager.getBackupIntervalFromWorkInfo(it) }
-                    ?.let { interval ->
-                        _backupInterval.update { interval }
-                    }
-            }
+
+    override fun getIntervalFromInfo(workInfo: WorkInfo): BackupInterval? =
+        backupWorkManager.getBackupIntervalFromWorkInfo(workInfo)
 
     override suspend fun updateBackupIntervalAndScheduleJob(interval: BackupInterval) =
         withContext(Dispatchers.IO) {
@@ -99,7 +94,6 @@ class BackupSettingsRepositoryImpl(
             }
             if (interval == BackupInterval.MANUAL) {
                 backupWorkManager.cancelPeriodicBackupWork()
-                backupWorkManager.runImmediateBackupWork()
             } else {
                 backupWorkManager.schedulePeriodicBackupWork(interval)
             }
@@ -138,7 +132,5 @@ class BackupSettingsRepositoryImpl(
             val passwordHash = cryptoManager.hash(password)
             preferencesManager.updateEncryptionPasswordHash(passwordHash)
         }
-
-    override fun getBackupInterval(): StateFlow<BackupInterval> = _backupInterval.asStateFlow()
 }
 

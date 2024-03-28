@@ -156,10 +156,9 @@ class BackupWorkManager(
     }
 
     fun getBackupIntervalFromWorkInfo(info: WorkInfo): BackupInterval? {
-        val intervalTagIndex = info.tags
-            .indexOfFirst { it.startsWith(WORK_INTERVAL_TAG_PREFIX) }
+        val intervalTag = info.tags.find { it.startsWith(WORK_INTERVAL_TAG_PREFIX) }
 
-        return info.tags.elementAtOrNull(intervalTagIndex)
+        return intervalTag
             ?.removePrefix(WORK_INTERVAL_TAG_PREFIX)
             ?.let { BackupInterval.valueOf(it) }
     }

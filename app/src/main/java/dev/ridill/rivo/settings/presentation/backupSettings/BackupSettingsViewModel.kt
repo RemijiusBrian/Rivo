@@ -42,7 +42,7 @@ class BackupSettingsViewModel @Inject constructor(
     private val isAccountAdded = backupAccountEmail.map { !it.isNullOrEmpty() }
         .distinctUntilChanged()
 
-    private val backupInterval = repo.getBackupInterval()
+    private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
 
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
@@ -113,11 +113,19 @@ class BackupSettingsViewModel @Inject constructor(
 
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
         repo.getPeriodicBackupWorkInfo().collectLatest { info ->
+            updateBackupInterval(info)
             logD { "Periodic Backup Work Info - $info" }
             isBackupRunning.update {
                 info?.state == WorkInfo.State.RUNNING
             }
         }
+    }
+
+    private fun updateBackupInterval(info: WorkInfo?) = viewModelScope.launch {
+        val interval = if (info?.state == WorkInfo.State.CANCELLED)
+            BackupInterval.MANUAL
+        else info?.let(repo::getIntervalFromInfo)
+        backupInterval.update { interval ?: BackupInterval.MANUAL }
     }
 
     override fun onBackupAccountClick() {
