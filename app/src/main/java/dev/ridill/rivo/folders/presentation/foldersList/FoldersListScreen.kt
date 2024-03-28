@@ -324,11 +324,11 @@ private fun AggregateAmountText(
     horizontalAlignment: Alignment.Horizontal,
     modifier: Modifier = Modifier
 ) {
-    val aggregateIcon = remember(type) {
+    val aggregateIconRes = remember(type) {
         when (type) {
             AggregateType.BALANCED -> null
-            AggregateType.AGG_DEBIT -> TransactionType.DEBIT.directionIcon
-            AggregateType.AGG_CREDIT -> TransactionType.CREDIT.directionIcon
+            AggregateType.AGG_DEBIT -> TransactionType.DEBIT.iconRes
+            AggregateType.AGG_CREDIT -> TransactionType.CREDIT.iconRes
         }
     }
 
@@ -339,9 +339,9 @@ private fun AggregateAmountText(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            aggregateIcon?.let {
+            aggregateIconRes?.let {
                 Icon(
-                    imageVector = it,
+                    imageVector = ImageVector.vectorResource(it),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)

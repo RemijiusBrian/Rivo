@@ -3,6 +3,7 @@ package dev.ridill.rivo.core.domain.util
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.nio.ByteBuffer
+import java.util.Locale
 import java.util.UUID
 
 val Double.Companion.Zero: Double get() = 0.0
@@ -29,6 +30,22 @@ val String.Companion.Empty: String get() = ""
 val String.Companion.WhiteSpace: String get() = " "
 val String.Companion.NewLine: String get() = "\n"
 fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())
+
+fun List<String>.toPrettyString(locale: Locale = LocaleUtil.defaultLocale): String = buildString {
+    this@toPrettyString.forEach { word ->
+        if (word.length == 1) {
+            append(word.uppercase(locale))
+        } else {
+            append(
+                word.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(LocaleUtil.defaultLocale)
+                    else it.toString()
+                }
+            )
+        }
+        if (word != this@toPrettyString.lastOrNull()) append(String.WhiteSpace)
+    }
+}
 
 fun Boolean?.orFalse(): Boolean = this ?: false
 fun Boolean?.orTrue(): Boolean = this ?: true

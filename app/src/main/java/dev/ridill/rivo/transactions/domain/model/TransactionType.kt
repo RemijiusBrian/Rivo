@@ -1,16 +1,13 @@
 package dev.ridill.rivo.transactions.domain.model
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.ui.graphics.vector.ImageVector
 import dev.ridill.rivo.R
 
 enum class TransactionType(
     @StringRes val labelRes: Int,
-    val directionIcon: ImageVector
+    @DrawableRes val iconRes: Int
 ) {
-    CREDIT(R.string.transaction_type_label_credit, Icons.Default.ArrowDownward),
-    DEBIT(R.string.transaction_type_label_debit, Icons.Default.ArrowUpward)
+    CREDIT(R.string.transaction_type_label_credit, R.drawable.ic_rounded_arrow_down_left),
+    DEBIT(R.string.transaction_type_label_debit, R.drawable.ic_rounded_arrow_up_right)
 }
