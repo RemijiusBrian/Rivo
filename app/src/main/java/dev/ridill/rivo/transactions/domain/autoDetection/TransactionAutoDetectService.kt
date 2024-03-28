@@ -1,9 +1,10 @@
 package dev.ridill.rivo.transactions.domain.autoDetection
 
 import android.telephony.SmsMessage
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
@@ -21,7 +22,12 @@ class TransactionAutoDetectService(
         val messagesFromOrg = messages.filter { orgRegex.matches(it.displayMessageBody.orEmpty()) }
         val dateTimeNow = DateUtil.now()
         for (message in messagesFromOrg) {
-            val data = tryOrNull { extractor.extractData(message.messageBody) }
+            val data = try {
+                extractor.extractData(message.messageBody)
+            } catch (t: Throwable) {
+                Firebase.crashlytics.recordException(t)
+                null
+            }
                 ?: continue
 
             if (data.paymentTimestamp.isAfter(dateTimeNow)) continue
