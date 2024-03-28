@@ -6,11 +6,11 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.auth.AuthPromptCallback
 import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
-import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -134,7 +134,7 @@ private inline fun startBiometricAuthentication(
     context: Context,
     crossinline onAuthSuccess: () -> Unit
 ) {
-    val activity = context.findActivity() as FragmentActivity
+    val activity = context.findActivity() as AppCompatActivity
     val title = context.getString(
         R.string.biometric_prompt_title_app_name,
         context.getString(R.string.app_name)
@@ -149,18 +149,10 @@ private inline fun startBiometricAuthentication(
             onAuthSuccess()
         }
     }
-    if (BuildUtil.isApiLevelAtLeast30) {
-        activity.startClass3BiometricOrCredentialAuthentication(
-            crypto = null,
-            title = title,
-            subtitle = subtitle,
-            callback = authPromptCallback
-        )
-    } else {
-        activity.startClass2BiometricOrCredentialAuthentication(
-            title = title,
-            subtitle = subtitle,
-            callback = authPromptCallback
-        )
-    }
+
+    activity.startClass2BiometricOrCredentialAuthentication(
+        title = title,
+        subtitle = subtitle,
+        callback = authPromptCallback
+    )
 }
