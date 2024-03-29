@@ -1,7 +1,7 @@
 package dev.ridill.rivo.settings.presentation.settings
 
-import android.icu.util.Currency
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import java.util.Currency
 
 interface SettingsActions {
     fun onAppThemePreferenceClick()

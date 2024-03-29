@@ -1,7 +1,7 @@
 package dev.ridill.rivo.settings.domain.repositoty
 
-import android.icu.util.Currency
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 
 interface SettingsRepository {
     fun getCurrentBudget(): Flow<Long>

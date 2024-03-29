@@ -87,7 +87,7 @@ class TransactionAutoDetectNotificationHelper(
 
         with(notificationManager) {
             notify(id, notification)
-            notify(SUMMARY_ID, summaryNotification)
+            notify(summaryId.hashCode(), summaryNotification)
         }
     }
 
@@ -146,5 +146,3 @@ class TransactionAutoDetectNotificationHelper(
         ).build()
     }
 }
-
-private const val SUMMARY_ID = Int.MAX_VALUE - 1

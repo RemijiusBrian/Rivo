@@ -8,9 +8,10 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.ApplicationScope
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.model.Schedule
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,6 +22,9 @@ class ScheduleReminderReceiver : BroadcastReceiver() {
     @ApplicationScope
     @Inject
     lateinit var applicationContext: CoroutineScope
+
+    @Inject
+    lateinit var currencyRepo: CurrencyRepository
 
     @Inject
     lateinit var repo: SchedulesRepository
@@ -35,14 +39,15 @@ class ScheduleReminderReceiver : BroadcastReceiver() {
             ?: return
         logI { "Schedule triggered at ${DateUtil.now()}" }
         applicationContext.launch {
-            val transaction = repo.getScheduleById(id) ?: return@launch
-            logI { "Schedule - $transaction" }
+            val schedule = repo.getScheduleById(id)
+                ?: return@launch
+            logI { "Schedule - $schedule" }
             notificationHelper.postNotification(
-                id = transaction.id.hashCode(),
-                data = transaction
+                id = schedule.id.hashCode(),
+                data = schedule
             )
-            val nextReminderDate = transaction.nextReminderDate?.let {
-                when (transaction.repeatMode) {
+            val nextReminderDate = schedule.nextReminderDate?.let {
+                when (schedule.repeatMode) {
                     ScheduleRepeatMode.NO_REPEAT -> null
                     ScheduleRepeatMode.WEEKLY -> it.plusWeeks(1)
                     ScheduleRepeatMode.MONTHLY -> it.plusMonths(1)
@@ -50,7 +55,7 @@ class ScheduleReminderReceiver : BroadcastReceiver() {
                     ScheduleRepeatMode.YEARLY -> it.plusYears(1)
                 }
             }
-            repo.saveScheduleAndSetReminder(transaction.copy(nextReminderDate = nextReminderDate))
+            repo.saveScheduleAndSetReminder(schedule.copy(nextReminderDate = nextReminderDate))
         }
     }
 }

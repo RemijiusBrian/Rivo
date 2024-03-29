@@ -1,6 +1,6 @@
 package dev.ridill.rivo.core.domain.util
 
-import android.icu.util.Currency
+import java.util.Currency
 import java.util.Locale
 
 object LocaleUtil {

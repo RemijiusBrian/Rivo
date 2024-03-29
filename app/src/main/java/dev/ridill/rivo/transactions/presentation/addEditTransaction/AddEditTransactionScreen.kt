@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
-import android.icu.util.Currency
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
@@ -124,6 +123,7 @@ import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import kotlinx.coroutines.flow.flowOf
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.util.Currency
 import kotlin.enums.EnumEntries
 
 @Composable

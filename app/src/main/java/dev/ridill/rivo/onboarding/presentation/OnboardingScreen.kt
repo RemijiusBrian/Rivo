@@ -1,7 +1,6 @@
 package dev.ridill.rivo.onboarding.presentation
 
 import android.app.Activity
-import android.icu.util.Currency
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +42,7 @@ import dev.ridill.rivo.onboarding.presentation.components.PermissionsPage
 import dev.ridill.rivo.onboarding.presentation.components.SetBudgetPage
 import dev.ridill.rivo.onboarding.presentation.components.WelcomeMessagePage
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
+import java.util.Currency
 
 @Composable
 fun OnboardingScreen(

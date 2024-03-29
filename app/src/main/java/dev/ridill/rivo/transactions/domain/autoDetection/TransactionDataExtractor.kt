@@ -14,7 +14,7 @@ data class ExtractedTransactionData(
     val amount: Double,
     val paymentTimestamp: LocalDateTime,
     val transactionType: TransactionType,
-    val secondParty: String?
+    val note: String?
 )
 
 class TransactionDataExtractionFailedThrowable(message: String) : Throwable(message)

@@ -1,6 +1,5 @@
 package dev.ridill.rivo.folders.presentation.folderDetails
 
-import android.icu.util.Currency
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
@@ -85,6 +84,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
+import java.util.Currency
 import kotlin.math.absoluteValue
 
 @Composable

@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
-import android.icu.util.Currency
 import androidx.compose.ui.state.ToggleableState
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
@@ -10,6 +9,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
+import java.util.Currency
 
 data class AllTransactionsState(
     val selectedDate: LocalDate = DateUtil.now().toLocalDate(),

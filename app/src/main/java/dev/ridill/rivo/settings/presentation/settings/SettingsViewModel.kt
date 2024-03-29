@@ -1,6 +1,5 @@
 package dev.ridill.rivo.settings.presentation.settings
 
-import android.icu.util.Currency
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +19,7 @@ import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Currency
 import javax.inject.Inject
 
 @HiltViewModel

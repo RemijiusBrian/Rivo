@@ -37,12 +37,12 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         val amount = extractTransactionAmount(processedContent)
         logD { "Extracted amount - $amount" }
         println("Extracted amount - $amount")
-        val secondParty = extractSecondParty(processedContent)
-        logD { "Extracted merchant - $secondParty" }
-        println("Extracted merchant - $secondParty")
         val transactionType = extractTransactionType(processedContent)
         logD { "Extracted type - $transactionType" }
         println("Extracted type - $transactionType")
+        val secondParty = buildNote(processedContent, transactionType)
+        logD { "Transaction note - $secondParty" }
+        println("note - $secondParty")
         val timestamp = extractTimestamp(messageBody)
         logD { "Extracted timestamp - $timestamp" }
         println("Extracted timestamp - $timestamp")
@@ -51,7 +51,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
             amount = amount,
             paymentTimestamp = timestamp,
             transactionType = transactionType,
-            secondParty = secondParty
+            note = secondParty
         )
     }
 
@@ -73,7 +73,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
     }
 
     @Throws(TransactionDataExtractionFailedThrowable::class)
-    private fun extractSecondParty(content: List<String>): String {
+    private fun buildNote(content: List<String>, type: TransactionType): String {
         val joinedString = content.joinToString(String.WhiteSpace)
         println("Second party joined string - $joinedString")
         var secondParty: String? = null
@@ -124,7 +124,16 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
                 .joinToCapitalizedString()
         }
 
-        return secondParty.trim('.', ',', ' ', '-', '_')
+        return buildString {
+            when (type) {
+                TransactionType.CREDIT -> append("From")
+                TransactionType.DEBIT -> append("Towards")
+            }
+
+            append(String.WhiteSpace)
+
+            append(secondParty.trim('.', ',', ' ', '-', '_'))
+        }
     }
 
     @Throws(TransactionDataExtractionFailedThrowable::class)

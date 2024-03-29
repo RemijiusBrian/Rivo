@@ -28,6 +28,9 @@ class ScheduleReminderNotificationHelper(
     override val channelId: String
         get() = "${context.packageName}.NOTIFICATION_CHANNEL_SCHEDULE_REMINDERS"
 
+    private val summaryId: String
+        get() = "${context.packageName}.SCHEDULE_REMINDERS_SUMMARY"
+
     init {
         registerChannelGroup()
         registerChannel()
@@ -56,6 +59,7 @@ class ScheduleReminderNotificationHelper(
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setContentIntent(buildContentIntent())
+            .setGroup(summaryId)
 
     override fun postNotification(id: Int, data: Schedule) {
         if (!notificationManager.areNotificationsEnabled()) return
@@ -72,12 +76,15 @@ class ScheduleReminderNotificationHelper(
             .addAction(buildMarkPaidAction(data.id))
             .build()
 
-        /*val summaryNotification = buildBaseNotification()
+        val summaryNotification = buildBaseNotification()
             .setGroupSummary(true)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .build()*/
+            .build()
 
-        notificationManager.notify(id, notification)
+        with(notificationManager) {
+            notify(id, notification)
+            notify(summaryId.hashCode(), summaryNotification)
+        }
     }
 
     override fun updateNotification(id: Int, notification: Notification) {

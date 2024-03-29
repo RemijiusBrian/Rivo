@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.data.repository
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logD
@@ -20,6 +19,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import java.util.Currency
 import kotlin.math.roundToLong
 
 class AddEditTransactionRepositoryImpl(

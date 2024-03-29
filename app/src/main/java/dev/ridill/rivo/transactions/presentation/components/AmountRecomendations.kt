@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.components
 
-import android.icu.util.Currency
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.widthIn
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.core.ui.util.TextFormat
+import java.util.Currency
 
 @Composable
 fun AmountRecommendationsRow(

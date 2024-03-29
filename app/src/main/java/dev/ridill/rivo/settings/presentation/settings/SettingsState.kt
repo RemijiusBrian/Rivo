@@ -1,9 +1,9 @@
 package dev.ridill.rivo.settings.presentation.settings
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import java.util.Currency
 
 data class SettingsState(
     val appTheme: AppTheme = AppTheme.SYSTEM_DEFAULT,
