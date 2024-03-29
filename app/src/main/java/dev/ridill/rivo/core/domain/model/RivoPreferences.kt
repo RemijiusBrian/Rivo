@@ -2,6 +2,7 @@ package dev.ridill.rivo.core.domain.model
 
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import java.time.LocalDateTime
 
 data class RivoPreferences(
@@ -16,5 +17,6 @@ data class RivoPreferences(
     val appAutoLockInterval: AppAutoLockInterval,
     val isAppLocked: Boolean,
     val screenSecurityEnabled: Boolean,
-    val encryptionPasswordHash: String?
+    val encryptionPasswordHash: String?,
+    val fatalBackupError: FatalBackupError?
 )

@@ -170,10 +170,12 @@ fun BasicPreference(
 @Composable
 fun PreferenceIcon(
     imageVector: ImageVector,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current
 ) = Icon(
     imageVector = imageVector,
     contentDescription = null,
+    tint = tint,
     modifier = Modifier
         .size(PreferenceIconSize)
         .then(modifier)
