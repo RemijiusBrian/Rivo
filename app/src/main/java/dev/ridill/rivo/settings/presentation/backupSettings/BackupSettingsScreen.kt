@@ -143,7 +143,7 @@ fun BackupSettingsScreen(
                         summary = stringResource(R.string.preference_backup_encryption_summary),
                         onClick = actions::onEncryptionPreferenceClick,
                         leadingIcon = {
-                            if (state.isBackupRunning) {
+                            if (!state.isEncryptionPasswordAvailable) {
                                 PreferenceIcon(
                                     imageVector = Icons.Rounded.ErrorOutline,
                                     tint = MaterialTheme.colorScheme.error
