@@ -55,6 +55,7 @@ class ScheduleReminderNotificationHelper(
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
+            .setContentIntent(buildContentIntent())
 
     override fun postNotification(id: Int, data: Schedule) {
         if (!notificationManager.areNotificationsEnabled()) return
@@ -68,7 +69,6 @@ class ScheduleReminderNotificationHelper(
 //            TextFormat.currency(amount = data.amount, currency = currency)
                 )
             )
-            .setContentIntent(buildContentIntent(data.id))
             .addAction(buildMarkPaidAction(data.id))
             .build()
 
@@ -89,7 +89,7 @@ class ScheduleReminderNotificationHelper(
         notificationManager.cancel(id)
     }
 
-    private fun buildContentIntent(id: Long): PendingIntent? {
+    private fun buildContentIntent(): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
             AllSchedulesScreenSpec.getViewDeeplinkUri(),
@@ -98,7 +98,10 @@ class ScheduleReminderNotificationHelper(
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(id.hashCode(), UtilConstants.pendingIntentFlags)
+            getPendingIntent(
+                CONTENT_INTENT_REQUEST_CODE.hashCode(),
+                UtilConstants.pendingIntentFlags
+            )
         }
     }
 
@@ -123,3 +126,5 @@ class ScheduleReminderNotificationHelper(
         const val ACTION_MARK_SCHEDULED_AS_PAID = "ACTION_MARK_SCHEDULED_AS_PAID"
     }
 }
+
+private const val CONTENT_INTENT_REQUEST_CODE = "SCHEDULE_REMINDER_CONTENT_INTENT"

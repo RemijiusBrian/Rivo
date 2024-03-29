@@ -48,13 +48,13 @@ class BackupNotificationHelper(
     override fun buildBaseNotification(): NotificationCompat.Builder =
         NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
+            .setContentIntent(buildContentIntent())
 
     @SuppressLint("MissingPermission")
     override fun postNotification(id: Int, data: String) {
         val notification = buildBaseNotification()
             .setContentTitle(context.getString(R.string.error_backup_failed_notification_title))
             .setContentText(data)
-            .setContentIntent(buildContentIntent())
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .setBigContentTitle(data)
