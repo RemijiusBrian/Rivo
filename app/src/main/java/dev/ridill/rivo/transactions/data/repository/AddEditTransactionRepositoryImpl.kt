@@ -40,13 +40,19 @@ class AddEditTransactionRepositoryImpl(
 
     override fun getAmountRecommendations(): Flow<List<Long>> = dao.getTransactionAmountRange()
         .map { (upperLimit, lowerLimit) ->
-            val roundUpper = (upperLimit.roundToLong() / 10) * 10
-            val roundLower = (lowerLimit.roundToLong() / 10) * 10
+            val roundedUpper = ((upperLimit.roundToLong() / 10) * 10)
+                .coerceAtLeast(RANGE_MIN_VALUE)
+            val roundedLower = ((lowerLimit.roundToLong() / 10) * 10)
+                .coerceAtLeast(RANGE_MIN_VALUE)
 
-            val range = roundUpper - roundLower
+            val range = roundedUpper - roundedLower
 
-            if (range == Long.Zero) listOf(50L, 100L, 500L)
-            else listOf(roundLower, roundLower + (range / 2), roundUpper)
+            if (range == Long.Zero) buildList {
+                repeat(3) {
+                    add(RANGE_MIN_VALUE * (it + 1))
+                }
+            }
+            else listOf(roundedLower, roundedLower + (range / 2), roundedUpper)
         }
 
     override suspend fun saveTransaction(transaction: Transaction): Long =
@@ -100,3 +106,5 @@ class AddEditTransactionRepositoryImpl(
             )
     }
 }
+
+private const val RANGE_MIN_VALUE = 50L
