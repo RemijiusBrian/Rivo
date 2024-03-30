@@ -1,7 +1,7 @@
 package dev.ridill.rivo.schedules.presentation.allSchedules
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.LocaleUtil
+import java.util.Currency
 
 data class AllSchedulesState(
     val showNotificationRationale: Boolean = false,

@@ -3,6 +3,7 @@ package dev.ridill.rivo.core.data.preferences
 import dev.ridill.rivo.core.domain.model.RivoPreferences
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
@@ -25,4 +26,5 @@ interface PreferencesManager {
     suspend fun updateAppLocked(locked: Boolean)
     suspend fun updateScreenSecurityEnabled(enabled: Boolean)
     suspend fun updateEncryptionPasswordHash(hash: String?)
+    suspend fun updateFatalBackupError(error: FatalBackupError?)
 }

@@ -1,6 +1,5 @@
 package dev.ridill.rivo.dashboard.presentation
 
-import android.icu.util.Currency
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -88,6 +87,7 @@ import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
+import java.util.Currency
 
 @Composable
 fun DashboardScreen(

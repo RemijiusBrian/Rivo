@@ -17,6 +17,7 @@ import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -132,5 +133,16 @@ class BackupSettingsRepositoryImpl(
             val passwordHash = cryptoManager.hash(password)
             preferencesManager.updateEncryptionPasswordHash(passwordHash)
         }
+
+    override fun getFatalBackupError(): Flow<FatalBackupError?> = preferencesManager
+        .preferences
+        .map { it.fatalBackupError }
+        .distinctUntilChanged()
+
+    override fun isEncryptionPasswordAvailable(): Flow<Boolean> =
+        preferencesManager.preferences
+            .map { it.encryptionPasswordHash }
+            .map { !it.isNullOrEmpty() }
+            .distinctUntilChanged()
 }
 

@@ -1,10 +1,10 @@
 package dev.ridill.rivo.dashboard.presentation
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import java.util.Currency
 
 data class DashboardState(
     val currency: Currency = LocaleUtil.defaultCurrency,

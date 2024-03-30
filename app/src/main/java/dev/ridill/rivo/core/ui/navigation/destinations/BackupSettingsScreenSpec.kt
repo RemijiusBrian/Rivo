@@ -23,9 +23,9 @@ import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
-import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 
 data object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
@@ -33,9 +33,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     override val labelRes: Int = R.string.destination_backup_settings
 
     override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink {
-            uriPattern = "$DEEP_LINK_URI/backup_settings"
-        }
+        navDeepLink { uriPattern = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN }
     )
 
     override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
@@ -44,7 +42,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
         { slideInHorizontallyWithFadeIn { it } }
 
-    fun buildBackupSettingsDeeplinkUri(): Uri = "$DEEP_LINK_URI/backup_settings".toUri()
+    fun buildBackupSettingsDeeplinkUri(): Uri = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN.toUri()
 
     @Composable
     override fun Content(
@@ -97,3 +95,5 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         )
     }
 }
+
+private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN = "$DEEP_LINK_URI/view_backup_settings"

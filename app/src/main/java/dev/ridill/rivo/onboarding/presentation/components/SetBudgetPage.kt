@@ -1,6 +1,5 @@
 package dev.ridill.rivo.onboarding.presentation.components
 
-import android.icu.util.Currency
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +33,7 @@ import dev.ridill.rivo.core.ui.components.SpacerExtraLarge
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import java.util.Currency
 
 @Composable
 fun SetBudgetPage(

@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
-import android.icu.util.Currency
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
@@ -124,6 +123,7 @@ import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import kotlinx.coroutines.flow.flowOf
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.util.Currency
 import kotlin.enums.EnumEntries
 
 @Composable
@@ -484,9 +484,10 @@ fun NoteInput(
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Sentences,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Default
         ),
-        singleLine = true,
+        singleLine = false,
+        maxLines = NOTE_MAX_LINES,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
@@ -495,6 +496,8 @@ fun NoteInput(
         )
     )
 }
+
+private const val NOTE_MAX_LINES = 5
 
 private const val TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION = 0.80f
 private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f

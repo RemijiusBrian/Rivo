@@ -1,7 +1,6 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -29,13 +28,10 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     override val labelRes: Int = R.string.destination_all_schedules
 
     override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink {
-            uriPattern = VIEW_DEEPLINK
-            action = Intent.ACTION_VIEW
-        }
+        navDeepLink { uriPattern = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN }
     )
 
-    fun getViewDeeplinkUri(): Uri = VIEW_DEEPLINK.toUri()
+    fun getViewDeeplinkUri(): Uri = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN.toUri()
 
     @Composable
     override fun Content(
@@ -90,4 +86,4 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_DEEPLINK = "$DEEP_LINK_URI/view_all_schedules"
+private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN = "$DEEP_LINK_URI/view_all_schedules"

@@ -71,7 +71,8 @@ class TransactionAutoDetectNotificationHelper(
                         TransactionType.CREDIT -> R.string.amount_credited_notification_message
                         TransactionType.DEBIT -> R.string.amount_debited_notification_message
                     },
-                    data.amount
+                    data.amount,
+                    data.note
                 )
             )
             .setContentIntent(buildContentIntent(data.id))
@@ -86,7 +87,7 @@ class TransactionAutoDetectNotificationHelper(
 
         with(notificationManager) {
             notify(id, notification)
-            notify(SUMMARY_ID, summaryNotification)
+            notify(summaryId.hashCode(), summaryNotification)
         }
     }
 
@@ -105,7 +106,7 @@ class TransactionAutoDetectNotificationHelper(
     private fun buildContentIntent(id: Long): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            AddEditTransactionScreenSpec.buildAutoAddedTransactionDeeplinkUri(id),
+            AddEditTransactionScreenSpec.buildAutoDetectTransactionDeeplinkUri(id),
             context,
             RivoActivity::class.java
         )
@@ -145,5 +146,3 @@ class TransactionAutoDetectNotificationHelper(
         ).build()
     }
 }
-
-private const val SUMMARY_ID = Int.MAX_VALUE - 1

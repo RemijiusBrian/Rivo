@@ -1,6 +1,5 @@
 package dev.ridill.rivo.dashboard.data.repository
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
@@ -17,6 +16,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import java.util.Currency
 
 class DashboardRepositoryImpl(
     private val currencyRepo: CurrencyRepository,

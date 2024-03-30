@@ -1,6 +1,5 @@
 package dev.ridill.rivo.settings.presentation.settings
 
-import android.icu.util.Currency
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,6 +48,7 @@ import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.components.PreferenceIcon
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
+import java.util.Currency
 
 @Composable
 fun SettingsScreen(

@@ -1,9 +1,9 @@
 package dev.ridill.rivo.settings.domain.repositoty
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import java.util.Currency
 
 interface CurrencyRepository {
     fun getCurrencyForDateOrNext(

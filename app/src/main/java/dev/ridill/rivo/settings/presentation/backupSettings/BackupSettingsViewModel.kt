@@ -52,28 +52,39 @@ class BackupSettingsViewModel @Inject constructor(
 
     private val isBackupRunning = MutableStateFlow(false)
 
+    private val isEncryptionPasswordAvailable = repo.isEncryptionPasswordAvailable()
+
+    private val fatalBackupError = repo.getFatalBackupError()
+
     val state = combineTuple(
         backupAccountEmail,
         isAccountAdded,
         backupInterval,
         showBackupIntervalSelection,
         lastBackupDateTime,
-        isBackupRunning
+        isBackupRunning,
+        isEncryptionPasswordAvailable,
+        fatalBackupError
     ).map { (
-                backupAccount,
+                backupAccountEmail,
                 isAccountAdded,
                 backupInterval,
                 showBackupIntervalSelection,
                 lastBackupDateTime,
-                isBackupWorkerRunning
+                isBackupRunning,
+                isEncryptionPasswordAvailable,
+                fatalBackupError
+
             ) ->
         BackupSettingsState(
-            accountEmail = backupAccount,
+            backupAccountEmail = backupAccountEmail,
             isAccountAdded = isAccountAdded,
+            backupInterval = backupInterval,
             showBackupIntervalSelection = showBackupIntervalSelection,
-            interval = backupInterval,
             lastBackupDateTime = lastBackupDateTime,
-            isBackupRunning = isBackupWorkerRunning
+            isBackupRunning = isBackupRunning,
+            isEncryptionPasswordAvailable = isEncryptionPasswordAvailable,
+            fatalBackupError = fatalBackupError
         )
     }.asStateFlow(viewModelScope, BackupSettingsState())
 

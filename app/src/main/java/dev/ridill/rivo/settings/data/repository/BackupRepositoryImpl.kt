@@ -24,6 +24,7 @@ import dev.ridill.rivo.settings.domain.backup.RestoreCacheAlreadyExistsThrowable
 import dev.ridill.rivo.settings.domain.backup.RestoreFailedThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
+import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -177,6 +178,9 @@ class BackupRepositoryImpl(
     }
 
     private fun backupFolderName(email: String): String = "Rivo $email backup"
+
+    override suspend fun setBackupError(error: FatalBackupError?) =
+        preferencesManager.updateFatalBackupError(error)
 }
 
 const val JSON_MIME_TYPE = "application/json"

@@ -1,10 +1,10 @@
 package dev.ridill.rivo.schedules.domain.model
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import java.time.LocalDate
+import java.util.Currency
 
 data class UpcomingSchedule(
     val id: Long,

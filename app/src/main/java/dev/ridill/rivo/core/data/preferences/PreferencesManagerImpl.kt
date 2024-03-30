@@ -11,8 +11,10 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.domain.util.orTrue
+import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -51,6 +53,9 @@ class PreferencesManagerImpl(
             val isAppLocked = preferences[Keys.IS_APP_LOCKED].orFalse()
             val screenSecurityEnabled = preferences[Keys.SCREEN_SECURITY_ENABLED].orFalse()
             val encryptionPasswordHash = preferences[Keys.ENCRYPTION_PASSWORD_HASH]
+            val fatalBackupError = tryOrNull {
+                preferences[Keys.FATAL_BACKUP_ERROR]?.let { FatalBackupError.valueOf(it) }
+            }
 
             RivoPreferences(
                 showOnboarding = showOnboarding,
@@ -64,7 +69,8 @@ class PreferencesManagerImpl(
                 appAutoLockInterval = appAutoLockInterval,
                 isAppLocked = isAppLocked,
                 screenSecurityEnabled = screenSecurityEnabled,
-                encryptionPasswordHash = encryptionPasswordHash
+                encryptionPasswordHash = encryptionPasswordHash,
+                fatalBackupError = fatalBackupError
             )
         }
 
@@ -164,6 +170,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun updateFatalBackupError(error: FatalBackupError?) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.FATAL_BACKUP_ERROR] = error?.name.orEmpty()
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_ONBOARDING = booleanPreferencesKey("SHOW_ONBOARDING")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -177,5 +191,6 @@ class PreferencesManagerImpl(
         val IS_APP_LOCKED = booleanPreferencesKey("IS_APP_LOCKED")
         val SCREEN_SECURITY_ENABLED = booleanPreferencesKey("SCREEN_SECURITY_ENABLED")
         val ENCRYPTION_PASSWORD_HASH = stringPreferencesKey("ENCRYPTION_PASSWORD_HASH")
+        val FATAL_BACKUP_ERROR = stringPreferencesKey("FATAL_BACKUP_ERROR")
     }
 }

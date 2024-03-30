@@ -28,6 +28,9 @@ class ScheduleReminderNotificationHelper(
     override val channelId: String
         get() = "${context.packageName}.NOTIFICATION_CHANNEL_SCHEDULE_REMINDERS"
 
+    private val summaryId: String
+        get() = "${context.packageName}.SCHEDULE_REMINDERS_SUMMARY"
+
     init {
         registerChannelGroup()
         registerChannel()
@@ -55,6 +58,8 @@ class ScheduleReminderNotificationHelper(
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
+            .setContentIntent(buildContentIntent())
+            .setGroup(summaryId)
 
     override fun postNotification(id: Int, data: Schedule) {
         if (!notificationManager.areNotificationsEnabled()) return
@@ -68,16 +73,18 @@ class ScheduleReminderNotificationHelper(
 //            TextFormat.currency(amount = data.amount, currency = currency)
                 )
             )
-            .setContentIntent(buildContentIntent(data.id))
             .addAction(buildMarkPaidAction(data.id))
             .build()
 
-        /*val summaryNotification = buildBaseNotification()
+        val summaryNotification = buildBaseNotification()
             .setGroupSummary(true)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .build()*/
+            .build()
 
-        notificationManager.notify(id, notification)
+        with(notificationManager) {
+            notify(id, notification)
+            notify(summaryId.hashCode(), summaryNotification)
+        }
     }
 
     override fun updateNotification(id: Int, notification: Notification) {
@@ -89,7 +96,7 @@ class ScheduleReminderNotificationHelper(
         notificationManager.cancel(id)
     }
 
-    private fun buildContentIntent(id: Long): PendingIntent? {
+    private fun buildContentIntent(): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
             AllSchedulesScreenSpec.getViewDeeplinkUri(),
@@ -98,7 +105,10 @@ class ScheduleReminderNotificationHelper(
         )
         return TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(id.hashCode(), UtilConstants.pendingIntentFlags)
+            getPendingIntent(
+                CONTENT_INTENT_REQUEST_CODE.hashCode(),
+                UtilConstants.pendingIntentFlags
+            )
         }
     }
 
@@ -123,3 +133,5 @@ class ScheduleReminderNotificationHelper(
         const val ACTION_MARK_SCHEDULED_AS_PAID = "ACTION_MARK_SCHEDULED_AS_PAID"
     }
 }
+
+private const val CONTENT_INTENT_REQUEST_CODE = "SCHEDULE_REMINDER_CONTENT_INTENT"

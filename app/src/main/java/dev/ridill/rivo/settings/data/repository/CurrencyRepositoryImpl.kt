@@ -1,6 +1,5 @@
 package dev.ridill.rivo.settings.data.repository
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.settings.data.local.CurrencyDao
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.util.Currency
 
 class CurrencyRepositoryImpl(
     private val dao: CurrencyDao

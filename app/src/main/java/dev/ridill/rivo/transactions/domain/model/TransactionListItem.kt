@@ -1,10 +1,10 @@
 package dev.ridill.rivo.transactions.domain.model
 
-import android.icu.util.Currency
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.folders.domain.model.Folder
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.Currency
 
 data class TransactionListItem(
     val id: Long,

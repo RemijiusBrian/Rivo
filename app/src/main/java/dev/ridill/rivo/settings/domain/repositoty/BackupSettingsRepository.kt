@@ -23,6 +23,8 @@ interface BackupSettingsRepository {
     fun runBackupJob(interval: BackupInterval)
     fun runImmediateBackupJob()
     suspend fun restoreBackupJob()
+    fun getFatalBackupError(): Flow<FatalBackupError?>
+    fun isEncryptionPasswordAvailable(): Flow<Boolean>
     suspend fun isCurrentPasswordMatch(currentPasswordInput: String): Boolean
     suspend fun updateEncryptionPassword(password: String)
 }
