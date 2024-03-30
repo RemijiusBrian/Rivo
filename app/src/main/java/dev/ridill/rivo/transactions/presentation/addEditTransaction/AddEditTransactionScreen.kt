@@ -484,9 +484,10 @@ fun NoteInput(
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Sentences,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Default
         ),
-        singleLine = true,
+        singleLine = false,
+        maxLines = NOTE_MAX_LINES,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
@@ -495,6 +496,8 @@ fun NoteInput(
         )
     )
 }
+
+private const val NOTE_MAX_LINES = 5
 
 private const val TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION = 0.80f
 private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
