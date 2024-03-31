@@ -21,7 +21,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
@@ -358,27 +357,27 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SELECTED_TRANSACTION_IDS] = emptySet<Long>()
     }
 
-    override fun onTransactionOptionClick(option: TransactionOption) {
+    override fun onTransactionOptionClick(option: AllTransactionsMultiSelectionOption) {
         val selectedTransactionIds = selectedTransactionIds.value.ifEmpty { return }
         viewModelScope.launch {
             when (option) {
-                TransactionOption.UNTAG -> {
+                AllTransactionsMultiSelectionOption.UNTAG -> {
                     unTagTransactions(selectedTransactionIds)
                 }
 
-                TransactionOption.MARK_EXCLUDED -> {
+                AllTransactionsMultiSelectionOption.MARK_EXCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, true)
                 }
 
-                TransactionOption.UN_MARK_EXCLUDED -> {
+                AllTransactionsMultiSelectionOption.UN_MARK_EXCLUDED -> {
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
 
-                TransactionOption.ADD_TO_FOLDER -> {
+                AllTransactionsMultiSelectionOption.ADD_TO_FOLDER -> {
                     showFolderSelection()
                 }
 
-                TransactionOption.REMOVE_FROM_FOLDERS -> {
+                AllTransactionsMultiSelectionOption.REMOVE_FROM_FOLDERS -> {
                     removeTransactionsFromFolders(selectedTransactionIds)
                 }
             }

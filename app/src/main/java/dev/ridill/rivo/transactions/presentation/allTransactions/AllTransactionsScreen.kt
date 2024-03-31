@@ -120,7 +120,6 @@ import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -583,7 +582,7 @@ private fun TransactionListHeader(
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onDeleteClick: () -> Unit,
-    onTransactionOptionClick: (TransactionOption) -> Unit,
+    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -800,7 +799,7 @@ private fun TransactionListLabelAndOptions(
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onDeleteClick: () -> Unit,
-    onTransactionOptionClick: (TransactionOption) -> Unit,
+    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -834,7 +833,7 @@ private fun TransactionListOptions(
     onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
-    onTransactionOptionClick: (TransactionOption) -> Unit,
+    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     selectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -885,7 +884,7 @@ private fun TransactionListOptions(
                 onDismissRequest = { menuExpanded = false }
             ) {
                 if (multiSelectionModeActive) {
-                    TransactionOption.entries.forEach { option ->
+                    AllTransactionsMultiSelectionOption.entries.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(stringResource(option.labelRes)) },
                             onClick = {

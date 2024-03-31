@@ -289,11 +289,11 @@
     <string name="search_currency">Search Currency</string>
     <string name="hide_excluded_transactions">Hide Excluded</string>
     <string name="show_excluded_transactions">Show Excluded</string>
-    <string name="transaction_option_untag">Untag</string>
-    <string name="transaction_option_mark_excluded">Mark Excluded</string>
-    <string name="transaction_option_un_mark_excluded">Un-mark Excluded</string>
-    <string name="transaction_option_add_to_folder">Add to Folder</string>
-    <string name="transaction_option_remove_from_folders">Remove from Folders</string>
+    <string name="all_transactions_multi_selection_option_untag">Untag</string>
+    <string name="all_transactions_multi_selection_option_mark_excluded">Mark Excluded</string>
+    <string name="all_transactions_multi_selection_option_un_mark_excluded">Un-mark Excluded</string>
+    <string name="all_transactions_multi_selection_option_add_to_folder">Add to Folder</string>
+    <string name="all_transactions_multi_selection_option_remove_from_folders">Remove from Folders</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="excluded">Excluded</string>
