@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -45,6 +46,7 @@ import dev.ridill.rivo.core.ui.components.SmallDisplayText
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerMedium
+import dev.ridill.rivo.core.ui.components.autofill
 import dev.ridill.rivo.core.ui.navigation.destinations.BackupEncryptionScreenSpec
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
@@ -166,6 +168,10 @@ private fun PasswordUpdateSheet(
                         labelRes = R.string.current_password,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .autofill(
+                                types = listOf(AutofillType.Password),
+                                onFill = onCurrentPasswordChange
+                            )
                     )
                     TextButton(
                         onClick = onForgotPasswordClick,
@@ -183,6 +189,10 @@ private fun PasswordUpdateSheet(
                 labelRes = R.string.new_password,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .autofill(
+                        types = listOf(AutofillType.NewPassword),
+                        onFill = onNewPasswordChange
+                    )
             )
 
             PasswordField(
@@ -190,7 +200,11 @@ private fun PasswordUpdateSheet(
                 onValueChange = onConfirmNewPasswordChange,
                 labelRes = R.string.confirm_new_password,
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .autofill(
+                        types = listOf(AutofillType.NewPassword),
+                        onFill = onConfirmNewPasswordChange
+                    ),
                 imeAction = ImeAction.Done
             )
 

@@ -63,6 +63,7 @@ fun OutlinedTextFieldSheet(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     text: String? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     focusRequester: FocusRequester = remember { FocusRequester() },
@@ -121,7 +122,8 @@ fun OutlinedTextFieldSheet(
     prefix = prefix,
     suffix = suffix,
     textStyle = textStyle,
-    contentAfterTextField = contentAfterTextField
+    contentAfterTextField = contentAfterTextField,
+    textFieldModifier = textFieldModifier
 )
 
 @Composable
@@ -132,6 +134,7 @@ fun OutlinedTextFieldSheet(
     onDismiss: () -> Unit,
     actionButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     text: @Composable (() -> Unit)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     focusRequester: FocusRequester = remember { FocusRequester() },
@@ -170,7 +173,8 @@ fun OutlinedTextFieldSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
-                    .focusRequester(focusRequester),
+                    .focusRequester(focusRequester)
+                    .then(textFieldModifier),
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
                 label = label?.let { { Text(it) } },
