@@ -27,13 +27,9 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -63,6 +59,8 @@ import dev.ridill.rivo.core.domain.util.PartOfDay
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
+import dev.ridill.rivo.core.ui.components.RivoPlainTooltip
+import dev.ridill.rivo.core.ui.components.RivoRichTooltip
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
@@ -120,14 +118,8 @@ fun DashboardScreen(
             BottomAppBar(
                 actions = {
                     BottomNavDestination.bottomNavDestinations.forEach { destination ->
-                        TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            state = rememberTooltipState(),
-                            tooltip = {
-                                PlainTooltip {
-                                    Text(stringResource(destination.labelRes))
-                                }
-                            },
+                        RivoPlainTooltip(
+                            tooltipText = stringResource(destination.labelRes),
                             focusable = false
                         ) {
                             IconButton(
@@ -355,21 +347,12 @@ private fun BalanceAndBudget(
             modifier = Modifier
                 .alignBy(LastBaseline)
         ) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-                tooltip = {
-                    RichTooltip(
-                        title = { Text(stringResource(R.string.budget_includes_credited_amounts)) },
-                        text = {
-                            Text(
-                                text = stringResource(
-                                    R.string.budget_includes_credit_amount_of_value,
-                                    TextFormat.currency(creditAmount, currency)
-                                )
-                            )
-                        }
-                    )
-                },
+            RivoRichTooltip(
+                tooltipTitle = stringResource(R.string.budget_includes_credited_amounts),
+                tooltipText = stringResource(
+                    R.string.budget_includes_credit_amount_of_value,
+                    TextFormat.currency(creditAmount, currency)
+                ),
                 state = rememberTooltipState(isPersistent = true)
             ) {
                 Row {
