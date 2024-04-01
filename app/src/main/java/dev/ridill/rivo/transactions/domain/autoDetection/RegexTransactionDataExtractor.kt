@@ -21,11 +21,15 @@ import java.time.LocalDateTime
  */
 
 class RegexTransactionDataExtractor : TransactionDataExtractor {
+    private val englishCharsRegex = ENGLISH_CHARS_PATTERN.toRegex()
     private val orgAddressRegex = ORG_ADDRESS_PATTERN.toRegex()
     private val creditRegex = CREDIT_PATTERN.toRegex()
     private val debitRegex = DEBIT_PATTERN.toRegex()
     private val miscPaymentRegex = MISC_PAYMENT_PATTERN.toRegex()
     private val timestampRegex = TIMESTAMP_PATTERN.toRegex()
+
+    override fun isNotSupportedLanguage(message: String): Boolean =
+        !englishCharsRegex.matches(message)
 
     override fun isOriginValidOrg(originatingAddress: String): Boolean =
         orgAddressRegex.matches(originatingAddress)
@@ -301,6 +305,8 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
             get() = listOf("upi", "ref no", "upi ref", "upi ref no")
     }*/
 }
+
+private const val ENGLISH_CHARS_PATTERN = "(?i)(?!...)(?!..\$)[^\\W][\\w.]{0,29}\$"
 
 private const val ORG_ADDRESS_PATTERN = "(?i)\\w{2}-\\w{6}"
 
