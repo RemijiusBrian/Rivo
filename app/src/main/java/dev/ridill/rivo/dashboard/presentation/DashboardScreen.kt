@@ -55,7 +55,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
@@ -491,7 +492,6 @@ private fun UpcomingSchedulesRow(
     LazyRow(
         contentPadding = PaddingValues(
             top = SpacingMedium,
-            bottom = SpacingSmall,
             start = SpacingMedium,
             end = SpacingListEnd
         ),
@@ -616,7 +616,8 @@ private fun RecentSpendCard(
     )
 }
 
-@Preview(showBackground = true)
+@PreviewScreenSizes
+@PreviewLightDark
 @Composable
 private fun PreviewDashboardScreen() {
     RivoTheme {
@@ -624,7 +625,15 @@ private fun PreviewDashboardScreen() {
             state = DashboardState(
                 balance = 1_000.0,
                 spentAmount = 500.0,
-                monthlyBudgetInclCredits = 5_000.0
+                monthlyBudgetInclCredits = 5_000.0,
+                upcomingSchedules = List(3) {
+                    UpcomingSchedule(
+                        id = it.toLong(),
+                        note = UiText.DynamicString("Note"),
+                        amount = 200.0,
+                        dueDate = DateUtil.dateNow()
+                    )
+                }
             ),
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
