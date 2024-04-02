@@ -13,6 +13,8 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
+import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
+import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
@@ -105,12 +107,18 @@ object SettingsSingletonModule {
         backupService: BackupService,
         gDriveApi: GDriveApi,
         signInService: GoogleSignInService,
-        preferencesManager: PreferencesManager
+        preferencesManager: PreferencesManager,
+        configDao: ConfigDao,
+        backupWorkManager: BackupWorkManager,
+        schedulesRepository: SchedulesRepository
     ): BackupRepository = BackupRepositoryImpl(
         backupService = backupService,
         gDriveApi = gDriveApi,
         signInService = signInService,
-        preferencesManager = preferencesManager
+        preferencesManager = preferencesManager,
+        configDao = configDao,
+        backupWorkManager = backupWorkManager,
+        schedulesRepository = schedulesRepository
     )
 
     @Provides
