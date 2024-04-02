@@ -382,8 +382,7 @@
     <string name="schedule_reminder">Schedule Reminder</string>
     <string name="budget_includes_credit_amount_of_value">Budget amount shown here includes a credit amount of %s</string>
     <string name="payment_of_amount">Payment of amount</string>
-    <string name="noted">noted</string>
-    <string name="coming_up">coming up</string>
+    <string name="for_note">for</string>
     <string name="due_on_date">Due on %s</string>
     <string name="upcoming_schedules">Upcoming Schedules</string>
     <string name="created_colon_timestamp_value">Created: %s</string>

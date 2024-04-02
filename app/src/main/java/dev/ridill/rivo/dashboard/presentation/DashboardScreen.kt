@@ -554,12 +554,11 @@ private fun UpcomingScheduleCard(
                             append(amount)
                         }
                         append(String.WhiteSpace)
-                        append(stringResource(R.string.noted))
+                        append(stringResource(R.string.for_note))
                         append(String.WhiteSpace)
                         append('\'')
                         withStyle(
                             SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
                                 fontStyle = FontStyle.Italic,
                                 textDecoration = TextDecoration.Underline
                             )
@@ -567,8 +566,6 @@ private fun UpcomingScheduleCard(
                             append(name.asString())
                         }
                         append('\'')
-                        append(String.WhiteSpace)
-                        append(stringResource(R.string.coming_up))
                         append('.')
                     },
                     style = MaterialTheme.typography.titleMedium,
@@ -629,7 +626,7 @@ private fun PreviewDashboardScreen() {
                 upcomingSchedules = List(3) {
                     UpcomingSchedule(
                         id = it.toLong(),
-                        note = UiText.DynamicString("Note"),
+                        note = UiText.DynamicString("Really long transaction note"),
                         amount = 200.0,
                         dueDate = DateUtil.dateNow()
                     )
