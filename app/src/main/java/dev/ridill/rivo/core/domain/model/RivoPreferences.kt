@@ -10,7 +10,6 @@ data class RivoPreferences(
     val appTheme: AppTheme,
     val dynamicColorsEnabled: Boolean,
     val lastBackupDateTime: LocalDateTime?,
-    val needsConfigRestore: Boolean,
     val autoAddTransactionEnabled: Boolean,
     val allTransactionsShowExcludedOption: Boolean,
     val appLockEnabled: Boolean,

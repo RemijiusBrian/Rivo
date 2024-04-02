@@ -42,7 +42,6 @@ class PreferencesManagerImpl(
             val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED].orFalse()
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
                 ?.let { DateUtil.parseDateTime(it) }
-            val needsConfigRestore = preferences[Keys.NEEDS_CONFIG_RESTORE].orFalse()
             val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED].orFalse()
             val allTransactionsShowExcludedOption =
                 preferences[Keys.ALL_TX_SHOW_EXCLUDED_OPTION].orTrue()
@@ -62,7 +61,6 @@ class PreferencesManagerImpl(
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
-                needsConfigRestore = needsConfigRestore,
                 autoAddTransactionEnabled = autoAddTransactionEnabled,
                 allTransactionsShowExcludedOption = allTransactionsShowExcludedOption,
                 appLockEnabled = appLockEnabled,
@@ -102,14 +100,6 @@ class PreferencesManagerImpl(
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
                 preferences[Keys.LAST_BACKUP_TIMESTAMP] = localDateTime.toString()
-            }
-        }
-    }
-
-    override suspend fun updateNeedsConfigRestore(needsRestore: Boolean) {
-        withContext(Dispatchers.IO) {
-            dataStore.edit { preferences ->
-                preferences[Keys.NEEDS_CONFIG_RESTORE] = needsRestore
             }
         }
     }
@@ -183,7 +173,6 @@ class PreferencesManagerImpl(
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
-        val NEEDS_CONFIG_RESTORE = booleanPreferencesKey("NEEDS_CONFIG_RESTORE")
         val AUTO_ADD_TRANSACTION_ENABLED = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
         val ALL_TX_SHOW_EXCLUDED_OPTION = booleanPreferencesKey("ALL_TX_SHOW_EXCLUDED_OPTION")
         val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")

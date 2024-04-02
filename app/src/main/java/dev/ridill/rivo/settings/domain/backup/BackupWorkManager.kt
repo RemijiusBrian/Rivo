@@ -13,6 +13,10 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import dev.ridill.rivo.core.domain.util.toUUID
+import dev.ridill.rivo.settings.domain.backup.workers.AppConfigRestoreWorker
+import dev.ridill.rivo.settings.domain.backup.workers.GDriveDataBackupWorker
+import dev.ridill.rivo.settings.domain.backup.workers.GDriveDataDownloadWorker
+import dev.ridill.rivo.settings.domain.backup.workers.GDriveDataRestoreWorker
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +44,9 @@ class BackupWorkManager(
 
     private val oneTimeRestoreWorkName: String
         get() = "${context.packageName}.ONE_TIME_DATA_RESTORE_WORK"
+
+    private val oneTimeConfigRestoreWorkName: String
+        get() = "${context.packageName}.ONE_TIME_CONFIG_RESTORE_WORK"
 
     companion object {
         const val WORK_INTERVAL_TAG_PREFIX = "WORK_INTERVAL-"
@@ -161,6 +168,19 @@ class BackupWorkManager(
         return intervalTag
             ?.removePrefix(WORK_INTERVAL_TAG_PREFIX)
             ?.let { BackupInterval.valueOf(it) }
+    }
+
+    fun runConfigRestoreWork() {
+        val workRequest = OneTimeWorkRequestBuilder<AppConfigRestoreWorker>()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setId(oneTimeConfigRestoreWorkName.toUUID())
+            .build()
+
+        workManager.enqueueUniqueWork(
+            oneTimeBackupWorkName,
+            ExistingWorkPolicy.KEEP,
+            workRequest
+        )
     }
 
     private fun buildBackupConstraints(): Constraints = Constraints.Builder()

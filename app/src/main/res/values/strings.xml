@@ -265,6 +265,7 @@
     <string name="backup_now">Backup Now</string>
     <string name="downloading_app_data">Downloading App Data</string>
     <string name="restoring_app_data">Restoring App Data</string>
+    <string name="restoring_app_config">Restoring App Configuration</string>
     <string name="data_restore_in_progress">Data restore in progress</string>
     <string name="restarting_app">Restarting App</string>
     <string name="data_restore_disclaimer">Please do not close app while the restore is in progress. The app will automatically restart once the restore process is completed.</string>

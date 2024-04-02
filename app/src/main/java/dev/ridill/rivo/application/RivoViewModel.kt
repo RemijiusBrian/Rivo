@@ -1,5 +1,6 @@
 package dev.ridill.rivo.application
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -7,9 +8,10 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
-import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
+import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -25,7 +27,7 @@ class RivoViewModel @Inject constructor(
     private val receiverService: ReceiverService,
     private val appLockServiceManager: AppLockServiceManager,
     private val eventBus: EventBus<RivoEvent>,
-    private val backupSettingsRepo: BackupSettingsRepository
+    private val backupWorkManager: BackupWorkManager
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
     val showWelcomeFlow = preferences.map { it.showOnboarding }
@@ -46,7 +48,6 @@ class RivoViewModel @Inject constructor(
 
     init {
         collectTransactionAutoAdd()
-        collectConfigRestore()
         collectIsAppLocked()
     }
 
@@ -54,15 +55,6 @@ class RivoViewModel @Inject constructor(
         preferences.map { it.autoAddTransactionEnabled }
             .collectLatest { enabled ->
                 receiverService.toggleSmsReceiver(enabled)
-            }
-    }
-
-    private fun collectConfigRestore() = viewModelScope.launch {
-        preferencesManager.preferences.map { it.needsConfigRestore }
-            .collectLatest { needsRestore ->
-                if (!needsRestore) return@collectLatest
-                backupSettingsRepo.restoreBackupJob()
-                preferencesManager.updateNeedsConfigRestore(false)
             }
     }
 
@@ -114,6 +106,14 @@ class RivoViewModel @Inject constructor(
 
     fun updateAppLockErrorMessage(message: UiText?) {
         appLockAuthErrorMessage.update { message }
+    }
+
+    fun onNewIntent(intent: Intent) {
+        logI { "onNewIntent" }
+        if (intent.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)) {
+            logI { "Run config restore extra = true" }
+            backupWorkManager.runConfigRestoreWork()
+        }
     }
 
     sealed class RivoEvent {

@@ -1,6 +1,7 @@
 package dev.ridill.rivo.application
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
@@ -123,6 +124,11 @@ class RivoActivity : AppCompatActivity() {
         viewModel.runAppLockProcess()
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intent?.let(viewModel::onNewIntent)
+    }
+
     private fun checkAppPermissions() {
         if (viewModel.showWelcomeFlow.value) return
         val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
@@ -176,6 +182,8 @@ class RivoActivity : AppCompatActivity() {
         )
     }
 }
+
+const val EXTRA_RUN_CONFIG_RESTORE = "EXTRA_RUN_CONFIG_RESTORE"
 
 @Composable
 private fun ScreenContent(

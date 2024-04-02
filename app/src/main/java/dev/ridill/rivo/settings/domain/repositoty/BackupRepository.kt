@@ -11,6 +11,7 @@ interface BackupRepository {
     suspend fun performAppDataRestoreFromCache(passwordHash: String, timestamp: LocalDateTime)
     suspend fun tryClearLocalCache()
     suspend fun setBackupError(error: FatalBackupError?)
+    suspend fun restoreAppConfig()
 }
 
 enum class FatalBackupError { PASSWORD_CORRUPTED, GOOGLE_AUTH_FAILURE, STORAGE_QUOTA_EXCEEDED }

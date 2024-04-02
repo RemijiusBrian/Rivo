@@ -18,7 +18,6 @@ interface PreferencesManager {
     suspend fun updateAppThem(theme: AppTheme)
     suspend fun updateDynamicColorsEnabled(enabled: Boolean)
     suspend fun updateLastBackupTimestamp(localDateTime: LocalDateTime)
-    suspend fun updateNeedsConfigRestore(needsRestore: Boolean)
     suspend fun updateAutoAddTransactionEnabled(enabled: Boolean)
     suspend fun updateAllTransactionsShowExcludedOption(show: Boolean)
     suspend fun updateAppLockEnabled(enabled: Boolean)

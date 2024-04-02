@@ -1,4 +1,4 @@
-package dev.ridill.rivo.settings.domain.backup
+package dev.ridill.rivo.settings.domain.backup.workers
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -17,6 +17,8 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.BackupFeature
 import dev.ridill.rivo.settings.data.remote.dto.GDriveErrorDto
 import dev.ridill.rivo.settings.data.repository.InvalidEncryptionPasswordThrowable
+import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
+import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers

@@ -13,16 +13,20 @@ import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
+import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.MEDIA_PART_KEY
 import dev.ridill.rivo.settings.data.remote.dto.CreateGDriveFolderRequestDto
 import dev.ridill.rivo.settings.data.toBackupDetails
 import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupService
+import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.backup.DB_BACKUP_FILE_NAME
 import dev.ridill.rivo.settings.domain.backup.RestoreCacheAlreadyExistsThrowable
 import dev.ridill.rivo.settings.domain.backup.RestoreFailedThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
+import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +45,10 @@ class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
     private val signInService: GoogleSignInService,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val configDao: ConfigDao,
+    private val backupWorkManager: BackupWorkManager,
+    private val schedulesRepository: SchedulesRepository
 ) : BackupRepository {
     override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
         try {
@@ -168,6 +175,7 @@ class BackupRepositoryImpl(
             logI { "Restoring Backup from cache" }
             backupService.restoreBackupFromCache(passwordHash, timestamp)
             preferencesManager.updateEncryptionPasswordHash(passwordHash)
+            preferencesManager.updateLastBackupTimestamp(timestamp)
             logI { "Updated last backup timestamp" }
         }
 
@@ -181,6 +189,26 @@ class BackupRepositoryImpl(
 
     override suspend fun setBackupError(error: FatalBackupError?) =
         preferencesManager.updateFatalBackupError(error)
+
+    override suspend fun restoreAppConfig() = withContext(Dispatchers.IO) {
+        // Schedule backup job
+        scheduleBackupJob()
+
+        // Set reminders
+        setReminders()
+    }
+
+    private suspend fun scheduleBackupJob() {
+        val backupInterval = configDao.getBackupInterval()
+            ?.let { BackupInterval.valueOf(it) }
+            ?: return
+        if (backupInterval == BackupInterval.MANUAL) return
+        backupWorkManager.schedulePeriodicBackupWork(backupInterval)
+    }
+
+    private suspend fun setReminders() {
+        schedulesRepository.setAllFutureScheduleReminders()
+    }
 }
 
 const val JSON_MIME_TYPE = "application/json"

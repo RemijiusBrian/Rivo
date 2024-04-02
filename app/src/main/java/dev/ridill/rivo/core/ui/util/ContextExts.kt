@@ -43,9 +43,12 @@ fun Context.launchAppSettings() {
     startActivity(intent)
 }
 
-fun Context.restartApplication() {
+fun Context.restartApplication(
+    editIntent: Intent.() -> Unit = {}
+) {
     val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        editIntent()
     }
     startActivity(intent)
     exitProcess(0)

@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
+import dev.ridill.rivo.application.EXTRA_RUN_CONFIG_RESTORE
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
@@ -93,7 +94,11 @@ data object OnboardingScreenSpec : ScreenSpec {
                 }
 
                 OnboardingViewModel.OnboardingEvent.RestartApplication -> {
-                    context.restartApplication()
+                    context.restartApplication(
+                        editIntent = {
+                            putExtra(EXTRA_RUN_CONFIG_RESTORE, true)
+                        }
+                    )
                 }
             }
         }
