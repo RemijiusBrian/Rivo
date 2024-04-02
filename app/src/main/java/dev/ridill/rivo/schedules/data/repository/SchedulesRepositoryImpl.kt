@@ -1,5 +1,6 @@
 package dev.ridill.rivo.schedules.data.repository
 
+import androidx.room.withTransaction
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.DateUtil
@@ -7,14 +8,19 @@ import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.toEntity
 import dev.ridill.rivo.schedules.data.toSchedule
 import dev.ridill.rivo.schedules.domain.model.Schedule
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleReminder
+import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class SchedulesRepositoryImpl(
+    private val db: RivoDatabase,
     private val dao: SchedulesDao,
+    private val txRepo: TransactionRepository,
     private val scheduler: ScheduleReminder,
     private val receiverService: ReceiverService
 ) : SchedulesRepository {
@@ -23,30 +29,57 @@ class SchedulesRepositoryImpl(
             dao.getScheduleById(id)?.toSchedule()
         }
 
-    override suspend fun updateNextPaymentDateForScheduleById(id: Long, nextDate: LocalDate) =
-        withContext(Dispatchers.IO) {
-            dao.updateNextReminderDateForScheduleById(id = id, nextDate = nextDate)
-        }
-
-    override suspend fun saveSchedule(schedule: Schedule) = withContext(Dispatchers.IO) {
-        dao.insert(schedule.toEntity()).first()
-    }
-
-    override suspend fun setScheduleReminder(schedule: Schedule) {
-        scheduler.setReminder(schedule)
-        receiverService.enableBootAndTimeSetReceivers()
+    override fun getNextReminderFromDate(
+        date: LocalDate,
+        repeatMode: ScheduleRepeatMode
+    ): LocalDate? = when (repeatMode) {
+        ScheduleRepeatMode.NO_REPEAT -> null
+        ScheduleRepeatMode.WEEKLY -> date.plusWeeks(1)
+        ScheduleRepeatMode.MONTHLY -> date.plusMonths(1)
+        ScheduleRepeatMode.BI_MONTHLY -> date.plusMonths(2)
+        ScheduleRepeatMode.YEARLY -> date.plusYears(1)
     }
 
     override suspend fun saveScheduleAndSetReminder(schedule: Schedule) {
         withContext(Dispatchers.IO) {
-            val insertedId = saveSchedule(schedule)
+            val insertedId = dao.insert(schedule.toEntity()).first()
                 .takeIf { it > RivoDatabase.DEFAULT_ID_LONG }
                 ?: schedule.id
-            setScheduleReminder(
-                schedule = schedule.copy(id = insertedId)
+            scheduler.setReminder(
+                schedule.copy(id = insertedId)
+            )
+            receiverService.enableBootAndTimeSetReceivers()
+        }
+    }
+
+    override suspend fun createTransactionForScheduleAndSetNextReminder(
+        schedule: Schedule,
+        dateTime: LocalDateTime
+    ) = withContext(Dispatchers.IO) {
+        db.withTransaction {
+            txRepo.saveTransaction(
+                amount = schedule.amount,
+                note = schedule.note,
+                timestamp = dateTime,
+                type = schedule.type,
+                tagId = schedule.tagId,
+                folderId = schedule.folderId,
+                scheduleId = schedule.id,
+                excluded = false
+            )
+            val nextReminderDate = schedule.nextReminderDate
+                ?.let { getNextReminderFromDate(it, schedule.repeatMode) }
+            saveScheduleAndSetReminder(
+                schedule = schedule.copy(
+                    nextReminderDate = nextReminderDate,
+                    lastPaidDate = dateTime.toLocalDate()
+                )
             )
         }
     }
+
+    override suspend fun getLastTransactionTimestampForSchedule(id: Long): LocalDateTime? =
+        withContext(Dispatchers.IO) { dao.getLastTransactionTimestampForSchedule(id) }
 
     override suspend fun deleteScheduleById(id: Long) = withContext(Dispatchers.IO) {
         val entity = dao.getScheduleById(id) ?: return@withContext

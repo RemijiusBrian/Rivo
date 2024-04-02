@@ -9,7 +9,6 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.schedules.domain.model.Schedule
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import kotlinx.coroutines.CoroutineScope
@@ -37,25 +36,17 @@ class ScheduleReminderReceiver : BroadcastReceiver() {
         val id = intent.getLongExtra(ScheduleReminder.EXTRA_SCHEDULE_ID, -1L)
             .takeIf { it > -1L }
             ?: return
-        logI { "Schedule triggered at ${DateUtil.now()}" }
         applicationContext.launch {
             val schedule = repo.getScheduleById(id)
                 ?: return@launch
-            logI { "Schedule - $schedule" }
+            logI { "Schedule $schedule triggered at ${DateUtil.now()}" }
             notificationHelper.postNotification(
                 id = schedule.id.hashCode(),
                 data = schedule
             )
-            val nextReminderDate = schedule.nextReminderDate?.let {
-                when (schedule.repeatMode) {
-                    ScheduleRepeatMode.NO_REPEAT -> null
-                    ScheduleRepeatMode.WEEKLY -> it.plusWeeks(1)
-                    ScheduleRepeatMode.MONTHLY -> it.plusMonths(1)
-                    ScheduleRepeatMode.BI_MONTHLY -> it.plusMonths(2)
-                    ScheduleRepeatMode.YEARLY -> it.plusYears(1)
-                }
-            }
-            repo.saveScheduleAndSetReminder(schedule.copy(nextReminderDate = nextReminderDate))
+            val newReminderDate = schedule.nextReminderDate
+                ?.let { repo.getNextReminderFromDate(it, schedule.repeatMode) }
+            repo.saveScheduleAndSetReminder(schedule.copy(nextReminderDate = newReminderDate))
         }
     }
 }

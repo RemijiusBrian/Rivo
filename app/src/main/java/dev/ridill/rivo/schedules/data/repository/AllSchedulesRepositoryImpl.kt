@@ -13,13 +13,10 @@ import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
-import dev.ridill.rivo.schedules.data.toSchedule
 import dev.ridill.rivo.schedules.data.toScheduleListItem
-import dev.ridill.rivo.schedules.data.toTransaction
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItemUiModel
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.AllSchedulesRepository
-import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
+import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,14 +26,14 @@ import java.time.LocalDate
 class AllSchedulesRepositoryImpl(
     private val db: RivoDatabase,
     private val schedulesDao: SchedulesDao,
-    private val transactionRepository: AddEditTransactionRepository
+    private val repo: SchedulesRepository
 ) : AllSchedulesRepository {
     override fun getAllSchedules(dateNow: LocalDate): Flow<PagingData<ScheduleListItemUiModel>> =
         Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-            schedulesDao.getAllSchedulesWithLastTransactionPaged()
+            schedulesDao.getAllSchedulesPaged()
         }.flow
             .map { pagingData ->
-                pagingData.map { it.toScheduleListItem(dateNow) }
+                pagingData.map { it.toScheduleListItem() }
             }
             .map { pagingData -> pagingData.map { ScheduleListItemUiModel.ScheduleItem(it) } }
             .map { pagingData ->
@@ -66,20 +63,9 @@ class AllSchedulesRepositoryImpl(
         withContext(Dispatchers.IO) {
             try {
                 db.withTransaction {
-                    val schedule = schedulesDao.getScheduleById(id)
+                    val schedule = repo.getScheduleById(id)
                         ?: throw ScheduleNotFoundThrowable()
-                    val tx = schedule.toSchedule().toTransaction()
-                    transactionRepository.saveTransaction(tx)
-                    val nextReminderDate = schedule.nextReminderDate?.let {
-                        when (ScheduleRepeatMode.valueOf(schedule.repeatModeName)) {
-                            ScheduleRepeatMode.NO_REPEAT -> null
-                            ScheduleRepeatMode.WEEKLY -> it.plusWeeks(1)
-                            ScheduleRepeatMode.MONTHLY -> it.plusMonths(1)
-                            ScheduleRepeatMode.BI_MONTHLY -> it.plusMonths(2)
-                            ScheduleRepeatMode.YEARLY -> it.plusYears(1)
-                        }
-                    }
-                    schedulesDao.updateNextReminderDateForScheduleById(id, nextReminderDate)
+                    repo.createTransactionForScheduleAndSetNextReminder(schedule)
                     Resource.Success(Unit)
                 }
             } catch (t: ScheduleNotFoundThrowable) {

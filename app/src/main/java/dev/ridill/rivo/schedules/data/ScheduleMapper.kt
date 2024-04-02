@@ -4,14 +4,12 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
-import dev.ridill.rivo.schedules.data.local.relation.ScheduleWithLastTransactionRelation
-import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItem
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 fun ScheduleEntity.toSchedule(): Schedule = Schedule(
@@ -22,7 +20,8 @@ fun ScheduleEntity.toSchedule(): Schedule = Schedule(
     note = note,
     type = TransactionType.valueOf(typeName),
     tagId = tagId,
-    folderId = folderId
+    folderId = folderId,
+    lastPaidDate = lastPaidDate
 )
 
 fun Schedule.toTransaction(
@@ -48,19 +47,16 @@ fun Schedule.toEntity(): ScheduleEntity = ScheduleEntity(
     repeatModeName = repeatMode.name,
     tagId = tagId,
     folderId = folderId,
-    nextReminderDate = nextReminderDate
+    nextReminderDate = nextReminderDate,
+    lastPaidDate = lastPaidDate
 )
 
-fun ScheduleWithLastTransactionRelation.toScheduleListItem(
-    dateNow: LocalDate
-): ScheduleListItem = ScheduleListItem(
-    id = schedule.id,
-    amount = schedule.amount,
-    note = schedule.note,
-    nextReminderDate = schedule.nextReminderDate,
-    lastPaymentTimestamp = transactionEntity?.timestamp,
-    canMarkPaid = schedule.nextReminderDate?.isAfter(dateNow) == true
-            && schedule.nextReminderDate.monthValue == dateNow.monthValue
+fun ScheduleEntity.toScheduleListItem(): ScheduleListItem = ScheduleListItem(
+    id = id,
+    amount = amount,
+    note = note,
+    nextReminderDate = nextReminderDate,
+    lastPaidDate = lastPaidDate,
 )
 
 fun ScheduleEntity.toActiveSchedule(): UpcomingSchedule = UpcomingSchedule(
