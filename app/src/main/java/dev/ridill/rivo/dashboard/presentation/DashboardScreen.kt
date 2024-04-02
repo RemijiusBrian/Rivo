@@ -71,7 +71,6 @@ import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
@@ -591,11 +590,11 @@ private fun UpcomingScheduleCard(
                     },
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(SpacingExtraSmall)
                 )
             }
-
-            Spacer(weight = Float.One)
 
             HorizontalDivider()
 
