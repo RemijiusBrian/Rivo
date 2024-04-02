@@ -66,14 +66,9 @@ object DateUtil {
         .withNano(time.nano)
         .toLocalDateTime()
 
-    fun areDatesSameMonth(date1: LocalDate, date2: LocalDate): Boolean =
-        date1.month == date2.month && date1.year == date2.year
-
     object Formatters {
         val isoLocalDateTime: DateTimeFormatter
             get() = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-        val localizedTimeShort: DateTimeFormatter
-            get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 
         val localizedDateMedium: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
