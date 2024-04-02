@@ -323,10 +323,12 @@ class AddEditTransactionViewModel @Inject constructor(
 
     override fun onDeleteConfirm() {
         viewModelScope.launch {
+            isLoading.update { true }
             if (isScheduleTxMode.value)
                 transactionRepo.deleteSchedule(coercedIdArg)
             else
                 transactionRepo.deleteTransaction(coercedIdArg)
+            isLoading.update { false }
             savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
             eventBus.send(AddEditTransactionEvent.TransactionDeleted)
         }

@@ -6,12 +6,10 @@ import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
-import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.notification.ScheduleReminderNotificationHelper
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,9 +25,6 @@ class MarkScheduleAsPaidActionReceiver : BroadcastReceiver() {
     lateinit var repo: SchedulesRepository
 
     @Inject
-    lateinit var txRepo: TransactionRepository
-
-    @Inject
     lateinit var notificationHelper: NotificationHelper<Schedule>
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -42,17 +37,8 @@ class MarkScheduleAsPaidActionReceiver : BroadcastReceiver() {
                 ?: return@launch
             val schedule = repo.getScheduleById(scheduleId)
                 ?: return@launch
+            repo.createTransactionForScheduleAndSetNextReminder(schedule)
 
-            txRepo.saveTransaction(
-                amount = schedule.amount,
-                note = schedule.note,
-                timestamp = DateUtil.now(),
-                type = schedule.type,
-                tagId = schedule.tagId,
-                folderId = schedule.folderId,
-                scheduleId = scheduleId,
-                excluded = false
-            )
             notificationHelper.updateNotification(
                 id = scheduleId.hashCode(),
                 notification = notificationHelper

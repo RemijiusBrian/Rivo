@@ -46,16 +46,22 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.PartOfDay
+import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
@@ -63,7 +69,6 @@ import dev.ridill.rivo.core.ui.components.RivoPlainTooltip
 import dev.ridill.rivo.core.ui.components.RivoRichTooltip
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
@@ -485,7 +490,7 @@ private fun UpcomingSchedulesRow(
 ) {
     LazyRow(
         contentPadding = PaddingValues(
-            top = SpacingSmall,
+            top = SpacingMedium,
             bottom = SpacingSmall,
             start = SpacingMedium,
             end = SpacingListEnd
@@ -530,14 +535,49 @@ private fun UpcomingScheduleCard(
                 )
                 .heightIn(min = UpcomingScheduleCardMinHeight)
         ) {
-            Text(
-                text = stringResource(R.string.schedule_name_of_amount, name.asString(), amount),
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(weight = Float.One)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(Float.One),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = buildAnnotatedString {
+                        append(stringResource(R.string.payment_of_amount))
+                        append(String.WhiteSpace)
+                        withStyle(
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) {
+                            append(amount)
+                        }
+                        append(String.WhiteSpace)
+                        append(stringResource(R.string.noted))
+                        append(String.WhiteSpace)
+                        append('\'')
+                        withStyle(
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontStyle = FontStyle.Italic,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        ) {
+                            append(name.asString())
+                        }
+                        append('\'')
+                        append(String.WhiteSpace)
+                        append(stringResource(R.string.coming_up))
+                        append('.')
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(SpacingExtraSmall)
+                )
+            }
 
             HorizontalDivider()
 

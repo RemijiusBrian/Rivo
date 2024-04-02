@@ -1,8 +1,8 @@
 package dev.ridill.rivo.transactions.data.repository
 
+import androidx.room.withTransaction
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
@@ -23,6 +23,7 @@ import java.util.Currency
 import kotlin.math.roundToLong
 
 class AddEditTransactionRepositoryImpl(
+    private val db: RivoDatabase,
     private val dao: TransactionDao,
     private val schedulesRepo: SchedulesRepository,
     private val currencyRepo: CurrencyRepository
@@ -61,7 +62,38 @@ class AddEditTransactionRepositoryImpl(
         }
 
     override suspend fun deleteTransaction(id: Long) = withContext(Dispatchers.IO) {
-        dao.deleteById(id)
+        db.withTransaction {
+            val transaction = dao.getTransactionById(id)
+                ?: return@withTransaction
+            dao.delete(transaction)
+
+            // Update lastPaid and nextReminder dates for associated schedule
+            if (transaction.scheduleId == null) return@withTransaction
+
+            val schedule = schedulesRepo.getScheduleById(transaction.scheduleId)
+                ?: return@withTransaction
+
+            // Check if deleted transaction has same date as schedule lastPaidDate
+            val isTxTimestampAndScheduleLastPaidDateSame = schedule.lastPaidDate
+                ?.isEqual(transaction.timestamp.toLocalDate()) == true
+
+            if (isTxTimestampAndScheduleLastPaidDateSame) {
+                // Get latest payment date for schedule
+                val newLastPaymentDate = schedulesRepo
+                    .getLastTransactionTimestampForSchedule(schedule.id)
+                    ?.toLocalDate()
+                // calculate next reminder from last payment date
+                val nextReminderFromLastPayment = newLastPaymentDate
+                    ?.let { schedulesRepo.getNextReminderFromDate(it, schedule.repeatMode) }
+                // update schedule and set new reminder for next date
+                schedulesRepo.saveScheduleAndSetReminder(
+                    schedule.copy(
+                        lastPaidDate = newLastPaymentDate,
+                        nextReminderDate = nextReminderFromLastPayment
+                    )
+                )
+            }
+        }
     }
 
     override suspend fun toggleExclusionById(id: Long, excluded: Boolean) =
@@ -79,31 +111,17 @@ class AddEditTransactionRepositoryImpl(
         transaction: Transaction,
         repeatMode: ScheduleRepeatMode
     ) {
-        val scheduledTx = Schedule(
-            id = transaction.id,
-            amount = transaction.amount.toDoubleOrNull().orZero(),
-            note = transaction.note.ifEmpty { null },
-            type = transaction.type,
-            repeatMode = repeatMode,
-            tagId = transaction.tagId,
-            folderId = transaction.folderId,
-            nextReminderDate = transaction.timestamp.toLocalDate()
-        )
-        val insertedId = schedulesRepo.saveSchedule(scheduledTx)
-            .takeIf { it >= RivoDatabase.DEFAULT_ID_LONG }
-            ?: transaction.id
-        val transactionForSchedule = dao.getTransactionForScheduleAndDate(
-            scheduleId = insertedId,
-            date = transaction.timestamp.toLocalDate()
-        )
-        logD { "Tx for schedule - $transactionForSchedule" }
-        // Set reminder if there isn't a payment corresponding to that schedule already
-        if (transactionForSchedule == null)
-            schedulesRepo.setScheduleReminder(
-                schedule = scheduledTx.copy(
-                    id = insertedId
-                )
-            )
+        val schedule = schedulesRepo.getScheduleById(transaction.id)
+            ?.copy(
+                amount = transaction.amount.toDoubleOrNull().orZero(),
+                note = transaction.note.ifEmpty { null },
+                type = transaction.type,
+                repeatMode = repeatMode,
+                tagId = transaction.tagId,
+                folderId = transaction.folderId
+            ) ?: Schedule.fromTransaction(transaction, repeatMode)
+
+        schedulesRepo.saveScheduleAndSetReminder(schedule)
     }
 }
 

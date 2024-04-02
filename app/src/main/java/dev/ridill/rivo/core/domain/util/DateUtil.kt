@@ -69,8 +69,6 @@ object DateUtil {
     object Formatters {
         val isoLocalDateTime: DateTimeFormatter
             get() = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-        val localizedTimeShort: DateTimeFormatter
-            get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 
         val localizedDateMedium: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)

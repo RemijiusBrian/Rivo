@@ -294,12 +294,14 @@ fun AddEditTransactionScreen(
                     )
                 }
 
-                ExclusionToggle(
-                    excluded = state.isTransactionExcluded,
-                    onToggle = actions::onTransactionExclusionToggle,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                )
+                AnimatedVisibility(visible = !state.isScheduleTxMode) {
+                    ExclusionToggle(
+                        excluded = state.isTransactionExcluded,
+                        onToggle = actions::onTransactionExclusionToggle,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                    )
+                }
 
                 AnimatedVisibility(
                     visible = state.isScheduleTxMode,

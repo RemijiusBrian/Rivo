@@ -31,5 +31,8 @@ data class ScheduleEntity(
     val repeatModeName: String,
 
     @ColumnInfo(name = "next_reminder_date")
-    val nextReminderDate: LocalDate?
+    val nextReminderDate: LocalDate?,
+
+    @ColumnInfo(name = "last_paid_date")
+    val lastPaidDate: LocalDate?
 )

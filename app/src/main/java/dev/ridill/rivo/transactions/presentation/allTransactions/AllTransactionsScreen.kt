@@ -35,7 +35,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -90,7 +89,6 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
-import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
@@ -602,7 +600,7 @@ private fun TransactionListHeader(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-            TotalSumAmount(
+            AggregateAmount(
                 multiSelectionModeActive = multiSelectionModeActive,
                 sumAmount = totalSumAmount,
                 currency = currency,
@@ -915,23 +913,17 @@ private fun TransactionListOptions(
 }
 
 @Composable
-private fun TotalSumAmount(
+private fun AggregateAmount(
     multiSelectionModeActive: Boolean,
     currency: Currency,
     sumAmount: Double,
     type: TransactionType?,
     modifier: Modifier = Modifier
 ) {
-    val arrowRotationDeg by animateFloatAsState(
-        targetValue = when (type) {
-            TransactionType.CREDIT -> 180f
-            TransactionType.DEBIT -> Float.Zero
-            null -> if (sumAmount >= Double.Zero) Float.Zero
-            else 180f
-        },
-        label = "ArrowRotationDegree"
-    )
-    val sumContentDescription = stringResource(
+    val showTypeIcon by remember(type) {
+        derivedStateOf { type != null }
+    }
+    val aggContentDescription = stringResource(
         R.string.cd_total_transaction_sum,
         stringResource(
             id = when {
@@ -948,7 +940,7 @@ private fun TotalSumAmount(
         modifier = modifier
             .semantics(true) {}
             .clearAndSetSemantics {
-                contentDescription = sumContentDescription
+                contentDescription = aggContentDescription
             }
     ) {
         Crossfade(targetState = type, label = "TotalAmountLabel") { txType ->
@@ -980,13 +972,13 @@ private fun TotalSumAmount(
                 )
             }
 
-            AnimatedVisibility(sumAmount != Double.Zero) {
-                Icon(
-                    imageVector = Icons.Default.ArrowUpward,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .rotate(arrowRotationDeg)
-                )
+            AnimatedVisibility(showTypeIcon) {
+                type?.let {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(it.iconRes),
+                        contentDescription = null
+                    )
+                }
             }
         }
     }
