@@ -556,7 +556,6 @@ private fun UpcomingScheduleCard(
                         append(String.WhiteSpace)
                         append(stringResource(R.string.for_note))
                         append(String.WhiteSpace)
-                        append('\'')
                         withStyle(
                             SpanStyle(
                                 fontStyle = FontStyle.Italic,
@@ -565,7 +564,6 @@ private fun UpcomingScheduleCard(
                         ) {
                             append(name.asString())
                         }
-                        append('\'')
                         append('.')
                     },
                     style = MaterialTheme.typography.titleMedium,
