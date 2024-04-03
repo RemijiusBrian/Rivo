@@ -45,6 +45,9 @@ object SettingsSingletonModule {
     ): CurrencyRepository = CurrencyRepositoryImpl(dao)
 
     @Provides
+    fun provideConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
+
+    @Provides
     fun provideGoogleSignInService(
         @ApplicationContext context: Context
     ): GoogleSignInService = GoogleSignInService(context)

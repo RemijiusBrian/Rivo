@@ -19,8 +19,8 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
+import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 
@@ -36,9 +36,6 @@ object SettingsViewModelModule {
     ): BudgetRepository = BudgetRepositoryImpl(dao)
 
     @Provides
-    fun provideMiscConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
-
-    @Provides
     fun provideSettingsRepository(
         budgetRepository: BudgetRepository,
         currencyRepository: CurrencyRepository
@@ -51,7 +48,8 @@ object SettingsViewModelModule {
     fun provideSettingsEventBus(): EventBus<SettingsViewModel.SettingsEvent> = EventBus()
 
     @Provides
-    fun provideBackupSettingsEventBus(): EventBus<BackupSettingsViewModel.BackupSettingsEvent> = EventBus()
+    fun provideBackupSettingsEventBus(): EventBus<BackupSettingsViewModel.BackupSettingsEvent> =
+        EventBus()
 
     @Provides
     fun provideBackupSettingsRepository(

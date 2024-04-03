@@ -40,6 +40,17 @@ class SchedulesRepositoryImpl(
         ScheduleRepeatMode.YEARLY -> date.plusYears(1)
     }
 
+    override fun getPrevReminderFromDate(
+        date: LocalDate,
+        repeatMode: ScheduleRepeatMode
+    ): LocalDate? = when (repeatMode) {
+        ScheduleRepeatMode.NO_REPEAT -> null
+        ScheduleRepeatMode.WEEKLY -> date.minusWeeks(1)
+        ScheduleRepeatMode.MONTHLY -> date.minusMonths(1)
+        ScheduleRepeatMode.BI_MONTHLY -> date.minusMonths(2)
+        ScheduleRepeatMode.YEARLY -> date.minusYears(1)
+    }
+
     override suspend fun saveScheduleAndSetReminder(schedule: Schedule) {
         withContext(Dispatchers.IO) {
             val insertedId = dao.insert(schedule.toEntity()).first()

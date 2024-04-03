@@ -83,13 +83,13 @@ class AddEditTransactionRepositoryImpl(
                     .getLastTransactionTimestampForSchedule(schedule.id)
                     ?.toLocalDate()
                 // calculate next reminder from last payment date
-                val nextReminderFromLastPayment = newLastPaymentDate
-                    ?.let { schedulesRepo.getNextReminderFromDate(it, schedule.repeatMode) }
+                val prevReminderDate = schedule.nextReminderDate
+                    ?.let { schedulesRepo.getPrevReminderFromDate(it, schedule.repeatMode) }
                 // update schedule and set new reminder for next date
                 schedulesRepo.saveScheduleAndSetReminder(
                     schedule.copy(
                         lastPaidDate = newLastPaymentDate,
-                        nextReminderDate = nextReminderFromLastPayment
+                        nextReminderDate = prevReminderDate
                     )
                 )
             }

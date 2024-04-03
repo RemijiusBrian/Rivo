@@ -4,7 +4,7 @@ import dev.ridill.rivo.schedules.domain.model.Schedule
 
 interface ScheduleReminder {
     fun setReminder(schedule: Schedule)
-    fun cancel(transaction: Schedule)
+    fun cancel(schedule: Schedule)
 
     companion object {
         const val ACTION = "dev.ridill.rivo.SCHEDULE_REMINDER"

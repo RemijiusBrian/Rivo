@@ -34,17 +34,18 @@ class AlarmManagerScheduleReminder(
             pendingIntent
         )
 
-        logI { "Transaction id ${schedule.id} scheduled for ${DateUtil.fromMillis(timeMillis)}" }
+        logI { "Schedule $schedule reminder set for ${DateUtil.fromMillis(timeMillis)}" }
     }
 
-    override fun cancel(transaction: Schedule) {
+    override fun cancel(schedule: Schedule) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                transaction.id.hashCode(),
+                schedule.id.hashCode(),
                 Intent(context, ScheduleReminderReceiver::class.java),
                 UtilConstants.pendingIntentFlags
             )
         )
+        logI { "Schedule $schedule reminder cancelled" }
     }
 }
