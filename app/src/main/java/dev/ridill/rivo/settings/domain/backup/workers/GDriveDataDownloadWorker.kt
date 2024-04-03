@@ -18,7 +18,6 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.BackupFeature
 import dev.ridill.rivo.settings.data.repository.BackupDownloadFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
-import dev.ridill.rivo.settings.domain.backup.RestoreCacheAlreadyExistsThrowable
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,7 +48,7 @@ class GDriveDataDownloadWorker @AssistedInject constructor(
                     BackupWorkManager.KEY_BACKUP_TIMESTAMP to timestamp.toString()
                 )
             )
-        } catch (t: RestoreCacheAlreadyExistsThrowable) {
+        } /*catch (t: RestoreCacheAlreadyExistsThrowable) {
             logE(t) { "RestoreCacheAlreadyExistsThrowable" }
             logI { "Backup data already exists, so moving forward with restore" }
             Result.success(
@@ -57,7 +56,7 @@ class GDriveDataDownloadWorker @AssistedInject constructor(
                     BackupWorkManager.KEY_BACKUP_TIMESTAMP to timestamp.toString()
                 )
             )
-        } catch (t: BackupDownloadFailedThrowable) {
+        }*/ catch (t: BackupDownloadFailedThrowable) {
             logE(t) { "BackupDownloadFailedThrowable" }
             Result.failure(
                 workDataOf(

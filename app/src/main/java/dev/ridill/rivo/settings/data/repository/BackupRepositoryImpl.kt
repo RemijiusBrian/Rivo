@@ -23,7 +23,6 @@ import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.backup.DB_BACKUP_FILE_NAME
-import dev.ridill.rivo.settings.domain.backup.RestoreCacheAlreadyExistsThrowable
 import dev.ridill.rivo.settings.domain.backup.RestoreFailedThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
@@ -141,14 +140,15 @@ class BackupRepositoryImpl(
 
     @Throws(
         RestoreFailedThrowable::class,
-        RestoreCacheAlreadyExistsThrowable::class,
         BackupDownloadFailedThrowable::class,
         BackupCachingFailedThrowable::class
     )
     override suspend fun downloadAndCacheBackupData(fileId: String, timestamp: LocalDateTime) {
         withContext(Dispatchers.IO) {
-            if (backupService.doesRestoreCacheExist(timestamp))
-                throw RestoreCacheAlreadyExistsThrowable()
+            if (backupService.doesRestoreCacheExist(timestamp)) {
+                logI { "Cache already exists, hence skipping download" }
+                return@withContext
+            }
 
             logI { "Downloading data from GDrive" }
             val response = gDriveApi.downloadFile(fileId)

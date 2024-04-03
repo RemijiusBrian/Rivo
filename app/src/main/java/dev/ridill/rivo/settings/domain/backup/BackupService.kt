@@ -207,18 +207,16 @@ class BackupService(
         return restoreCacheFile.exists()
     }
 
-    @Throws(
-        RestoreFailedThrowable::class,
-        RestoreCacheAlreadyExistsThrowable::class
-    )
+    @Throws(RestoreFailedThrowable::class)
     suspend fun cacheDownloadedRestoreData(
         dataStream: InputStream,
-        dateTime: LocalDateTime
+        dateTime: LocalDateTime,
+        refreshCache: Boolean = false
     ) = withContext(Dispatchers.IO) {
         val cachePath = context.externalCacheDir ?: throw RestoreFailedThrowable()
         logI { "Create Restore Data Cache" }
         val restoreDataCache = File(cachePath, buildRestoreCacheFileName(dateTime))
-        if (restoreDataCache.exists()) throw RestoreCacheAlreadyExistsThrowable()
+        if (restoreDataCache.exists() && !refreshCache) return@withContext
         dataStream.use downloadedInputStream@{ inputStream ->
             restoreDataCache.outputStream().use restoreCacheOutputStream@{ outputStream ->
                 inputStream.copyTo(outputStream)
@@ -237,4 +235,3 @@ private const val RESTORE_CACHE_FILE = "RestoreCache.backup"
 
 class BackupCachingFailedThrowable : Throwable("Failed to create backup cache")
 class RestoreFailedThrowable : Throwable("Failed to restore data")
-class RestoreCacheAlreadyExistsThrowable : Throwable("Restore cache already exists")
