@@ -30,7 +30,7 @@ class RivoViewModel @Inject constructor(
     private val backupWorkManager: BackupWorkManager
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
-    val showWelcomeFlow = preferences.map { it.showOnboarding }
+    val showOnboarding = preferences.map { it.showOnboarding }
         .distinctUntilChanged()
         .asStateFlow(viewModelScope, true)
     val appTheme = preferences.map { it.appTheme }
@@ -47,12 +47,12 @@ class RivoViewModel @Inject constructor(
     val events = eventBus.eventFlow
 
     init {
-        collectTransactionAutoAdd()
+        collectTransactionAutoDetectEnabled()
         collectIsAppLocked()
     }
 
-    private fun collectTransactionAutoAdd() = viewModelScope.launch {
-        preferences.map { it.autoAddTransactionEnabled }
+    private fun collectTransactionAutoDetectEnabled() = viewModelScope.launch {
+        preferences.map { it.transactionAutoDetectEnabled }
             .collectLatest { enabled ->
                 receiverService.toggleSmsReceiver(enabled)
             }
@@ -60,7 +60,7 @@ class RivoViewModel @Inject constructor(
 
     fun onSmsPermissionCheck(granted: Boolean) = viewModelScope.launch {
         if (!granted) {
-            preferencesManager.updateAutoAddTransactionEnabled(false)
+            preferencesManager.updateTransactionAutoDetectEnabled(false)
         }
     }
 
@@ -94,7 +94,7 @@ class RivoViewModel @Inject constructor(
         val preferences = preferences.first()
         if (!preferences.appLockEnabled) return
         if (preferences.isAppLocked) {
-            eventBus.send(RivoEvent.LaunchAppLockAuthentication)
+            eventBus.send(RivoEvent.LaunchBiometricAuthentication)
         } else {
             appLockServiceManager.stopAppLockTimer()
         }
@@ -111,12 +111,12 @@ class RivoViewModel @Inject constructor(
     fun onNewIntent(intent: Intent) {
         logI { "onNewIntent" }
         if (intent.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)) {
-            logI { "Run config restore extra = true" }
+            logI { "$EXTRA_RUN_CONFIG_RESTORE = true" }
             backupWorkManager.runConfigRestoreWork()
         }
     }
 
     sealed class RivoEvent {
-        data object LaunchAppLockAuthentication : RivoEvent()
+        data object LaunchBiometricAuthentication : RivoEvent()
     }
 }

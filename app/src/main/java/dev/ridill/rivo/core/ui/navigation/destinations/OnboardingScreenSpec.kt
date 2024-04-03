@@ -26,7 +26,7 @@ import dev.ridill.rivo.onboarding.presentation.OnboardingScreen
 import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
 
 data object OnboardingScreenSpec : ScreenSpec {
-    override val route: String = "welcome_flow"
+    override val route: String = "onboarding"
     override val labelRes: Int = R.string.destination_onboarding
 
     @Composable

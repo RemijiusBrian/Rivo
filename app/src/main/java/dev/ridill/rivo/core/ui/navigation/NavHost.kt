@@ -18,12 +18,12 @@ import dev.ridill.rivo.core.ui.navigation.destinations.OnboardingScreenSpec
 fun RivoNavHost(
     windowSizeClass: WindowSizeClass,
     navController: NavHostController,
-    showWelcomeFlow: Boolean,
+    startOnboarding: Boolean,
     modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (showWelcomeFlow) OnboardingScreenSpec.route
+        startDestination = if (startOnboarding) OnboardingScreenSpec.route
         else DashboardScreenSpec.route,
         modifier = modifier
     ) {

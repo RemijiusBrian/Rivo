@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,9 +39,11 @@ import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.components.icons.Message
+import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.contentColor
 
 @Composable
 fun PermissionsPage(
@@ -147,32 +150,36 @@ private fun PermissionDetails(
     message: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+    CompositionLocalProvider(
+        LocalContentColor provides PrimaryBrandColor.contentColor()
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(32.dp)
-        )
-
-        SpacerMedium()
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            TitleLargeText(
-                title = stringResource(titleRes),
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.onPrimary
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(32.dp)
             )
 
+            SpacerMedium()
 
-            BodyText(
-                text = message
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            ) {
+                TitleLargeText(
+                    title = stringResource(titleRes),
+                    textDecoration = TextDecoration.Underline,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+
+
+                BodyText(
+                    text = message
+                )
+            }
         }
     }
 }

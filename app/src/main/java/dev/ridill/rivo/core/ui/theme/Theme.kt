@@ -87,7 +87,7 @@ fun RivoTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && BuildUtil.isDynamicColorsSupported() -> {
+        BuildUtil.isDynamicColorsSupported() && dynamicColor -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }

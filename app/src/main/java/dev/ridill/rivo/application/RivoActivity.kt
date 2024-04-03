@@ -64,7 +64,7 @@ class RivoActivity : AppCompatActivity() {
                 launch {
                     viewModel.events.collect { event ->
                         when (event) {
-                            RivoViewModel.RivoEvent.LaunchAppLockAuthentication -> {
+                            RivoViewModel.RivoEvent.LaunchBiometricAuthentication -> {
                                 checkAndLaunchBiometric()
                             }
                         }
@@ -88,7 +88,7 @@ class RivoActivity : AppCompatActivity() {
 
         setContent {
             val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
-            val showWelcomeFlow by viewModel.showWelcomeFlow.collectAsStateWithLifecycle(false)
+            val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
             val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
             val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
             val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
@@ -104,7 +104,7 @@ class RivoActivity : AppCompatActivity() {
                 windowSizeClass = windowSizeClass,
                 darkTheme = darkTheme,
                 dynamicTheme = dynamicTheme,
-                showWelcomeFlow = showWelcomeFlow,
+                showOnboarding = showOnboarding,
                 appLockErrorMessage = appLockErrorMessage,
                 isAppLocked = isAppLocked,
                 onUnlockClick = ::checkAndLaunchBiometric,
@@ -130,7 +130,7 @@ class RivoActivity : AppCompatActivity() {
     }
 
     private fun checkAppPermissions() {
-        if (viewModel.showWelcomeFlow.value) return
+        if (viewModel.showOnboarding.value) return
         val isSmsPermissionGranted = isPermissionGranted(Manifest.permission.RECEIVE_SMS)
         viewModel.onSmsPermissionCheck(isSmsPermissionGranted)
 
@@ -190,7 +190,7 @@ private fun ScreenContent(
     windowSizeClass: WindowSizeClass,
     darkTheme: Boolean,
     dynamicTheme: Boolean,
-    showWelcomeFlow: Boolean,
+    showOnboarding: Boolean,
     appLockErrorMessage: UiText?,
     isAppLocked: Boolean,
     onUnlockClick: () -> Unit,
@@ -233,7 +233,7 @@ private fun ScreenContent(
             RivoNavHost(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
-                showWelcomeFlow = showWelcomeFlow
+                startOnboarding = showOnboarding
             )
 
             if (showAppLock) {

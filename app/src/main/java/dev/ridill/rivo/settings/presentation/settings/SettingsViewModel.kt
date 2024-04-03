@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor(
     private val monthlyBudget = repo.getCurrentBudget()
         .distinctUntilChanged()
 
-    private val autoAddTransactionEnabled = preferences.map { it.autoAddTransactionEnabled }
+    private val autoAddTransactionEnabled = preferences.map { it.transactionAutoDetectEnabled }
         .distinctUntilChanged()
 
     private val showAppThemeSelection = savedStateHandle
@@ -196,7 +196,7 @@ class SettingsViewModel @Inject constructor(
     fun onSmsPermissionResult(granted: Boolean) = viewModelScope.launch {
         if (granted) {
             val enabled = savedStateHandle.get<Boolean?>(TEMP_AUTO_ADD_TRANSACTION_STATE) == true
-            preferencesManager.updateAutoAddTransactionEnabled(enabled)
+            preferencesManager.updateTransactionAutoDetectEnabled(enabled)
             savedStateHandle[TEMP_AUTO_ADD_TRANSACTION_STATE] = null
         }
         savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = !granted
