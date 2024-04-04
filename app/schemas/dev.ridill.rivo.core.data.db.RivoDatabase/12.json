@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 12,
-    "identityHash": "88551ee90c0f84f3b4eb0d2175787095",
+    "identityHash": "e78e353ba14411d49616cedf84a515fa",
     "entities": [
       {
         "tableName": "budget_table",
@@ -254,7 +254,7 @@
       },
       {
         "tableName": "schedules_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT, `last_paid_date` TEXT DEFAULT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `note` TEXT, `type` TEXT NOT NULL, `tag_id` INTEGER, `folder_id` INTEGER, `repeat_mode` TEXT NOT NULL, `next_reminder_date` TEXT, `last_paid_date` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -308,8 +308,7 @@
             "fieldPath": "lastPaidDate",
             "columnName": "last_paid_date",
             "affinity": "TEXT",
-            "notNull": false,
-            "defaultValue": "NULL"
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -386,7 +385,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '88551ee90c0f84f3b4eb0d2175787095')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e78e353ba14411d49616cedf84a515fa')"
     ]
   }
 }

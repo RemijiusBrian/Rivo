@@ -79,6 +79,6 @@ abstract class RivoDatabase : RoomDatabase() {
 
 val MIGRATION_11_12 = object : Migration(startVersion = 11, endVersion = 12) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("UPDATE TABLE schedules_table ADD COLUMN last_paid_date TEXT NULL")
+        db.execSQL("ALTER TABLE schedules_table ADD COLUMN last_paid_date TEXT NULL DEFAULT NULL")
     }
 }
