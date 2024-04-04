@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.data.preferences
 
+import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -41,8 +42,9 @@ class PreferencesManagerImpl(
             )
             val dynamicColorsEnabled = preferences[Keys.DYNAMIC_COLORS_ENABLED].orFalse()
             val lastBackupDateTime = preferences[Keys.LAST_BACKUP_TIMESTAMP]
-                ?.let { DateUtil.parseDateTime(it) }
-            val autoAddTransactionEnabled = preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED].orFalse()
+                ?.let { DateUtil.parseDateTimeOrNull(it) }
+            val transactionAutoDetectEnabled =
+                preferences[Keys.TRANSACTION_AUTO_DETECT_ENABLED].orFalse()
             val allTransactionsShowExcludedOption =
                 preferences[Keys.ALL_TX_SHOW_EXCLUDED_OPTION].orTrue()
             val appLockEnabled = preferences[Keys.APP_LOCK_ENABLED].orFalse()
@@ -61,7 +63,7 @@ class PreferencesManagerImpl(
                 appTheme = appTheme,
                 dynamicColorsEnabled = dynamicColorsEnabled,
                 lastBackupDateTime = lastBackupDateTime,
-                autoAddTransactionEnabled = autoAddTransactionEnabled,
+                transactionAutoDetectEnabled = transactionAutoDetectEnabled,
                 allTransactionsShowExcludedOption = allTransactionsShowExcludedOption,
                 appLockEnabled = appLockEnabled,
                 appAutoLockInterval = appAutoLockInterval,
@@ -104,10 +106,10 @@ class PreferencesManagerImpl(
         }
     }
 
-    override suspend fun updateAutoAddTransactionEnabled(enabled: Boolean) {
+    override suspend fun updateTransactionAutoDetectEnabled(enabled: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { preferences ->
-                preferences[Keys.AUTO_ADD_TRANSACTION_ENABLED] = enabled
+                preferences[Keys.TRANSACTION_AUTO_DETECT_ENABLED] = enabled
             }
         }
     }
@@ -173,7 +175,8 @@ class PreferencesManagerImpl(
         val APP_THEME = stringPreferencesKey("APP_THEME")
         val DYNAMIC_COLORS_ENABLED = booleanPreferencesKey("DYNAMIC_COLORS_ENABLED")
         val LAST_BACKUP_TIMESTAMP = stringPreferencesKey("LAST_BACKUP_TIMESTAMP")
-        val AUTO_ADD_TRANSACTION_ENABLED = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
+        val TRANSACTION_AUTO_DETECT_ENABLED =
+            booleanPreferencesKey("TRANSACTION_AUTO_DETECT_ENABLED")
         val ALL_TX_SHOW_EXCLUDED_OPTION = booleanPreferencesKey("ALL_TX_SHOW_EXCLUDED_OPTION")
         val APP_LOCK_ENABLED = booleanPreferencesKey("APP_LOCK_ENABLED")
         val APP_AUTO_LOCK_INTERVAL = stringPreferencesKey("APP_AUTO_LOCK_INTERVAL")
@@ -181,5 +184,23 @@ class PreferencesManagerImpl(
         val SCREEN_SECURITY_ENABLED = booleanPreferencesKey("SCREEN_SECURITY_ENABLED")
         val ENCRYPTION_PASSWORD_HASH = stringPreferencesKey("ENCRYPTION_PASSWORD_HASH")
         val FATAL_BACKUP_ERROR = stringPreferencesKey("FATAL_BACKUP_ERROR")
+    }
+
+    companion object {
+        val TransactionAutoDetectMigration = object : DataMigration<Preferences> {
+            val oldKey = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
+            override suspend fun cleanUp() {}
+
+            override suspend fun shouldMigrate(currentData: Preferences): Boolean =
+                currentData.contains(oldKey)
+
+            override suspend fun migrate(currentData: Preferences): Preferences =
+                currentData.toMutablePreferences().apply {
+                    val prevValue = get(oldKey) == true
+                    remove(oldKey)
+
+                    set(Keys.TRANSACTION_AUTO_DETECT_ENABLED, prevValue)
+                }.toPreferences()
+        }
     }
 }

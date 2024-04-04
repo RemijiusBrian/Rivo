@@ -49,7 +49,10 @@ object AppModule {
         @ApplicationContext context: Context
     ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
         corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
-        produceFile = { context.preferencesDataStoreFile(PreferencesManager.NAME) }
+        produceFile = { context.preferencesDataStoreFile(PreferencesManager.NAME) },
+        migrations = listOf(
+            PreferencesManagerImpl.TransactionAutoDetectMigration
+        )
     )
 
     @Provides
