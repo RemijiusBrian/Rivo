@@ -1,6 +1,5 @@
 package dev.ridill.rivo.core.data.preferences
 
-import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -184,23 +183,5 @@ class PreferencesManagerImpl(
         val SCREEN_SECURITY_ENABLED = booleanPreferencesKey("SCREEN_SECURITY_ENABLED")
         val ENCRYPTION_PASSWORD_HASH = stringPreferencesKey("ENCRYPTION_PASSWORD_HASH")
         val FATAL_BACKUP_ERROR = stringPreferencesKey("FATAL_BACKUP_ERROR")
-    }
-
-    companion object {
-        val TransactionAutoDetectMigration = object : DataMigration<Preferences> {
-            val oldKey = booleanPreferencesKey("AUTO_ADD_TRANSACTION_ENABLED")
-            override suspend fun cleanUp() {}
-
-            override suspend fun shouldMigrate(currentData: Preferences): Boolean =
-                currentData.contains(oldKey)
-
-            override suspend fun migrate(currentData: Preferences): Preferences =
-                currentData.toMutablePreferences().apply {
-                    val prevValue = get(oldKey) == true
-                    remove(oldKey)
-
-                    set(Keys.TRANSACTION_AUTO_DETECT_ENABLED, prevValue)
-                }.toPreferences()
-        }
     }
 }
