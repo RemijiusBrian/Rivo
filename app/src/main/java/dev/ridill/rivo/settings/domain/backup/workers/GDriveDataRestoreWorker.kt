@@ -38,7 +38,7 @@ class GDriveDataRestoreWorker @AssistedInject constructor(
             val passwordHash = inputData.getString(BackupWorkManager.KEY_PASSWORD_HASH).orEmpty()
                 .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
             val timestamp = inputData.getString(BackupWorkManager.KEY_BACKUP_TIMESTAMP)
-                ?.let { DateUtil.parseDateTime(it) }
+                ?.let { DateUtil.parseDateTimeOrNull(it) }
                 ?: throw BackupDownloadFailedThrowable()
             logI { "Starting data restore from cache" }
             repo.performAppDataRestoreFromCache(passwordHash, timestamp)

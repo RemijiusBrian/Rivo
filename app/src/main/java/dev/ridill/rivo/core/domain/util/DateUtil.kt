@@ -21,6 +21,11 @@ object DateUtil {
     fun parseDateTime(
         value: String,
         formatter: DateTimeFormatter = Formatters.isoLocalDateTime
+    ): LocalDateTime = LocalDateTime.parse(value, formatter)
+
+    fun parseDateTimeOrNull(
+        value: String,
+        formatter: DateTimeFormatter = Formatters.isoLocalDateTime
     ): LocalDateTime? = tryOrNull { LocalDateTime.parse(value, formatter) }
 
 

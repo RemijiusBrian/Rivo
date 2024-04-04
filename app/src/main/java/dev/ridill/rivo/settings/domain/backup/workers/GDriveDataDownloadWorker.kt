@@ -32,7 +32,7 @@ class GDriveDataDownloadWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
         val timestamp = inputData.getString(BackupWorkManager.KEY_BACKUP_TIMESTAMP)
-            ?.let { DateUtil.parseDateTime(it) }
+            ?.let { DateUtil.parseDateTimeOrNull(it) }
             ?: return@withContext Result.failure(
                 workDataOf(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_download_backup_failed)

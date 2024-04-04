@@ -7,7 +7,13 @@ interface TransactionDataExtractor {
     fun isNotSupportedLanguage(message: String): Boolean
     fun isOriginValidOrg(originatingAddress: String): Boolean
 
-    @Throws(TransactionDataExtractionFailedThrowable::class)
+    @Throws(
+        AmountExtractionFailedThrowable::class,
+        TransactionTypeExtractionFailedThrowable::class,
+        TransactionNoteBuildFailedThrowable::class,
+        TimestampExtractionFailedThrowable::class,
+        TransactionDataExtractionFailedThrowable::class
+    )
     fun extractData(messageBody: String): ExtractedTransactionData
 }
 
@@ -18,4 +24,4 @@ data class ExtractedTransactionData(
     val note: String?
 )
 
-class TransactionDataExtractionFailedThrowable(message: String) : Throwable(message)
+open class TransactionDataExtractionFailedThrowable(message: String) : Throwable(message)

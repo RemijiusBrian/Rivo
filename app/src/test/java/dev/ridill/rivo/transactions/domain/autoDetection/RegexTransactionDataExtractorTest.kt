@@ -28,7 +28,13 @@ On 28-03
 Ref 408856589439
 Not You? Call 18002586161/SMS BLOCK UPI to 7308080808""",
             """HDFC Bank: Rs. 90.00 credited to a/c XXXXXX1643 on 28-03-24 by a/c linked to VPA clementmarvin05-1@okicici (UPI Ref No  408837405314).""",
-            """HDFC Bank: Rs. 3000.00 credited to a/c XXXXXX1643 on 28-03-24 by a/c linked to VPA clementmarvin05-1@okicici (UPI Ref No  408824098233)."""
+            """HDFC Bank: Rs. 3000.00 credited to a/c XXXXXX1643 on 28-03-24 by a/c linked to VPA clementmarvin05-1@okicici (UPI Ref No  408824098233).""",
+            """Amt Sent Rs.20k
+From HDFC Bank A/C *1643
+To MARVIN CLEMENT
+On 03-04-20
+Ref 408856589439
+Not You? Call 18002586161/SMS BLOCK UPI to 7308080808"""
         )
     }
 
@@ -53,7 +59,8 @@ Not You? Call 18002586161/SMS BLOCK UPI to 7308080808""",
 
     @Test
     fun testExtractDataAgainstMultipleMessages_testPasses() {
-        messageList.forEach { message ->
+        messageList.forEachIndexed { index, message ->
+            println("--- Message No. $index ---")
             val data = extractor.extractData(message)
             println("Extracted Data - $data")
         }
