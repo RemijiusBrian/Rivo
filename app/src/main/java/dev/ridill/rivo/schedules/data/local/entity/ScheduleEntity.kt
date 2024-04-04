@@ -33,6 +33,6 @@ data class ScheduleEntity(
     @ColumnInfo(name = "next_reminder_date")
     val nextReminderDate: LocalDate?,
 
-    @ColumnInfo(name = "last_paid_date")
+    @ColumnInfo(name = "last_paid_date", defaultValue = "NULL")
     val lastPaidDate: LocalDate?
 )
