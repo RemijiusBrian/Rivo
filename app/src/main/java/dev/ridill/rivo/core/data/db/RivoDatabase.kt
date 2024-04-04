@@ -7,6 +7,8 @@ import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
@@ -45,8 +47,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class),
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
-        AutoMigration(from = 10, to = 11),
-        AutoMigration(from = 11, to = 12)
+        AutoMigration(from = 10, to = 11)
     ]
 )
 @TypeConverters(DateTimeConverter::class)
@@ -74,4 +75,10 @@ abstract class RivoDatabase : RoomDatabase() {
         toColumnName = "type"
     )
     class AutoMigrationSpec7To8 : AutoMigrationSpec
+}
+
+val MIGRATION_11_12 = object : Migration(startVersion = 11, endVersion = 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE TABLE schedules_table ADD COLUMN last_paid_date TEXT NULL")
+    }
 }

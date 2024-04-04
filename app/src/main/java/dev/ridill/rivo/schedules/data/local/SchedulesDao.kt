@@ -16,12 +16,6 @@ interface SchedulesDao : BaseDao<ScheduleEntity> {
     @Query("SELECT * FROM schedules_table WHERE id = :id")
     suspend fun getScheduleById(id: Long): ScheduleEntity?
 
-    @Query("UPDATE schedules_table SET next_reminder_date = :nextDate WHERE id = :id")
-    suspend fun updateNextReminderDateForById(id: Long, nextDate: LocalDate?)
-
-    @Query("UPDATE schedules_table SET last_paid_date = :lastPaidDate WHERE id = :id")
-    suspend fun updateLastPaidDateById(id: Long, lastPaidDate: LocalDate?)
-
     @Query("SELECT * FROM schedules_table WHERE next_reminder_date > :date")
     suspend fun getAllSchedulesAfterDate(date: LocalDate): List<ScheduleEntity>
 
