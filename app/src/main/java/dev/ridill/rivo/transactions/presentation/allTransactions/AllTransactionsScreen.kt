@@ -959,7 +959,8 @@ private fun AggregateAmount(
         }
         SpacerSmall()
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
         ) {
             VerticalNumberSpinnerContent(sumAmount) { amount ->
                 Text(
