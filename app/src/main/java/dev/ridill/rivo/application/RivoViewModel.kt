@@ -1,6 +1,5 @@
 package dev.ridill.rivo.application
 
-import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,7 +7,6 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
-import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
@@ -108,13 +106,7 @@ class RivoViewModel @Inject constructor(
         appLockAuthErrorMessage.update { message }
     }
 
-    fun onNewIntent(intent: Intent) {
-        logI { "onNewIntent" }
-        if (intent.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)) {
-            logI { "$EXTRA_RUN_CONFIG_RESTORE = true" }
-            backupWorkManager.runConfigRestoreWork()
-        }
-    }
+    fun startConfigRestore() = backupWorkManager.runConfigRestoreWork()
 
     sealed class RivoEvent {
         data object LaunchBiometricAuthentication : RivoEvent()

@@ -39,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.core.domain.util.BuildUtil
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -58,6 +59,11 @@ class RivoActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        this.intent?.let {
+            val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
+            logI { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
+            if (runConfigRestore) viewModel.startConfigRestore()
+        }
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -126,7 +132,11 @@ class RivoActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        intent?.let(viewModel::onNewIntent)
+        intent?.let {
+            val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
+            logI { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
+            if (runConfigRestore) viewModel.startConfigRestore()
+        }
     }
 
     private fun checkAppPermissions() {
