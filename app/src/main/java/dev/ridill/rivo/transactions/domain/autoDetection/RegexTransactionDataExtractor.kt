@@ -12,6 +12,8 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField
 
 /**
  * [TransactionDataExtractor] implementation using [Regex] pattern matching.
@@ -172,63 +174,89 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         val timeString = timestampMatchGroups.getOrNull(3).orEmpty()
         logD { "Time string - $timeString" }
         println("Time string - $timeString")
-        val timestampPattern = buildString {
-            val isFirstSubUnitA4DigitYear = dateString.substringBefore('-').length == 4
-
-            var subUnitCount = 0
-
+        val dateTimeNow = DateUtil.now()
+        val dateTimeFormatterBuilder = DateTimeFormatterBuilder().apply {
             // Build date section
-            if (isFirstSubUnitA4DigitYear) {
-                dateString.forEach { dateChar ->
-                    if (dateChar.isDigit()) {
-                        when (subUnitCount) {
-                            0 -> append("y")
-                            1 -> append("M")
-                            else -> append("d")
-                        }
-                    } else {
-                        // separator
-                        append(dateChar)
-                        subUnitCount += 1
-                    }
+            val dateDelimiter = dateString.find { !it.isDigit() }
+                ?.also {
+                    println("Date Delimiter - $it")
                 }
-            } else {
-                dateString.forEach { dateChar ->
-                    if (dateChar.isDigit()) {
-                        when (subUnitCount) {
-                            0 -> append("d")
-                            1 -> append("M")
-                            else -> append("y")
+                ?: throw TimestampExtractionFailedThrowable("Failed to find date delimiter in date string: $dateString")
+            val dateParts = dateString.split(dateDelimiter)
+            val isFirstPartYear = dateParts[0].length == 4
+            dateParts.forEachIndexed { index, part ->
+                when (index) {
+                    0 -> {
+                        if (isFirstPartYear) {
+                            val pattern = part.map { 'y' }.joinToString(String.Empty)
+                            println("Adding first year part: $pattern")
+                            appendPattern(pattern)
+                        } else {
+                            val pattern = part.map { 'd' }.joinToString(String.Empty)
+                            println("Adding first day part: $pattern")
+                            appendPattern(pattern)
                         }
-                    } else {
-                        // separator
-                        append(dateChar)
-                        subUnitCount += 1
+                    }
+
+                    2 -> {
+                        appendPattern(dateDelimiter.toString())
+                        if (isFirstPartYear) {
+                            val pattern = part.map { 'd' }.joinToString(String.Empty)
+                            println("Adding last day part: $pattern")
+                            appendPattern(pattern)
+                        } else {
+                            println("Adding last year part")
+                            optionalStart()
+                            appendPattern("yyyy")
+                            optionalEnd()
+                            optionalStart()
+                            appendValueReduced(ChronoField.YEAR, 2, 2, 1920)
+                            optionalEnd()
+                        }
+                    }
+
+                    else -> {
+                        appendPattern(dateDelimiter.toString())
+                        val pattern = part.map { 'M' }.joinToString(String.Empty)
+                        println("Adding middle month: $pattern")
+                        appendPattern(pattern)
                     }
                 }
             }
 
-            subUnitCount = 0
-            timeString.forEach {
-                if (it.isDigit()) {
-                    when (subUnitCount) {
-                        // Sub unit count 1 -> HH section
-                        1 -> append("H")
-                        // Sub unit count 1 -> mm section
-                        2 -> append("m")
-                        // Sub unit count 1 -> ss section
-                        else -> append("s")
+            if (timeString.isNotEmpty()) {
+                // Built time section
+                val timeDelimiter = timeString.find { !it.isDigit() }
+                    ?: throw TimestampExtractionFailedThrowable("Failed to find time delimiter in time string: $timeString")
+                val timeParts = timeString.split(timeDelimiter)
+                if (timeParts.isNotEmpty()) appendPattern(":")
+                timeParts.forEachIndexed { index, part ->
+                    when (index) {
+                        0 -> {
+                            appendPattern(part.map { 'H' }.joinToString(String.Empty))
+                        }
+
+                        1 -> {
+                            appendPattern(timeDelimiter.toString())
+                            appendPattern(part.map { 'm' }.joinToString(String.Empty))
+                        }
+
+                        else -> {
+                            appendPattern(timeDelimiter.toString())
+                            appendPattern(part.map { 's' }.joinToString(String.Empty))
+                        }
                     }
-                } else {
-                    // Non digit value -> ':' separator
-                    // increment subUnitCount
-                    append(it)
-                    subUnitCount += 1
                 }
             }
-        }.trim()
 
-        println("Built parse pattern - $timestampPattern")
+            parseDefaulting(ChronoField.YEAR, dateTimeNow.year.toLong())
+            parseDefaulting(ChronoField.MONTH_OF_YEAR, dateTimeNow.monthValue.toLong())
+            parseDefaulting(ChronoField.DAY_OF_MONTH, dateTimeNow.dayOfMonth.toLong())
+            parseDefaulting(ChronoField.HOUR_OF_DAY, dateTimeNow.hour.toLong())
+            parseDefaulting(ChronoField.MINUTE_OF_HOUR, dateTimeNow.minute.toLong())
+            parseDefaulting(ChronoField.SECOND_OF_MINUTE, dateTimeNow.second.toLong())
+        }
+
         val timestampString = "$dateString${timeString}".trim()
         logI { "Timestamp string - $timestampString" }
         println("Timestamp string - $timestampString")
@@ -236,10 +264,10 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
         return try {
             DateUtil.parseDateTime(
                 value = timestampString,
-                formatter = DateUtil.Formatters.formatterWithDefault(timestampPattern)
+                formatter = dateTimeFormatterBuilder.toFormatter()
             )
         } catch (t: Throwable) {
-            throw TransactionDataExtractionFailedThrowable("Timestamp parse failed\nContent: $messageBody\nvalue - $timestampString | pattern - $timestampPattern\nThrowable message - ${t.message.orEmpty()}")
+            throw TransactionDataExtractionFailedThrowable("Timestamp parse failed\nContent: $messageBody\nvalue - $timestampString | pattern - ${dateTimeFormatterBuilder.toFormatter()}\nThrowable message - ${t.message.orEmpty()}")
         }
     }
 
