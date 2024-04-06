@@ -482,7 +482,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     override fun onTagLongClick(tagId: Long) {
         viewModelScope.launch {
-            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.TextHandleMove))
+            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
             savedStateHandle[TAG_INPUT] = tagsRepo.getTagById(tagId)
             savedStateHandle[SHOW_TAG_INPUT] = tagInput.value != null
         }
