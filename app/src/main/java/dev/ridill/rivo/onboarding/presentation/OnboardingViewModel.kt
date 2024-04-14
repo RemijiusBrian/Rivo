@@ -1,5 +1,6 @@
 package dev.ridill.rivo.onboarding.presentation
 
+import android.Manifest
 import android.content.Intent
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
@@ -124,9 +125,13 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun onPermissionsRequestResult(result: Map<String, Boolean>) {
-        val areAllGranted = result.all { it.value }
-        if (areAllGranted) viewModelScope.launch {
-            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
+        viewModelScope.launch {
+            val isSMSPermissionGranted = result[Manifest.permission.RECEIVE_SMS] == true
+            preferencesManager.updateTransactionAutoDetectEnabled(isSMSPermissionGranted)
+
+            val areAllGranted = result.all { it.value }
+            if (areAllGranted)
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
         }
     }
 
