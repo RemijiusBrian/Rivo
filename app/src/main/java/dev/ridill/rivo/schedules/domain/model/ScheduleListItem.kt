@@ -1,7 +1,6 @@
 package dev.ridill.rivo.schedules.domain.model
 
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.TextFormat
 import java.time.LocalDate
 import java.util.Currency
