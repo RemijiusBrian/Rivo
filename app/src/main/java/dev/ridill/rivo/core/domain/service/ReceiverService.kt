@@ -3,13 +3,13 @@ package dev.ridill.rivo.core.domain.service
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
 import dev.ridill.rivo.schedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver
 import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleRemindersOnBootReceiver
 import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleRemindersOnTimeSetReceiver
+import dev.ridill.rivo.settings.domain.notification.LockAppImmediateReceiver
+import dev.ridill.rivo.transactions.domain.autoDetection.TransactionSmsReceiver
 import dev.ridill.rivo.transactions.domain.notification.DeleteTransactionActionReceiver
 import dev.ridill.rivo.transactions.domain.notification.MarkTransactionExcludedActionReceiver
-import dev.ridill.rivo.transactions.domain.autoDetection.TransactionSmsReceiver
 
 class ReceiverService(
     private val context: Context
@@ -24,9 +24,9 @@ class ReceiverService(
         toggleReceiver(MarkScheduleAsPaidActionReceiver::class.java, enable)
     }
 
-    fun enableBootAndTimeSetReceivers() {
-        toggleReceiver(ScheduleRemindersOnBootReceiver::class.java, true)
-        toggleReceiver(ScheduleRemindersOnTimeSetReceiver::class.java, true)
+    fun toggleBootAndTimeSetReceivers(enable: Boolean) {
+        toggleReceiver(ScheduleRemindersOnBootReceiver::class.java, enable)
+        toggleReceiver(ScheduleRemindersOnTimeSetReceiver::class.java, enable)
     }
 
     private fun toggleReceiver(receiverClass: Class<*>, enable: Boolean) {

@@ -134,7 +134,6 @@ class RivoActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         intent?.let {
             val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
-            logI { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
             if (runConfigRestore) viewModel.startConfigRestore()
         }
     }

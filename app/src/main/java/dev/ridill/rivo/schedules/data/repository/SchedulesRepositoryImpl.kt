@@ -59,7 +59,7 @@ class SchedulesRepositoryImpl(
             scheduler.setReminder(
                 schedule.copy(id = insertedId)
             )
-            receiverService.enableBootAndTimeSetReceivers()
+            receiverService.toggleBootAndTimeSetReceivers(true)
         }
     }
 
