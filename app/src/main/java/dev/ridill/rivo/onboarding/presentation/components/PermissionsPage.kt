@@ -29,15 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
-import dev.ridill.rivo.core.ui.components.BodyText
 import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.SpacerMedium
-import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
@@ -169,15 +168,17 @@ private fun PermissionDetails(
             Column(
                 verticalArrangement = Arrangement.spacedBy(SpacingSmall)
             ) {
-                TitleLargeText(
-                    title = stringResource(titleRes),
+                Text(
+                    text = stringResource(titleRes),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
                     textDecoration = TextDecoration.Underline,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
 
-
-                BodyText(
-                    text = message
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
