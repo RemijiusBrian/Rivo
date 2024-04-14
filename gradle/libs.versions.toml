@@ -1,5 +1,5 @@
 [versions]
-agp = "8.3.1"
+agp = "8.3.2"
 kotlin = "1.9.22"
 google-services = "4.4.1"
 com-google-devtools-ksp = "1.9.22-1.0.17"
@@ -33,7 +33,7 @@ datastore-preferences = "1.0.0"
 
 androidx-biometric = "1.2.0-alpha05"
 
-firebase-bom = "32.8.0"
+firebase-bom = "32.8.1"
 firebase-crashlytics-gradle = "2.9.9"
 
 play-services-auth = "21.0.0"

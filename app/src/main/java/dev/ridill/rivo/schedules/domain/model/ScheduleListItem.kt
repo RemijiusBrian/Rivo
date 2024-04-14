@@ -15,8 +15,7 @@ data class ScheduleListItem(
     val canMarkPaid: Boolean
         get() {
             val dateNow = DateUtil.dateNow()
-            return nextReminderDate?.isAfter(dateNow) == true
-                    && nextReminderDate.monthValue == dateNow.monthValue
+            return nextReminderDate?.month == dateNow.month
         }
 
     fun amountFormatted(currency: Currency): String =

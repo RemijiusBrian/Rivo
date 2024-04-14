@@ -2,7 +2,7 @@ package dev.ridill.rivo.core.ui.components
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -41,17 +41,17 @@ fun LabelledRadioButton(
     Row(
         modifier = Modifier
             .clip(shape)
-            .toggleable(
-                value = selected,
+            .selectable(
+                selected = selected,
                 role = Role.RadioButton,
-                onValueChange = { onClick() }
+                onClick = onClick
             )
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = selected,
-            onClick = onClick,
+            onClick = null,
             modifier = Modifier
                 .clearAndSetSemantics {}
         )
