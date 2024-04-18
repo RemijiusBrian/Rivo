@@ -15,17 +15,17 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
-import dev.ridill.rivo.settings.data.local.CurrencyDao
+import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.CurrencyRepositoryImpl
+import dev.ridill.rivo.settings.data.repository.CurrencyPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -37,12 +37,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object SettingsSingletonModule {
     @Provides
-    fun provideCurrencyDao(database: RivoDatabase): CurrencyDao = database.currencyDao()
+    fun provideCurrencyPreferenceDao(database: RivoDatabase): CurrencyPreferenceDao = database.currencyDao()
 
     @Provides
-    fun provideCurrencyRepository(
-        dao: CurrencyDao
-    ): CurrencyRepository = CurrencyRepositoryImpl(dao)
+    fun provideCurrencyPreferenceRepository(
+        dao: CurrencyPreferenceDao
+    ): CurrencyPreferenceRepository = CurrencyPreferenceRepositoryImpl(dao)
 
     @Provides
     fun provideConfigDao(database: RivoDatabase): ConfigDao = database.configDao()

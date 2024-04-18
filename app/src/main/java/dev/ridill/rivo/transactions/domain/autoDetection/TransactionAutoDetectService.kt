@@ -8,7 +8,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.di.ApplicationScope
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class TransactionAutoDetectService(
-    private val currencyRepo: CurrencyRepository,
+    private val currencyPrefRepo: CurrencyPreferenceRepository,
     private val extractor: TransactionDataExtractor,
     private val transactionRepo: TransactionRepository,
     private val notificationHelper: NotificationHelper<Transaction>,
@@ -46,7 +46,7 @@ class TransactionAutoDetectService(
                         data = insertedTx.copy(
                             amount = TextFormat.currency(
                                 parsedAmount,
-                                currencyRepo.getCurrencyForDateOrNext(dateTimeNow.toLocalDate())
+                                currencyPrefRepo.getCurrencyPreferenceForDateOrNext(dateTimeNow.toLocalDate())
                                     .first()
                             )
                         )

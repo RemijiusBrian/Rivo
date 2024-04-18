@@ -10,7 +10,7 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.ApplicationScope
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class ScheduleReminderReceiver : BroadcastReceiver() {
     lateinit var applicationContext: CoroutineScope
 
     @Inject
-    lateinit var currencyRepo: CurrencyRepository
+    lateinit var currencyPrefRepo: CurrencyPreferenceRepository
 
     @Inject
     lateinit var repo: SchedulesRepository

@@ -2,9 +2,9 @@ package dev.ridill.rivo.settings.data.repository
 
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.settings.data.local.CurrencyDao
-import dev.ridill.rivo.settings.data.local.entity.CurrencyEntity
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
+import dev.ridill.rivo.settings.data.local.entity.CurrencyPreferenceEntity
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -13,10 +13,10 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.util.Currency
 
-class CurrencyRepositoryImpl(
-    private val dao: CurrencyDao
-) : CurrencyRepository {
-    override fun getCurrencyForDateOrNext(date: LocalDate): Flow<Currency> = dao
+class CurrencyPreferenceRepositoryImpl(
+    private val dao: CurrencyPreferenceDao
+) : CurrencyPreferenceRepository {
+    override fun getCurrencyPreferenceForDateOrNext(date: LocalDate): Flow<Currency> = dao
         .getCurrencyCodeForDateOrNext(date)
         .map { currencyCode ->
             currencyCode?.let {
@@ -26,7 +26,7 @@ class CurrencyRepositoryImpl(
 
     override suspend fun saveCurrency(currency: Currency, date: LocalDate) {
         withContext(Dispatchers.IO) {
-            val entity = CurrencyEntity(
+            val entity = CurrencyPreferenceEntity(
                 currencyCode = currency.currencyCode,
                 date = date.withDayOfMonth(1)
             )

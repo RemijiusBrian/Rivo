@@ -8,7 +8,7 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.repository.AddEditTransactionRepositoryImpl
@@ -30,13 +30,13 @@ object TransactionViewModelModule {
     fun provideAddEditTransactionRepository(
         db: RivoDatabase,
         dao: TransactionDao,
-        currencyRepository: CurrencyRepository,
+        currencyPreferenceRepository: CurrencyPreferenceRepository,
         schedulesRepository: SchedulesRepository
     ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(
         db = db,
         dao = dao,
         schedulesRepo = schedulesRepository,
-        currencyRepo = currencyRepository
+        currencyPrefRepo = currencyPreferenceRepository
     )
 
     @Provides
@@ -50,11 +50,11 @@ object TransactionViewModelModule {
     fun provideAllTransactionsRepository(
         dao: TransactionDao,
         preferencesManager: PreferencesManager,
-        currencyRepository: CurrencyRepository
+        currencyPreferenceRepository: CurrencyPreferenceRepository
     ): AllTransactionsRepository = AllTransactionsRepositoryImpl(
         dao = dao,
         preferencesManager = preferencesManager,
-        currencyRepo = currencyRepository
+        currencyPrefRepo = currencyPreferenceRepository
     )
 
     @Provides

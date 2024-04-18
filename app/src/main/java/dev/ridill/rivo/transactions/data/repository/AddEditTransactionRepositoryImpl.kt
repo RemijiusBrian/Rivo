@@ -7,7 +7,7 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransaction
@@ -26,10 +26,10 @@ class AddEditTransactionRepositoryImpl(
     private val db: RivoDatabase,
     private val dao: TransactionDao,
     private val schedulesRepo: SchedulesRepository,
-    private val currencyRepo: CurrencyRepository
+    private val currencyPrefRepo: CurrencyPreferenceRepository
 ) : AddEditTransactionRepository {
-    override fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency> = currencyRepo
-        .getCurrencyForDateOrNext(
+    override fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency> = currencyPrefRepo
+        .getCurrencyPreferenceForDateOrNext(
             date = dateTime.toLocalDate()
         )
         .distinctUntilChanged()

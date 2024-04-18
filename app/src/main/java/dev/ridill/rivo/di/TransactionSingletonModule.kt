@@ -8,7 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.repository.TransactionRepositoryImpl
 import dev.ridill.rivo.transactions.domain.autoDetection.RegexTransactionDataExtractor
@@ -37,13 +37,13 @@ object TransactionSingletonModule {
     @Provides
     fun provideTransactionSmsService(
         extractor: TransactionDataExtractor,
-        currencyRepository: CurrencyRepository,
+        currencyPreferenceRepository: CurrencyPreferenceRepository,
         transactionRepository: TransactionRepository,
         notificationHelper: NotificationHelper<Transaction>,
         @ApplicationScope applicationScope: CoroutineScope,
     ): TransactionAutoDetectService = TransactionAutoDetectService(
         extractor = extractor,
-        currencyRepo = currencyRepository,
+        currencyPrefRepo = currencyPreferenceRepository,
         transactionRepo = transactionRepository,
         notificationHelper = notificationHelper,
         applicationScope = applicationScope

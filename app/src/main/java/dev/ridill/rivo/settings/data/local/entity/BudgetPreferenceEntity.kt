@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 
-@Entity(tableName = "budget_table")
-data class BudgetEntity(
+@Entity(tableName = "budget_preference_table")
+data class BudgetPreferenceEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo("date")
     val date: LocalDate,

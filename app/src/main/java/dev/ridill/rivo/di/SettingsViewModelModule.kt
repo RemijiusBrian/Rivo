@@ -9,15 +9,15 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.settings.data.local.BudgetDao
+import dev.ridill.rivo.settings.data.local.BudgetPreferenceDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.BudgetRepositoryImpl
+import dev.ridill.rivo.settings.data.repository.BudgetPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
-import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.BudgetPreferenceRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
@@ -28,20 +28,20 @@ import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 @InstallIn(ViewModelComponent::class)
 object SettingsViewModelModule {
     @Provides
-    fun provideBudgetDao(database: RivoDatabase): BudgetDao = database.budgetDao()
+    fun provideBudgetPreferenceDao(database: RivoDatabase): BudgetPreferenceDao = database.budgetDao()
 
     @Provides
-    fun provideBudgetRepository(
-        dao: BudgetDao
-    ): BudgetRepository = BudgetRepositoryImpl(dao)
+    fun provideBudgetPreferenceRepository(
+        dao: BudgetPreferenceDao
+    ): BudgetPreferenceRepository = BudgetPreferenceRepositoryImpl(dao)
 
     @Provides
     fun provideSettingsRepository(
-        budgetRepository: BudgetRepository,
-        currencyRepository: CurrencyRepository
+        budgetPreferenceRepository: BudgetPreferenceRepository,
+        currencyPreferenceRepository: CurrencyPreferenceRepository
     ): SettingsRepository = SettingsRepositoryImpl(
-        budgetRepo = budgetRepository,
-        currencyRepo = currencyRepository
+        budgetPrefRepo = budgetPreferenceRepository,
+        currencyPrefRepo = currencyPreferenceRepository
     )
 
     @Provides

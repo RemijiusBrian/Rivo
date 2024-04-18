@@ -9,8 +9,8 @@ import dev.ridill.rivo.dashboard.data.repository.DashboardRepositoryImpl
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
-import dev.ridill.rivo.settings.domain.repositoty.BudgetRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.BudgetPreferenceRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 
 @Module
@@ -18,13 +18,13 @@ import dev.ridill.rivo.transactions.data.local.TransactionDao
 object DashboardModule {
     @Provides
     fun provideDashboardRepository(
-        currencyRepository: CurrencyRepository,
-        budgetRepository: BudgetRepository,
+        currencyPreferenceRepository: CurrencyPreferenceRepository,
+        budgetPreferenceRepository: BudgetPreferenceRepository,
         transactionDao: TransactionDao,
         schedulesDao: SchedulesDao
     ): DashboardRepository = DashboardRepositoryImpl(
-        currencyRepo = currencyRepository,
-        budgetRepo = budgetRepository,
+        currencyPrefRepo = currencyPreferenceRepository,
+        budgetPrefRepo = budgetPreferenceRepository,
         transactionDao = transactionDao,
         schedulesDao = schedulesDao
     )

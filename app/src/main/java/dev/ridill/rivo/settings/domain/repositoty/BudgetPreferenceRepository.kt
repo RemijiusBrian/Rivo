@@ -3,15 +3,14 @@ package dev.ridill.rivo.settings.domain.repositoty
 import dev.ridill.rivo.core.domain.util.DateUtil
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.util.Currency
 
-interface CurrencyRepository {
-    fun getCurrencyForDateOrNext(
+interface BudgetPreferenceRepository {
+    fun getBudgetPreferenceForDateOrNext(
         date: LocalDate = DateUtil.dateNow()
-    ): Flow<Currency>
+    ): Flow<Long>
 
-    suspend fun saveCurrency(
-        currency: Currency,
+    suspend fun saveBudgetPreference(
+        amount: Long,
         date: LocalDate = DateUtil.dateNow()
     )
 }

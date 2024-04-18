@@ -2,7 +2,7 @@ package dev.ridill.rivo.transactions.data.repository
 
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyRepository
+import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
@@ -20,10 +20,10 @@ import java.util.Currency
 class AllTransactionsRepositoryImpl(
     private val dao: TransactionDao,
     private val preferencesManager: PreferencesManager,
-    private val currencyRepo: CurrencyRepository
+    private val currencyPrefRepo: CurrencyPreferenceRepository
 ) : AllTransactionsRepository {
-    override fun getCurrencyPreference(date: LocalDate): Flow<Currency> = currencyRepo
-        .getCurrencyForDateOrNext(date)
+    override fun getCurrencyPreference(date: LocalDate): Flow<Currency> = currencyPrefRepo
+        .getCurrencyPreferenceForDateOrNext(date)
 
     override suspend fun deleteTransactionsByIds(ids: Set<Long>) = withContext(Dispatchers.IO) {
         dao.deleteMultipleTransactionsById(ids)
