@@ -172,8 +172,7 @@ private fun PermissionDetails(
                     text = stringResource(titleRes),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    textDecoration = TextDecoration.Underline
                 )
 
                 Text(
