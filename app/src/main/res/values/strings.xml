@@ -32,6 +32,7 @@
     <string name="notification_channel_group_others_name">Others</string>
     <string name="notification_channel_backups_name">Data backup</string>
     <string name="notification_channel_app_lock_name">App Lock</string>
+    <string name="notification_channel_app_init_name">App Init</string>
 
     <!-- Content Description -->
     <string name="cd_balance_and_budget_amounts">You have a balance of %1$s from your budget of %2$s</string>
@@ -387,4 +388,5 @@
     <string name="upcoming_schedules">Upcoming Schedules</string>
     <string name="created_colon_timestamp_value">Created: %s</string>
     <string name="asterisk_long_press_to_edit">*Long press to edit</string>
+    <string name="initializing_app">Initializing %s</string>
 </resources>

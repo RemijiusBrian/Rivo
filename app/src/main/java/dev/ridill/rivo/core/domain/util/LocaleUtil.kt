@@ -10,15 +10,9 @@ object LocaleUtil {
     val defaultCurrency: Currency
         get() = Currency.getInstance(defaultLocale)
 
-    private val availableLocales: List<Locale>
+    val availableLocales: List<Locale>
         get() = Locale.getAvailableLocales()
             .toList()
-
-    val currencyList: List<Currency>
-        get() = availableLocales.mapNotNull {
-            tryOrNull { Currency.getInstance(it) }
-        }
-            .distinctBy { it.currencyCode }
 
     fun currencyForCode(code: String): Currency = Currency.getInstance(code)
 }

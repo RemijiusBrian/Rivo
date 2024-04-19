@@ -10,5 +10,5 @@ interface OnboardingActions {
     fun onEncryptionPasswordInputDismiss()
     fun onEncryptionPasswordSubmit(password: String)
     fun onBudgetInputChange(value: String)
-    fun onSetBudgetContinue()
+    fun onStartBudgetingClick()
 }

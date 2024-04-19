@@ -16,9 +16,11 @@ import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.settings.data.local.BudgetPreferenceDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
+import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.local.entity.BudgetPreferenceEntity
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
+import dev.ridill.rivo.settings.data.local.entity.CurrencyEntity
 import dev.ridill.rivo.settings.data.local.entity.CurrencyPreferenceEntity
 import dev.ridill.rivo.transactions.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
@@ -33,6 +35,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TagEntity::class,
         FolderEntity::class,
         ScheduleEntity::class,
+        CurrencyEntity::class,
         CurrencyPreferenceEntity::class,
         ConfigEntity::class
     ],
@@ -40,7 +43,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionDetailsView::class,
         FolderAndAggregateAmountView::class
     ],
-    version = 13,
+    version = 14,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),
@@ -48,7 +51,8 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
         AutoMigration(from = 10, to = 11),
-        AutoMigration(from = 12, to = 13, spec = RivoDatabase.AutoMigrationSpec12To13::class)
+        AutoMigration(from = 12, to = 13, spec = RivoDatabase.AutoMigrationSpec12To13::class),
+        AutoMigration(from = 13, to = 14)
     ]
 )
 @TypeConverters(DateTimeConverter::class)
@@ -59,12 +63,13 @@ abstract class RivoDatabase : RoomDatabase() {
     }
 
     // Dao Methods
-    abstract fun budgetDao(): BudgetPreferenceDao
+    abstract fun budgetPreferenceDao(): BudgetPreferenceDao
     abstract fun transactionDao(): TransactionDao
     abstract fun tagsDao(): TagsDao
     abstract fun folderDao(): FolderDao
     abstract fun schedulesDao(): SchedulesDao
-    abstract fun currencyDao(): CurrencyPreferenceDao
+    abstract fun currencyDao(): CurrencyDao
+    abstract fun currencyPreferenceDao(): CurrencyPreferenceDao
     abstract fun configDao(): ConfigDao
 
     @RenameTable(fromTableName = "transaction_folder_table", toTableName = "folder_table")

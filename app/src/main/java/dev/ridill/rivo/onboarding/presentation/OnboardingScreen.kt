@@ -121,7 +121,7 @@ fun OnboardingScreen(
                             currency = currency,
                             input = budgetInput,
                             onInputChange = actions::onBudgetInputChange,
-                            onContinueClick = actions::onSetBudgetContinue
+                            onStartBudgetingClick = actions::onStartBudgetingClick
                         )
                     }
                 }

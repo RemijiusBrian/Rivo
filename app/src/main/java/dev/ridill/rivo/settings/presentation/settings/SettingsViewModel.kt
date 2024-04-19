@@ -3,13 +3,13 @@ package dev.ridill.rivo.settings.presentation.settings
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.TextFormat
@@ -17,6 +17,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Currency
@@ -51,20 +52,18 @@ class SettingsViewModel @Inject constructor(
         .getStateFlow<UiText?>(BUDGET_INPUT_ERROR, null)
 
     private val currentCurrency = repo.getCurrencyPreference()
+
     private val showCurrencySelection = savedStateHandle
         .getStateFlow(SHOW_CURRENCY_SELECTION, false)
     val currencySearchQuery = savedStateHandle
         .getStateFlow(CURRENCY_SEARCH_QUERY, "")
 
-    private val allCurrenciesList = LocaleUtil.currencyList
-    private val currencyList = currencySearchQuery
-        .map { query ->
-            allCurrenciesList.filter { currency ->
-                query.isEmpty()
-                        || currency.displayName.contains(query, true)
-                        || currency.currencyCode.contains(query, true)
-            }
-        }
+    val currenciesPagingData = currencySearchQuery
+//        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
+        .flatMapLatest { query ->
+            repo.getCurrenciesListPaged(query)
+        }.cachedIn(viewModelScope)
+
 
     private val showSmsPermissionRationale = savedStateHandle
         .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
@@ -78,7 +77,6 @@ class SettingsViewModel @Inject constructor(
         showMonthlyBudgetInput,
         currentCurrency,
         showCurrencySelection,
-        currencyList,
         autoAddTransactionEnabled,
         showSmsPermissionRationale
     ).map { (
@@ -90,7 +88,6 @@ class SettingsViewModel @Inject constructor(
                 showMonthlyBudgetInput,
                 currentCurrency,
                 showCurrencySelection,
-                currencyList,
                 autoAddTransactionEnabled,
                 showSmsPermissionRationale
             ) ->
@@ -104,7 +101,6 @@ class SettingsViewModel @Inject constructor(
             budgetInputError = budgetInputError,
             currentCurrency = currentCurrency,
             showCurrencySelection = showCurrencySelection,
-            currencyList = currencyList,
             autoAddTransactionEnabled = autoAddTransactionEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale
         )

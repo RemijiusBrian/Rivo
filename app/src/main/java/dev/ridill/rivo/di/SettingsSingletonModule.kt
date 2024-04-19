@@ -15,15 +15,19 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
+import dev.ridill.rivo.settings.data.local.CurrencyDao
 import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
+import dev.ridill.rivo.settings.data.repository.AppInitRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.CurrencyPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
+import dev.ridill.rivo.settings.domain.notification.AppInitNotificationHelper
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
+import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import okhttp3.OkHttpClient
@@ -37,12 +41,21 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object SettingsSingletonModule {
     @Provides
-    fun provideCurrencyPreferenceDao(database: RivoDatabase): CurrencyPreferenceDao = database.currencyDao()
+    fun provideCurrencyDao(database: RivoDatabase): CurrencyDao =
+        database.currencyDao()
+
+    @Provides
+    fun provideCurrencyPreferenceDao(database: RivoDatabase): CurrencyPreferenceDao =
+        database.currencyPreferenceDao()
 
     @Provides
     fun provideCurrencyPreferenceRepository(
-        dao: CurrencyPreferenceDao
-    ): CurrencyPreferenceRepository = CurrencyPreferenceRepositoryImpl(dao)
+        dao: CurrencyPreferenceDao,
+        currencyDao: CurrencyDao
+    ): CurrencyPreferenceRepository = CurrencyPreferenceRepositoryImpl(
+        dao = dao,
+        currencyDao = currencyDao
+    )
 
     @Provides
     fun provideConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
@@ -139,6 +152,17 @@ object SettingsSingletonModule {
     fun provideAppLockServiceManager(
         @ApplicationContext context: Context
     ): AppLockServiceManager = AppLockServiceManager(context)
+
+    @Provides
+    fun provideAppInitRepository(
+        currencyDao: CurrencyDao
+    ): AppInitRepository = AppInitRepositoryImpl(currencyDao)
+
+    @AppInitFeature
+    @Provides
+    fun provideAppInitNotificationHelper(
+        @ApplicationContext context: Context
+    ): NotificationHelper<Unit> = AppInitNotificationHelper(context)
 }
 
 @Qualifier
@@ -148,3 +172,7 @@ annotation class GoogleApis
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class BackupFeature
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AppInitFeature

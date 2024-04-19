@@ -40,7 +40,7 @@ fun SetBudgetPage(
     currency: Currency,
     input: () -> String,
     onInputChange: (String) -> Unit,
-    onContinueClick: () -> Unit,
+    onStartBudgetingClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isInputNotEmpty by remember {
@@ -74,7 +74,7 @@ fun SetBudgetPage(
             Button(
                 onClick = {
                     keyboardController?.hide()
-                    onContinueClick()
+                    onStartBudgetingClick()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
