@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddToDrive
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -164,6 +166,12 @@ fun BackupSettingsScreen(
                 onOptionSelect = actions::onBackupIntervalSelected
             )
         }
+
+        if (state.showBackupRunningMessage) {
+            BackupRunningMessageDialog(
+                onAcknowledge = actions::onBackupRunningMessageAcknowledge
+            )
+        }
     }
 }
 
@@ -276,4 +284,23 @@ private fun FatalBackupErrorMessage(
             )
         }
     }
+}
+
+@Composable
+private fun BackupRunningMessageDialog(
+    onAcknowledge: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        onDismissRequest = onAcknowledge,
+        confirmButton = {
+            TextButton(onClick = onAcknowledge) {
+                Text(stringResource(R.string.action_ok))
+            }
+        },
+        text = {
+            Text(stringResource(R.string.backup_running_message))
+        },
+        modifier = modifier
+    )
 }

@@ -389,4 +389,5 @@
     <string name="created_colon_timestamp_value">Created: %s</string>
     <string name="asterisk_long_press_to_edit">*Long press to edit</string>
     <string name="initializing_app">Initializing %s</string>
+    <string name="backup_running_message">Your backup is currently in progress, so please wait till it finishes to continue with your operation.</string>
 </resources>

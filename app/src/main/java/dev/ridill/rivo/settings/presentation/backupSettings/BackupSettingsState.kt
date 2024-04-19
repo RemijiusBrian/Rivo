@@ -19,7 +19,8 @@ data class BackupSettingsState(
     val lastBackupDateTime: LocalDateTime? = null,
     val isBackupRunning: Boolean = false,
     val isEncryptionPasswordAvailable: Boolean = false,
-    val fatalBackupError: FatalBackupError? = null
+    val fatalBackupError: FatalBackupError? = null,
+    val showBackupRunningMessage: Boolean = false
 ) {
     val lastBackupDateFormatted: UiText?
         get() = lastBackupDateTime?.let { DateUtil.Formatters.prettyDateAgo(it.toLocalDate()) }

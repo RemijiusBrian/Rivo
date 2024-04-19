@@ -9,4 +9,5 @@ interface BackupSettingsActions {
     fun onBackupIntervalSelectionDismiss()
     fun onBackupNowClick()
     fun onEncryptionPreferenceClick()
+    fun onBackupRunningMessageAcknowledge()
 }

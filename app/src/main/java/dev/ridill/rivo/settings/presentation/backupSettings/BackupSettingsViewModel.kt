@@ -56,6 +56,9 @@ class BackupSettingsViewModel @Inject constructor(
 
     private val fatalBackupError = repo.getFatalBackupError()
 
+    private val showBackupRunningMessage = savedStateHandle
+        .getStateFlow(SHOW_BACKUP_RUNNING_MESSAGE, false)
+
     val state = combineTuple(
         backupAccountEmail,
         isAccountAdded,
@@ -64,7 +67,8 @@ class BackupSettingsViewModel @Inject constructor(
         lastBackupDateTime,
         isBackupRunning,
         isEncryptionPasswordAvailable,
-        fatalBackupError
+        fatalBackupError,
+        showBackupRunningMessage
     ).map { (
                 backupAccountEmail,
                 isAccountAdded,
@@ -73,7 +77,8 @@ class BackupSettingsViewModel @Inject constructor(
                 lastBackupDateTime,
                 isBackupRunning,
                 isEncryptionPasswordAvailable,
-                fatalBackupError
+                fatalBackupError,
+                showBackupRunningMessage
 
             ) ->
         BackupSettingsState(
@@ -84,7 +89,8 @@ class BackupSettingsViewModel @Inject constructor(
             lastBackupDateTime = lastBackupDateTime,
             isBackupRunning = isBackupRunning,
             isEncryptionPasswordAvailable = isEncryptionPasswordAvailable,
-            fatalBackupError = fatalBackupError
+            fatalBackupError = fatalBackupError,
+            showBackupRunningMessage = showBackupRunningMessage
         )
     }.asStateFlow(viewModelScope, BackupSettingsState())
 
@@ -140,6 +146,10 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     override fun onBackupAccountClick() {
+        if (isBackupRunning.value) {
+            savedStateHandle[SHOW_BACKUP_RUNNING_MESSAGE] = true
+            return
+        }
         viewModelScope.launch {
             val intent = repo.getSignInIntent()
             eventBus.send(BackupSettingsEvent.LaunchGoogleSignIn(intent))
@@ -212,6 +222,10 @@ class BackupSettingsViewModel @Inject constructor(
         }
     }
 
+    override fun onBackupRunningMessageAcknowledge() {
+        savedStateHandle[SHOW_BACKUP_RUNNING_MESSAGE] = false
+    }
+
     sealed interface BackupSettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : BackupSettingsEvent
         data object NavigateToBackupEncryptionScreen : BackupSettingsEvent
@@ -220,3 +234,4 @@ class BackupSettingsViewModel @Inject constructor(
 }
 
 private const val SHOW_BACKUP_INTERVAL_SELECTION = "SHOW_BACKUP_INTERVAL_SELECTION"
+private const val SHOW_BACKUP_RUNNING_MESSAGE = "SHOW_BACKUP_RUNNING_MESSAGE"
