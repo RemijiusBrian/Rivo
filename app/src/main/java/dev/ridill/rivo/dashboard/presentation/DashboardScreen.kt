@@ -60,6 +60,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.PartOfDay
 import dev.ridill.rivo.core.domain.util.WhiteSpace
@@ -95,6 +96,7 @@ import java.util.Currency
 
 @Composable
 fun DashboardScreen(
+    appCurrencyPreference: Currency,
     state: DashboardState,
     snackbarController: SnackbarController,
     navigateToAllTransactions: () -> Unit,
@@ -170,7 +172,7 @@ fun DashboardScreen(
                 contentType = "BalanceAndBudget"
             ) {
                 BalanceAndBudget(
-                    currency = state.currency,
+                    currency = appCurrencyPreference,
                     balance = state.balance,
                     budget = state.monthlyBudgetInclCredits,
                     creditAmount = state.creditAmount,
@@ -213,7 +215,7 @@ fun DashboardScreen(
                             )
 
                             UpcomingSchedulesRow(
-                                currency = state.currency,
+                                currency = appCurrencyPreference,
                                 upcomingSchedules = state.upcomingSchedules,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -241,7 +243,7 @@ fun DashboardScreen(
                         ListLabel(text = stringResource(R.string.recent_spends))
 
                         SpentAmountAndAllTransactionsButton(
-                            currency = state.currency,
+                            currency = appCurrencyPreference,
                             amount = state.spentAmount,
                             onAllTransactionsClick = navigateToAllTransactions,
                             modifier = Modifier
@@ -272,7 +274,7 @@ fun DashboardScreen(
             ) { transaction ->
                 RecentSpendCard(
                     note = transaction.note,
-                    amount = transaction.amountFormattedWithCurrency(state.currency),
+                    amount = transaction.amountFormattedWithCurrency(appCurrencyPreference),
                     date = transaction.date,
                     type = transaction.type,
                     tag = transaction.tag,
@@ -633,7 +635,8 @@ private fun PreviewDashboardScreen() {
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
-            navigateToBottomNavDestination = {}
+            navigateToBottomNavDestination = {},
+            appCurrencyPreference = LocaleUtil.defaultCurrency
         )
     }
 }

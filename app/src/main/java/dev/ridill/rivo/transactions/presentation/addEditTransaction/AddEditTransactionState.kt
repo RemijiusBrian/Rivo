@@ -1,17 +1,14 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
-import java.util.Currency
 
 data class AddEditTransactionState(
     val isLoading: Boolean = false,
-    val currency: Currency = LocaleUtil.defaultCurrency,
     val isScheduleTxMode: Boolean = false,
     val amountRecommendations: List<Long> = emptyList(),
     val selectedTagId: Long? = null,

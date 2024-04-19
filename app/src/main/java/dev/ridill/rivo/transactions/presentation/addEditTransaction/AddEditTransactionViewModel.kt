@@ -93,10 +93,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val isTransactionExcluded = txInput.map { it.excluded }
         .distinctUntilChanged()
 
-    private val currency = transactionTimestamp.flatMapLatest {
-        transactionRepo.getCurrencyPreference(it)
-    }.distinctUntilChanged()
-
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
 
@@ -130,7 +126,6 @@ class AddEditTransactionViewModel @Inject constructor(
     val state = combineTuple(
         isScheduleTxMode,
         isLoading,
-        currency,
         amountRecommendations,
         amountTransformation,
         showAmountTransformationInput,
@@ -149,7 +144,6 @@ class AddEditTransactionViewModel @Inject constructor(
     ).map { (
                 isScheduleTxMode,
                 isLoading,
-                currency,
                 amountRecommendations,
                 amountTransformation,
                 showAmountTransformationInput,
@@ -169,7 +163,6 @@ class AddEditTransactionViewModel @Inject constructor(
         AddEditTransactionState(
             isScheduleTxMode = isScheduleTxMode,
             isLoading = isLoading,
-            currency = currency,
             amountRecommendations = amountRecommendations,
             selectedTagId = selectedTagId,
             transactionTimestamp = transactionTimestamp,

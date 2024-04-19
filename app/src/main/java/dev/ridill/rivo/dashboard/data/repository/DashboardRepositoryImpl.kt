@@ -7,7 +7,6 @@ import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.schedules.data.toActiveSchedule
 import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
 import dev.ridill.rivo.settings.domain.repositoty.BudgetPreferenceRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
@@ -16,18 +15,12 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import java.util.Currency
 
 class DashboardRepositoryImpl(
-    private val currencyPrefRepo: CurrencyPreferenceRepository,
     private val budgetPrefRepo: BudgetPreferenceRepository,
     private val transactionDao: TransactionDao,
     private val schedulesDao: SchedulesDao
 ) : DashboardRepository {
-    override fun getCurrencyPreference(): Flow<Currency> = currencyPrefRepo
-        .getCurrencyPreferenceForDateOrNext()
-        .distinctUntilChanged()
-
     override fun getCurrentBudget(): Flow<Long> = budgetPrefRepo
         .getBudgetPreferenceForDateOrNext()
         .distinctUntilChanged()

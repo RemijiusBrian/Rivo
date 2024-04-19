@@ -24,6 +24,7 @@ import dev.ridill.rivo.core.ui.util.restartApplication
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.onboarding.presentation.OnboardingScreen
 import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
+import java.util.Currency
 
 data object OnboardingScreenSpec : ScreenSpec {
     override val route: String = "onboarding"
@@ -33,7 +34,8 @@ data object OnboardingScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry
+        navBackStackEntry: NavBackStackEntry,
+        appCurrencyPreference: Currency
     ) {
         val viewModel: OnboardingViewModel = hiltViewModel(navBackStackEntry)
         val pagerState = rememberPagerState(

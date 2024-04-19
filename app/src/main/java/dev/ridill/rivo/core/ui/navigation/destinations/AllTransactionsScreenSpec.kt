@@ -16,6 +16,7 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
+import java.util.Currency
 
 data object AllTransactionsScreenSpec : ScreenSpec {
 
@@ -27,7 +28,8 @@ data object AllTransactionsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry
+        navBackStackEntry: NavBackStackEntry,
+        appCurrencyPreference: Currency
     ) {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
         val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()

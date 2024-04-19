@@ -7,8 +7,6 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,25 +14,18 @@ import javax.inject.Inject
 @HiltViewModel
 class FoldersListViewModel @Inject constructor(
     private val repo: FoldersListRepository,
-    currencyPrefRepo: CurrencyPreferenceRepository
 ) : ViewModel(), FoldersListActions {
-    private val currency = currencyPrefRepo
-        .getCurrencyPreferenceForDateOrNext()
-        .distinctUntilChanged()
     private val listMode = repo.getFoldersListMode()
 
     val folderListPagingData = repo.getFoldersWithAggregateList()
         .cachedIn(viewModelScope)
 
     val state = combineTuple(
-        currency,
         listMode
     ).map { (
-                currency,
                 listMode
             ) ->
         FoldersListState(
-            currency = currency,
             listMode = listMode
         )
     }.asStateFlow(viewModelScope, FoldersListState())

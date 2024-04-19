@@ -10,7 +10,6 @@ import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
 @Module
 @InstallIn(ViewModelComponent::class)
 object OnboardingModule {
-
     @Provides
     fun provideOnboardingEventBus(): EventBus<OnboardingViewModel.OnboardingEvent> = EventBus()
 }

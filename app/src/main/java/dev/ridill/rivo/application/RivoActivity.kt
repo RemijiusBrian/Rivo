@@ -39,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.core.domain.util.BuildUtil
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
@@ -49,6 +50,7 @@ import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.securitySettings.AppLockScreen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Currency
 
 @AndroidEntryPoint
 class RivoActivity : AppCompatActivity() {
@@ -98,6 +100,8 @@ class RivoActivity : AppCompatActivity() {
             val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
             val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
             val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
+            val appCurrencyPreference by viewModel.currencyPreference
+                .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
             val darkTheme = when (appTheme) {
                 AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
                 AppTheme.LIGHT -> false
@@ -113,6 +117,7 @@ class RivoActivity : AppCompatActivity() {
                 showOnboarding = showOnboarding,
                 appLockErrorMessage = appLockErrorMessage,
                 isAppLocked = isAppLocked,
+                appCurrencyPreference = appCurrencyPreference,
                 onUnlockClick = ::checkAndLaunchBiometric,
                 closeApp = ::finish
             )
@@ -202,6 +207,7 @@ private fun ScreenContent(
     showOnboarding: Boolean,
     appLockErrorMessage: UiText?,
     isAppLocked: Boolean,
+    appCurrencyPreference: Currency,
     onUnlockClick: () -> Unit,
     closeApp: () -> Unit
 ) {
@@ -242,7 +248,8 @@ private fun ScreenContent(
             RivoNavHost(
                 windowSizeClass = windowSizeClass,
                 navController = navController,
-                startOnboarding = showOnboarding
+                startOnboarding = showOnboarding,
+                appCurrencyPreference = appCurrencyPreference
             )
 
             if (showAppLock) {

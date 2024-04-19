@@ -35,6 +35,7 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTrans
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
+import java.util.Currency
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String = """
@@ -113,7 +114,8 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry
+        navBackStackEntry: NavBackStackEntry,
+        appCurrencyPreference: Currency
     ) {
         val viewModel: AddEditTransactionViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
@@ -178,6 +180,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
         AddEditTransactionScreen(
             isEditMode = isEditMode,
+            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },

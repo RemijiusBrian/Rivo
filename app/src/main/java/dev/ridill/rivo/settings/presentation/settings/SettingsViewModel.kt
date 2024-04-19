@@ -10,9 +10,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
-import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
@@ -51,8 +49,6 @@ class SettingsViewModel @Inject constructor(
     private val budgetInputError = savedStateHandle
         .getStateFlow<UiText?>(BUDGET_INPUT_ERROR, null)
 
-    private val currentCurrency = repo.getCurrencyPreference()
-
     private val showCurrencySelection = savedStateHandle
         .getStateFlow(SHOW_CURRENCY_SELECTION, false)
     val currencySearchQuery = savedStateHandle
@@ -74,7 +70,6 @@ class SettingsViewModel @Inject constructor(
         monthlyBudget,
         budgetInputError,
         showMonthlyBudgetInput,
-        currentCurrency,
         showCurrencySelection,
         autoAddTransactionEnabled,
         showSmsPermissionRationale
@@ -85,7 +80,6 @@ class SettingsViewModel @Inject constructor(
                 monthlyBudget,
                 budgetInputError,
                 showMonthlyBudgetInput,
-                currentCurrency,
                 showCurrencySelection,
                 autoAddTransactionEnabled,
                 showSmsPermissionRationale
@@ -94,11 +88,9 @@ class SettingsViewModel @Inject constructor(
             appTheme = appTheme,
             dynamicColorsEnabled = dynamicColorsEnabled,
             showAppThemeSelection = showAppThemeSelection,
-            currentMonthlyBudget = monthlyBudget.takeIf { it > Long.Zero }
-                ?.let { TextFormat.number(it) }.orEmpty(),
+            currentMonthlyBudget = monthlyBudget,
             showBudgetInput = showMonthlyBudgetInput,
             budgetInputError = budgetInputError,
-            currentCurrency = currentCurrency,
             showCurrencySelection = showCurrencySelection,
             autoAddTransactionEnabled = autoAddTransactionEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale

@@ -18,7 +18,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +33,6 @@ import javax.inject.Inject
 class FolderDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: FolderDetailsRepository,
-    currencyPrefRepo: CurrencyPreferenceRepository,
     private val eventBus: EventBus<FolderDetailsEvent>
 ) : ViewModel(), FolderDetailsActions {
 
@@ -60,9 +58,6 @@ class FolderDetailsViewModel @Inject constructor(
     }.distinctUntilChanged()
     private val isFolderExcluded = savedStateHandle.getStateFlow(IS_FOLDER_EXCLUDED, false)
 
-    private val currency = currencyPrefRepo
-        .getCurrencyPreferenceForDateOrNext()
-
     private val aggregateAmount = folderDetails.map { it?.aggregateAmount.orZero() }
         .distinctUntilChanged()
 
@@ -82,7 +77,6 @@ class FolderDetailsViewModel @Inject constructor(
         showDeleteConfirmation,
         folderCreatedTimestamp,
         isFolderExcluded,
-        currency,
         aggregateAmount,
         aggregateType,
     ).map { (
@@ -92,7 +86,6 @@ class FolderDetailsViewModel @Inject constructor(
                 showDeleteConfirmation,
                 folderCreatedTimestamp,
                 isFolderExcluded,
-                currency,
                 aggregateAmount,
                 aggregateType,
             ) ->
@@ -103,7 +96,6 @@ class FolderDetailsViewModel @Inject constructor(
             showDeleteConfirmation = showDeleteConfirmation,
             createdTimestamp = folderCreatedTimestamp,
             isExcluded = isFolderExcluded,
-            currency = currency,
             aggregateAmount = aggregateAmount,
             aggregateType = aggregateType
         )

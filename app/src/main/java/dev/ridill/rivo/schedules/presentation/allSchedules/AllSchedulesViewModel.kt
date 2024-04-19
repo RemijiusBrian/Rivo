@@ -12,7 +12,6 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.domain.repository.AllSchedulesRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,15 +20,12 @@ import javax.inject.Inject
 @HiltViewModel
 class AllSchedulesViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    currencyPrefRepo: CurrencyPreferenceRepository,
     private val repo: AllSchedulesRepository,
     private val eventBus: EventBus<AllSchedulesEvent>
 ) : ViewModel(), AllSchedulesActions {
 
     private val showNotificationRationale = savedStateHandle
         .getStateFlow(SHOW_NOTIFICATION_RATIONALE, false)
-
-    private val currency = currencyPrefRepo.getCurrencyPreferenceForDateOrNext()
 
     val schedulesPagingData = repo.getAllSchedules()
         .cachedIn(viewModelScope)
@@ -45,20 +41,17 @@ class AllSchedulesViewModel @Inject constructor(
 
     val state = combineTuple(
         showNotificationRationale,
-        currency,
         multiSelectionModeActive,
         selectedScheduleIds,
         showDeleteSelectedSchedulesConfirmation
     ).map { (
                 showNotificationRationale,
-                currency,
                 multiSelectionModeActive,
                 selectedScheduleIds,
                 showDeleteSelectedSchedulesConfirmation
             ) ->
         AllSchedulesState(
             showNotificationRationale = showNotificationRationale,
-            currency = currency,
             multiSelectionModeActive = multiSelectionModeActive,
             selectedScheduleIds = selectedScheduleIds,
             showDeleteSelectedSchedulesConfirmation = showDeleteSelectedSchedulesConfirmation

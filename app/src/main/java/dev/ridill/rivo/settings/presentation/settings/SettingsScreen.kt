@@ -34,6 +34,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
+import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
@@ -46,6 +47,7 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.components.PreferenceIcon
@@ -55,6 +57,7 @@ import java.util.Currency
 
 @Composable
 fun SettingsScreen(
+    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     state: SettingsState,
     currencySearchQuery: () -> String,
@@ -116,11 +119,11 @@ fun SettingsScreen(
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_budget,
-                summary = state.currentMonthlyBudget.takeIf { it.isNotEmpty() }
+                summary = state.currentMonthlyBudget.takeIf { it > Long.Zero }
                     ?.let {
                         stringResource(
                             R.string.preference_current_budget_summary,
-                            "${state.currentCurrency.symbol}$it"
+                            TextFormat.currency(it, appCurrencyPreference)
                         )
                     }
                     ?: stringResource(R.string.preference_set_budget_summary),
@@ -129,7 +132,7 @@ fun SettingsScreen(
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_currency,
-                summary = state.currentCurrency.currencyCode,
+                summary = appCurrencyPreference.currencyCode,
                 onClick = actions::onCurrencyPreferenceClick
             )
 
@@ -176,17 +179,17 @@ fun SettingsScreen(
 
         if (state.showBudgetInput) {
             BudgetInputSheet(
-                currency = state.currentCurrency,
+                currency = appCurrencyPreference,
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
-                placeholder = state.currentMonthlyBudget,
+                placeholder = TextFormat.number(state.currentMonthlyBudget),
                 errorMessage = state.budgetInputError
             )
         }
 
         if (state.showCurrencySelection) {
             CurrencySelectionSheet(
-                currentCurrency = state.currentCurrency,
+                currentCurrency = appCurrencyPreference,
                 onDismiss = actions::onCurrencySelectionDismiss,
                 onConfirm = actions::onCurrencySelectionConfirm,
                 searchQuery = currencySearchQuery,

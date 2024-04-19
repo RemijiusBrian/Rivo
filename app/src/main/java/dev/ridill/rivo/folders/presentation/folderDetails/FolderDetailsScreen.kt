@@ -89,6 +89,7 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun FolderDetailsScreen(
+    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     state: FolderDetailsState,
     transactionPagingItems: LazyPagingItems<TransactionListItemUIModel>,
@@ -175,7 +176,7 @@ fun FolderDetailsScreen(
                     editModeActive = state.editModeActive,
                     isExcluded = state.isExcluded,
                     onExclusionToggle = actions::onExclusionToggle,
-                    currency = state.currency,
+                    currency = appCurrencyPreference,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,
                     createdTimestamp = state.createdTimestampFormatted,
@@ -252,7 +253,7 @@ fun FolderDetailsScreen(
                                         TransactionCard(
                                             note = item.transaction.note,
                                             amount = item.transaction
-                                                .amountFormattedWithCurrency(state.currency),
+                                                .amountFormattedWithCurrency(appCurrencyPreference),
                                             date = item.transaction.date,
                                             type = item.transaction.type,
                                             excluded = item.transaction.excluded,

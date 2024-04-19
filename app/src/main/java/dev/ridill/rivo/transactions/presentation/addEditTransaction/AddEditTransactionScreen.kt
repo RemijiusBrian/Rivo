@@ -90,6 +90,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.orZero
@@ -129,6 +130,7 @@ import kotlin.enums.EnumEntries
 @Composable
 fun AddEditTransactionScreen(
     isEditMode: Boolean,
+    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
@@ -243,7 +245,7 @@ fun AddEditTransactionScreen(
                 )
 
                 AmountInput(
-                    currency = state.currency,
+                    currency = appCurrencyPreference,
                     amount = amountInput,
                     onAmountChange = actions::onAmountChange,
                     onTransformClick = actions::onTransformAmountClick,
@@ -259,7 +261,7 @@ fun AddEditTransactionScreen(
 
                 if (!isEditMode) {
                     AmountRecommendationsRow(
-                        currency = state.currency,
+                        currency = appCurrencyPreference,
                         recommendations = state.amountRecommendations,
                         onRecommendationClick = {
                             actions.onRecommendedAmountClick(it)
@@ -914,7 +916,8 @@ private fun PreviewScreenContent() {
                 override fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode) {}
                 override fun onSaveClick() {}
             },
-            navigateUp = {}
+            navigateUp = {},
+            appCurrencyPreference = LocaleUtil.defaultCurrency
         )
     }
 }

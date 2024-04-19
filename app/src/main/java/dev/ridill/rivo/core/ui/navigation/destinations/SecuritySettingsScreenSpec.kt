@@ -35,6 +35,7 @@ import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
+import java.util.Currency
 
 data object SecuritySettingsScreenSpec : ScreenSpec {
     override val route: String = "security_settings"
@@ -51,7 +52,8 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry
+        navBackStackEntry: NavBackStackEntry,
+        appCurrencyPreference: Currency
     ) {
         val viewModel: SecuritySettingsViewModel = hiltViewModel(navBackStackEntry)
         val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(false)

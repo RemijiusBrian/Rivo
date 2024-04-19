@@ -58,10 +58,12 @@ import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.folders.domain.model.FolderUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
+import java.util.Currency
 import kotlin.math.absoluteValue
 
 @Composable
 fun FoldersListScreen(
+    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     foldersPagingItems: LazyPagingItems<FolderUIModel>,
     state: FoldersListState,
@@ -160,7 +162,7 @@ fun FoldersListScreen(
                                             excluded = item.folderDetails.excluded,
                                             aggregateAmount = TextFormat.compactNumber(
                                                 value = item.folderDetails.aggregateAmount.absoluteValue,
-                                                currency = state.currency
+                                                currency = appCurrencyPreference
                                             ),
                                             aggregateType = item.folderDetails.aggregateType,
                                             onClick = { navigateToFolderDetails(item.folderDetails.id) },

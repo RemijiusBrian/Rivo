@@ -32,6 +32,7 @@ import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
 import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
 import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
+import java.util.Currency
 
 data object FolderDetailsScreenSpec : ScreenSpec {
     override val route: String = """
@@ -108,7 +109,8 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry
+        navBackStackEntry: NavBackStackEntry,
+        appCurrencyPreference: Currency
     ) {
         val viewModel: FolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -160,6 +162,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
         }
 
         FolderDetailsScreen(
+            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             transactionPagingItems = transactionPagingItems,
             state = state,

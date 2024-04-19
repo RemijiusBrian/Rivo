@@ -70,10 +70,12 @@ import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItemUiModel
+import java.util.Currency
 
 @Composable
 fun AllSchedulesScreen(
     context: Context = LocalContext.current,
+    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     notificationPermissionState: PermissionState?,
     state: AllSchedulesState,
@@ -186,7 +188,7 @@ fun AllSchedulesScreen(
                                     derivedStateOf { item.scheduleItem.id in state.selectedScheduleIds }
                                 }
                                 ScheduleListItemCard(
-                                    amount = item.scheduleItem.amountFormatted(state.currency),
+                                    amount = item.scheduleItem.amountFormatted(appCurrencyPreference),
                                     note = item.scheduleItem.note,
                                     nextReminderDate = item.scheduleItem.nextReminderDateFormatted,
                                     lastPaymentTimestamp = item.scheduleItem.lastPaymentDateFormatted,

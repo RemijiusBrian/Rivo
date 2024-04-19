@@ -16,6 +16,7 @@ import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
 import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
+import java.util.Currency
 
 data object FoldersListScreenSpec : ScreenSpec {
     override val route: String = "folders_list"
@@ -26,7 +27,8 @@ data object FoldersListScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry
+        navBackStackEntry: NavBackStackEntry,
+        appCurrencyPreference: Currency
     ) {
         val viewModel: FoldersListViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -50,6 +52,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         }
 
         FoldersListScreen(
+            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             foldersPagingItems = foldersPagingItems,
             state = state,

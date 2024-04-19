@@ -7,7 +7,6 @@ import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
 import dev.ridill.rivo.transactions.data.toTransaction
@@ -15,25 +14,15 @@ import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-import java.util.Currency
 import kotlin.math.roundToLong
 
 class AddEditTransactionRepositoryImpl(
     private val db: RivoDatabase,
     private val dao: TransactionDao,
-    private val schedulesRepo: SchedulesRepository,
-    private val currencyPrefRepo: CurrencyPreferenceRepository
+    private val schedulesRepo: SchedulesRepository
 ) : AddEditTransactionRepository {
-    override fun getCurrencyPreference(dateTime: LocalDateTime): Flow<Currency> = currencyPrefRepo
-        .getCurrencyPreferenceForDateOrNext(
-            date = dateTime.toLocalDate()
-        )
-        .distinctUntilChanged()
-
     override suspend fun getTransactionById(id: Long): Transaction? =
         withContext(Dispatchers.IO) {
             dao.getTransactionById(id)?.toTransaction()
