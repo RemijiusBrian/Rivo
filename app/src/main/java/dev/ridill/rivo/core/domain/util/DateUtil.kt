@@ -81,6 +81,9 @@ object DateUtil {
         val localizedDateLong: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
+        val localizedTimeShort: DateTimeFormatter
+            get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+
         val localizedDateMediumTimeShort: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
 

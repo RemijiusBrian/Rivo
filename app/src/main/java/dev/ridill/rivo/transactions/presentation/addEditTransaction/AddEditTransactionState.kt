@@ -1,5 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
+import dev.ridill.rivo.core.domain.model.DateTimePickerMode
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
@@ -9,23 +10,22 @@ import java.time.LocalDateTime
 
 data class AddEditTransactionState(
     val isLoading: Boolean = false,
-    val isScheduleTxMode: Boolean = false,
-    val amountRecommendations: List<Long> = emptyList(),
-    val selectedTagId: Long? = null,
-    val transactionTimestamp: LocalDateTime = DateUtil.now(),
     val transactionType: TransactionType = TransactionType.DEBIT,
+    val amountRecommendations: List<Long> = emptyList(),
+    val amountTransformation: AmountTransformation = AmountTransformation.DIVIDE_BY,
+    val showAmountTransformationInput: Boolean = false,
+    val timestamp: LocalDateTime = DateUtil.now(),
+    val currentPickerMode: DateTimePickerMode = DateTimePickerMode.DATE_PICKER,
+    val showDatePicker: Boolean = false,
+    val showTimePicker: Boolean = false,
     val isTransactionExcluded: Boolean = false,
-    val showTransformationInput: Boolean = false,
-    val selectedAmountTransformation: AmountTransformation = AmountTransformation.DIVIDE_BY,
-    val showDeleteConfirmation: Boolean = false,
+    val selectedTagId: Long? = null,
     val showNewTagInput: Boolean = false,
     val newTagError: UiText? = null,
-    val showDateTimePicker: Boolean = false,
-    val showFolderSelection: Boolean = false,
+    val showDeleteConfirmation: Boolean = false,
     val linkedFolderName: String? = null,
-    val showRepeatModeSelection: Boolean = false,
-    val selectedRepeatMode: ScheduleRepeatMode = ScheduleRepeatMode.NO_REPEAT
-) {
-    val transactionDateFormatted: String
-        get() = transactionTimestamp.format(DateUtil.Formatters.localizedDateMedium)
-}
+    val showFolderSelection: Boolean = false,
+    val isScheduleTxMode: Boolean = false,
+    val selectedRepeatMode: ScheduleRepeatMode = ScheduleRepeatMode.NO_REPEAT,
+    val showRepeatModeSelection: Boolean = false
+)

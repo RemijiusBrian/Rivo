@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
@@ -47,16 +48,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -68,8 +72,10 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
@@ -88,6 +94,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.model.DateTimePickerMode
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.LocaleUtil
@@ -96,6 +103,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.CombinedButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
@@ -104,7 +112,6 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.TextFieldSheet
-import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
@@ -122,6 +129,8 @@ import dev.ridill.rivo.transactions.presentation.components.NewTagChip
 import dev.ridill.rivo.transactions.presentation.components.TagChip
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.Currency
@@ -144,6 +153,8 @@ fun AddEditTransactionScreen(
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
+    val coroutineScope = rememberCoroutineScope()
     val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
@@ -156,7 +167,7 @@ fun AddEditTransactionScreen(
 
     val dateNow = remember { DateUtil.dateNow() }
     val datePickerState = if (state.isScheduleTxMode) rememberDatePickerState(
-        initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
+        initialSelectedDateMillis = DateUtil.toMillis(state.timestamp),
         yearRange = IntRange(dateNow.year, DatePickerDefaults.YearRange.last),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean =
@@ -167,7 +178,7 @@ fun AddEditTransactionScreen(
         }
     )
     else rememberDatePickerState(
-        initialSelectedDateMillis = DateUtil.toMillis(state.transactionTimestamp),
+        initialSelectedDateMillis = DateUtil.toMillis(state.timestamp),
         yearRange = IntRange(DatePickerDefaults.YearRange.first, dateNow.year),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean =
@@ -176,6 +187,10 @@ fun AddEditTransactionScreen(
                     zoneId = ZoneId.of(ZoneOffset.UTC.id)
                 )
         }
+    )
+    val timePickerState = rememberTimePickerState(
+        initialHour = state.timestamp.hour,
+        initialMinute = state.timestamp.minute
     )
 
     RivoScaffold(
@@ -238,7 +253,7 @@ fun AddEditTransactionScreen(
             ) {
                 TransactionTypeSelector(
                     selectedType = state.transactionType,
-                    onValueChange = actions::onTransactionTypeChange,
+                    onValueChange = actions::onTypeChange,
                     modifier = Modifier
                         .fillMaxWidth(TRANSACTION_DIRECTION_SELECTOR_WIDTH_FRACTION)
                         .align(Alignment.CenterHorizontally)
@@ -289,8 +304,15 @@ fun AddEditTransactionScreen(
                     )
 
                     TransactionDate(
-                        date = state.transactionDateFormatted,
-                        onDateClick = actions::onTransactionTimestampClick,
+                        timestamp = state.timestamp,
+                        onClick = actions::onTimestampClick,
+                        onLongClick = {
+                            coroutineScope.launch {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                            actions.onTimestampLongClick()
+                        },
+                        pickerMode = state.currentPickerMode,
                         modifier = Modifier
                             .weight(weight = Float.One, fill = false)
                     )
@@ -303,7 +325,7 @@ fun AddEditTransactionScreen(
                 ) {
                     ExclusionToggle(
                         excluded = state.isTransactionExcluded,
-                        onToggle = actions::onTransactionExclusionToggle
+                        onToggle = actions::onExclusionToggle
                     )
                 }
 
@@ -366,23 +388,53 @@ fun AddEditTransactionScreen(
             )
         }
 
-        if (state.showDateTimePicker) {
+        if (state.showDatePicker) {
             DatePickerDialog(
-                onDismissRequest = actions::onTransactionTimestampSelectionDismiss,
+                onDismissRequest = actions::onDateSelectionDismiss,
                 confirmButton = {
-                    TextButton(onClick = {
-                        datePickerState.selectedDateMillis
-                            ?.let(actions::onTransactionTimestampSelectionConfirm)
-                    }) { Text(stringResource(R.string.action_ok)) }
+                    TextButton(
+                        onClick = {
+                            datePickerState.selectedDateMillis
+                                ?.let(actions::onDateSelectionConfirm)
+                        }
+                    ) {
+                        Text(stringResource(R.string.action_ok))
+                    }
                 },
                 dismissButton = {
-                    TextButton(onClick = actions::onTransactionTimestampSelectionDismiss) {
+                    TextButton(onClick = actions::onDateSelectionDismiss) {
                         Text(stringResource(R.string.action_cancel))
                     }
                 }
             ) {
                 DatePicker(datePickerState)
             }
+        }
+
+        if (state.showTimePicker) {
+            AlertDialog(
+                onDismissRequest = actions::onTimeSelectionDismiss,
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            actions.onTimeSelectionConfirm(
+                                hour = timePickerState.hour,
+                                minute = timePickerState.minute
+                            )
+                        }
+                    ) {
+                        Text(stringResource(R.string.action_ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = actions::onTimeSelectionDismiss) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+                text = {
+                    TimePicker(state = timePickerState)
+                }
+            )
         }
 
         if (state.showFolderSelection) {
@@ -396,10 +448,10 @@ fun AddEditTransactionScreen(
             )
         }
 
-        if (state.showTransformationInput) {
+        if (state.showAmountTransformationInput) {
             AmountTransformationSheet(
                 onDismiss = actions::onTransformAmountDismiss,
-                selectedTransformation = state.selectedAmountTransformation,
+                selectedTransformation = state.amountTransformation,
                 onTransformationSelect = actions::onAmountTransformationSelect,
                 onTransformClick = actions::onAmountTransformationConfirm
             )
@@ -510,24 +562,58 @@ private const val AMOUNT_RECOMMENDATION_WIDTH_FRACTION = 0.80f
 
 @Composable
 private fun TransactionDate(
-    date: String,
-    onDateClick: () -> Unit,
+    timestamp: LocalDateTime,
+    pickerMode: DateTimePickerMode,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val clickLabelRes = remember(pickerMode) {
+        when (pickerMode) {
+            DateTimePickerMode.DATE_PICKER -> R.string.cd_tap_to_pick_date
+            DateTimePickerMode.TIME_PICKER -> R.string.cd_tap_to_pick_time
+        }
+    }
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
-        Text(
-            text = date,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        FilledTonalIconButton(onClick = onDateClick) {
-            Icon(
-                imageVector = Icons.Outlined.CalendarClock,
-                contentDescription = stringResource(R.string.cd_click_to_change_transaction_date)
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = stringResource(R.string.timestamp_label),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold
             )
+            Text(
+                text = timestamp.format(DateUtil.Formatters.localizedDateMediumTimeShort),
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        CombinedButton(
+            onClick = onClick,
+            onClickLabel = stringResource(clickLabelRes),
+            onLongClick = onLongClick,
+            onLongClickLabel = stringResource(R.string.cd_long_press_to_swap_between_date_and_time_pickers)
+        ) {
+            Crossfade(
+                targetState = pickerMode,
+                label = "DateTimePickerIcon"
+            ) { mode ->
+                Icon(
+                    imageVector = ImageVector.vectorResource(
+                        id = when (mode) {
+                            DateTimePickerMode.DATE_PICKER -> R.drawable.ic_rounded_calendar_day
+                            DateTimePickerMode.TIME_PICKER -> R.drawable.ic_rounded_clock
+                        }
+                    ),
+                    contentDescription = stringResource(clickLabelRes)
+                )
+            }
         }
     }
 }
@@ -885,11 +971,14 @@ private fun PreviewScreenContent() {
                 override fun onNoteChange(value: String) {}
                 override fun onRecommendedAmountClick(amount: Long) {}
                 override fun onTagClick(tagId: Long) {}
-                override fun onTransactionTimestampClick() {}
-                override fun onTransactionTimestampSelectionDismiss() {}
-                override fun onTransactionTimestampSelectionConfirm(millis: Long) {}
-                override fun onTransactionTypeChange(type: TransactionType) {}
-                override fun onTransactionExclusionToggle(excluded: Boolean) {}
+                override fun onTimestampClick() {}
+                override fun onTimestampLongClick() {}
+                override fun onDateSelectionDismiss() {}
+                override fun onDateSelectionConfirm(millis: Long) {}
+                override fun onTimeSelectionDismiss() {}
+                override fun onTimeSelectionConfirm(hour: Int, minute: Int) {}
+                override fun onTypeChange(type: TransactionType) {}
+                override fun onExclusionToggle(excluded: Boolean) {}
                 override fun onTransformAmountClick() {}
                 override fun onTransformAmountDismiss() {}
                 override fun onAmountTransformationSelect(criteria: AmountTransformation) {}
