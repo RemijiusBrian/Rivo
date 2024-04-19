@@ -17,4 +17,13 @@ interface CurrencyDao : BaseDao<CurrencyEntity> {
     """
     )
     fun getAllCurrencyCodesPaged(query: String): PagingSource<Int, String>
+
+    @Query(
+        """
+        SELECT NOT EXISTS(
+            SELECT currency_code FROM currency_table LIMIT 1
+        )
+    """
+    )
+    suspend fun isTableEmpty(): Boolean
 }

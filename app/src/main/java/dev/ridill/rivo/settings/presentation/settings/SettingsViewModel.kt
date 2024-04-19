@@ -59,7 +59,6 @@ class SettingsViewModel @Inject constructor(
         .getStateFlow(CURRENCY_SEARCH_QUERY, "")
 
     val currenciesPagingData = currencySearchQuery
-//        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
             repo.getCurrenciesListPaged(query)
         }.cachedIn(viewModelScope)

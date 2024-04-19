@@ -8,8 +8,10 @@ import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.settings.domain.appInit.AppInitWorkManager
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
+import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,8 +26,10 @@ class RivoViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val receiverService: ReceiverService,
     private val appLockServiceManager: AppLockServiceManager,
-    private val eventBus: EventBus<RivoEvent>,
-    private val backupWorkManager: BackupWorkManager
+    private val backupWorkManager: BackupWorkManager,
+    private val appInitRepo: AppInitRepository,
+    private val appInitWorkManager: AppInitWorkManager,
+    private val eventBus: EventBus<RivoEvent>
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
     val showOnboarding = preferences.map { it.showOnboarding }
@@ -47,6 +51,7 @@ class RivoViewModel @Inject constructor(
     init {
         collectTransactionAutoDetectEnabled()
         collectIsAppLocked()
+        runInitIfNeeded()
     }
 
     private fun collectTransactionAutoDetectEnabled() = viewModelScope.launch {
@@ -107,6 +112,11 @@ class RivoViewModel @Inject constructor(
     }
 
     fun startConfigRestore() = backupWorkManager.runConfigRestoreWork()
+
+    private fun runInitIfNeeded() = viewModelScope.launch {
+        if (appInitRepo.needsInit())
+            appInitWorkManager.startAppInitWorker()
+    }
 
     sealed class RivoEvent {
         data object LaunchBiometricAuthentication : RivoEvent()
