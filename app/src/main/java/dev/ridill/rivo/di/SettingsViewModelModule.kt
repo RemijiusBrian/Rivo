@@ -1,9 +1,11 @@
 package dev.ridill.rivo.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
@@ -14,6 +16,7 @@ import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BudgetPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
+import dev.ridill.rivo.settings.domain.appInit.AppInitWorkManager
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.BudgetPreferenceRepository
@@ -28,7 +31,8 @@ import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 @InstallIn(ViewModelComponent::class)
 object SettingsViewModelModule {
     @Provides
-    fun provideBudgetPreferenceDao(database: RivoDatabase): BudgetPreferenceDao = database.budgetDao()
+    fun provideBudgetPreferenceDao(database: RivoDatabase): BudgetPreferenceDao =
+        database.budgetPreferenceDao()
 
     @Provides
     fun provideBudgetPreferenceRepository(
@@ -73,4 +77,9 @@ object SettingsViewModelModule {
     @Provides
     fun provideBackupEncryptionEventBus(): EventBus<BackupEncryptionViewModel.BackupEncryptionEvent> =
         EventBus()
+
+    @Provides
+    fun provideAppInitWorkManager(
+        @ApplicationContext context: Context
+    ): AppInitWorkManager = AppInitWorkManager(context)
 }

@@ -29,6 +29,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
@@ -55,6 +58,7 @@ fun SettingsScreen(
     snackbarController: SnackbarController,
     state: SettingsState,
     currencySearchQuery: () -> String,
+    currenciesPagingData: LazyPagingItems<Currency>,
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
@@ -187,7 +191,7 @@ fun SettingsScreen(
                 onConfirm = actions::onCurrencySelectionConfirm,
                 searchQuery = currencySearchQuery,
                 onSearchQueryChange = actions::onCurrencySearchQueryChange,
-                currencyList = state.currencyList
+                currenciesPagingData = currenciesPagingData
             )
         }
 
@@ -240,7 +244,7 @@ private fun CurrencySelectionSheet(
     currentCurrency: Currency,
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
-    currencyList: List<Currency>,
+    currenciesPagingData: LazyPagingItems<Currency>,
     onDismiss: () -> Unit,
     onConfirm: (Currency) -> Unit,
     modifier: Modifier = Modifier
@@ -248,20 +252,26 @@ private fun CurrencySelectionSheet(
     ListSearchSheet(
         searchQuery = searchQuery,
         onSearchQueryChange = onSearchQueryChange,
-        itemsList = currencyList,
         onDismiss = onDismiss,
         placeholder = stringResource(R.string.search_currency),
-        modifier = modifier,
-        itemKey = { it.currencyCode }
-    ) { currency ->
-        LabelledRadioButton(
-            label = "${currency.displayName} (${currency.currencyCode})",
-            selected = currency.currencyCode == currentCurrency.currencyCode,
-            onClick = { onConfirm(currency) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateItemPlacement()
-        )
+        modifier = modifier
+    ) {
+        items(
+            count = currenciesPagingData.itemCount,
+            key = currenciesPagingData.itemKey { it.currencyCode },
+            contentType = currenciesPagingData.itemContentType { "CurrencySelector" }
+        ) { index ->
+            currenciesPagingData[index]?.let { currency ->
+                LabelledRadioButton(
+                    label = "${currency.displayName} (${currency.currencyCode})",
+                    selected = currency.currencyCode == currentCurrency.currencyCode,
+                    onClick = { onConfirm(currency) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItemPlacement()
+                )
+            }
+        }
     }
 }
 

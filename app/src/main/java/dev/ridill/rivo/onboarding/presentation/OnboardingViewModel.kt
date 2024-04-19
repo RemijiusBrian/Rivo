@@ -20,6 +20,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
+import dev.ridill.rivo.settings.domain.appInit.AppInitWorkManager
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
@@ -40,7 +41,8 @@ class OnboardingViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val preferencesManager: PreferencesManager,
     private val backupRepository: BackupRepository,
-    private val cryptoManager: CryptoManager
+    private val cryptoManager: CryptoManager,
+    private val appInitWorkManager: AppInitWorkManager
 ) : ViewModel(), OnboardingActions {
     val restoreStatusText = savedStateHandle
         .getStateFlow<UiText?>(RESTORE_STATE_TEXT, null)
@@ -218,7 +220,7 @@ class OnboardingViewModel @Inject constructor(
         savedStateHandle[BUDGET_INPUT] = value
     }
 
-    override fun onSetBudgetContinue() {
+    override fun onStartBudgetingClick() {
         viewModelScope.launch {
             val budgetValue = budgetInput.value.toLongOrNull() ?: -1L
             if (budgetValue <= Long.Zero) {
@@ -231,6 +233,7 @@ class OnboardingViewModel @Inject constructor(
             }
             settingsRepository.updateCurrentBudget(budgetValue)
             preferencesManager.concludeOnboarding()
+            appInitWorkManager.startAppInitWorker()
             eventBus.send(OnboardingEvent.OnboardingConcluded)
         }
     }

@@ -12,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
@@ -44,6 +45,7 @@ data object SettingsScreenSpec : ScreenSpec {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val currencySearchQueryState = viewModel.currencySearchQuery.collectAsStateWithLifecycle()
+        val currenciesPagingData = viewModel.currenciesPagingData.collectAsLazyPagingItems()
 
         val smsPermissionState = rememberPermissionState(
             permission = Manifest.permission.RECEIVE_SMS,
@@ -76,6 +78,7 @@ data object SettingsScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             state = state,
             currencySearchQuery = { currencySearchQueryState.value },
+            currenciesPagingData = currenciesPagingData,
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,

@@ -14,7 +14,6 @@ data class SettingsState(
     val budgetInputError: UiText? = null,
     val currentCurrency: Currency = LocaleUtil.defaultCurrency,
     val showCurrencySelection: Boolean = false,
-    val currencyList: List<Currency> = emptyList(),
     val autoAddTransactionEnabled: Boolean = false,
     val showSmsPermissionRationale: Boolean = false
 )
