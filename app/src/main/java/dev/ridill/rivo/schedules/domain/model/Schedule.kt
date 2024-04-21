@@ -3,7 +3,7 @@ package dev.ridill.rivo.schedules.domain.model
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class Schedule(
     val id: Long,
@@ -13,8 +13,8 @@ data class Schedule(
     val tagId: Long?,
     val folderId: Long?,
     val repeatMode: ScheduleRepeatMode,
-    val nextReminderDate: LocalDate?,
-    val lastPaidDate: LocalDate?
+    val nextReminderDate: LocalDateTime?,
+    val lastPaidDate: LocalDateTime?
 ) {
     companion object {
         fun fromTransaction(
@@ -28,7 +28,7 @@ data class Schedule(
             repeatMode = repeatMode,
             tagId = transaction.tagId,
             folderId = transaction.folderId,
-            nextReminderDate = transaction.timestamp.toLocalDate(),
+            nextReminderDate = transaction.timestamp,
             lastPaidDate = null
         )
     }

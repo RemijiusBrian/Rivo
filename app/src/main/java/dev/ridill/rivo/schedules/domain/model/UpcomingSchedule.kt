@@ -3,14 +3,14 @@ package dev.ridill.rivo.schedules.domain.model
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Currency
 
 data class UpcomingSchedule(
     val id: Long,
     val note: UiText,
     val amount: Double,
-    val dueDate: LocalDate
+    val dueDate: LocalDateTime
 ) {
     fun amountFormatted(currency: Currency): String =
         TextFormat.currency(amount, currency)

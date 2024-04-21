@@ -64,5 +64,5 @@ fun ScheduleEntity.toActiveSchedule(): UpcomingSchedule = UpcomingSchedule(
     note = note?.let { UiText.DynamicString(it) }
         ?: UiText.StringResource(TransactionType.valueOf(typeName).labelRes),
     amount = amount,
-    dueDate = nextReminderDate ?: DateUtil.dateNow()
+    dueDate = nextReminderDate ?: DateUtil.now()
 )

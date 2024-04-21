@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity(tableName = "schedules_table")
 data class ScheduleEntity(
@@ -31,8 +31,8 @@ data class ScheduleEntity(
     val repeatModeName: String,
 
     @ColumnInfo(name = "next_reminder_date")
-    val nextReminderDate: LocalDate?,
+    val nextReminderDate: LocalDateTime?,
 
     @ColumnInfo(name = "last_paid_date")
-    val lastPaidDate: LocalDate?
+    val lastPaidDate: LocalDateTime?
 )

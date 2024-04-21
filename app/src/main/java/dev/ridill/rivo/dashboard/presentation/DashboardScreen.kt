@@ -628,7 +628,7 @@ private fun PreviewDashboardScreen() {
                         id = it.toLong(),
                         note = UiText.DynamicString("Really long transaction note"),
                         amount = 200.0,
-                        dueDate = DateUtil.dateNow()
+                        dueDate = DateUtil.now()
                     )
                 }
             ),

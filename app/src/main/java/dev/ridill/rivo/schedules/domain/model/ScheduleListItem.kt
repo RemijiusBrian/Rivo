@@ -2,15 +2,15 @@ package dev.ridill.rivo.schedules.domain.model
 
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.TextFormat
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Currency
 
 data class ScheduleListItem(
     val id: Long,
     val amount: Double,
     val note: String?,
-    val nextReminderDate: LocalDate?,
-    val lastPaidDate: LocalDate?
+    val nextReminderDate: LocalDateTime?,
+    val lastPaidDate: LocalDateTime?
 ) {
     val canMarkPaid: Boolean
         get() {

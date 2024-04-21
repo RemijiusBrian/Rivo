@@ -15,7 +15,6 @@ import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleReminder
 import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 class SchedulesRepositoryImpl(
@@ -31,25 +30,25 @@ class SchedulesRepositoryImpl(
         }
 
     override fun getNextReminderFromDate(
-        date: LocalDate,
+        dateTime: LocalDateTime,
         repeatMode: ScheduleRepeatMode
-    ): LocalDate? = when (repeatMode) {
+    ): LocalDateTime? = when (repeatMode) {
         ScheduleRepeatMode.NO_REPEAT -> null
-        ScheduleRepeatMode.WEEKLY -> date.plusWeeks(1)
-        ScheduleRepeatMode.MONTHLY -> date.plusMonths(1)
-        ScheduleRepeatMode.BI_MONTHLY -> date.plusMonths(2)
-        ScheduleRepeatMode.YEARLY -> date.plusYears(1)
+        ScheduleRepeatMode.WEEKLY -> dateTime.plusWeeks(1)
+        ScheduleRepeatMode.MONTHLY -> dateTime.plusMonths(1)
+        ScheduleRepeatMode.BI_MONTHLY -> dateTime.plusMonths(2)
+        ScheduleRepeatMode.YEARLY -> dateTime.plusYears(1)
     }
 
     override fun getPrevReminderFromDate(
-        date: LocalDate,
+        dateTime: LocalDateTime,
         repeatMode: ScheduleRepeatMode
-    ): LocalDate? = when (repeatMode) {
+    ): LocalDateTime? = when (repeatMode) {
         ScheduleRepeatMode.NO_REPEAT -> null
-        ScheduleRepeatMode.WEEKLY -> date.minusWeeks(1)
-        ScheduleRepeatMode.MONTHLY -> date.minusMonths(1)
-        ScheduleRepeatMode.BI_MONTHLY -> date.minusMonths(2)
-        ScheduleRepeatMode.YEARLY -> date.minusYears(1)
+        ScheduleRepeatMode.WEEKLY -> dateTime.minusWeeks(1)
+        ScheduleRepeatMode.MONTHLY -> dateTime.minusMonths(1)
+        ScheduleRepeatMode.BI_MONTHLY -> dateTime.minusMonths(2)
+        ScheduleRepeatMode.YEARLY -> dateTime.minusYears(1)
     }
 
     override suspend fun saveScheduleAndSetReminder(schedule: Schedule) {
@@ -84,7 +83,7 @@ class SchedulesRepositoryImpl(
             saveScheduleAndSetReminder(
                 schedule = schedule.copy(
                     nextReminderDate = nextReminderDate,
-                    lastPaidDate = dateTime.toLocalDate()
+                    lastPaidDate = dateTime
                 )
             )
         }

@@ -141,6 +141,19 @@ object DateUtil {
             .parseDefaulting(ChronoField.SECOND_OF_MINUTE, dateTime.second.toLong())
             .toFormatter()
 
+        fun formatterWithDefault(
+            pattern: DateTimeFormatter,
+            dateTime: LocalDateTime = now()
+        ): DateTimeFormatter = DateTimeFormatterBuilder()
+            .append(pattern)
+            .parseDefaulting(ChronoField.YEAR, dateTime.year.toLong())
+            .parseDefaulting(ChronoField.MONTH_OF_YEAR, dateTime.monthValue.toLong())
+            .parseDefaulting(ChronoField.DAY_OF_MONTH, dateTime.dayOfMonth.toLong())
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, dateTime.hour.toLong())
+            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, dateTime.minute.toLong())
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, dateTime.second.toLong())
+            .toFormatter()
+
         private val ordinalsMap: Map<Long, String>
             get() {
                 val mutableMap = mutableMapOf(

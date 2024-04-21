@@ -34,7 +34,7 @@ class AlarmManagerScheduleReminder(
             pendingIntent
         )
 
-        logI { "Schedule $schedule reminder set for ${DateUtil.fromMillis(timeMillis)}" }
+        logI { "Set reminder for $schedule on ${schedule.nextReminderDate}" }
     }
 
     override fun cancel(id: Long) {

@@ -198,7 +198,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 ?: ScheduleRepeatMode.NO_REPEAT
 
             schedule?.toTransaction(
-                dateTime = schedule.nextReminderDate?.atStartOfDay()
+                dateTime = schedule.nextReminderDate
                     ?: DateUtil.now(),
                 txId = transactionIdArg
             )
