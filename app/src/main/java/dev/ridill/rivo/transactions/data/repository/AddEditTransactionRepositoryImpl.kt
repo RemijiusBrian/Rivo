@@ -3,6 +3,7 @@ package dev.ridill.rivo.transactions.data.repository
 import androidx.room.withTransaction
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
@@ -55,12 +56,14 @@ class AddEditTransactionRepositoryImpl(
             val transaction = dao.getTransactionById(id)
                 ?: return@withTransaction
             dao.delete(transaction)
+            logI { "Tx $transaction deleted" }
 
             // Update lastPaid and nextReminder dates for associated schedule
             if (transaction.scheduleId == null) return@withTransaction
 
             val schedule = schedulesRepo.getScheduleById(transaction.scheduleId)
                 ?: return@withTransaction
+            logI { "Found schedule for tx - $schedule" }
 
             // Check if deleted transaction is the same month as schedule lastPaidDate
             val isTxTimestampAndScheduleLastPaidDateSameMonth = schedule.lastPaidDate
@@ -68,12 +71,17 @@ class AddEditTransactionRepositoryImpl(
 
             if (isTxTimestampAndScheduleLastPaidDateSameMonth) {
                 // Get latest payment date for schedule
+                logI { "Tx same mont as schedule last paid date" }
                 val newLastPaymentDate = schedulesRepo
                     .getLastTransactionTimestampForSchedule(schedule.id)
-                    ?.toLocalDate()
+                logI { "Latest tx date for schedule - $newLastPaymentDate" }
                 // calculate next reminder from last payment date
                 val prevReminderDate = schedule.nextReminderDate
-                    ?.let { schedulesRepo.getPrevReminderFromDate(it, schedule.repeatMode) }
+                    ?.let {
+                        schedulesRepo.getPrevReminderFromDate(it, schedule.repeatMode)
+                    } ?: schedule.lastPaidDate
+
+                logI { "New prev reminder date for schedule - $prevReminderDate" }
                 // update schedule and set new reminder for next date
                 schedulesRepo.saveScheduleAndSetReminder(
                     schedule.copy(
@@ -107,7 +115,8 @@ class AddEditTransactionRepositoryImpl(
                 type = transaction.type,
                 repeatMode = repeatMode,
                 tagId = transaction.tagId,
-                folderId = transaction.folderId
+                folderId = transaction.folderId,
+                nextReminderDate = transaction.timestamp
             ) ?: Schedule.fromTransaction(transaction, repeatMode)
 
         schedulesRepo.saveScheduleAndSetReminder(schedule)
