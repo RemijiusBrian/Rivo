@@ -387,7 +387,7 @@
     <string name="payment_of_amount">Payment of amount</string>
     <string name="for_note">for</string>
     <string name="due_on_date">Due on %s</string>
-    <string name="upcoming_schedules">Upcoming Schedules</string>
+    <string name="schedules_this_month">Schedules this month</string>
     <string name="created_colon_timestamp_value">Created: %s</string>
     <string name="asterisk_long_press_to_edit">*Long press to edit</string>
     <string name="initializing_app">Initializing %s</string>

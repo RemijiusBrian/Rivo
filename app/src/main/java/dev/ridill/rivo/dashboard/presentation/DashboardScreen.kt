@@ -87,7 +87,7 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
+import dev.ridill.rivo.schedules.domain.model.ActiveSchedule
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -105,8 +105,8 @@ fun DashboardScreen(
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    val areUpcomingSchedulesEmpty by remember(state.upcomingSchedules) {
-        derivedStateOf { state.upcomingSchedules.isEmpty() }
+    val areActiveSchedulesEmpty by remember(state.activeSchedules) {
+        derivedStateOf { state.activeSchedules.isEmpty() }
     }
     val areRecentSpendsEmpty by remember(state.recentSpends) {
         derivedStateOf { state.recentSpends.isEmpty() }
@@ -183,10 +183,10 @@ fun DashboardScreen(
                 )
             }
 
-            if (!areUpcomingSchedulesEmpty) {
+            if (!areActiveSchedulesEmpty) {
                 item(
-                    key = "UpcomingSchedulesRow",
-                    contentType = "UpcomingSchedulesRow"
+                    key = "ActiveSchedulesRow",
+                    contentType = "ActiveSchedulesRow"
                 ) {
                     Surface(
                         modifier = Modifier
@@ -200,7 +200,7 @@ fun DashboardScreen(
                                 .fillParentMaxWidth()
                         ) {
                             ListLabel(
-                                text = stringResource(R.string.upcoming_schedules),
+                                text = stringResource(R.string.schedules_this_month),
                                 modifier = Modifier
                                     .padding(horizontal = SpacingMedium),
                                 color = MaterialTheme.colorScheme.primary
@@ -214,9 +214,9 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.primary
                             )
 
-                            UpcomingSchedulesRow(
+                            ActiveSchedulesRow(
                                 currency = appCurrencyPreference,
-                                upcomingSchedules = state.upcomingSchedules,
+                                activeSchedules = state.activeSchedules,
                                 modifier = Modifier
                                     .fillMaxWidth()
                             )
@@ -486,9 +486,9 @@ private fun SpentAmountAndAllTransactionsButton(
 }
 
 @Composable
-private fun UpcomingSchedulesRow(
+private fun ActiveSchedulesRow(
     currency: Currency,
-    upcomingSchedules: List<UpcomingSchedule>,
+    activeSchedules: List<ActiveSchedule>,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
@@ -501,11 +501,11 @@ private fun UpcomingSchedulesRow(
         horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
     ) {
         items(
-            items = upcomingSchedules,
+            items = activeSchedules,
             key = { it.id },
-            contentType = { "UpcomingScheduleCard" }
+            contentType = { "ActiveScheduleCard" }
         ) { schedule ->
-            UpcomingScheduleCard(
+            ActiveScheduleCard(
                 name = schedule.note,
                 amount = schedule.amountFormatted(currency),
                 dueDate = schedule.dueDateFormatted,
@@ -520,7 +520,7 @@ private fun UpcomingSchedulesRow(
 private const val UPCOMING_SCHEDULE_CARD_PARENT_WIDTH_FRACTION = 0.80f
 
 @Composable
-private fun UpcomingScheduleCard(
+private fun ActiveScheduleCard(
     name: UiText,
     amount: String,
     dueDate: String,
@@ -623,8 +623,8 @@ private fun PreviewDashboardScreen() {
                 balance = 1_000.0,
                 spentAmount = 500.0,
                 monthlyBudgetInclCredits = 5_000.0,
-                upcomingSchedules = List(3) {
-                    UpcomingSchedule(
+                activeSchedules = List(3) {
+                    ActiveSchedule(
                         id = it.toLong(),
                         note = UiText.DynamicString("Really long transaction note"),
                         amount = 200.0,

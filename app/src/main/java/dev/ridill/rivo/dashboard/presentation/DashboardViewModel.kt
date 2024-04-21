@@ -47,7 +47,7 @@ class DashboardViewModel @Inject constructor(
         budgetInclCredits - debits
     }.distinctUntilChanged()
 
-    private val upcomingSchedules = repo.getActiveSchedules()
+    private val activeSchedules = repo.getSchedulesActiveThisMonth()
 
     private val recentSpends = repo.getRecentSpends()
 
@@ -58,7 +58,7 @@ class DashboardViewModel @Inject constructor(
         spentAmount,
         creditAmount,
         balance,
-        upcomingSchedules,
+        activeSchedules,
         recentSpends,
         signedInUsername
     ).map { (
@@ -66,7 +66,7 @@ class DashboardViewModel @Inject constructor(
                 spentAmount,
                 creditAmount,
                 balance,
-                upcomingSchedules,
+                activeSchedules,
                 recentSpends,
                 signedInUsername
             ) ->
@@ -75,7 +75,7 @@ class DashboardViewModel @Inject constructor(
             spentAmount = spentAmount,
             creditAmount = creditAmount,
             monthlyBudgetInclCredits = budgetInclCredits,
-            upcomingSchedules = upcomingSchedules,
+            activeSchedules = activeSchedules,
             recentSpends = recentSpends,
             signedInUsername = signedInUsername
         )

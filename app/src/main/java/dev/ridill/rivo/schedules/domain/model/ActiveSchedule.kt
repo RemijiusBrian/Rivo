@@ -6,7 +6,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import java.time.LocalDateTime
 import java.util.Currency
 
-data class UpcomingSchedule(
+data class ActiveSchedule(
     val id: Long,
     val note: UiText,
     val amount: Double,
@@ -16,5 +16,9 @@ data class UpcomingSchedule(
         TextFormat.currency(amount, currency)
 
     val dueDateFormatted: String
-        get() = dueDate.format(DateUtil.Formatters.EEE_ddth_commaSep)
+        get() = "${dueDate.format(DateUtil.Formatters.EEE_ddth_commaSep)} at ${
+            dueDate.format(
+                DateUtil.Formatters.localizedTimeShort
+            )
+        }"
 }

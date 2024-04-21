@@ -5,7 +5,7 @@ import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.schedules.data.toActiveSchedule
-import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
+import dev.ridill.rivo.schedules.domain.model.ActiveSchedule
 import dev.ridill.rivo.settings.domain.repositoty.BudgetPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
@@ -35,8 +35,8 @@ class DashboardRepositoryImpl(
         dateTime = DateUtil.now()
     ).distinctUntilChanged()
 
-    override fun getActiveSchedules(): Flow<List<UpcomingSchedule>> = schedulesDao
-        .getUpcomingSchedulesForDate(DateUtil.dateNow())
+    override fun getSchedulesActiveThisMonth(): Flow<List<ActiveSchedule>> = schedulesDao
+        .getSchedulesForMonth(DateUtil.dateNow())
         .map { entities -> entities.map(ScheduleEntity::toActiveSchedule) }
 
     override fun getRecentSpends(): Flow<List<TransactionListItem>> = transactionDao

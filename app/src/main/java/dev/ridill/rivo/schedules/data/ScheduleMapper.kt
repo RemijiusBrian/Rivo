@@ -7,7 +7,7 @@ import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItem
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
-import dev.ridill.rivo.schedules.domain.model.UpcomingSchedule
+import dev.ridill.rivo.schedules.domain.model.ActiveSchedule
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
@@ -59,7 +59,7 @@ fun ScheduleEntity.toScheduleListItem(): ScheduleListItem = ScheduleListItem(
     lastPaidDate = lastPaidDate,
 )
 
-fun ScheduleEntity.toActiveSchedule(): UpcomingSchedule = UpcomingSchedule(
+fun ScheduleEntity.toActiveSchedule(): ActiveSchedule = ActiveSchedule(
     id = id,
     note = note?.let { UiText.DynamicString(it) }
         ?: UiText.StringResource(TransactionType.valueOf(typeName).labelRes),

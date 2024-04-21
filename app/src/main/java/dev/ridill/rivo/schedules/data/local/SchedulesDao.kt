@@ -40,11 +40,10 @@ interface SchedulesDao : BaseDao<ScheduleEntity> {
         SELECT *
         FROM schedules_table
         WHERE strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', next_reminder_date) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date)
-        AND DATE(next_reminder_date) >= DATE('now')
-        ORDER BY DATE(next_reminder_date) ASC
+        ORDER BY DATETIME(next_reminder_date) ASC
     """
     )
-    fun getUpcomingSchedulesForDate(date: LocalDate): Flow<List<ScheduleEntity>>
+    fun getSchedulesForMonth(date: LocalDate): Flow<List<ScheduleEntity>>
 
     @Query("DELETE FROM schedules_table WHERE id IN (:ids)")
     suspend fun deleteSchedulesById(ids: Set<Long>)
