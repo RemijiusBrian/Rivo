@@ -40,13 +40,13 @@ class ScheduleReminderReceiver : BroadcastReceiver() {
             val schedule = repo.getScheduleById(id)
                 ?: return@launch
             logI { "Schedule $schedule triggered at ${DateUtil.now()}" }
+            val newReminderDate = schedule.nextReminderDate
+                ?.let { repo.getNextReminderFromDate(it, schedule.repeatMode) }
+            repo.saveScheduleAndSetReminder(schedule.copy(nextReminderDate = newReminderDate))
             notificationHelper.postNotification(
                 id = schedule.id.hashCode(),
                 data = schedule
             )
-            val newReminderDate = schedule.nextReminderDate
-                ?.let { repo.getNextReminderFromDate(it, schedule.repeatMode) }
-            repo.saveScheduleAndSetReminder(schedule.copy(nextReminderDate = newReminderDate))
         }
     }
 }

@@ -80,7 +80,7 @@ class AllSchedulesRepositoryImpl(
         }
 
     override suspend fun deleteSchedulesById(ids: Set<Long>) = withContext(Dispatchers.IO) {
-        schedulesDao.deleteSchedulesById(ids)
+        repo.deleteSchedulesByIds(ids)
     }
 }
 

@@ -20,4 +20,5 @@ interface SchedulesRepository {
     suspend fun deleteScheduleById(id: Long)
     suspend fun cancelSchedule(schedule: Schedule)
     suspend fun setAllFutureScheduleReminders()
+    suspend fun deleteSchedulesByIds(ids: Set<Long>)
 }

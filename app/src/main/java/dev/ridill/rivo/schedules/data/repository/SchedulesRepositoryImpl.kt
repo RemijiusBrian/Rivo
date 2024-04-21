@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.toEntity
 import dev.ridill.rivo.schedules.data.toSchedule
@@ -99,7 +100,7 @@ class SchedulesRepositoryImpl(
     }
 
     override suspend fun cancelSchedule(schedule: Schedule) {
-        scheduler.cancel(schedule)
+        scheduler.cancel(schedule.id)
     }
 
     override suspend fun setAllFutureScheduleReminders() = withContext(Dispatchers.IO) {
@@ -107,5 +108,14 @@ class SchedulesRepositoryImpl(
             .forEach { entity ->
                 scheduler.setReminder(entity.toSchedule())
             }
+    }
+
+    override suspend fun deleteSchedulesByIds(ids: Set<Long>) = withContext(Dispatchers.IO) {
+        try {
+            ids.forEach { scheduler.cancel(it) }
+            dao.deleteSchedulesById(ids)
+        } catch (t: Throwable) {
+            logE(t) { "Delete schedules error" }
+        }
     }
 }

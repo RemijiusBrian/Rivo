@@ -37,15 +37,15 @@ class AlarmManagerScheduleReminder(
         logI { "Schedule $schedule reminder set for ${DateUtil.fromMillis(timeMillis)}" }
     }
 
-    override fun cancel(schedule: Schedule) {
+    override fun cancel(id: Long) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                schedule.id.hashCode(),
+                id.hashCode(),
                 Intent(context, ScheduleReminderReceiver::class.java),
                 UtilConstants.pendingIntentFlags
             )
         )
-        logI { "Schedule $schedule reminder cancelled" }
+        logI { "Schedule ID $id reminder cancelled" }
     }
 }
