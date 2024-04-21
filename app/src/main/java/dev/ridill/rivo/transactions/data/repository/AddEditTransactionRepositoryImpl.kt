@@ -62,11 +62,11 @@ class AddEditTransactionRepositoryImpl(
             val schedule = schedulesRepo.getScheduleById(transaction.scheduleId)
                 ?: return@withTransaction
 
-            // Check if deleted transaction has same date as schedule lastPaidDate
-            val isTxTimestampAndScheduleLastPaidDateSame = schedule.lastPaidDate
-                ?.isEqual(transaction.timestamp.toLocalDate()) == true
+            // Check if deleted transaction is the same month as schedule lastPaidDate
+            val isTxTimestampAndScheduleLastPaidDateSameMonth = schedule.lastPaidDate
+                ?.month == transaction.timestamp.month
 
-            if (isTxTimestampAndScheduleLastPaidDateSame) {
+            if (isTxTimestampAndScheduleLastPaidDateSameMonth) {
                 // Get latest payment date for schedule
                 val newLastPaymentDate = schedulesRepo
                     .getLastTransactionTimestampForSchedule(schedule.id)
