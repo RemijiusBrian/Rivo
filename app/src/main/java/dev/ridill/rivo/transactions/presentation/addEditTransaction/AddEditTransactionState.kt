@@ -6,26 +6,30 @@ import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 data class AddEditTransactionState(
     val isLoading: Boolean = false,
-    val isScheduleTxMode: Boolean = false,
-    val amountRecommendations: List<Long> = emptyList(),
-    val selectedTagId: Long? = null,
-    val transactionTimestamp: LocalDateTime = DateUtil.now(),
     val transactionType: TransactionType = TransactionType.DEBIT,
+    val amountRecommendations: List<Long> = emptyList(),
+    val amountTransformation: AmountTransformation = AmountTransformation.DIVIDE_BY,
+    val showAmountTransformationInput: Boolean = false,
+    val timestamp: LocalDateTime = DateUtil.now(),
+    val showDatePicker: Boolean = false,
+    val showTimePicker: Boolean = false,
     val isTransactionExcluded: Boolean = false,
-    val showTransformationInput: Boolean = false,
-    val selectedAmountTransformation: AmountTransformation = AmountTransformation.DIVIDE_BY,
-    val showDeleteConfirmation: Boolean = false,
+    val selectedTagId: Long? = null,
     val showNewTagInput: Boolean = false,
     val newTagError: UiText? = null,
-    val showDateTimePicker: Boolean = false,
-    val showFolderSelection: Boolean = false,
+    val showDeleteConfirmation: Boolean = false,
     val linkedFolderName: String? = null,
-    val showRepeatModeSelection: Boolean = false,
-    val selectedRepeatMode: ScheduleRepeatMode = ScheduleRepeatMode.NO_REPEAT
+    val showFolderSelection: Boolean = false,
+    val isScheduleTxMode: Boolean = false,
+    val selectedRepeatMode: ScheduleRepeatMode = ScheduleRepeatMode.NO_REPEAT,
+    val showRepeatModeSelection: Boolean = false
 ) {
-    val transactionDateFormatted: String
-        get() = transactionTimestamp.format(DateUtil.Formatters.localizedDateMedium)
+    val timestampUtc: ZonedDateTime
+        get() = timestamp.atZone(ZoneId.of(ZoneOffset.UTC.id))
 }

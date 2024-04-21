@@ -81,7 +81,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val selectedTagId = txInput.map { it.tagId }
         .distinctUntilChanged()
 
-    private val transactionTimestamp = txInput.map { it.timestamp }
+    private val timestamp = txInput.map { it.timestamp }
         .distinctUntilChanged()
 
     private val transactionFolderId = txInput.map { it.folderId }
@@ -104,7 +104,8 @@ class AddEditTransactionViewModel @Inject constructor(
         .getStateFlow<Tag?>(TAG_INPUT, null)
     private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
-    private val showDateTimePicker = savedStateHandle.getStateFlow(SHOW_DATE_TIME_PICKER, false)
+    private val showDatePicker = savedStateHandle.getStateFlow(SHOW_DATE_PICKER, false)
+    private val showTimePicker = savedStateHandle.getStateFlow(SHOW_TIME_PICKER, false)
 
     private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
 
@@ -124,60 +125,63 @@ class AddEditTransactionViewModel @Inject constructor(
         .getStateFlow(SELECTED_REPEAT_MODE, ScheduleRepeatMode.NO_REPEAT)
 
     val state = combineTuple(
-        isScheduleTxMode,
         isLoading,
+        transactionType,
         amountRecommendations,
         amountTransformation,
         showAmountTransformationInput,
-        selectedTagId,
-        transactionTimestamp,
-        transactionType,
+        timestamp,
+        showDatePicker,
+        showTimePicker,
         isTransactionExcluded,
-        showDeleteConfirmation,
+        selectedTagId,
         showNewTagInput,
         newTagError,
-        showDateTimePicker,
-        showFolderSelection,
+        showDeleteConfirmation,
         linkedFolderName,
-        showRepeatModeSelection,
-        selectedRepeatMode
+        showFolderSelection,
+        isScheduleTxMode,
+        selectedRepeatMode,
+        showRepeatModeSelection
     ).map { (
-                isScheduleTxMode,
                 isLoading,
+                transactionType,
                 amountRecommendations,
                 amountTransformation,
                 showAmountTransformationInput,
-                selectedTagId,
-                transactionTimestamp,
-                transactionType,
+                timestamp,
+                showDatePicker,
+                showTimePicker,
                 isTransactionExcluded,
-                showDeleteConfirmation,
+                selectedTagId,
                 showNewTagInput,
                 newTagError,
-                showDateTimePicker,
-                showFolderSelection,
+                showDeleteConfirmation,
                 linkedFolderName,
-                showRepeatModeSelection,
-                selectedRepeatMode
+                showFolderSelection,
+                isScheduleTxMode,
+                selectedRepeatMode,
+                showRepeatModeSelection
             ) ->
         AddEditTransactionState(
-            isScheduleTxMode = isScheduleTxMode,
             isLoading = isLoading,
+            transactionType = transactionType,
             amountRecommendations = amountRecommendations,
-            selectedTagId = selectedTagId,
-            transactionTimestamp = transactionTimestamp,
+            amountTransformation = amountTransformation,
+            showAmountTransformationInput = showAmountTransformationInput,
+            timestamp = timestamp,
+            showDatePicker = showDatePicker,
+            showTimePicker = showTimePicker,
             isTransactionExcluded = isTransactionExcluded,
-            showDeleteConfirmation = showDeleteConfirmation,
+            selectedTagId = selectedTagId,
             showNewTagInput = showNewTagInput,
             newTagError = newTagError,
-            showDateTimePicker = showDateTimePicker,
-            transactionType = transactionType,
-            showFolderSelection = showFolderSelection,
+            showDeleteConfirmation = showDeleteConfirmation,
             linkedFolderName = linkedFolderName,
-            showTransformationInput = showAmountTransformationInput,
-            selectedAmountTransformation = amountTransformation,
-            showRepeatModeSelection = showRepeatModeSelection,
-            selectedRepeatMode = selectedRepeatMode
+            showFolderSelection = showFolderSelection,
+            isScheduleTxMode = isScheduleTxMode,
+            selectedRepeatMode = selectedRepeatMode,
+            showRepeatModeSelection = showRepeatModeSelection
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -251,28 +255,54 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
-    override fun onTransactionTimestampClick() {
-        savedStateHandle[SHOW_DATE_TIME_PICKER] = true
+    override fun onTimestampClick() {
+        savedStateHandle[SHOW_DATE_PICKER] = true
     }
 
-    override fun onTransactionTimestampSelectionDismiss() {
-        savedStateHandle[SHOW_DATE_TIME_PICKER] = false
+    override fun onDateSelectionDismiss() {
+        savedStateHandle[SHOW_DATE_PICKER] = false
     }
 
-    override fun onTransactionTimestampSelectionConfirm(millis: Long) {
+    override fun onDateSelectionConfirm(millis: Long) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
-            timestamp = DateUtil.dateFromMillisWithTime(millis)
+            timestamp = DateUtil.dateFromMillisWithTime(
+                millis = millis,
+                time = txInput.value.timestamp
+            )
         )
-        savedStateHandle[SHOW_DATE_TIME_PICKER] = false
+        savedStateHandle[SHOW_DATE_PICKER] = false
     }
 
-    override fun onTransactionTypeChange(type: TransactionType) {
+    override fun onPickTimeClick() {
+        savedStateHandle[SHOW_DATE_PICKER] = false
+        savedStateHandle[SHOW_TIME_PICKER] = true
+    }
+
+    override fun onTimeSelectionDismiss() {
+        savedStateHandle[SHOW_TIME_PICKER] = false
+    }
+
+    override fun onTimeSelectionConfirm(hour: Int, minute: Int) {
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            timestamp = txInput.value.timestamp
+                .withHour(hour)
+                .withMinute(minute)
+        )
+        savedStateHandle[SHOW_TIME_PICKER] = false
+    }
+
+    override fun onPickDateClick() {
+        savedStateHandle[SHOW_TIME_PICKER] = false
+        savedStateHandle[SHOW_DATE_PICKER] = true
+    }
+
+    override fun onTypeChange(type: TransactionType) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             type = type
         )
     }
 
-    override fun onTransactionExclusionToggle(excluded: Boolean) {
+    override fun onExclusionToggle(excluded: Boolean) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             excluded = excluded
         )
@@ -552,7 +582,8 @@ private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
-private const val SHOW_DATE_TIME_PICKER = "SHOW_DATE_TIME_PICKER"
+private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
+private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
 private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"

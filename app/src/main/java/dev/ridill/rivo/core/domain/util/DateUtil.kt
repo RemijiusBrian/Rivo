@@ -7,6 +7,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
@@ -14,9 +15,9 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 
 object DateUtil {
-    fun now(): LocalDateTime = LocalDateTime.now()
+    fun now(zoneId: ZoneId = ZoneId.systemDefault()): LocalDateTime = LocalDateTime.now(zoneId)
 
-    fun dateNow(): LocalDate = LocalDate.now()
+    fun dateNow(zoneId: ZoneId = ZoneId.systemDefault()): LocalDate = LocalDate.now(zoneId)
 
     fun parseDateTime(
         value: String,
@@ -52,6 +53,12 @@ object DateUtil {
         .toEpochMilli()
 
     fun toMillis(
+        zonedDateTime: ZonedDateTime,
+    ): Long = zonedDateTime
+        .toInstant()
+        .toEpochMilli()
+
+    fun toMillis(
         date: LocalDate,
         zoneId: ZoneId = ZoneId.systemDefault()
     ): Long = date
@@ -80,6 +87,9 @@ object DateUtil {
 
         val localizedDateLong: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+
+        val localizedTimeShort: DateTimeFormatter
+            get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 
         val localizedDateMediumTimeShort: DateTimeFormatter
             get() = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
