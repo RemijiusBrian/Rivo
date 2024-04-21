@@ -7,6 +7,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
@@ -14,9 +15,9 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 
 object DateUtil {
-    fun now(): LocalDateTime = LocalDateTime.now()
+    fun now(zoneId: ZoneId = ZoneId.systemDefault()): LocalDateTime = LocalDateTime.now(zoneId)
 
-    fun dateNow(): LocalDate = LocalDate.now()
+    fun dateNow(zoneId: ZoneId = ZoneId.systemDefault()): LocalDate = LocalDate.now(zoneId)
 
     fun parseDateTime(
         value: String,
@@ -48,6 +49,12 @@ object DateUtil {
         zoneId: ZoneId = ZoneId.systemDefault()
     ): Long = dateTime
         .atZone(zoneId)
+        .toInstant()
+        .toEpochMilli()
+
+    fun toMillis(
+        zonedDateTime: ZonedDateTime,
+    ): Long = zonedDateTime
         .toInstant()
         .toEpochMilli()
 

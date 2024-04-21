@@ -50,9 +50,9 @@
     <string name="cd_transaction_type_selector_unselected">Tap to change transaction type to %s</string>
     <string name="cd_enter_amount">Enter amount</string>
     <string name="cd_delete_selected_transactions">Delete selected transactions</string>
+    <string name="cd_tap_to_pick_timestamp">Tap to pick timestamp</string>
     <string name="cd_tap_to_pick_date">Tap to pick date</string>
     <string name="cd_tap_to_pick_time">Tap to pick time</string>
-    <string name="cd_long_press_to_swap_between_date_and_time_pickers">Long press to swap between date and time pickers</string>
     <string name="cd_scroll_to_top">Scroll To Top</string>
     <string name="cd_edit_tag">Edit Tag</string>
     <string name="cd_delete_tag">Delete Tag</string>
@@ -393,4 +393,6 @@
     <string name="initializing_app">Initializing %s</string>
     <string name="backup_running_message">Your backup is currently in progress, so please wait till it finishes to continue with your operation.</string>
     <string name="timestamp_label">Timestamp</string>
+    <string name="pick_time">Pick Time</string>
+    <string name="pick_date">Pick Date</string>
 </resources>

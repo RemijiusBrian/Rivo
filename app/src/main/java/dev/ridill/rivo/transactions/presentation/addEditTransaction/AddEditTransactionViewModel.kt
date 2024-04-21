@@ -10,7 +10,6 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
-import dev.ridill.rivo.core.domain.model.DateTimePickerMode
 import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
@@ -105,8 +104,6 @@ class AddEditTransactionViewModel @Inject constructor(
         .getStateFlow<Tag?>(TAG_INPUT, null)
     private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
 
-    private val currentPickerMode = savedStateHandle
-        .getStateFlow(CURRENT_PICKER_MODE, DateTimePickerMode.DATE_PICKER)
     private val showDatePicker = savedStateHandle.getStateFlow(SHOW_DATE_PICKER, false)
     private val showTimePicker = savedStateHandle.getStateFlow(SHOW_TIME_PICKER, false)
 
@@ -134,7 +131,6 @@ class AddEditTransactionViewModel @Inject constructor(
         amountTransformation,
         showAmountTransformationInput,
         timestamp,
-        currentPickerMode,
         showDatePicker,
         showTimePicker,
         isTransactionExcluded,
@@ -154,7 +150,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 amountTransformation,
                 showAmountTransformationInput,
                 timestamp,
-                currentPickerMode,
                 showDatePicker,
                 showTimePicker,
                 isTransactionExcluded,
@@ -175,7 +170,6 @@ class AddEditTransactionViewModel @Inject constructor(
             amountTransformation = amountTransformation,
             showAmountTransformationInput = showAmountTransformationInput,
             timestamp = timestamp,
-            currentPickerMode = currentPickerMode,
             showDatePicker = showDatePicker,
             showTimePicker = showTimePicker,
             isTransactionExcluded = isTransactionExcluded,
@@ -262,24 +256,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onTimestampClick() {
-        when (currentPickerMode.value) {
-            DateTimePickerMode.DATE_PICKER -> {
-                savedStateHandle[SHOW_TIME_PICKER] = false
-                savedStateHandle[SHOW_DATE_PICKER] = true
-            }
-
-            DateTimePickerMode.TIME_PICKER -> {
-                savedStateHandle[SHOW_DATE_PICKER] = false
-                savedStateHandle[SHOW_TIME_PICKER] = true
-            }
-        }
-    }
-
-    override fun onTimestampLongClick() {
-        savedStateHandle[CURRENT_PICKER_MODE] = when (currentPickerMode.value) {
-            DateTimePickerMode.DATE_PICKER -> DateTimePickerMode.TIME_PICKER
-            DateTimePickerMode.TIME_PICKER -> DateTimePickerMode.DATE_PICKER
-        }
+        savedStateHandle[SHOW_DATE_PICKER] = true
     }
 
     override fun onDateSelectionDismiss() {
@@ -296,6 +273,11 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[SHOW_DATE_PICKER] = false
     }
 
+    override fun onPickTimeClick() {
+        savedStateHandle[SHOW_DATE_PICKER] = false
+        savedStateHandle[SHOW_TIME_PICKER] = true
+    }
+
     override fun onTimeSelectionDismiss() {
         savedStateHandle[SHOW_TIME_PICKER] = false
     }
@@ -307,6 +289,11 @@ class AddEditTransactionViewModel @Inject constructor(
                 .withMinute(minute)
         )
         savedStateHandle[SHOW_TIME_PICKER] = false
+    }
+
+    override fun onPickDateClick() {
+        savedStateHandle[SHOW_TIME_PICKER] = false
+        savedStateHandle[SHOW_DATE_PICKER] = true
     }
 
     override fun onTypeChange(type: TransactionType) {
@@ -595,7 +582,6 @@ private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
 private const val TAG_INPUT = "TAG_INPUT"
-private const val CURRENT_PICKER_MODE = "CURRENT_PICKER_MODE"
 private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
 private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
