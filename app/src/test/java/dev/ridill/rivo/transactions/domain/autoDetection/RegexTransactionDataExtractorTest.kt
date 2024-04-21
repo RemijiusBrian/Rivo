@@ -58,6 +58,30 @@ Not You? Call 18002586161/SMS BLOCK UPI to 7308080808"""
     }
 
     @Test
+    fun testSupportedLanguage_returnsTrue() {
+        val string = "Hello"
+        val supportedLanguage = extractor.isSupportedLanguage(string)
+        assertThat(supportedLanguage).isTrue()
+    }
+
+    @Test
+    fun testNonSupportedLanguage_returnsFalse() {
+        val string = "ഹലോ"
+        val supportedLanguage = extractor.isSupportedLanguage(string)
+        assertThat(supportedLanguage).isFalse()
+    }
+
+    @Test
+    fun testValidLanguage_returnsFalse() {
+        messageList.forEachIndexed { index, message ->
+            println("--- Message No. $index ---")
+            println("Content - $message")
+            val isSupported = extractor.isSupportedLanguage(message)
+            assertThat(isSupported).isTrue()
+        }
+    }
+
+    @Test
     fun testExtractDataAgainstMultipleMessages_testPasses() {
         messageList.forEachIndexed { index, message ->
             println("--- Message No. $index ---")

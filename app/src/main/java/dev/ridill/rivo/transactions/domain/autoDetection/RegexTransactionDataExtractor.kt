@@ -33,8 +33,8 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
     private val secondPartyEndRegex = SECOND_PARTY_END_PATTERN.toRegex()
     private val timestampRegex = TIMESTAMP_PATTERN.toRegex()
 
-    override fun isNotSupportedLanguage(message: String): Boolean =
-        !englishCharsRegex.matches(message)
+    override fun isSupportedLanguage(message: String): Boolean =
+        englishCharsRegex.matchEntire(message) != null
 
     override fun isOriginValidOrg(originatingAddress: String): Boolean =
         orgAddressRegex.matches(originatingAddress)
@@ -342,7 +342,7 @@ class RegexTransactionDataExtractor : TransactionDataExtractor {
     }*/
 }
 
-private const val ENGLISH_CHARS_PATTERN = "(?i)(?!...)(?!..\$)\\w[\\w.]{0,29}\$"
+private const val ENGLISH_CHARS_PATTERN = "(?i)^[a-zA-Z0-9 !@#$%^&*()-_+=/?\n]*\$"
 
 private const val ORG_ADDRESS_PATTERN = "(?i)\\w{2}-\\w{6}"
 
@@ -355,6 +355,9 @@ private const val SECOND_PARTY_START_PATTERN = "(?i)at|to"
 private const val SECOND_PARTY_END_PATTERN = "(?i)on|date"
 private const val TIMESTAMP_PATTERN =
     "(?i)on\\s+(\\d{2,4}-\\d{2}(-\\d{2})?(:\\d{2}:\\d{2}:\\d{2})?)"
+
+class UnsupportedLanguageThrowable(content: String) :
+    TransactionDataExtractionFailedThrowable("AmountExtractionThrowable:Message is not supported language | content - $content")
 
 class AmountExtractionFailedThrowable(message: String) :
     TransactionDataExtractionFailedThrowable("AmountExtractionThrowable:\n$message")

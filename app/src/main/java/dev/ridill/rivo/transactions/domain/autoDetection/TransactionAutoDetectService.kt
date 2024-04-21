@@ -28,8 +28,10 @@ class TransactionAutoDetectService(
         val dateTimeNow = DateUtil.now()
         applicationScope.launch {
             for (message in messagesFromOrg) {
-                if (extractor.isNotSupportedLanguage(message.messageBody)) continue
                 try {
+                    if (extractor.isSupportedLanguage(message.messageBody))
+                        throw UnsupportedLanguageThrowable(message.messageBody)
+
                     val data = extractor.extractData(message.messageBody)
                     if (data.paymentTimestamp.isAfter(dateTimeNow)) continue
 

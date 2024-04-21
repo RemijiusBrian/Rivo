@@ -4,7 +4,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 interface TransactionDataExtractor {
-    fun isNotSupportedLanguage(message: String): Boolean
+    fun isSupportedLanguage(message: String): Boolean
     fun isOriginValidOrg(originatingAddress: String): Boolean
 
     @Throws(
