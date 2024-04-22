@@ -33,8 +33,8 @@ class TransactionAutoDetectNotificationHelper(
     override val channelId: String
         get() = "${context.packageName}.NOTIFICATION_CHANNEL_TRANSACTION_AUTO_DETECT"
 
-    private val summaryId: String
-        get() = "${context.packageName}.AUTO_DETECTED_TRANSACTIONS_SUMMARY"
+    private val groupId: String
+        get() = "${context.packageName}.AUTO_DETECTED_TRANSACTIONS_NOTIFICATION_GROUP"
 
     override fun registerChannelGroup() {
         val group = NotificationChannelGroupCompat
@@ -58,7 +58,7 @@ class TransactionAutoDetectNotificationHelper(
             .setSmallIcon(R.drawable.ic_notification)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
-            .setGroup(summaryId)
+            .setGroup(groupId)
 
     override fun postNotification(id: Int, data: Transaction) {
         if (!notificationManager.areNotificationsEnabled()) return
@@ -80,15 +80,7 @@ class TransactionAutoDetectNotificationHelper(
             .addAction(buildMarkExcludedAction(data.id))
             .build()
 
-        val summaryNotification = buildBaseNotification()
-            .setGroupSummary(true)
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .build()
-
-        with(notificationManager) {
-            notify(id, notification)
-            notify(summaryId.hashCode(), summaryNotification)
-        }
+        notificationManager.notify(id, notification)
     }
 
     override fun updateNotification(id: Int, notification: Notification) {
