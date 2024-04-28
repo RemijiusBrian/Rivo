@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
@@ -82,14 +86,14 @@ fun TransactionListItem(
             )
         )
 
-        folder?.let {
-            append(String.WhiteSpace)
-            append(stringResource(R.string.cd_transaction_list_item_folder_append, it.name))
-        }
-
         tag?.let {
             append(String.WhiteSpace)
             append(stringResource(R.string.cd_transaction_list_item_tag_append, it.name))
+        }
+
+        folder?.let {
+            append(String.WhiteSpace)
+            append(stringResource(R.string.cd_transaction_list_item_folder_append, it.name))
         }
     }
     ListItem(
@@ -144,17 +148,17 @@ fun TransactionListItem(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                folder?.let {
-                    FolderIndicator(
-                        name = it.name,
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-                }
                 tag?.let {
                     TagIndicator(
                         name = it.name,
                         color = Color(it.colorCode),
+                        modifier = Modifier
+                            .weight(weight = Float.One, fill = false)
+                    )
+                }
+                folder?.let {
+                    FolderIndicator(
+                        name = it.name,
                         modifier = Modifier
                             .weight(weight = Float.One, fill = false)
                     )
@@ -266,3 +270,21 @@ private fun FolderIndicator(
 }
 
 private val SmallIndicatorSize = 12.dp
+
+@Composable
+fun NewTransactionFab(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation()
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        elevation = elevation,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(R.string.cd_new_transaction_fab)
+        )
+    }
+}

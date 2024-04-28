@@ -3,6 +3,7 @@ package dev.ridill.rivo.folders.presentation.folderDetails
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +20,6 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -79,11 +79,8 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
-import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
-import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
-import java.time.LocalDate
 import java.util.Currency
 import kotlin.math.absoluteValue
 
@@ -250,7 +247,8 @@ fun FolderDetailsScreen(
                                         modifier = Modifier
                                             .animateItemPlacement()
                                     ) {
-                                        TransactionCard(
+                                        TransactionListItem(
+                                            showTypeIndicator = true,
                                             note = item.transaction.note,
                                             amount = item.transaction
                                                 .amountFormattedWithCurrency(appCurrencyPreference),
@@ -258,7 +256,8 @@ fun FolderDetailsScreen(
                                             type = item.transaction.type,
                                             excluded = item.transaction.excluded,
                                             tag = item.transaction.tag,
-                                            onClick = { navigateToAddEditTransaction(item.transaction.id) }
+                                            modifier = Modifier
+                                                .clickable { navigateToAddEditTransaction(item.transaction.id) }
                                         )
                                     }
                                 }
@@ -509,32 +508,5 @@ private fun AggregateAmount(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-    }
-}
-
-@Composable
-private fun TransactionCard(
-    note: String,
-    amount: String,
-    date: LocalDate,
-    type: TransactionType,
-    excluded: Boolean,
-    tag: Tag?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        TransactionListItem(
-            note = note,
-            amount = amount,
-            date = date,
-            type = type,
-            tag = tag,
-            showTypeIndicator = true,
-            excluded = excluded
-        )
     }
 }

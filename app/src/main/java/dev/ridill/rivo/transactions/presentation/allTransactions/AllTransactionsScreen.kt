@@ -119,6 +119,7 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
+import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.CoroutineScope
@@ -143,7 +144,7 @@ fun AllTransactionsScreen(
     folderSearchQuery: () -> String,
     foldersList: LazyPagingItems<Folder>,
     actions: AllTransactionsActions,
-    navigateToAddEditTransaction: (Long) -> Unit,
+    navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
     val isTransactionListEmpty by remember(state.transactionList) {
@@ -184,6 +185,9 @@ fun AllTransactionsScreen(
                 },
                 scrollBehavior = topAppBarScrollBehavior
             )
+        },
+        floatingActionButton = {
+            NewTransactionFab(onClick = { navigateToAddEditTransaction(null) })
         },
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -277,12 +281,18 @@ fun AllTransactionsScreen(
                     onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
                 )
 
-                TransactionCard(
+                val selected = remember(state.selectedTransactionIds) {
+                    transaction.id in state.selectedTransactionIds
+                }
+
+                TransactionListItem(
+                    showTypeIndicator = true,
+                    tag = transaction.tag,
+                    tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
                     note = transaction.note,
                     amount = transaction.amountFormattedWithCurrency(state.currency),
                     date = transaction.date,
                     type = transaction.type,
-                    selected = transaction.id in state.selectedTransactionIds,
                     excluded = transaction.excluded,
                     folder = transaction.folder,
                     modifier = Modifier
@@ -984,27 +994,3 @@ private fun AggregateAmount(
         }
     }
 }
-
-@Composable
-private fun TransactionCard(
-    note: String,
-    amount: String,
-    date: LocalDate,
-    type: TransactionType,
-    folder: Folder?,
-    selected: Boolean,
-    excluded: Boolean,
-    modifier: Modifier = Modifier
-) = TransactionListItem(
-    note = note,
-    amount = amount,
-    date = date,
-    type = type,
-    showTypeIndicator = true,
-    tag = null,
-    folder = folder,
-    modifier = modifier
-        .fillMaxWidth(),
-    tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
-    excluded = excluded
-)
