@@ -9,7 +9,7 @@ import dev.ridill.rivo.transactions.data.local.entity.TagEntity
 
 @Dao
 interface TagsDao : BaseDao<TagEntity> {
-    @Query("SELECT * FROM tag_table ORDER BY name ASC")
+    @Query("SELECT * FROM tag_table ORDER BY DATETIME(created_timestamp) DESC, name ASC")
     fun getAllTagsPaged(): PagingSource<Int, TagEntity>
 
     @Query("SELECT * FROM tag_table WHERE id = :id")
