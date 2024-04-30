@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
@@ -79,8 +80,13 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG },
             folderSearchQuery = { folderSearchQuery.value },
             foldersList = foldersList,
-            navigateToAddEditTransaction = {
-                navController.navigate(AddEditTransactionScreenSpec.routeWithArg(it))
+            navigateToAddEditTransaction = { txId, selectedDate ->
+                navController.navigate(
+                    AddEditTransactionScreenSpec.routeWithArg(
+                        transactionId = txId,
+                        initialDateTime = selectedDate?.atTime(DateUtil.now().toLocalTime())
+                    )
+                )
             }
         )
     }

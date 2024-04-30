@@ -18,6 +18,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.ifInfinite
 import dev.ridill.rivo.core.domain.util.orZero
+import dev.ridill.rivo.core.ui.navigation.destinations.ARG_INVALID_ID_LONG
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
@@ -115,9 +116,11 @@ class AddEditTransactionViewModel @Inject constructor(
             foldersListRepo.getFoldersList(query)
         }.cachedIn(viewModelScope)
 
-    private val linkedFolderName = transactionFolderId.map { selectedId ->
-        selectedId?.let { foldersListRepo.getFolderById(it) }
-    }.map { it?.name }
+    private val linkedFolderName = transactionFolderId
+        .map { selectedId ->
+            selectedId?.let { foldersListRepo.getFolderById(it) }
+        }
+        .map { it?.name }
 
     private val showRepeatModeSelection = savedStateHandle
         .getStateFlow(SHOW_REPEAT_MODE_SELECTION, false)
@@ -208,11 +211,16 @@ class AddEditTransactionViewModel @Inject constructor(
         } ?: Transaction.DEFAULT
         savedStateHandle[IS_SCHEDULE_MODE] = scheduleModeArg
         val dateNow = DateUtil.now()
+        val initialTimestampArg = AddEditTransactionScreenSpec
+            .getInitialTimestampFromSavedStateHandle(savedStateHandle)
+        val timestamp = if (isScheduleTxMode.value && transaction.timestamp <= dateNow)
+            dateNow.plusDays(1)
+        else if (transactionIdArg == ARG_INVALID_ID_LONG) initialTimestampArg ?: DateUtil.now()
+        else transaction.timestamp
+
         savedStateHandle[TX_INPUT] = transaction.copy(
             folderId = linkFolderIdArg ?: transaction.folderId,
-            timestamp = if (isScheduleTxMode.value && transaction.timestamp <= dateNow)
-                dateNow.plusDays(1)
-            else transaction.timestamp
+            timestamp = timestamp
         )
     }
 

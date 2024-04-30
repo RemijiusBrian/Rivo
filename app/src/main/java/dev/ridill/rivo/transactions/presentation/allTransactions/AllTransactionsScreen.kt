@@ -144,7 +144,7 @@ fun AllTransactionsScreen(
     folderSearchQuery: () -> String,
     foldersList: LazyPagingItems<Folder>,
     actions: AllTransactionsActions,
-    navigateToAddEditTransaction: (Long?) -> Unit,
+    navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
     navigateUp: () -> Unit
 ) {
     val isTransactionListEmpty by remember(state.transactionList) {
@@ -187,7 +187,7 @@ fun AllTransactionsScreen(
             )
         },
         floatingActionButton = {
-            NewTransactionFab(onClick = { navigateToAddEditTransaction(null) })
+            NewTransactionFab(onClick = { navigateToAddEditTransaction(null, state.selectedDate) })
         },
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -275,7 +275,7 @@ fun AllTransactionsScreen(
                     )
                 else Modifier.combinedClickable(
                     role = Role.Button,
-                    onClick = { navigateToAddEditTransaction(transaction.id) },
+                    onClick = { navigateToAddEditTransaction(transaction.id, null) },
                     onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
                     onLongClick = { actions.onTransactionLongPress(transaction.id) },
                     onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
