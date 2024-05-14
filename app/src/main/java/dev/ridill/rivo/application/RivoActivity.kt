@@ -135,12 +135,10 @@ class RivoActivity : AppCompatActivity() {
         viewModel.runAppLockProcess()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent?.let {
-            val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
-            if (runConfigRestore) viewModel.startConfigRestore()
-        }
+        val runConfigRestore = intent.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
+        if (runConfigRestore) viewModel.startConfigRestore()
     }
 
     private fun checkAppPermissions() {
