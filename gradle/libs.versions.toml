@@ -1,11 +1,11 @@
 [versions]
-agp = "8.4.0"
+agp = "8.4.1"
 kotlin = "1.9.22"
 google-services = "4.4.1"
 com-google-devtools-ksp = "1.9.22-1.0.17"
 
 core-ktx = "1.13.1"
-kotlin-bom = "1.9.24"
+kotlin-bom = "2.0.0"
 activity-compose = "1.9.0"
 appcompat = "1.6.1"
 junit = "4.13.2"
@@ -34,7 +34,7 @@ datastore-preferences = "1.1.1"
 androidx-biometric = "1.2.0-alpha05"
 
 firebase-bom = "33.0.0"
-firebase-crashlytics-gradle = "2.9.9"
+firebase-crashlytics-gradle = "3.0.1"
 
 play-services-auth = "21.0.0"
 
