@@ -117,7 +117,7 @@ fun SwitchPreference(
     trailingContent = {
         Switch(
             checked = value,
-            onCheckedChange = onValueChange,
+            onCheckedChange = null,
             modifier = Modifier
                 .clearAndSetSemantics {}
         )
