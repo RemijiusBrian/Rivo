@@ -36,7 +36,7 @@ androidx-biometric = "1.2.0-alpha05"
 firebase-bom = "33.1.0"
 firebase-crashlytics-gradle = "3.0.1"
 
-play-services-auth = "21.0.0"
+play-services-auth = "21.2.0"
 
 retrofit = "2.11.0"
 logging-interceptor = "4.12.0"
