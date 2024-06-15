@@ -110,9 +110,8 @@ fun DismissBackground(
     val color = if (
         (enableDismissFromStartToEnd && swipeDismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) ||
         (enableDismissFromEndToStart && swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart)
-    ) {
-        containerColor
-    } else Color.Transparent
+    ) containerColor
+    else Color.Transparent
 
     Row(
         modifier = Modifier
