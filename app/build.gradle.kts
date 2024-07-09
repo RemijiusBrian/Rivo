@@ -183,9 +183,15 @@ dependencies {
     implementation(platform(libs.com.google.firebase.bom))
     implementation(libs.com.google.firebase.analytics)
     implementation(libs.com.google.firebase.crashlytics)
+    implementation(libs.com.google.firebase.auth)
 
     // Google Play Services
     implementation(libs.com.google.android.gms.play.services.auth)
+
+    // AndroidX Credentials
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.playServicesAuth)
+    implementation(libs.com.google.identity.googleId)
 
     // Retrofit
     implementation(libs.com.squareup.retrofit2.retrofit)

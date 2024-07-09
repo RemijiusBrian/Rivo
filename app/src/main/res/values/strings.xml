@@ -100,6 +100,7 @@
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
     <string name="error_unknown">An Unknown error occurred</string>
+    <string name="error_unknown_credential_type">Unknown credential type</string>
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
     <string name="error_invalid_encryption_password">Invalid encryption password</string>

@@ -7,7 +7,7 @@ inline fun logI(crossinline message: () -> String) {
 }
 
 inline fun logE(throwable: Throwable, crossinline message: () -> String = { String.Empty }) {
-    Timber.e(throwable, "AppDebug: ${message()}")
+    Timber.e(throwable, "AppDebug: ${message().ifEmpty { throwable.message }}")
 }
 
 inline fun logD(crossinline message: () -> String) {

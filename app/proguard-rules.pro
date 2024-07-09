@@ -28,6 +28,12 @@
     <fields>;
 }
 
+# --- AndroidX Credentials ---
+-if class androidx.credentials.CredentialManager
+-keep class androidx.credentials.playservices.** {
+  *;
+}
+
 # --- Retrofit ---
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
