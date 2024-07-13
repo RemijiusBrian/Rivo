@@ -1,6 +1,5 @@
 package dev.ridill.rivo.settings.presentation.backupSettings
 
-import android.content.Intent
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -10,7 +9,6 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.model.Resource
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.logD
@@ -151,13 +149,12 @@ class BackupSettingsViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            val intent = repo.getSignInIntent()
-            eventBus.send(BackupSettingsEvent.LaunchGoogleSignIn(intent))
+            eventBus.send(BackupSettingsEvent.LaunchGoogleSignIn)
         }
     }
 
     fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
-        when (val resource = repo.signInUser(result)) {
+        /*when (val resource = repo.signInUser(result)) {
             is Resource.Error -> {
                 resource.message?.let { eventBus.send(BackupSettingsEvent.ShowUiMessage(it)) }
             }
@@ -167,7 +164,7 @@ class BackupSettingsViewModel @Inject constructor(
                     eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
                 }
             }
-        }
+        }*/
     }
 
     override fun onBackupIntervalPreferenceClick() {
@@ -229,7 +226,7 @@ class BackupSettingsViewModel @Inject constructor(
     sealed interface BackupSettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : BackupSettingsEvent
         data object NavigateToBackupEncryptionScreen : BackupSettingsEvent
-        data class LaunchGoogleSignIn(val intent: Intent) : BackupSettingsEvent
+        data object LaunchGoogleSignIn : BackupSettingsEvent
     }
 }
 

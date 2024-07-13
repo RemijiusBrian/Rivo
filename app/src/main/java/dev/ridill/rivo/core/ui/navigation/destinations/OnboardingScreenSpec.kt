@@ -1,12 +1,14 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -16,14 +18,17 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.application.EXTRA_RUN_CONFIG_RESTORE
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
+import dev.ridill.rivo.core.ui.authentication.rememberAuthenticationService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsLauncher
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
+import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.core.ui.util.restartApplication
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.onboarding.presentation.OnboardingScreen
 import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
+import kotlinx.coroutines.launch
 import java.util.Currency
 
 data object OnboardingScreenSpec : ScreenSpec {
@@ -60,10 +65,15 @@ data object OnboardingScreenSpec : ScreenSpec {
             )
         )
 
-        val signInLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = viewModel::onSignInResult
-        )
+        val credentialService = rememberAuthenticationService(context)
+        val currentPage by remember(pagerState) {
+            derivedStateOf { pagerState.currentPage }
+        }
+
+        LaunchedEffect(currentPage) {
+            if (currentPage == OnboardingPage.GOOGLE_SIGN_IN.ordinal)
+                viewModel.onAccountPageReached()
+        }
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
@@ -91,10 +101,6 @@ data object OnboardingScreenSpec : ScreenSpec {
                     }
                 }
 
-                is OnboardingViewModel.OnboardingEvent.LaunchGoogleSignIn -> {
-                    signInLauncher.launch(event.intent)
-                }
-
                 OnboardingViewModel.OnboardingEvent.RestartApplication -> {
                     context.restartApplication(
                         editIntent = {
@@ -102,9 +108,18 @@ data object OnboardingScreenSpec : ScreenSpec {
                         }
                     )
                 }
+
+                is OnboardingViewModel.OnboardingEvent.StartAutoSignInFlow -> {
+                    val result = credentialService.startGetCredentialFlow(
+                        filterByAuthorizedUsers = event.filterByAuthorizedAccounts,
+                        activityContext = context.findActivity()
+                    )
+                    viewModel.onCredentialResult(result)
+                }
             }
         }
 
+        val coroutineScope = rememberCoroutineScope()
         OnboardingScreen(
             snackbarController = snackbarController,
             pagerState = pagerState,
@@ -115,6 +130,13 @@ data object OnboardingScreenSpec : ScreenSpec {
             showEncryptionPasswordInput = showEncryptionPasswordInput,
             currency = currency,
             budgetInput = { budgetInput.value },
+            onSignInClick = {
+                coroutineScope.launch {
+                    credentialService.startManualGetCredentialFlow(
+                        activityContext = context.findActivity()
+                    )
+                }
+            },
             actions = viewModel
         )
     }

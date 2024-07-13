@@ -18,6 +18,7 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.authentication.DefaultCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
@@ -69,6 +70,8 @@ data object BackupSettingsScreenSpec : ScreenSpec {
             onResult = viewModel::onDestinationResult
         )
 
+        val defaultAuthenticationService = DefaultCredentialService(context)
+
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
                 is BackupSettingsViewModel.BackupSettingsEvent.ShowUiMessage -> {
@@ -79,7 +82,6 @@ data object BackupSettingsScreenSpec : ScreenSpec {
                 }
 
                 is BackupSettingsViewModel.BackupSettingsEvent.LaunchGoogleSignIn -> {
-                    googleSignInLauncher.launch(event.intent)
                 }
 
                 BackupSettingsViewModel.BackupSettingsEvent.NavigateToBackupEncryptionScreen -> {

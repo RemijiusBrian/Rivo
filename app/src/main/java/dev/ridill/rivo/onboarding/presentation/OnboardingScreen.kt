@@ -55,6 +55,7 @@ fun OnboardingScreen(
     showEncryptionPasswordInput: Boolean,
     currency: Currency,
     budgetInput: () -> String,
+    onSignInClick: () -> Unit,
     actions: OnboardingActions
 ) {
     val view = LocalView.current
@@ -105,7 +106,7 @@ fun OnboardingScreen(
                         GoogleSignInPage(
                             restoreStatus = restoreStatusText,
                             isLoading = isLoading,
-                            onSignInClick = actions::onGoogleSignInClick,
+                            onSignInClick = onSignInClick,
                             onSkipSignInClick = actions::onSkipGoogleSignInClick,
                             onRestoreClick = actions::onRestoreDataClick,
                             onSkipRestoreClick = actions::onSkipDataRestore,

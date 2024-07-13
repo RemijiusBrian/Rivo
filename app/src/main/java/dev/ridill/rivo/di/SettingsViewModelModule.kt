@@ -9,7 +9,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.settings.data.local.BudgetPreferenceDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
@@ -58,13 +57,11 @@ object SettingsViewModelModule {
     @Provides
     fun provideBackupSettingsRepository(
         dao: ConfigDao,
-        signInService: GoogleSignInService,
         preferencesManager: PreferencesManager,
         backupWorkManager: BackupWorkManager,
         cryptoManager: CryptoManager
     ): BackupSettingsRepository = BackupSettingsRepositoryImpl(
         dao = dao,
-        signInService = signInService,
         preferencesManager = preferencesManager,
         backupWorkManager = backupWorkManager,
         cryptoManager = cryptoManager

@@ -1,8 +1,6 @@
 package dev.ridill.rivo.onboarding.presentation
 
 import android.Manifest
-import android.content.Intent
-import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,21 +10,25 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
+import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.core.ui.authentication.CredentialService
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,11 +37,11 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val eventBus: EventBus<OnboardingEvent>,
-    private val signInService: GoogleSignInService,
     private val backupWorkManager: BackupWorkManager,
     private val settingsRepository: SettingsRepository,
     private val preferencesManager: PreferencesManager,
-    private val backupRepository: BackupRepository,
+    private val backupRepo: BackupRepository,
+    private val authRepo: AuthRepository,
     private val cryptoManager: CryptoManager
 ) : ViewModel(), OnboardingActions {
     val restoreStatusText = savedStateHandle
@@ -135,10 +137,44 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    override fun onGoogleSignInClick() {
-        viewModelScope.launch {
-            val signInIntent = signInService.getSignInIntent()
-            eventBus.send(OnboardingEvent.LaunchGoogleSignIn(signInIntent))
+    fun onAccountPageReached() = viewModelScope.launch {
+        val isUserUnAuthenticated = authRepo.getAuthState().first() == AuthState.UnAuthenticated
+        if (isUserUnAuthenticated) {
+            eventBus.send(OnboardingEvent.StartAutoSignInFlow(true))
+        }
+    }
+
+    fun onCredentialResult(
+        result: Result<String, CredentialService.CredentialError>
+    ) = viewModelScope.launch {
+        when (result) {
+            is Result.Error -> {
+                when (result.error) {
+                    CredentialService.CredentialError.NO_AUTHORIZED_CREDENTIAL -> {
+                        eventBus.send(OnboardingEvent.StartAutoSignInFlow(false))
+                    }
+
+                    CredentialService.CredentialError.CREDENTIAL_PROCESS_FAILED -> eventBus.send(
+                        OnboardingEvent.ShowUiMessage(result.message)
+                    )
+                }
+            }
+
+            is Result.Success -> {
+                signInUser(result.data)
+            }
+        }
+    }
+
+    private suspend fun signInUser(idToken: String) {
+        when (val result = authRepo.signUserInWithToken(idToken)) {
+            is Result.Error -> {
+                eventBus.send(OnboardingEvent.ShowUiMessage(result.message))
+            }
+
+            is Result.Success -> {
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
+            }
         }
     }
 
@@ -148,23 +184,11 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
-        when (val resource = signInService.getAccountFromSignInResult(result)) {
-            is Resource.Error -> {
-                resource.message?.let { eventBus.send(OnboardingEvent.ShowUiMessage(it)) }
-            }
-
-            is Resource.Success -> {
-                checkForBackup()
-            }
-        }
-    }
-
     private suspend fun checkForBackup() {
         savedStateHandle[RESTORE_STATE_TEXT] = UiText.StringResource(R.string.checking_for_backups)
         _isLoading.update { true }
         logI { "Running Backup Check" }
-        when (val resource = backupRepository.checkForBackup()) {
+        when (val resource = backupRepo.checkForBackup()) {
             is Resource.Error -> {
                 eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
             }
@@ -240,7 +264,7 @@ class OnboardingViewModel @Inject constructor(
         data object OnboardingConcluded : OnboardingEvent
         data class ShowUiMessage(val uiText: UiText) : OnboardingEvent
         data object LaunchNotificationPermissionRequest : OnboardingEvent
-        data class LaunchGoogleSignIn(val intent: Intent) : OnboardingEvent
+        data class StartAutoSignInFlow(val filterByAuthorizedAccounts: Boolean) : OnboardingEvent
         data object RestartApplication : OnboardingEvent
     }
 }

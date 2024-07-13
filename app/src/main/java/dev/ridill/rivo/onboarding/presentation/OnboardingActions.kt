@@ -3,7 +3,6 @@ package dev.ridill.rivo.onboarding.presentation
 interface OnboardingActions {
     fun onGivePermissionsClick()
     fun onSkipPermissionsClick()
-    fun onGoogleSignInClick()
     fun onSkipGoogleSignInClick()
     fun onRestoreDataClick()
     fun onSkipDataRestore()

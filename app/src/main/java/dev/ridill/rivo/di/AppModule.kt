@@ -20,9 +20,17 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.data.preferences.PreferencesManagerImpl
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.crypto.DefaultCryptoManager
+import dev.ridill.rivo.core.domain.service.AuthService
 import dev.ridill.rivo.core.domain.service.ExpEvalService
+import dev.ridill.rivo.core.domain.service.FirebaseAuthService
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.ui.authentication.AuthorizationService
+import dev.ridill.rivo.core.ui.authentication.CredentialService
+import dev.ridill.rivo.core.ui.authentication.DefaultAuthorizationService
+import dev.ridill.rivo.core.ui.authentication.DefaultCredentialService
+import dev.ridill.rivo.settings.data.repository.AuthRepositoryImpl
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
@@ -76,6 +84,28 @@ object AppModule {
 
     @Provides
     fun provideCryptoManager(): CryptoManager = DefaultCryptoManager()
+
+    @Provides
+    fun provideCredentialService(
+        @ApplicationContext context: Context
+    ): CredentialService = DefaultCredentialService(context)
+
+    @Provides
+    fun provideAuthService(): AuthService = FirebaseAuthService()
+
+    @Provides
+    fun provideAuthorizationService(
+        @ApplicationContext context: Context
+    ): AuthorizationService = DefaultAuthorizationService(context)
+
+    @Provides
+    fun provideAuthRepository(
+        credentialService: CredentialService,
+        authService: AuthService
+    ): AuthRepository = AuthRepositoryImpl(
+        credentialService = credentialService,
+        authService = authService
+    )
 }
 
 @Qualifier

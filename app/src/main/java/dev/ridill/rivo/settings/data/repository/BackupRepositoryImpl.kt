@@ -2,13 +2,9 @@ package dev.ridill.rivo.settings.data.repository
 
 import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.UserRecoverableAuthException
-import com.google.gson.Gson
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
-import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.tryOrNull
@@ -16,13 +12,9 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
-import dev.ridill.rivo.settings.data.remote.MEDIA_PART_KEY
-import dev.ridill.rivo.settings.data.remote.dto.CreateGDriveFolderRequestDto
-import dev.ridill.rivo.settings.data.toBackupDetails
 import dev.ridill.rivo.settings.domain.backup.BackupCachingFailedThrowable
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
-import dev.ridill.rivo.settings.domain.backup.DB_BACKUP_FILE_NAME
 import dev.ridill.rivo.settings.domain.backup.RestoreFailedThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
@@ -31,10 +23,6 @@ import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.crypto.BadPaddingException
@@ -43,7 +31,6 @@ import javax.crypto.IllegalBlockSizeException
 class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
-    private val signInService: GoogleSignInService,
     private val preferencesManager: PreferencesManager,
     private val configDao: ConfigDao,
     private val backupWorkManager: BackupWorkManager,
@@ -52,7 +39,7 @@ class BackupRepositoryImpl(
     override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
         try {
             logI { "Checking For Backup" }
-            val email = signInService.getSignedInAccount()?.email
+            /*val email = signInService.getSignedInAccount()?.email
                 ?: throw GoogleAuthException()
             val backupFolderName = backupFolderName(email)
             val backupFolder = gDriveApi.getFilesList(
@@ -66,8 +53,9 @@ class BackupRepositoryImpl(
                 ?: throw NoBackupFoundThrowable()
 
             val backupDetails = backupFile.toBackupDetails()
-            logD { "Backup Found - $backupDetails" }
-            Resource.Success(backupDetails)
+            logD { "Backup Found - $backupDetails" }*/
+            throw Throwable()
+//            Resource.Success(backupDetails)
         } catch (t: NoBackupFoundThrowable) {
             logE(t)
             Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
@@ -91,7 +79,7 @@ class BackupRepositoryImpl(
         val passwordHash = preferencesManager.preferences.first()
             .encryptionPasswordHash.orEmpty()
             .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
-        val email = signInService.getSignedInAccount()?.email
+        /*val email = signInService.getSignedInAccount()?.email
             ?: throw GoogleAuthException()
         val backupFolderName = backupFolderName(email)
         var backupFolder = gDriveApi.getFilesList(
@@ -135,7 +123,7 @@ class BackupRepositoryImpl(
             if (file.id == gDriveBackup.id) continue
             gDriveApi.deleteFile(file.id)
         }
-        logI { "Cleaned up Drive" }
+        logI { "Cleaned up Drive" }*/
     }
 
     @Throws(

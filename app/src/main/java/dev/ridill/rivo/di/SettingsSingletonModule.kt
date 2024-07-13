@@ -12,7 +12,6 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
@@ -60,16 +59,10 @@ object SettingsSingletonModule {
     @Provides
     fun provideConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
 
-    @Provides
-    fun provideGoogleSignInService(
-        @ApplicationContext context: Context
-    ): GoogleSignInService = GoogleSignInService(context)
-
     @GoogleApis
     @Provides
     fun provideGoogleAccessTokenInterceptor(
-        signInService: GoogleSignInService
-    ): GoogleAccessTokenInterceptor = GoogleAccessTokenInterceptor(signInService)
+    ): GoogleAccessTokenInterceptor = GoogleAccessTokenInterceptor()
 
     @Provides
     fun provideLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
@@ -122,7 +115,6 @@ object SettingsSingletonModule {
     fun provideBackupRepository(
         backupService: BackupService,
         gDriveApi: GDriveApi,
-        signInService: GoogleSignInService,
         preferencesManager: PreferencesManager,
         configDao: ConfigDao,
         backupWorkManager: BackupWorkManager,
@@ -130,7 +122,6 @@ object SettingsSingletonModule {
     ): BackupRepository = BackupRepositoryImpl(
         backupService = backupService,
         gDriveApi = gDriveApi,
-        signInService = signInService,
         preferencesManager = preferencesManager,
         configDao = configDao,
         backupWorkManager = backupWorkManager,
