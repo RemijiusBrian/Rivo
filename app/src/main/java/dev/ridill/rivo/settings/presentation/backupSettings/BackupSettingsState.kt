@@ -1,5 +1,6 @@
 package dev.ridill.rivo.settings.presentation.backupSettings
 
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
@@ -12,8 +13,7 @@ import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
 
 data class BackupSettingsState(
-    val backupAccountEmail: String? = null,
-    val isAccountAdded: Boolean = false,
+    val authState: AuthState = AuthState.UnAuthenticated,
     val backupInterval: BackupInterval = BackupInterval.MANUAL,
     val showBackupIntervalSelection: Boolean = false,
     val lastBackupDateTime: LocalDateTime? = null,

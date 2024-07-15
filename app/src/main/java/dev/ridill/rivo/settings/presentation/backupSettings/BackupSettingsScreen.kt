@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
@@ -67,6 +68,9 @@ fun BackupSettingsScreen(
     actions: BackupSettingsActions,
     navigateUp: () -> Unit
 ) {
+    val isAuthenticated by remember(state.authState) {
+        derivedStateOf { state.authState is AuthState.Authenticated }
+    }
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     RivoScaffold(
         snackbarController = snackbarController,
@@ -116,11 +120,13 @@ fun BackupSettingsScreen(
                 titleRes = R.string.preference_google_account,
                 leadingIcon = Icons.Default.Google,
                 onClick = actions::onBackupAccountClick,
-                summary = state.backupAccountEmail
-                    ?: stringResource(R.string.click_to_sign_in_to_google_account)
+                summary = when (state.authState) {
+                    is AuthState.Authenticated -> state.authState.account.email
+                    AuthState.UnAuthenticated -> stringResource(R.string.click_to_sign_in_to_google_account)
+                }
             )
 
-            AnimatedVisibility(visible = state.isAccountAdded) {
+            AnimatedVisibility(visible = isAuthenticated) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(SpacingSmall)
                 ) {
@@ -157,7 +163,7 @@ fun BackupSettingsScreen(
             }
         }
 
-        if (state.isAccountAdded && state.showBackupIntervalSelection) {
+        if (state.showBackupIntervalSelection && isAuthenticated) {
             RadioOptionListDialog(
                 titleRes = R.string.choose_backup_interval,
                 options = BackupInterval.entries.toTypedArray(),

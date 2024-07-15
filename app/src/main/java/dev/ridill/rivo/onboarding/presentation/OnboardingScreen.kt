@@ -111,14 +111,14 @@ fun OnboardingScreen(
                             AccountSignInPage(
                                 authState = authState,
                                 onSignInClick = onSignInClick,
-                                onSignInSkip = actions::onSkipGoogleSignInClick,
+                                onSignInSkip = actions::onSkipSignInClick,
                             )
                         }
 
                         OnboardingPage.DATA_RESTORE.ordinal -> {
                             DataRestorePage(
                                 restoreState = restoreState,
-                                onCheckForBackupClick = actions::onBackupClick,
+                                onCheckForBackupClick = actions::onCheckOrRestoreClick,
                                 onSkipClick = actions::onDataRestoreSkip,
                                 showEncryptionPasswordInput = showEncryptionPasswordInput,
                                 onEncryptionPasswordInputDismiss = actions::onEncryptionPasswordInputDismiss,

@@ -65,6 +65,7 @@ class OnboardingViewModel @Inject constructor(
         collectRestoreWorkState()
     }
 
+    private var hasRestoreJobRunThisSession: Boolean = false
     private fun collectRestoreWorkState() = viewModelScope.launch {
         combineTuple(
             backupWorkManager.getRestoreDataDownloadWorkInfoFlow(),
@@ -80,6 +81,10 @@ class OnboardingViewModel @Inject constructor(
                 }
             }
 
+            if (isDownloadRunning || isRestoreRunning) {
+                hasRestoreJobRunThisSession = true
+            }
+
             when {
                 restoreInfo?.state == WorkInfo.State.SUCCEEDED -> {
                     _dataRestoreState.update { DataRestoreState.COMPLETED }
@@ -91,7 +96,7 @@ class OnboardingViewModel @Inject constructor(
 
                 downloadInfo?.state == WorkInfo.State.FAILED -> {
                     _dataRestoreState.update { DataRestoreState.FAILED }
-                    eventBus.send(
+                    if (hasRestoreJobRunThisSession) eventBus.send(
                         OnboardingEvent.ShowUiMessage(
                             downloadInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
@@ -102,7 +107,7 @@ class OnboardingViewModel @Inject constructor(
 
                 restoreInfo?.state == WorkInfo.State.FAILED -> {
                     _dataRestoreState.update { DataRestoreState.FAILED }
-                    eventBus.send(
+                    if (hasRestoreJobRunThisSession) eventBus.send(
                         OnboardingEvent.ShowUiMessage(
                             restoreInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
@@ -183,7 +188,7 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    override fun onSkipGoogleSignInClick() {
+    override fun onSkipSignInClick() {
         viewModelScope.launch {
             val isAuthenticated = authState.first() is AuthState.Authenticated
             eventBus.send(
@@ -195,7 +200,7 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    override fun onBackupClick() {
+    override fun onCheckOrRestoreClick() {
         viewModelScope.launch {
             when (val result = authRepo.authorizeUserAccount()) {
                 is Result.Error -> {
