@@ -32,6 +32,7 @@ androidx-work = "2.9.0"
 datastore-preferences = "1.1.1"
 
 androidx-biometric = "1.2.0-alpha05"
+androidx-security-crypto = "1.1.0-alpha03"
 
 firebase-bom = "33.1.1"
 firebase-crashlytics-gradle = "3.0.2"
@@ -108,12 +109,13 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 
 # AndroidX Biometric
 androidx-biometric-ktx = { group = "androidx.biometric", name = "biometric-ktx", version.ref = "androidx-biometric" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidx-security-crypto" }
 
 # Firebase
 com-google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 com-google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 com-google-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
-com-google-firebase-auth = { group = "com.google.firebase", name = "firebase-auth"}
+com-google-firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 
 
 # Google Play Services

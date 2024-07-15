@@ -31,7 +31,9 @@ val String.Companion.WhiteSpace: String get() = " "
 val String.Companion.NewLine: String get() = "\n"
 fun String.toUUID(): UUID = UUID.nameUUIDFromBytes(this.toByteArray())
 
-fun List<String>.joinToCapitalizedString(locale: Locale = LocaleUtil.defaultLocale): String = buildString {
+fun List<String>.joinToCapitalizedString(
+    locale: Locale = LocaleUtil.defaultLocale
+): String = buildString {
     this@joinToCapitalizedString.forEach { word ->
         if (word.length == 1) {
             append(word.uppercase(locale))
@@ -53,3 +55,5 @@ fun Boolean?.orTrue(): Boolean = this ?: true
 fun <T> Set<T>.addOrRemove(element: T): Set<T> =
     if (element in this) this - element
     else this + element
+
+fun <T> T.isAnyOf(vararg elements: T): Boolean = elements.any { it == this }

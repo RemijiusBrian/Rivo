@@ -9,12 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
-suspend inline fun <T> tryNetworkCall(
-    crossinline call: suspend () -> T
+suspend inline fun <T, E : DataError> tryNetworkCall(
+    crossinline call: suspend () -> Result<T, E>
 ): Result<T, DataError> = withContext(Dispatchers.IO) {
     try {
-        val result = call()
-        Result.Success(result)
+        call()
     } catch (e: HttpException) {
         logE(e) { "Network call failed" }
         when (e.code()) {

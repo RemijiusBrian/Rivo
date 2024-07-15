@@ -29,7 +29,7 @@ interface CredentialService {
 }
 
 @Composable
-fun rememberAuthenticationService(
+fun rememberCredentialService(
     context: Context = LocalContext.current
 ): CredentialService = remember(context) {
     DefaultCredentialService(context)

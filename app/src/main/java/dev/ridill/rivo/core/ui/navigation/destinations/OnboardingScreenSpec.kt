@@ -1,10 +1,15 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -16,9 +21,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.application.EXTRA_RUN_CONFIG_RESTORE
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
-import dev.ridill.rivo.core.ui.authentication.rememberAuthenticationService
+import dev.ridill.rivo.core.ui.authentication.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsLauncher
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsState
@@ -46,9 +52,8 @@ data object OnboardingScreenSpec : ScreenSpec {
         val pagerState = rememberPagerState(
             pageCount = { OnboardingPage.entries.size }
         )
-        val availableBackup by viewModel.availableBackup.collectAsStateWithLifecycle()
-        val restoreStatusText by viewModel.restoreStatusText.collectAsStateWithLifecycle(null)
-        val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+        val authState by viewModel.authState.collectAsState(initial = AuthState.UnAuthenticated)
+        val restoreState by viewModel.dataRestoreState.collectAsStateWithLifecycle()
         val currency by viewModel.currency.collectAsStateWithLifecycle(initialValue = LocaleUtil.defaultCurrency)
         val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
         val showEncryptionPasswordInput by viewModel.showEncryptionPasswordInput.collectAsStateWithLifecycle()
@@ -65,15 +70,23 @@ data object OnboardingScreenSpec : ScreenSpec {
             )
         )
 
-        val credentialService = rememberAuthenticationService(context)
+        val credentialService = rememberCredentialService(context)
         val currentPage by remember(pagerState) {
             derivedStateOf { pagerState.currentPage }
         }
 
         LaunchedEffect(currentPage) {
-            if (currentPage == OnboardingPage.GOOGLE_SIGN_IN.ordinal)
+            if (currentPage == OnboardingPage.ACCOUNT_SIGN_IN.ordinal)
                 viewModel.onAccountPageReached()
         }
+
+        val authorizationResultLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult(),
+            onResult = { result ->
+                if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+                result.data?.let(viewModel::onAuthorizationResult)
+            }
+        )
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
@@ -116,6 +129,12 @@ data object OnboardingScreenSpec : ScreenSpec {
                     )
                     viewModel.onCredentialResult(result)
                 }
+
+                is OnboardingViewModel.OnboardingEvent.StartAuthorizationFlow -> {
+                    authorizationResultLauncher.launch(
+                        IntentSenderRequest.Builder(event.pendingIntent).build()
+                    )
+                }
             }
         }
 
@@ -124,9 +143,8 @@ data object OnboardingScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             pagerState = pagerState,
             permissionsState = permissionsState,
-            restoreStatusText = restoreStatusText,
-            isLoading = isLoading,
-            availableBackup = availableBackup,
+            authState = authState,
+            restoreState = restoreState,
             showEncryptionPasswordInput = showEncryptionPasswordInput,
             currency = currency,
             budgetInput = { budgetInput.value },

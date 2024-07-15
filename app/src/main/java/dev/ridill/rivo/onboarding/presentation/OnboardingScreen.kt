@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -35,13 +36,13 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.onboarding.domain.model.DataRestoreState
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
-import dev.ridill.rivo.onboarding.presentation.components.GoogleSignInPage
+import dev.ridill.rivo.onboarding.presentation.components.DataRestorePage
+import dev.ridill.rivo.onboarding.presentation.components.AccountSignInPage
 import dev.ridill.rivo.onboarding.presentation.components.PermissionsPage
 import dev.ridill.rivo.onboarding.presentation.components.SetBudgetPage
 import dev.ridill.rivo.onboarding.presentation.components.WelcomeMessagePage
-import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import java.util.Currency
 
 @Composable
@@ -49,9 +50,8 @@ fun OnboardingScreen(
     snackbarController: SnackbarController,
     pagerState: PagerState,
     permissionsState: MultiplePermissionsState,
-    restoreStatusText: UiText?,
-    isLoading: Boolean,
-    availableBackup: BackupDetails?,
+    authState: AuthState,
+    restoreState: DataRestoreState,
     showEncryptionPasswordInput: Boolean,
     currency: Currency,
     budgetInput: () -> String,
@@ -102,15 +102,19 @@ fun OnboardingScreen(
                         )
                     }
 
-                    OnboardingPage.GOOGLE_SIGN_IN.ordinal -> {
-                        GoogleSignInPage(
-                            restoreStatus = restoreStatusText,
-                            isLoading = isLoading,
+                    OnboardingPage.ACCOUNT_SIGN_IN.ordinal -> {
+                        AccountSignInPage(
+                            authState = authState,
                             onSignInClick = onSignInClick,
-                            onSkipSignInClick = actions::onSkipGoogleSignInClick,
-                            onRestoreClick = actions::onRestoreDataClick,
-                            onSkipRestoreClick = actions::onSkipDataRestore,
-                            availableBackupDetails = availableBackup,
+                            onSignInSkip = actions::onSkipGoogleSignInClick,
+                        )
+                    }
+
+                    OnboardingPage.DATA_RESTORE.ordinal -> {
+                        DataRestorePage(
+                            restoreState = restoreState,
+                            onCheckForBackupClick = actions::onBackupClick,
+                            onSkipClick = actions::onDataRestoreSkip,
                             showEncryptionPasswordInput = showEncryptionPasswordInput,
                             onEncryptionPasswordInputDismiss = actions::onEncryptionPasswordInputDismiss,
                             onEncryptionPasswordSubmit = actions::onEncryptionPasswordSubmit

@@ -101,6 +101,8 @@
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
     <string name="error_unknown">An Unknown error occurred</string>
+    <string name="error_authorization_required">Authorization required</string>
+    <string name="error_authorization_failed">An Unknown error occurred</string>
     <string name="error_unknown_credential_type">Unknown credential type</string>
     <string name="error_no_backup_found">Unable to locate a backup in your Google Drive</string>
     <string name="error_download_backup_failed">Failed to download backup</string>
@@ -130,14 +132,15 @@
     <string name="action_skip">Skip</string>
     <string name="action_undo">Undo</string>
     <string name="action_view">View</string>
+    <string name="action_next">Next</string>
 
     <!-- Texts -->
     <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
     <string name="onboarding_page_permissions_title">Permissions</string>
-    <string name="onboarding_page_google_sign_in_title">Google Sign In</string>
-    <string name="onboarding_page_google_sign_in_message">Sign in to your google account to be able to backup and restore your app data</string>
-    <string name="onboarding_page_restore_data_title">Backup Found</string>
-    <string name="onboarding_page_restore_data_message">You seem to have some data backed up from %s, Would you like to restore it?</string>
+    <string name="onboarding_page_sign_in_title">Sign in to your account</string>
+    <string name="onboarding_page_sign_in_message">Sign in to your account to be able to backup and restore your app data</string>
+    <string name="onboarding_page_restore_data_title">Restore Your App Data</string>
+    <string name="onboarding_page_restore_data_message">Check to see if you have some data backed up and restore it if you do</string>
     <string name="onboarding_page_set_budget_title">Set your monthly Budget</string>
     <string name="onboarding_page_set_budget_message">Enter your budget for each month</string>
     <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
@@ -265,7 +268,6 @@
     <string name="app_update_in_progress">App update in progress</string>
     <string name="update_failed">Update failed</string>
     <string name="backup_account">Backup Account</string>
-    <string name="restore">Restore</string>
     <string name="choose_backup_interval">Choose Backup Interval</string>
     <string name="backup_now">Backup Now</string>
     <string name="downloading_app_data">Downloading App Data</string>
@@ -273,7 +275,7 @@
     <string name="restoring_app_config">Restoring App Configuration</string>
     <string name="data_restore_in_progress">Data restore in progress</string>
     <string name="restarting_app">Restarting App</string>
-    <string name="data_restore_disclaimer">Please do not close app while the restore is in progress. The app will automatically restart once the restore process is completed.</string>
+    <string name="data_restore_caution_message">Please do not close the app while data restore is in progress. The app will automatically restart once the restore process is completed.</string>
     <string name="last_backup">Last Backup</string>
     <string name="date_label">Date: %s</string>
     <string name="time_label">Time: %s</string>
@@ -397,4 +399,5 @@
     <string name="timestamp_label">Timestamp</string>
     <string name="pick_time">Pick Time</string>
     <string name="pick_date">Pick Date</string>
+    <string name="check_for_backups">Check for Backups</string>
 </resources>
