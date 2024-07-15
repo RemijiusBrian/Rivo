@@ -76,7 +76,7 @@ class OnboardingViewModel @Inject constructor(
                 when {
                     isDownloadRunning -> DataRestoreState.DOWNLOADING_DATA
                     isRestoreRunning -> DataRestoreState.RESTORE_IN_PROGRESS
-                    else -> DataRestoreState.IDLE
+                    else -> it
                 }
             }
 
@@ -232,6 +232,11 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private suspend fun checkIfBackupExists() {
+        if (savedStateHandle.get<BackupDetails?>(AVAILABLE_BACKUP) != null) {
+            _dataRestoreState.update { DataRestoreState.PASSWORD_VERIFICATION }
+            savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = true
+            return
+        }
         _dataRestoreState.update { DataRestoreState.CHECKING_FOR_BACKUP }
         logI { "Running Backup Check" }
         when (val result = backupRepo.checkForBackup()) {
@@ -241,6 +246,7 @@ class OnboardingViewModel @Inject constructor(
             }
 
             is Result.Success -> {
+                _dataRestoreState.update { DataRestoreState.PASSWORD_VERIFICATION }
                 savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = true
                 savedStateHandle[AVAILABLE_BACKUP] = result.data
             }

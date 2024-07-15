@@ -271,6 +271,7 @@
     <string name="choose_backup_interval">Choose Backup Interval</string>
     <string name="backup_now">Backup Now</string>
     <string name="downloading_app_data">Downloading App Data</string>
+    <string name="verify_your_password">Verify your password</string>
     <string name="restoring_app_data">Restoring App Data</string>
     <string name="restoring_app_config">Restoring App Configuration</string>
     <string name="data_restore_in_progress">Data restore in progress</string>
@@ -400,4 +401,5 @@
     <string name="pick_time">Pick Time</string>
     <string name="pick_date">Pick Date</string>
     <string name="check_for_backups">Check for Backups</string>
+    <string name="restore_backup">Restore Backup</string>
 </resources>

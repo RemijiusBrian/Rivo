@@ -55,13 +55,9 @@ fun DataRestorePage(
     onEncryptionPasswordSubmit: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isRestoreInProgress by remember(restoreState) {
+    val showRestoreStatus by remember(restoreState) {
         derivedStateOf {
-            restoreState.isAnyOf(
-                DataRestoreState.CHECKING_FOR_BACKUP,
-                DataRestoreState.DOWNLOADING_DATA,
-                DataRestoreState.RESTORE_IN_PROGRESS
-            )
+            restoreState != DataRestoreState.IDLE
         }
     }
 
@@ -91,7 +87,7 @@ fun DataRestorePage(
 
         Spacer(weight = Float.One)
 
-        AnimatedVisibility(visible = isRestoreInProgress) {
+        AnimatedVisibility(visible = showRestoreStatus) {
             RestoreStatus(
                 dataRestoreState = restoreState,
                 modifier = Modifier
@@ -99,7 +95,24 @@ fun DataRestorePage(
             )
         }
 
+        val isBackupDownloaded by remember(restoreState) {
+            derivedStateOf {
+                restoreState.isAnyOf(
+                    DataRestoreState.PASSWORD_VERIFICATION,
+                    DataRestoreState.RESTORE_IN_PROGRESS
+                )
+            }
+        }
+        val isRestoreInProgress by remember(restoreState) {
+            derivedStateOf {
+                restoreState.isAnyOf(
+                    DataRestoreState.DOWNLOADING_DATA,
+                    DataRestoreState.RESTORE_IN_PROGRESS
+                )
+            }
+        }
         RestoreBackupActions(
+            isBackupDownloaded = isBackupDownloaded,
             onRestoreClick = onCheckForBackupClick,
             onSkipClick = onSkipClick,
             isRestoreInProgress = isRestoreInProgress
@@ -148,6 +161,7 @@ private fun RestoreStatus(
                 DataRestoreState.IDLE -> null
                 DataRestoreState.CHECKING_FOR_BACKUP -> R.string.checking_for_backups
                 DataRestoreState.DOWNLOADING_DATA -> R.string.downloading_app_data
+                DataRestoreState.PASSWORD_VERIFICATION -> R.string.verify_your_password
                 DataRestoreState.RESTORE_IN_PROGRESS -> R.string.data_restore_in_progress
                 DataRestoreState.COMPLETED -> R.string.restarting_app
                 DataRestoreState.FAILED -> R.string.error_app_data_restore_failed
@@ -174,11 +188,14 @@ private fun RestoreStatus(
 
 @Composable
 private fun RestoreBackupActions(
+    isBackupDownloaded: Boolean,
     isRestoreInProgress: Boolean,
     onRestoreClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val buttonContainerColor = MaterialTheme.colorScheme.primaryContainer
+    val buttonContentColor = MaterialTheme.colorScheme.onPrimaryContainer
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -187,18 +204,26 @@ private fun RestoreBackupActions(
         Button(
             onClick = onRestoreClick,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                containerColor = buttonContainerColor,
+                contentColor = buttonContentColor,
+                disabledContainerColor = buttonContainerColor.copy(alpha = ContentAlpha.SUB_CONTENT),
+                disabledContentColor = buttonContentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
             ),
             enabled = !isRestoreInProgress
         ) {
-            Text(stringResource(R.string.check_for_backups))
+            Text(
+                stringResource(
+                    id = if (isBackupDownloaded) R.string.check_for_backups
+                    else R.string.restore_backup
+                )
+            )
         }
 
         TextButton(
             onClick = onSkipClick,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = LocalContentColor.current
+                contentColor = LocalContentColor.current,
+                disabledContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
             ),
             enabled = !isRestoreInProgress
         ) {
