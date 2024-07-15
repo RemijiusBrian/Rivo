@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
+import dev.ridill.rivo.core.domain.util.tryOrNull
 
 class AppLockServiceManager(
     private val context: Context
@@ -28,14 +29,20 @@ class AppLockServiceManager(
     private fun startServiceWithAction(
         serviceAction: AppLockService.Action
     ) {
-        val serviceIntent = Intent(context, AppLockService::class.java).apply {
-            action = serviceAction.name
-        }
-        Handler(Looper.getMainLooper()).post {
-            ContextCompat.startForegroundService(
-                context,
-                serviceIntent
-            )
+        tryOrNull(
+            AppLockServiceManager::class.java.name
+        ) {
+            val serviceIntent = Intent(context, AppLockService::class.java).apply {
+                action = serviceAction.name
+            }
+            Handler(Looper.getMainLooper()).post {
+                tryOrNull {
+                    ContextCompat.startForegroundService(
+                        context,
+                        serviceIntent
+                    )
+                }
+            }
         }
     }
 }
