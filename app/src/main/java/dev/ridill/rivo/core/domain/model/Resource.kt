@@ -2,6 +2,8 @@ package dev.ridill.rivo.core.domain.model
 
 import dev.ridill.rivo.core.ui.util.UiText
 
+typealias SimpleResource = Resource<Unit>
+
 sealed class Resource<T>(
     val data: T? = null,
     val message: UiText? = null

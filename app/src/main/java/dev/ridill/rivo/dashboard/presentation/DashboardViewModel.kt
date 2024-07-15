@@ -6,7 +6,6 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
@@ -18,14 +17,12 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
-    private val signInService: GoogleSignInService,
     private val notificationHelper: NotificationHelper<Transaction>,
     private val eventBus: EventBus<DashboardEvent>
 ) : ViewModel() {
@@ -89,9 +86,9 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun updateSignedInUsername() {
-        signedInUsername.update {
+        /*signedInUsername.update {
             signInService.getSignedInAccount()?.displayName
-        }
+        }*/
     }
 
     fun onNavResult(result: String) = viewModelScope.launch {

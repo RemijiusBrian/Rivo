@@ -1,7 +1,9 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
@@ -18,11 +20,13 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.authentication.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
@@ -58,15 +62,19 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        val googleSignInLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = viewModel::onSignInResult
-        )
-
         DestinationResultEffect(
             key = ACTION_ENCRYPTION_PASSWORD,
             navBackStackEntry = navBackStackEntry,
             onResult = viewModel::onDestinationResult
+        )
+
+        val credentialService = rememberCredentialService(context)
+        val authorizationResultLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult(),
+            onResult = { result ->
+                if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+                result.data?.let(viewModel::onAuthorizationResult)
+            }
         )
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
@@ -78,12 +86,22 @@ data object BackupSettingsScreenSpec : ScreenSpec {
                     )
                 }
 
-                is BackupSettingsViewModel.BackupSettingsEvent.LaunchGoogleSignIn -> {
-                    googleSignInLauncher.launch(event.intent)
+                is BackupSettingsViewModel.BackupSettingsEvent.NavigateToBackupEncryptionScreen -> {
+                    navController.navigate(BackupEncryptionScreenSpec.route)
                 }
 
-                BackupSettingsViewModel.BackupSettingsEvent.NavigateToBackupEncryptionScreen -> {
-                    navController.navigate(BackupEncryptionScreenSpec.route)
+                is BackupSettingsViewModel.BackupSettingsEvent.StartAuthorizationFlow -> {
+                    authorizationResultLauncher.launch(
+                        IntentSenderRequest.Builder(event.pendingIntent).build()
+                    )
+                }
+
+                is BackupSettingsViewModel.BackupSettingsEvent.StartAutoSignInFlow -> {
+                    val result = credentialService.startGetCredentialFlow(
+                        filterByAuthorizedUsers = event.filterByAuthorizedAccounts,
+                        activityContext = context.findActivity()
+                    )
+                    viewModel.onCredentialResult(result)
                 }
             }
         }

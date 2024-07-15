@@ -17,6 +17,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -35,13 +37,14 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
 import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.onboarding.domain.model.DataRestoreState
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
-import dev.ridill.rivo.onboarding.presentation.components.GoogleSignInPage
+import dev.ridill.rivo.onboarding.presentation.components.AccountSignInPage
+import dev.ridill.rivo.onboarding.presentation.components.DataRestorePage
 import dev.ridill.rivo.onboarding.presentation.components.PermissionsPage
 import dev.ridill.rivo.onboarding.presentation.components.SetBudgetPage
 import dev.ridill.rivo.onboarding.presentation.components.WelcomeMessagePage
-import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import java.util.Currency
 
 @Composable
@@ -49,12 +52,12 @@ fun OnboardingScreen(
     snackbarController: SnackbarController,
     pagerState: PagerState,
     permissionsState: MultiplePermissionsState,
-    restoreStatusText: UiText?,
-    isLoading: Boolean,
-    availableBackup: BackupDetails?,
+    authState: AuthState,
+    restoreState: DataRestoreState,
     showEncryptionPasswordInput: Boolean,
     currency: Currency,
     budgetInput: () -> String,
+    onSignInClick: () -> Unit,
     actions: OnboardingActions
 ) {
     val view = LocalView.current
@@ -72,67 +75,75 @@ fun OnboardingScreen(
             }
         }
     }
-    RivoScaffold(
-        modifier = Modifier
-            .imePadding(),
-        containerColor = PrimaryBrandColor,
-        snackbarController = snackbarController
-    ) { paddingValues ->
-        Column(
+    CompositionLocalProvider(
+        LocalContentColor provides PrimaryBrandColor.contentColor()
+    ) {
+        RivoScaffold(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            HorizontalPager(
-                state = pagerState,
+                .imePadding(),
+            containerColor = PrimaryBrandColor,
+            snackbarController = snackbarController
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .weight(Float.One)
-            ) { page ->
-                when (page) {
-                    OnboardingPage.WELCOME.ordinal -> {
-                        WelcomeMessagePage()
-                    }
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .weight(Float.One)
+                ) { page ->
+                    when (page) {
+                        OnboardingPage.WELCOME.ordinal -> {
+                            WelcomeMessagePage()
+                        }
 
-                    OnboardingPage.APP_PERMISSIONS.ordinal -> {
-                        PermissionsPage(
-                            permissionsState = permissionsState,
-                            onGivePermissionClick = actions::onGivePermissionsClick,
-                            onSkipClick = actions::onSkipPermissionsClick
-                        )
-                    }
+                        OnboardingPage.APP_PERMISSIONS.ordinal -> {
+                            PermissionsPage(
+                                permissionsState = permissionsState,
+                                onGivePermissionClick = actions::onGivePermissionsClick,
+                                onSkipClick = actions::onSkipPermissionsClick
+                            )
+                        }
 
-                    OnboardingPage.GOOGLE_SIGN_IN.ordinal -> {
-                        GoogleSignInPage(
-                            restoreStatus = restoreStatusText,
-                            isLoading = isLoading,
-                            onSignInClick = actions::onGoogleSignInClick,
-                            onSkipSignInClick = actions::onSkipGoogleSignInClick,
-                            onRestoreClick = actions::onRestoreDataClick,
-                            onSkipRestoreClick = actions::onSkipDataRestore,
-                            availableBackupDetails = availableBackup,
-                            showEncryptionPasswordInput = showEncryptionPasswordInput,
-                            onEncryptionPasswordInputDismiss = actions::onEncryptionPasswordInputDismiss,
-                            onEncryptionPasswordSubmit = actions::onEncryptionPasswordSubmit
-                        )
-                    }
+                        OnboardingPage.ACCOUNT_SIGN_IN.ordinal -> {
+                            AccountSignInPage(
+                                authState = authState,
+                                onSignInClick = onSignInClick,
+                                onSignInSkip = actions::onSkipSignInClick,
+                            )
+                        }
 
-                    OnboardingPage.SET_BUDGET.ordinal -> {
-                        SetBudgetPage(
-                            currency = currency,
-                            input = budgetInput,
-                            onInputChange = actions::onBudgetInputChange,
-                            onStartBudgetingClick = actions::onStartBudgetingClick
-                        )
+                        OnboardingPage.DATA_RESTORE.ordinal -> {
+                            DataRestorePage(
+                                restoreState = restoreState,
+                                onCheckForBackupClick = actions::onCheckOrRestoreClick,
+                                onSkipClick = actions::onDataRestoreSkip,
+                                showEncryptionPasswordInput = showEncryptionPasswordInput,
+                                onEncryptionPasswordInputDismiss = actions::onEncryptionPasswordInputDismiss,
+                                onEncryptionPasswordSubmit = actions::onEncryptionPasswordSubmit
+                            )
+                        }
+
+                        OnboardingPage.SET_BUDGET.ordinal -> {
+                            SetBudgetPage(
+                                currency = currency,
+                                input = budgetInput,
+                                onInputChange = actions::onBudgetInputChange,
+                                onStartBudgetingClick = actions::onStartBudgetingClick
+                            )
+                        }
                     }
                 }
-            }
 
-            WelcomeFlowProgress(
-                pageCount = pagerState.pageCount,
-                currentPage = pagerState.currentPage,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+                WelcomeFlowProgress(
+                    pageCount = pagerState.pageCount,
+                    currentPage = pagerState.currentPage,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
         }
     }
 }

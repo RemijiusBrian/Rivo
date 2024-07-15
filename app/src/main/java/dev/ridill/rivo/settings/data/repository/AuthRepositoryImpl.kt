@@ -1,0 +1,94 @@
+package dev.ridill.rivo.settings.data.repository
+
+import android.app.PendingIntent
+import android.content.Intent
+import dev.ridill.rivo.R
+import dev.ridill.rivo.core.data.util.tryNetworkCall
+import dev.ridill.rivo.core.domain.model.AuthState
+import dev.ridill.rivo.core.domain.model.DataError
+import dev.ridill.rivo.core.domain.model.Result
+import dev.ridill.rivo.core.domain.model.UserAccount
+import dev.ridill.rivo.core.domain.service.AccessTokenService
+import dev.ridill.rivo.core.domain.service.AuthService
+import dev.ridill.rivo.core.ui.authentication.AuthorizationFailedThrowable
+import dev.ridill.rivo.core.ui.authentication.AuthorizationNeedsResolutionThrowable
+import dev.ridill.rivo.core.ui.authentication.AuthorizationService
+import dev.ridill.rivo.core.ui.authentication.CredentialService
+import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+
+class AuthRepositoryImpl(
+    private val credentialService: CredentialService,
+    private val authService: AuthService,
+    private val authorizationService: AuthorizationService,
+    private val accessTokenService: AccessTokenService
+) : AuthRepository {
+    override fun getSignedInAccount(): UserAccount? =
+        authService.getSignedInAccount()
+
+    override fun getAuthState(): Flow<AuthState> =
+        authService.getAuthStateFlow()
+
+    override suspend fun signUserInWithToken(
+        idToken: String
+    ): Result<Unit, DataError> = tryNetworkCall {
+        authService.signUserWithIdToken(idToken)
+        Result.Success(Unit)
+    }
+
+    override suspend fun signUserOut() = withContext(Dispatchers.IO) {
+        authService.signUserOut()
+        credentialService.clearCredentials()
+    }
+
+    override suspend fun authorizeUserAccount(): Result<PendingIntent?, AuthorizationService.AuthorizationError> =
+        try {
+            val result = authorizationService.getIntentSenderForAuthorization()
+            accessTokenService.updateAccessToken(result.accessToken.orEmpty())
+            Result.Success(result.pendingIntent)
+        } catch (t: AuthorizationNeedsResolutionThrowable) {
+            Result.Error(
+                error = AuthorizationService.AuthorizationError.NEEDS_RESOLUTION,
+                message = UiText.StringResource(R.string.error_authorization_required),
+                data = t.pendingIntent
+            )
+        } catch (t: AuthorizationFailedThrowable) {
+            Result.Error(
+                error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
+                message = UiText.StringResource(R.string.error_authorization_failed)
+            )
+        } catch (t: Throwable) {
+            if (t is CancellationException) throw t
+            Result.Error(
+                error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
+                message = UiText.StringResource(R.string.error_authorization_failed)
+            )
+        }
+
+    override suspend fun decodeAuthorizationResult(intent: Intent): Result<Unit, AuthorizationService.AuthorizationError> =
+        try {
+            val accessToken = authorizationService.decodeAccessTokenFromIntent(intent)
+            accessTokenService.updateAccessToken(accessToken)
+            Result.Success(Unit)
+        } catch (t: AuthorizationNeedsResolutionThrowable) {
+            Result.Error(
+                error = AuthorizationService.AuthorizationError.NEEDS_RESOLUTION,
+                message = UiText.StringResource(R.string.error_authorization_required)
+            )
+        } catch (t: AuthorizationFailedThrowable) {
+            Result.Error(
+                error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
+                message = UiText.StringResource(R.string.error_authorization_failed)
+            )
+        } catch (t: Throwable) {
+            if (t is CancellationException) throw t
+            Result.Error(
+                error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
+                message = UiText.StringResource(R.string.error_authorization_failed)
+            )
+        }
+}

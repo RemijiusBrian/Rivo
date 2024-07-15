@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.domain.util
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,6 +13,7 @@ inline fun <T> tryOrNull(
 ): T? = try {
     tryBlock()
 } catch (t: Throwable) {
+    if (t is CancellationException) throw t
     logE(t) { tag }
     null
 }

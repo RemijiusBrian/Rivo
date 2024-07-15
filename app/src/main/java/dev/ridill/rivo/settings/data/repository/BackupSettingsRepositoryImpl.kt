@@ -1,16 +1,9 @@
 package dev.ridill.rivo.settings.data.repository
 
-import android.app.Activity
-import android.content.Intent
-import androidx.activity.result.ActivityResult
 import androidx.work.WorkInfo
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
-import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.ConfigKeys
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
@@ -26,13 +19,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 class BackupSettingsRepositoryImpl(
     private val dao: ConfigDao,
-    private val signInService: GoogleSignInService,
     private val preferencesManager: PreferencesManager,
     private val backupWorkManager: BackupWorkManager,
     private val cryptoManager: CryptoManager
@@ -47,30 +38,10 @@ class BackupSettingsRepositoryImpl(
         .distinctUntilChanged()
 
     override fun refreshBackupAccount() {
-        _backupAccount.update {
-            signInService.getSignedInAccount()
-        }
+        /*_backupAccount.update {
+//            signInService.getSignedInAccount()
+        }*/
     }
-
-    override suspend fun getSignInIntent(): Intent =
-        signInService.getSignInIntent()
-
-    override suspend fun signInUser(result: ActivityResult): Resource<GoogleSignInAccount> =
-        withContext(Dispatchers.IO) {
-            if (result.resultCode != Activity.RESULT_OK) {
-                backupWorkManager.cancelAllWorks()
-                return@withContext Resource.Error(
-                    UiText.StringResource(
-                        R.string.error_sign_in_failed,
-                        true
-                    )
-                )
-            }
-
-            val resource = signInService.getAccountFromSignInResult(result)
-            _backupAccount.update { resource.data }
-            resource
-        }
 
     override fun getImmediateBackupWorkInfo(): Flow<WorkInfo?> =
         backupWorkManager.getImmediateBackupWorkInfoFlow()
@@ -89,10 +60,10 @@ class BackupSettingsRepositoryImpl(
             )
             dao.insert(entity)
 
-            if (signInService.getSignedInAccount() == null) {
+            /*if (signInService.getSignedInAccount() == null) {
                 backupWorkManager.cancelAllWorks()
                 return@withContext
-            }
+            }*/
             if (interval == BackupInterval.MANUAL) {
                 backupWorkManager.cancelPeriodicBackupWork()
             } else {

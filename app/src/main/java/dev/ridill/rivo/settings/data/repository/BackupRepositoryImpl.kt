@@ -3,16 +3,14 @@ package dev.ridill.rivo.settings.data.repository
 import com.google.android.gms.auth.GoogleAuthException
 import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.gson.Gson
-import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
+import dev.ridill.rivo.core.data.util.tryNetworkCall
+import dev.ridill.rivo.core.domain.model.DataError
+import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.logD
-import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
@@ -26,6 +24,7 @@ import dev.ridill.rivo.settings.domain.backup.DB_BACKUP_FILE_NAME
 import dev.ridill.rivo.settings.domain.backup.RestoreFailedThrowable
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
@@ -43,16 +42,16 @@ import javax.crypto.IllegalBlockSizeException
 class BackupRepositoryImpl(
     private val backupService: BackupService,
     private val gDriveApi: GDriveApi,
-    private val signInService: GoogleSignInService,
     private val preferencesManager: PreferencesManager,
     private val configDao: ConfigDao,
     private val backupWorkManager: BackupWorkManager,
-    private val schedulesRepository: SchedulesRepository
+    private val schedulesRepository: SchedulesRepository,
+    private val authRepo: AuthRepository
 ) : BackupRepository {
-    override suspend fun checkForBackup(): Resource<BackupDetails> = withContext(Dispatchers.IO) {
-        try {
+    override suspend fun checkForBackup(): Result<BackupDetails, DataError> =
+        tryNetworkCall {
             logI { "Checking For Backup" }
-            val email = signInService.getSignedInAccount()?.email
+            val email = authRepo.getSignedInAccount()?.email
                 ?: throw GoogleAuthException()
             val backupFolderName = backupFolderName(email)
             val backupFolder = gDriveApi.getFilesList(
@@ -67,15 +66,8 @@ class BackupRepositoryImpl(
 
             val backupDetails = backupFile.toBackupDetails()
             logD { "Backup Found - $backupDetails" }
-            Resource.Success(backupDetails)
-        } catch (t: NoBackupFoundThrowable) {
-            logE(t)
-            Resource.Error(UiText.StringResource(R.string.error_no_backup_found))
-        } catch (t: Throwable) {
-            logE(t)
-            Resource.Error(UiText.StringResource(R.string.error_unknown))
+            Result.Success(backupDetails)
         }
-    }
 
     @Throws(
         InvalidEncryptionPasswordThrowable::class,
@@ -91,7 +83,7 @@ class BackupRepositoryImpl(
         val passwordHash = preferencesManager.preferences.first()
             .encryptionPasswordHash.orEmpty()
             .ifEmpty { throw InvalidEncryptionPasswordThrowable() }
-        val email = signInService.getSignedInAccount()?.email
+        val email = authRepo.getSignedInAccount()?.email
             ?: throw GoogleAuthException()
         val backupFolderName = backupFolderName(email)
         var backupFolder = gDriveApi.getFilesList(
@@ -143,21 +135,22 @@ class BackupRepositoryImpl(
         BackupDownloadFailedThrowable::class,
         BackupCachingFailedThrowable::class
     )
-    override suspend fun downloadAndCacheBackupData(fileId: String, timestamp: LocalDateTime) {
-        withContext(Dispatchers.IO) {
-            if (backupService.doesRestoreCacheExist(timestamp)) {
-                logI { "Cache already exists, hence skipping download" }
-                return@withContext
-            }
-
-            logI { "Downloading data from GDrive" }
-            val response = gDriveApi.downloadFile(fileId)
-            val fileBody = response.body()
-                ?: throw BackupDownloadFailedThrowable()
-            logI { "Downloaded backup data" }
-            backupService.cacheDownloadedRestoreData(fileBody.byteStream(), timestamp)
-            logI { "Cached restore data" }
+    override suspend fun downloadAndCacheBackupData(
+        fileId: String,
+        timestamp: LocalDateTime
+    ) = withContext(Dispatchers.IO) {
+        if (backupService.doesRestoreCacheExist(timestamp)) {
+            logI { "Cache already exists, hence skipping download" }
+            return@withContext
         }
+
+        logI { "Downloading data from GDrive" }
+        val response = gDriveApi.downloadFile(fileId)
+        val fileBody = response.body()
+            ?: throw BackupDownloadFailedThrowable()
+        logI { "Downloaded backup data" }
+        backupService.cacheDownloadedRestoreData(fileBody.byteStream(), timestamp)
+        logI { "Cached restore data" }
     }
 
     @Throws(
@@ -170,14 +163,13 @@ class BackupRepositoryImpl(
     override suspend fun performAppDataRestoreFromCache(
         passwordHash: String,
         timestamp: LocalDateTime
-    ) =
-        withContext(Dispatchers.IO) {
-            logI { "Restoring Backup from cache" }
-            backupService.restoreBackupFromCache(passwordHash, timestamp)
-            preferencesManager.updateEncryptionPasswordHash(passwordHash)
-            preferencesManager.updateLastBackupTimestamp(timestamp)
-            logI { "Updated last backup timestamp" }
-        }
+    ) = withContext(Dispatchers.IO) {
+        logI { "Restoring Backup from cache" }
+        backupService.restoreBackupFromCache(passwordHash, timestamp)
+        preferencesManager.updateEncryptionPasswordHash(passwordHash)
+        preferencesManager.updateLastBackupTimestamp(timestamp)
+        logI { "Updated last backup timestamp" }
+    }
 
     override suspend fun tryClearLocalCache() {
         tryOrNull("Clearing cacheDir exception") {

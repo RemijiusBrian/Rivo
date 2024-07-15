@@ -1,8 +1,8 @@
 package dev.ridill.rivo.onboarding.presentation
 
 import android.Manifest
+import android.app.PendingIntent
 import android.content.Intent
-import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,48 +12,52 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
-import dev.ridill.rivo.core.domain.model.Resource
-import dev.ridill.rivo.core.domain.service.GoogleSignInService
+import dev.ridill.rivo.core.domain.model.AuthState
+import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logI
+import dev.ridill.rivo.core.ui.authentication.AuthorizationService
+import dev.ridill.rivo.core.ui.authentication.CredentialService
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.onboarding.domain.model.DataRestoreState
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val eventBus: EventBus<OnboardingEvent>,
-    private val signInService: GoogleSignInService,
     private val backupWorkManager: BackupWorkManager,
     private val settingsRepository: SettingsRepository,
     private val preferencesManager: PreferencesManager,
-    private val backupRepository: BackupRepository,
+    private val backupRepo: BackupRepository,
+    private val authRepo: AuthRepository,
     private val cryptoManager: CryptoManager
 ) : ViewModel(), OnboardingActions {
-    val restoreStatusText = savedStateHandle
-        .getStateFlow<UiText?>(RESTORE_STATE_TEXT, null)
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading get() = _isLoading.asStateFlow()
-
-    val availableBackup = savedStateHandle.getStateFlow<BackupDetails?>(AVAILABLE_BACKUP, null)
+    val authState = authRepo.getAuthState()
+    private val _dataRestoreState = MutableStateFlow(DataRestoreState.IDLE)
+    val dataRestoreState get() = _dataRestoreState.asStateFlow()
+    val showEncryptionPasswordInput = savedStateHandle
+        .getStateFlow(SHOW_ENCRYPTION_PASSWORD_INPUT, false)
 
     val currency = settingsRepository.getCurrencyPreference()
     val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
-    val showEncryptionPasswordInput = savedStateHandle
-        .getStateFlow(SHOW_ENCRYPTION_PASSWORD_INPUT, false)
 
     val events = eventBus.eventFlow
 
@@ -61,6 +65,7 @@ class OnboardingViewModel @Inject constructor(
         collectRestoreWorkState()
     }
 
+    private var hasRestoreJobRunThisSession: Boolean = false
     private fun collectRestoreWorkState() = viewModelScope.launch {
         combineTuple(
             backupWorkManager.getRestoreDataDownloadWorkInfoFlow(),
@@ -68,24 +73,30 @@ class OnboardingViewModel @Inject constructor(
         ).collectLatest { (downloadInfo, restoreInfo) ->
             val isDownloadRunning = downloadInfo?.state == WorkInfo.State.RUNNING
             val isRestoreRunning = restoreInfo?.state == WorkInfo.State.RUNNING
+            _dataRestoreState.update {
+                when {
+                    isDownloadRunning -> DataRestoreState.DOWNLOADING_DATA
+                    isRestoreRunning -> DataRestoreState.RESTORE_IN_PROGRESS
+                    else -> it
+                }
+            }
 
-            _isLoading.update { isDownloadRunning || isRestoreRunning }
-            savedStateHandle[RESTORE_STATE_TEXT] = when {
-                isDownloadRunning -> UiText.StringResource(R.string.downloading_app_data)
-                isRestoreRunning -> UiText.StringResource(R.string.data_restore_in_progress)
-                restoreInfo?.state == WorkInfo.State.SUCCEEDED -> UiText.StringResource(R.string.restarting_app)
-                else -> null
+            if (isDownloadRunning || isRestoreRunning) {
+                hasRestoreJobRunThisSession = true
             }
 
             when {
                 restoreInfo?.state == WorkInfo.State.SUCCEEDED -> {
+                    _dataRestoreState.update { DataRestoreState.COMPLETED }
                     savedStateHandle[AVAILABLE_BACKUP] = null
                     preferencesManager.concludeOnboarding()
+                    delay(5.seconds)
                     eventBus.send(OnboardingEvent.RestartApplication)
                 }
 
                 downloadInfo?.state == WorkInfo.State.FAILED -> {
-                    eventBus.send(
+                    _dataRestoreState.update { DataRestoreState.FAILED }
+                    if (hasRestoreJobRunThisSession) eventBus.send(
                         OnboardingEvent.ShowUiMessage(
                             downloadInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
@@ -95,7 +106,8 @@ class OnboardingViewModel @Inject constructor(
                 }
 
                 restoreInfo?.state == WorkInfo.State.FAILED -> {
-                    eventBus.send(
+                    _dataRestoreState.update { DataRestoreState.FAILED }
+                    if (hasRestoreJobRunThisSession) eventBus.send(
                         OnboardingEvent.ShowUiMessage(
                             restoreInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
@@ -114,13 +126,13 @@ class OnboardingViewModel @Inject constructor(
             if (BuildUtil.isNotificationRuntimePermissionNeeded())
                 eventBus.send(OnboardingEvent.LaunchNotificationPermissionRequest)
             else
-                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.ACCOUNT_SIGN_IN))
         }
     }
 
     override fun onSkipPermissionsClick() {
         viewModelScope.launch {
-            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
+            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.ACCOUNT_SIGN_IN))
         }
     }
 
@@ -131,65 +143,118 @@ class OnboardingViewModel @Inject constructor(
 
             val areAllGranted = result.all { it.value }
             if (areAllGranted)
-                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.GOOGLE_SIGN_IN))
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.ACCOUNT_SIGN_IN))
         }
     }
 
-    override fun onGoogleSignInClick() {
+    fun onAccountPageReached() = viewModelScope.launch {
+        val isUserUnAuthenticated = authRepo.getAuthState().first() == AuthState.UnAuthenticated
+        if (isUserUnAuthenticated) {
+            eventBus.send(OnboardingEvent.StartAutoSignInFlow(true))
+        }
+    }
+
+    fun onCredentialResult(
+        result: Result<String, CredentialService.CredentialError>
+    ) = viewModelScope.launch {
+        when (result) {
+            is Result.Error -> {
+                when (result.error) {
+                    CredentialService.CredentialError.NO_AUTHORIZED_CREDENTIAL -> {
+                        eventBus.send(OnboardingEvent.StartAutoSignInFlow(false))
+                    }
+
+                    CredentialService.CredentialError.CREDENTIAL_PROCESS_FAILED -> eventBus.send(
+                        OnboardingEvent.ShowUiMessage(result.message)
+                    )
+                }
+            }
+
+            is Result.Success -> {
+                signInUser(result.data)
+            }
+        }
+    }
+
+    private suspend fun signInUser(idToken: String) {
+        when (val result = authRepo.signUserInWithToken(idToken)) {
+            is Result.Error -> {
+                eventBus.send(OnboardingEvent.ShowUiMessage(result.message))
+            }
+
+            is Result.Success -> {
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.DATA_RESTORE))
+            }
+        }
+    }
+
+    override fun onSkipSignInClick() {
         viewModelScope.launch {
-            val signInIntent = signInService.getSignInIntent()
-            eventBus.send(OnboardingEvent.LaunchGoogleSignIn(signInIntent))
+            val isAuthenticated = authState.first() is AuthState.Authenticated
+            eventBus.send(
+                OnboardingEvent.NavigateToPage(
+                    if (isAuthenticated) OnboardingPage.DATA_RESTORE
+                    else OnboardingPage.SET_BUDGET
+                )
+            )
         }
     }
 
-    override fun onSkipGoogleSignInClick() {
+    override fun onCheckOrRestoreClick() {
         viewModelScope.launch {
-            eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
-        }
-    }
+            when (val result = authRepo.authorizeUserAccount()) {
+                is Result.Error -> {
+                    when (result.error) {
+                        AuthorizationService.AuthorizationError.NEEDS_RESOLUTION -> {
+                            result.data?.let {
+                                eventBus.send(OnboardingEvent.StartAuthorizationFlow(it))
+                            }
+                        }
 
-    fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
-        when (val resource = signInService.getAccountFromSignInResult(result)) {
-            is Resource.Error -> {
-                resource.message?.let { eventBus.send(OnboardingEvent.ShowUiMessage(it)) }
-            }
+                        AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED -> {
+                            eventBus.send(OnboardingEvent.ShowUiMessage(result.message))
+                        }
+                    }
+                }
 
-            is Resource.Success -> {
-                checkForBackup()
-            }
-        }
-    }
-
-    private suspend fun checkForBackup() {
-        savedStateHandle[RESTORE_STATE_TEXT] = UiText.StringResource(R.string.checking_for_backups)
-        _isLoading.update { true }
-        logI { "Running Backup Check" }
-        when (val resource = backupRepository.checkForBackup()) {
-            is Resource.Error -> {
-                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
-            }
-
-            is Resource.Success -> {
-                if (resource.data != null) {
-                    savedStateHandle[AVAILABLE_BACKUP] = resource.data
-                } else {
-                    eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
+                is Result.Success -> {
+                    checkIfBackupExists()
                 }
             }
         }
-        _isLoading.update { false }
-        savedStateHandle[RESTORE_STATE_TEXT] = null
     }
 
-    override fun onRestoreDataClick() {
-        viewModelScope.launch {
-            if (isLoading.value) return@launch
-            val backupDetails = availableBackup.value
-            if (backupDetails == null) {
-                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
-                return@launch
+    fun onAuthorizationResult(intent: Intent) = viewModelScope.launch {
+        when (val result = authRepo.decodeAuthorizationResult(intent)) {
+            is Result.Error -> {
+                eventBus.send(OnboardingEvent.ShowUiMessage(result.message))
             }
+
+            is Result.Success -> {
+                checkIfBackupExists()
+            }
+        }
+    }
+
+    private suspend fun checkIfBackupExists() {
+        if (savedStateHandle.get<BackupDetails?>(AVAILABLE_BACKUP) != null) {
+            _dataRestoreState.update { DataRestoreState.PASSWORD_VERIFICATION }
             savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = true
+            return
+        }
+        _dataRestoreState.update { DataRestoreState.CHECKING_FOR_BACKUP }
+        logI { "Running Backup Check" }
+        when (val result = backupRepo.checkForBackup()) {
+            is Result.Error -> {
+                _dataRestoreState.update { DataRestoreState.IDLE }
+                eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
+            }
+
+            is Result.Success -> {
+                _dataRestoreState.update { DataRestoreState.PASSWORD_VERIFICATION }
+                savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = true
+                savedStateHandle[AVAILABLE_BACKUP] = result.data
+            }
         }
     }
 
@@ -198,7 +263,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     override fun onEncryptionPasswordSubmit(password: String) {
-        val backupDetails = availableBackup.value ?: return
+        val backupDetails = savedStateHandle.get<BackupDetails?>(AVAILABLE_BACKUP)
+            ?: return
         val passwordHash = cryptoManager.hash(password)
         savedStateHandle[SHOW_ENCRYPTION_PASSWORD_INPUT] = false
         backupWorkManager.runImmediateRestoreWork(
@@ -207,7 +273,7 @@ class OnboardingViewModel @Inject constructor(
         )
     }
 
-    override fun onSkipDataRestore() {
+    override fun onDataRestoreSkip() {
         viewModelScope.launch {
             eventBus.send(OnboardingEvent.NavigateToPage(OnboardingPage.SET_BUDGET))
             savedStateHandle[AVAILABLE_BACKUP] = null
@@ -240,12 +306,13 @@ class OnboardingViewModel @Inject constructor(
         data object OnboardingConcluded : OnboardingEvent
         data class ShowUiMessage(val uiText: UiText) : OnboardingEvent
         data object LaunchNotificationPermissionRequest : OnboardingEvent
-        data class LaunchGoogleSignIn(val intent: Intent) : OnboardingEvent
+        data class StartAutoSignInFlow(val filterByAuthorizedAccounts: Boolean) : OnboardingEvent
+        data class StartAuthorizationFlow(val pendingIntent: PendingIntent) : OnboardingEvent
         data object RestartApplication : OnboardingEvent
     }
 }
 
 private const val BUDGET_INPUT = "BUDGET_INPUT"
-private const val RESTORE_STATE_TEXT = "RESTORE_STATE_TEXT"
+
 private const val AVAILABLE_BACKUP = "AVAILABLE_BACKUP"
 private const val SHOW_ENCRYPTION_PASSWORD_INPUT = "SHOW_ENCRYPTION_PASSWORD_INPUT"

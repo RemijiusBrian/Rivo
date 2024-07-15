@@ -1,7 +1,7 @@
 package dev.ridill.rivo.settings.presentation.backupSettings
 
+import android.app.PendingIntent
 import android.content.Intent
-import androidx.activity.result.ActivityResult
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,13 +10,16 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.model.Resource
+import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.logD
+import dev.ridill.rivo.core.ui.authentication.AuthorizationService
+import dev.ridill.rivo.core.ui.authentication.CredentialService
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,15 +34,13 @@ import javax.inject.Inject
 @HiltViewModel
 class BackupSettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repo: BackupSettingsRepository,
+    private val backupSettingsRepo: BackupSettingsRepository,
+    private val authRepo: AuthRepository,
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<BackupSettingsEvent>
 ) : ViewModel(), BackupSettingsActions {
 
-    private val backupAccountEmail = repo.getBackupAccount()
-        .map { it?.email }
-        .distinctUntilChanged()
-    private val isAccountAdded = backupAccountEmail.map { !it.isNullOrEmpty() }
+    val authState = authRepo.getAuthState()
         .distinctUntilChanged()
 
     private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
@@ -47,21 +48,20 @@ class BackupSettingsViewModel @Inject constructor(
     private val showBackupIntervalSelection = savedStateHandle
         .getStateFlow(SHOW_BACKUP_INTERVAL_SELECTION, false)
 
-    private val lastBackupDateTime = repo.getLastBackupTime()
+    private val lastBackupDateTime = backupSettingsRepo.getLastBackupTime()
         .distinctUntilChanged()
 
     private val isBackupRunning = MutableStateFlow(false)
 
-    private val isEncryptionPasswordAvailable = repo.isEncryptionPasswordAvailable()
+    private val isEncryptionPasswordAvailable = backupSettingsRepo.isEncryptionPasswordAvailable()
 
-    private val fatalBackupError = repo.getFatalBackupError()
+    private val fatalBackupError = backupSettingsRepo.getFatalBackupError()
 
     private val showBackupRunningMessage = savedStateHandle
         .getStateFlow(SHOW_BACKUP_RUNNING_MESSAGE, false)
 
     val state = combineTuple(
-        backupAccountEmail,
-        isAccountAdded,
+        authState,
         backupInterval,
         showBackupIntervalSelection,
         lastBackupDateTime,
@@ -70,8 +70,7 @@ class BackupSettingsViewModel @Inject constructor(
         fatalBackupError,
         showBackupRunningMessage
     ).map { (
-                backupAccountEmail,
-                isAccountAdded,
+                authState,
                 backupInterval,
                 showBackupIntervalSelection,
                 lastBackupDateTime,
@@ -82,8 +81,7 @@ class BackupSettingsViewModel @Inject constructor(
 
             ) ->
         BackupSettingsState(
-            backupAccountEmail = backupAccountEmail,
-            isAccountAdded = isAccountAdded,
+            authState = authState,
             backupInterval = backupInterval,
             showBackupIntervalSelection = showBackupIntervalSelection,
             lastBackupDateTime = lastBackupDateTime,
@@ -103,12 +101,12 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     private fun getSignedInUser() {
-        repo.refreshBackupAccount()
+        backupSettingsRepo.refreshBackupAccount()
     }
 
     private var hasBackupJobRunThisSession: Boolean = false
     private fun collectImmediateBackupWorkInfo() = viewModelScope.launch {
-        repo.getImmediateBackupWorkInfo().collectLatest { info ->
+        backupSettingsRepo.getImmediateBackupWorkInfo().collectLatest { info ->
             logD { "Immediate Backup Work Info - $info" }
             val isRunning = info?.state == WorkInfo.State.RUNNING
             isBackupRunning.update { isRunning }
@@ -129,7 +127,7 @@ class BackupSettingsViewModel @Inject constructor(
     }
 
     private fun collectPeriodicBackupWorkInfo() = viewModelScope.launch {
-        repo.getPeriodicBackupWorkInfo().collectLatest { info ->
+        backupSettingsRepo.getPeriodicBackupWorkInfo().collectLatest { info ->
             updateBackupInterval(info)
             logD { "Periodic Backup Work Info - $info" }
             isBackupRunning.update {
@@ -141,7 +139,7 @@ class BackupSettingsViewModel @Inject constructor(
     private fun updateBackupInterval(info: WorkInfo?) = viewModelScope.launch {
         val interval = if (info?.state == WorkInfo.State.CANCELLED)
             BackupInterval.MANUAL
-        else info?.let(repo::getIntervalFromInfo)
+        else info?.let(backupSettingsRepo::getIntervalFromInfo)
         backupInterval.update { interval ?: BackupInterval.MANUAL }
     }
 
@@ -151,19 +149,42 @@ class BackupSettingsViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            val intent = repo.getSignInIntent()
-            eventBus.send(BackupSettingsEvent.LaunchGoogleSignIn(intent))
+            eventBus.send(BackupSettingsEvent.StartAutoSignInFlow(true))
         }
     }
 
-    fun onSignInResult(result: ActivityResult) = viewModelScope.launch {
-        when (val resource = repo.signInUser(result)) {
-            is Resource.Error -> {
-                resource.message?.let { eventBus.send(BackupSettingsEvent.ShowUiMessage(it)) }
+    fun onCredentialResult(
+        result: Result<String, CredentialService.CredentialError>
+    ) = viewModelScope.launch {
+        when (result) {
+            is Result.Error -> {
+                when (result.error) {
+                    CredentialService.CredentialError.NO_AUTHORIZED_CREDENTIAL -> {
+                        eventBus.send(BackupSettingsEvent.StartAutoSignInFlow(false))
+                    }
+
+                    CredentialService.CredentialError.CREDENTIAL_PROCESS_FAILED -> eventBus.send(
+                        BackupSettingsEvent.ShowUiMessage(result.message)
+                    )
+                }
             }
 
-            is Resource.Success -> {
-                if (preferencesManager.preferences.first().encryptionPasswordHash.isNullOrEmpty()) {
+            is Result.Success -> {
+                signInUser(result.data)
+            }
+        }
+    }
+
+    private suspend fun signInUser(idToken: String) {
+        when (val result = authRepo.signUserInWithToken(idToken)) {
+            is Result.Error -> {
+                eventBus.send(BackupSettingsEvent.ShowUiMessage(result.message))
+            }
+
+            is Result.Success -> {
+                val savedPasswordHash =
+                    preferencesManager.preferences.first().encryptionPasswordHash
+                if (savedPasswordHash.isNullOrEmpty()) {
                     eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
                 }
             }
@@ -183,7 +204,7 @@ class BackupSettingsViewModel @Inject constructor(
     override fun onBackupIntervalSelected(interval: BackupInterval) {
         viewModelScope.launch {
             savedStateHandle[SHOW_BACKUP_INTERVAL_SELECTION] = false
-            repo.updateBackupIntervalAndScheduleJob(interval)
+            backupSettingsRepo.updateBackupIntervalAndScheduleJob(interval)
         }
     }
 
@@ -197,8 +218,35 @@ class BackupSettingsViewModel @Inject constructor(
                 eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
                 return@launch
             }
+            when (val result = authRepo.authorizeUserAccount()) {
+                is Result.Error -> {
+                    when (result.error) {
+                        AuthorizationService.AuthorizationError.NEEDS_RESOLUTION -> {
+                            result.data?.let {
+                                eventBus.send(BackupSettingsEvent.StartAuthorizationFlow(it))
+                            }
+                        }
 
-            repo.runImmediateBackupJob()
+                        AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED -> {
+                            eventBus.send(BackupSettingsEvent.ShowUiMessage(result.message))
+                        }
+                    }
+                }
+
+                is Result.Success -> {
+                    backupSettingsRepo.runImmediateBackupJob()
+                }
+            }
+        }
+    }
+
+    fun onAuthorizationResult(intent: Intent) = viewModelScope.launch {
+        when (val result = authRepo.decodeAuthorizationResult(intent)) {
+            is Result.Error -> {
+                eventBus.send(BackupSettingsEvent.ShowUiMessage(result.message))
+            }
+
+            is Result.Success -> Unit
         }
     }
 
@@ -214,7 +262,7 @@ class BackupSettingsViewModel @Inject constructor(
                 ENCRYPTION_PASSWORD_UPDATED -> {
                     eventBus.send(BackupSettingsEvent.ShowUiMessage(UiText.StringResource(R.string.encryption_password_updated)))
                     val interval = backupInterval.first()
-                    repo.runBackupJob(interval)
+                    backupSettingsRepo.runBackupJob(interval)
                 }
 
                 else -> Unit
@@ -229,7 +277,10 @@ class BackupSettingsViewModel @Inject constructor(
     sealed interface BackupSettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : BackupSettingsEvent
         data object NavigateToBackupEncryptionScreen : BackupSettingsEvent
-        data class LaunchGoogleSignIn(val intent: Intent) : BackupSettingsEvent
+        data class StartAutoSignInFlow(val filterByAuthorizedAccounts: Boolean) :
+            BackupSettingsEvent
+
+        data class StartAuthorizationFlow(val pendingIntent: PendingIntent) : BackupSettingsEvent
     }
 }
 
