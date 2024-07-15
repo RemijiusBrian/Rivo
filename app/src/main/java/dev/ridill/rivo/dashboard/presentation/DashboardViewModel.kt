@@ -5,16 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
+    authRepo: AuthRepository,
     private val notificationHelper: NotificationHelper<Transaction>,
     private val eventBus: EventBus<DashboardEvent>
 ) : ViewModel() {
@@ -48,7 +50,12 @@ class DashboardViewModel @Inject constructor(
 
     private val recentSpends = repo.getRecentSpends()
 
-    private val signedInUsername = MutableStateFlow<String?>(null)
+    private val signedInUsername = authRepo.getAuthState().map { state ->
+        when (state) {
+            is AuthState.Authenticated -> state.account.displayName
+            AuthState.UnAuthenticated -> null
+        }
+    }.distinctUntilChanged()
 
     val state = combineTuple(
         budgetInclCredits,
@@ -81,14 +88,7 @@ class DashboardViewModel @Inject constructor(
     val events = eventBus.eventFlow
 
     init {
-        updateSignedInUsername()
         cancelNotifications()
-    }
-
-    fun updateSignedInUsername() {
-        /*signedInUsername.update {
-            signInService.getSignedInAccount()?.displayName
-        }*/
     }
 
     fun onNavResult(result: String) = viewModelScope.launch {

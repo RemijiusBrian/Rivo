@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun OnLifecycleEventEffect(
@@ -32,7 +33,7 @@ fun OnLifecycleEventEffect(
         lifecycle.addObserver(observer)
 
         onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
+            lifecycle.removeObserver(observer)
         }
     }
 }
@@ -69,9 +70,9 @@ fun <T> CollectFlowEffect(
     onCollect: suspend (T) -> Unit
 ) {
     val updatedFlow by rememberUpdatedState(newValue = flow)
-    LaunchedEffect(updatedFlow, lifecycleOwner.lifecycle, *keys) {
+    LaunchedEffect(updatedFlow, lifecycleOwner, *keys) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            updatedFlow.collect(onCollect)
+            updatedFlow.collectLatest { onCollect(it) }
         }
     }
 }
