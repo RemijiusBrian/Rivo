@@ -4,7 +4,7 @@ import dev.ridill.rivo.settings.domain.modal.AppTheme
 import java.util.Currency
 
 interface SettingsActions {
-    fun onLogoutClick()
+    fun onLoginOrLogoutPreferenceClick()
     fun onLogoutDismiss()
     fun onLogoutConfirm()
     fun onAppThemePreferenceClick()

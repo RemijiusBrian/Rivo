@@ -7,15 +7,19 @@ import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
+import dev.ridill.rivo.account.domain.model.AuthState
+import dev.ridill.rivo.account.domain.repository.AuthRepository
+import dev.ridill.rivo.account.presentation.CredentialService
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
-import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -112,8 +116,13 @@ class SettingsViewModel @Inject constructor(
 
     val events = eventBus.eventFlow
 
-    override fun onLogoutClick() {
-        savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = true
+    override fun onLoginOrLogoutPreferenceClick() {
+        viewModelScope.launch {
+            when (authState.first()) {
+                is AuthState.Authenticated -> startSignOut()
+                AuthState.UnAuthenticated -> startSignIn()
+            }
+        }
     }
 
     override fun onLogoutDismiss() {
@@ -125,6 +134,48 @@ class SettingsViewModel @Inject constructor(
             authRepo.signUserOut()
             savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
         }
+    }
+
+    private suspend fun startSignIn() {
+        eventBus.send(SettingsEvent.StartManualSignInFlow)
+    }
+
+    fun onCredentialResult(
+        result: Result<String, CredentialService.CredentialError>
+    ) = viewModelScope.launch {
+        when (result) {
+            is Result.Error -> {
+                when (result.error) {
+                    CredentialService.CredentialError.NO_AUTHORIZED_CREDENTIAL -> {
+                        eventBus.send(SettingsEvent.StartManualSignInFlow)
+                    }
+
+                    CredentialService.CredentialError.CREDENTIAL_PROCESS_FAILED -> eventBus.send(
+                        SettingsEvent.ShowUiMessage(result.message)
+                    )
+                }
+            }
+
+            is Result.Success -> {
+                signInUserWithIdToken(result.data)
+            }
+        }
+    }
+
+    private suspend fun signInUserWithIdToken(idToken: String) {
+        when (val result = authRepo.signUserInWithToken(idToken)) {
+            is Result.Error -> {
+                eventBus.send(SettingsEvent.ShowUiMessage(result.message))
+            }
+
+            is Result.Success -> {
+                eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.sign_in_success)))
+            }
+        }
+    }
+
+    private fun startSignOut() {
+        savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = true
     }
 
     override fun onAppThemePreferenceClick() {
@@ -232,6 +283,7 @@ class SettingsViewModel @Inject constructor(
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent
         data object RequestSMSPermission : SettingsEvent
         data object LaunchAppSettings : SettingsEvent
+        data object StartManualSignInFlow : SettingsEvent
     }
 }
 

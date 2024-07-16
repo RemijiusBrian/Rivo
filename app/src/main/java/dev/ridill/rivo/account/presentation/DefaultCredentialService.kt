@@ -11,15 +11,11 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.firebase.Firebase
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.logE
 import dev.ridill.rivo.core.ui.util.UiText
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class DefaultCredentialService(
@@ -59,10 +55,6 @@ class DefaultCredentialService(
 
                 else -> throw UnexpectedCredentialTypeThrowable()
             }
-
-            val authCredential = GoogleAuthProvider.getCredential(idTokenCredential.idToken, null)
-            Firebase.auth.signInWithCredential(authCredential).await()
-
             Result.Success(idTokenCredential.idToken)
         } catch (e: NoCredentialException) {
             logE(e)

@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Login
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Info
@@ -121,6 +122,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
+                .padding(top = SpacingMedium)
                 .padding(bottom = SpacingListEnd),
             verticalArrangement = screenArrangement
         ) {
@@ -223,14 +225,17 @@ fun SettingsScreen(
                 summary = BuildUtil.versionName
             )
 
-            AnimatedVisibility(isAccountAuthenticated) {
-                SimpleSettingsPreference(
-                    titleRes = R.string.preference_logout,
-                    summary = stringResource(R.string.preference_logout_summary),
-                    leadingIcon = Icons.AutoMirrored.Rounded.Logout,
-                    onClick = actions::onLogoutClick
-                )
-            }
+            SimpleSettingsPreference(
+                titleRes = if (isAccountAuthenticated) R.string.preference_logout
+                else R.string.preference_login,
+                summary = stringResource(
+                    if (isAccountAuthenticated) R.string.preference_logout_summary
+                    else R.string.preference_login_summary
+                ),
+                leadingIcon = if (isAccountAuthenticated) Icons.AutoMirrored.Rounded.Logout
+                else Icons.AutoMirrored.Rounded.Login,
+                onClick = actions::onLoginOrLogoutPreferenceClick
+            )
         }
 
         if (state.showAppThemeSelection) {

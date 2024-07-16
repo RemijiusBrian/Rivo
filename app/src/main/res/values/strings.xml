@@ -196,6 +196,8 @@
     <string name="preference_screen_security">Screen security</string>
     <string name="preference_screen_security_summary">Block screenshots in the recents list and inside the app</string>
     <string name="preference_app_lock_summary">Require Android screen lock or fingerprint to unlock %s</string>
+    <string name="preference_login">Login</string>
+    <string name="preference_login_summary">Login to your account</string>
     <string name="preference_logout">Logout</string>
     <string name="preference_logout_summary">Logout of your account</string>
 
@@ -407,4 +409,5 @@
     <string name="pick_date">Pick Date</string>
     <string name="check_for_backups">Check for Backups</string>
     <string name="restore_backup">Restore Backup</string>
+    <string name="sign_in_success">Signed in successfully</string>
 </resources>
