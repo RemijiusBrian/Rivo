@@ -23,17 +23,9 @@ import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.data.preferences.PreferencesManagerImpl
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.crypto.DefaultCryptoManager
-import dev.ridill.rivo.core.domain.service.AccessTokenService
-import dev.ridill.rivo.core.domain.service.AccessTokenSharedPrefService
-import dev.ridill.rivo.core.domain.service.AuthService
 import dev.ridill.rivo.core.domain.service.ExpEvalService
-import dev.ridill.rivo.core.domain.service.FirebaseAuthService
 import dev.ridill.rivo.core.domain.service.ReceiverService
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.ui.authentication.AuthorizationService
-import dev.ridill.rivo.core.ui.authentication.CredentialService
-import dev.ridill.rivo.core.ui.authentication.DefaultAuthorizationService
-import dev.ridill.rivo.core.ui.authentication.DefaultCredentialService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Qualifier
@@ -88,14 +80,6 @@ object AppModule {
     @Provides
     fun provideCryptoManager(): CryptoManager = DefaultCryptoManager()
 
-    @Provides
-    fun provideCredentialService(
-        @ApplicationContext context: Context
-    ): CredentialService = DefaultCredentialService(context)
-
-    @Provides
-    fun provideAuthService(): AuthService = FirebaseAuthService()
-
     @Encrypted
     @Provides
     fun provideEncryptedSharedPref(
@@ -113,18 +97,6 @@ object AppModule {
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     }
-
-    @Provides
-    fun provideAuthorizationService(
-        @ApplicationContext context: Context
-    ): AuthorizationService = DefaultAuthorizationService(context)
-
-    @Provides
-    fun provideAccessTokenService(
-        @Encrypted sharedPreferences: SharedPreferences
-    ): AccessTokenService = AccessTokenSharedPrefService(
-        sharedPref = sharedPreferences
-    )
 }
 
 @Qualifier

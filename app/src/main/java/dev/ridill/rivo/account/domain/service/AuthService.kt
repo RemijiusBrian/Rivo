@@ -1,7 +1,7 @@
-package dev.ridill.rivo.core.domain.service
+package dev.ridill.rivo.account.domain.service
 
-import dev.ridill.rivo.core.domain.model.AuthState
-import dev.ridill.rivo.core.domain.model.UserAccount
+import dev.ridill.rivo.account.domain.model.AuthState
+import dev.ridill.rivo.account.domain.model.UserAccount
 import kotlinx.coroutines.flow.Flow
 
 interface AuthService {

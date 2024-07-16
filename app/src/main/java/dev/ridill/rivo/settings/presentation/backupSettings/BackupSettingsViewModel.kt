@@ -14,12 +14,12 @@ import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.logD
-import dev.ridill.rivo.core.ui.authentication.AuthorizationService
-import dev.ridill.rivo.core.ui.authentication.CredentialService
+import dev.ridill.rivo.account.presentation.AuthorizationService
+import dev.ridill.rivo.account.presentation.CredentialService
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
-import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
+import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
 import kotlinx.coroutines.flow.MutableStateFlow

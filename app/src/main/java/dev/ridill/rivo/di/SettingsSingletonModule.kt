@@ -8,14 +8,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.ridill.rivo.BuildConfig
+import dev.ridill.rivo.account.domain.repository.AuthRepository
+import dev.ridill.rivo.account.domain.service.AccessTokenService
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
-import dev.ridill.rivo.core.domain.service.AccessTokenService
-import dev.ridill.rivo.core.domain.service.AuthService
-import dev.ridill.rivo.core.ui.authentication.AuthorizationService
-import dev.ridill.rivo.core.ui.authentication.CredentialService
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
@@ -23,7 +21,6 @@ import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.AppInitRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.AuthRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.CurrencyPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
@@ -32,7 +29,6 @@ import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.notification.AppInitNotificationHelper
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
-import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import okhttp3.OkHttpClient
@@ -118,19 +114,6 @@ object SettingsSingletonModule {
         context = context,
         database = database,
         cryptoManager = cryptoManager
-    )
-
-    @Provides
-    fun provideAuthRepository(
-        credentialService: CredentialService,
-        authService: AuthService,
-        authorizationService: AuthorizationService,
-        accessTokenService: AccessTokenService
-    ): AuthRepository = AuthRepositoryImpl(
-        credentialService = credentialService,
-        authService = authService,
-        authorizationService = authorizationService,
-        accessTokenService = accessTokenService
     )
 
     @Provides

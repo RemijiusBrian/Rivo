@@ -1,12 +1,12 @@
-package dev.ridill.rivo.settings.domain.repositoty
+package dev.ridill.rivo.account.domain.repository
 
 import android.app.PendingIntent
 import android.content.Intent
-import dev.ridill.rivo.core.domain.model.AuthState
+import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.model.DataError
 import dev.ridill.rivo.core.domain.model.Result
-import dev.ridill.rivo.core.domain.model.UserAccount
-import dev.ridill.rivo.core.ui.authentication.AuthorizationService
+import dev.ridill.rivo.account.domain.model.UserAccount
+import dev.ridill.rivo.account.presentation.AuthorizationService
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {

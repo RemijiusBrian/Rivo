@@ -1,6 +1,6 @@
 package dev.ridill.rivo.settings.data.remote.interceptors
 
-import dev.ridill.rivo.core.domain.service.AccessTokenService
+import dev.ridill.rivo.account.domain.service.AccessTokenService
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response

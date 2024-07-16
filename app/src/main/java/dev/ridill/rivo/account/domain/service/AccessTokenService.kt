@@ -1,4 +1,4 @@
-package dev.ridill.rivo.core.domain.service
+package dev.ridill.rivo.account.domain.service
 
 interface AccessTokenService {
     suspend fun getAccessToken(): String?

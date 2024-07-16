@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import dev.ridill.rivo.core.domain.model.AuthState
+import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.RivoScaffold

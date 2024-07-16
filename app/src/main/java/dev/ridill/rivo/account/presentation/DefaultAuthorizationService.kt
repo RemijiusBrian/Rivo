@@ -1,4 +1,4 @@
-package dev.ridill.rivo.core.ui.authentication
+package dev.ridill.rivo.account.presentation
 
 import android.app.PendingIntent
 import android.content.Context
