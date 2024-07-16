@@ -1,5 +1,6 @@
 package dev.ridill.rivo.settings.presentation.settings
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,15 +24,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
+import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Zero
@@ -66,7 +71,8 @@ fun SettingsScreen(
     navigateUp: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
     navigateToBackupSettings: () -> Unit,
-    navigateToSecuritySettings: () -> Unit
+    navigateToSecuritySettings: () -> Unit,
+    launchUriInBrowser: (Uri) -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     RivoScaffold(
@@ -158,6 +164,16 @@ fun SettingsScreen(
             HorizontalDivider(
                 modifier = Modifier
                     .padding(vertical = PreferenceDividerVerticalPadding)
+            )
+
+            SimpleSettingsPreference(
+                titleRes = R.string.preference_source_code,
+                leadingIcon = ImageVector.vectorResource(R.drawable.ic_filled_source_code),
+                onClick = {
+                    launchUriInBrowser(
+                        BuildConfig.SOURCE_CODE_URL.toUri()
+                    )
+                }
             )
 
             SimpleSettingsPreference(

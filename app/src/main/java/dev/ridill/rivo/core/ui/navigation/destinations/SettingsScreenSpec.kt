@@ -1,6 +1,7 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
+import android.content.Intent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -86,7 +87,11 @@ data object SettingsScreenSpec : ScreenSpec {
             navigateUp = navController::navigateUp,
             navigateToNotificationSettings = context::launchAppNotificationSettings,
             navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) },
-            navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) }
+            navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) },
+            launchUriInBrowser = {
+                val intent = Intent(Intent.ACTION_VIEW, it)
+                context.startActivity(intent)
+            }
         )
     }
 }
