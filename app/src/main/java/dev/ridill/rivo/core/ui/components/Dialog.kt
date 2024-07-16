@@ -135,7 +135,7 @@ private val PermissionIconSize = 40.dp
 @Composable
 fun <T : BaseRadioOption> RadioOptionListDialog(
     @StringRes titleRes: Int,
-    options: Array<T>,
+    options: List<T>,
     currentOption: T?,
     onDismiss: () -> Unit,
     onOptionSelect: (T) -> Unit,

@@ -166,7 +166,7 @@ fun BackupSettingsScreen(
         if (state.showBackupIntervalSelection && isAuthenticated) {
             RadioOptionListDialog(
                 titleRes = R.string.choose_backup_interval,
-                options = BackupInterval.entries.toTypedArray(),
+                options = BackupInterval.entries,
                 currentOption = state.backupInterval,
                 onDismiss = actions::onBackupIntervalSelectionDismiss,
                 onOptionSelect = actions::onBackupIntervalSelected

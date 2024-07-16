@@ -186,7 +186,7 @@ fun SettingsScreen(
         if (state.showAppThemeSelection) {
             RadioOptionListDialog(
                 titleRes = R.string.choose_theme,
-                options = AppTheme.entries.toTypedArray(),
+                options = AppTheme.entries,
                 currentOption = state.appTheme,
                 onDismiss = actions::onAppThemeSelectionDismiss,
                 onOptionSelect = actions::onAppThemeSelectionConfirm
