@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.automirrored.rounded.Login
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.BrightnessMedium
@@ -212,6 +213,7 @@ fun SettingsScreen(
                 titleRes = R.string.preference_source_code,
                 summary = stringResource(R.string.preference_source_code_summary),
                 leadingIcon = ImageVector.vectorResource(R.drawable.ic_filled_source_code),
+                trailingIcon = Icons.AutoMirrored.Filled.Launch,
                 onClick = {
                     launchUriInBrowser(
                         BuildConfig.SOURCE_CODE_URL.toUri()

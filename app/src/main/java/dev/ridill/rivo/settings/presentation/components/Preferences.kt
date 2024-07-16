@@ -39,6 +39,7 @@ fun SimpleSettingsPreference(
     summary: String? = null,
     onClick: (() -> Unit)? = null,
     leadingIcon: ImageVector? = null,
+    trailingIcon: ImageVector? = null,
     contentPadding: PaddingValues = PreferenceContentPadding
 ) = BasicPreference(
     titleContent = { Text(text = stringResource(titleRes)) },
@@ -46,6 +47,9 @@ fun SimpleSettingsPreference(
         { Text(text = it) }
     },
     leadingIcon = leadingIcon?.let {
+        { PreferenceIcon(imageVector = it) }
+    },
+    trailingContent = trailingIcon?.let {
         { PreferenceIcon(imageVector = it) }
     },
     modifier = Modifier
