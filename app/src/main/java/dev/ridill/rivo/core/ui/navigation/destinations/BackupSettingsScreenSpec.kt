@@ -20,7 +20,7 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.ui.authentication.rememberCredentialService
+import dev.ridill.rivo.account.presentation.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController

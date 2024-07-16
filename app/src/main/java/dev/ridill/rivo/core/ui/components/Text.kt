@@ -1,5 +1,6 @@
 package dev.ridill.rivo.core.ui.components
 
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,17 +61,55 @@ fun TitleLargeText(
 )
 
 @Composable
-fun BodyText(
+fun TitleMediumText(
+    title: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = 2,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    fontWeight: FontWeight = FontWeight.SemiBold,
+    textDecoration: TextDecoration? = null,
+    color: Color = Color.Unspecified,
+) = Text(
+    text = title,
+    style = MaterialTheme.typography.titleMedium,
+    modifier = modifier,
+    maxLines = maxLines,
+    overflow = overflow,
+    fontWeight = fontWeight,
+    textDecoration = textDecoration,
+    color = color
+)
+
+@Composable
+fun BodyLargeText(
     text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
-    overflow: TextOverflow = TextOverflow.Ellipsis
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = LocalContentColor.current
 ) = Text(
     text = text,
     style = MaterialTheme.typography.bodyLarge,
     maxLines = maxLines,
     overflow = overflow,
-    modifier = modifier
+    modifier = modifier,
+    color = color
+)
+
+@Composable
+fun BodyMediumText(
+    text: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = LocalContentColor.current
+) = Text(
+    text = text,
+    style = MaterialTheme.typography.bodyMedium,
+    maxLines = maxLines,
+    overflow = overflow,
+    modifier = modifier,
+    color = color
 )
 
 @Composable

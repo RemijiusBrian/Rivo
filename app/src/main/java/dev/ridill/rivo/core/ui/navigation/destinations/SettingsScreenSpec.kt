@@ -15,11 +15,13 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.account.presentation.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.core.ui.util.launchAppSettings
 import dev.ridill.rivo.settings.presentation.settings.SettingsScreen
@@ -58,6 +60,7 @@ data object SettingsScreenSpec : ScreenSpec {
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
+        val credentialService = rememberCredentialService(context = context)
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
                 is SettingsViewModel.SettingsEvent.ShowUiMessage -> {
@@ -73,6 +76,13 @@ data object SettingsScreenSpec : ScreenSpec {
 
                 SettingsViewModel.SettingsEvent.LaunchAppSettings -> {
                     context.launchAppSettings()
+                }
+
+                SettingsViewModel.SettingsEvent.StartManualSignInFlow -> {
+                    val result = credentialService.startManualGetCredentialFlow(
+                        activityContext = context.findActivity()
+                    )
+                    viewModel.onCredentialResult(result)
                 }
             }
         }

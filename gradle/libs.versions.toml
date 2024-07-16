@@ -44,6 +44,7 @@ google-identity-googleId = "1.1.1"
 retrofit = "2.11.0"
 logging-interceptor = "4.12.0"
 
+coil-compose = "2.6.0"
 lottie-compose = "6.4.1"
 flow-combinetuple-kt = "1.2.0"
 timber-logging = "5.0.1"
@@ -131,6 +132,7 @@ com-squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "re
 com-squareup-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 com-squareup-okhhtp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "logging-interceptor" }
 
+io-coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
 com-airbnb-android-lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie-compose" }
 com-github-zhuinden-flow-combinetuple-kt = { group = "com.github.Zhuinden", name = "flow-combinetuple-kt", version.ref = "flow-combinetuple-kt" }
 com-jakewharton-timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber-logging" }

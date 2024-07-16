@@ -1,12 +1,12 @@
-package dev.ridill.rivo.core.domain.service
+package dev.ridill.rivo.account.domain.service
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import dev.ridill.rivo.core.domain.model.AuthState
-import dev.ridill.rivo.core.domain.model.UserAccount
+import dev.ridill.rivo.account.domain.model.AuthState
+import dev.ridill.rivo.account.domain.model.UserAccount
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -45,5 +45,6 @@ class FirebaseAuthService : AuthService {
 
 fun FirebaseUser.toUserAccount(): UserAccount = UserAccount(
     email = email.orEmpty(),
-    displayName = displayName.orEmpty()
+    displayName = displayName.orEmpty(),
+    photoUrl = photoUrl?.toString().orEmpty()
 )

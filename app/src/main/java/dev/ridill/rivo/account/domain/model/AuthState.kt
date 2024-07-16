@@ -1,9 +1,4 @@
-package dev.ridill.rivo.core.domain.model
-
-data class UserAccount(
-    val email: String,
-    val displayName: String
-)
+package dev.ridill.rivo.account.domain.model
 
 sealed interface AuthState {
     data object UnAuthenticated : AuthState

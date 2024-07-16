@@ -1,6 +1,6 @@
 package dev.ridill.rivo.settings.presentation.backupSettings
 
-import dev.ridill.rivo.core.domain.model.AuthState
+import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.ui.util.UiText
