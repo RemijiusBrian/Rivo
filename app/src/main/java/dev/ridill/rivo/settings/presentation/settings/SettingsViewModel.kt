@@ -13,6 +13,7 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
+import dev.ridill.rivo.settings.domain.repositoty.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -25,9 +26,12 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: SettingsRepository,
+    private val authRepo: AuthRepository,
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<SettingsEvent>
 ) : ViewModel(), SettingsActions {
+
+    private val authState = authRepo.getAuthState()
 
     private val preferences = preferencesManager.preferences
     private val appTheme = preferences.map { it.appTheme }
@@ -63,7 +67,12 @@ class SettingsViewModel @Inject constructor(
     private val showSmsPermissionRationale = savedStateHandle
         .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
 
+    private val showLogoutConfirmation = savedStateHandle
+        .getStateFlow(SHOW_LOGOUT_CONFIRMATION, false)
+
     val state = combineTuple(
+        authState,
+        showLogoutConfirmation,
         appTheme,
         dynamicColorsEnabled,
         showAppThemeSelection,
@@ -74,6 +83,8 @@ class SettingsViewModel @Inject constructor(
         autoAddTransactionEnabled,
         showSmsPermissionRationale
     ).map { (
+                authState,
+                showLogoutConfirmation,
                 appTheme,
                 dynamicColorsEnabled,
                 showAppThemeSelection,
@@ -85,6 +96,8 @@ class SettingsViewModel @Inject constructor(
                 showSmsPermissionRationale
             ) ->
         SettingsState(
+            authState = authState,
+            showLogoutConfirmation = showLogoutConfirmation,
             appTheme = appTheme,
             dynamicColorsEnabled = dynamicColorsEnabled,
             showAppThemeSelection = showAppThemeSelection,
@@ -98,6 +111,21 @@ class SettingsViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, SettingsState())
 
     val events = eventBus.eventFlow
+
+    override fun onLogoutClick() {
+        savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = true
+    }
+
+    override fun onLogoutDismiss() {
+        savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
+    }
+
+    override fun onLogoutConfirm() {
+        viewModelScope.launch {
+            authRepo.signUserOut()
+            savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
+        }
+    }
 
     override fun onAppThemePreferenceClick() {
         savedStateHandle[SHOW_APP_THEME_SELECTION] = true
@@ -214,3 +242,4 @@ private const val CURRENCY_SEARCH_QUERY = "CURRENCY_SEARCH_QUERY"
 private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
 private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TEMP_AUTO_ADD_TRANSACTION_STATE"
+private const val SHOW_LOGOUT_CONFIRMATION = "SHOW_LOGOUT_CONFIRMATION"

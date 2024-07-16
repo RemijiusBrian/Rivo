@@ -45,5 +45,6 @@ class FirebaseAuthService : AuthService {
 
 fun FirebaseUser.toUserAccount(): UserAccount = UserAccount(
     email = email.orEmpty(),
-    displayName = displayName.orEmpty()
+    displayName = displayName.orEmpty(),
+    photoUrl = photoUrl?.toString().orEmpty()
 )

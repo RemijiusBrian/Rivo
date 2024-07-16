@@ -2,7 +2,8 @@ package dev.ridill.rivo.core.domain.model
 
 data class UserAccount(
     val email: String,
-    val displayName: String
+    val displayName: String,
+    val photoUrl: String
 )
 
 sealed interface AuthState {

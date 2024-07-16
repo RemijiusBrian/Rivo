@@ -1,7 +1,10 @@
 package dev.ridill.rivo.settings.presentation.settings
 
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,20 +12,25 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -38,10 +46,16 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
+import dev.ridill.rivo.core.ui.components.ArrangementTopWithFooter
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.BodyMediumText
+import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.Image
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
@@ -49,9 +63,14 @@ import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerMedium
+import dev.ridill.rivo.core.ui.components.TitleMediumText
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
@@ -74,6 +93,15 @@ fun SettingsScreen(
     navigateToSecuritySettings: () -> Unit,
     launchUriInBrowser: (Uri) -> Unit
 ) {
+    val isAccountAuthenticated by remember(state.authState) {
+        derivedStateOf {
+            state.authState is AuthState.Authenticated
+        }
+    }
+    val screenArrangement = remember(isAccountAuthenticated) {
+        if (isAccountAuthenticated) ArrangementTopWithFooter()
+        else Arrangement.Top
+    }
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     RivoScaffold(
         modifier = Modifier
@@ -93,7 +121,19 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
+                .padding(bottom = SpacingListEnd),
+            verticalArrangement = screenArrangement
         ) {
+            AnimatedVisibility(isAccountAuthenticated) {
+                val accountInfo = remember(state.authState) {
+                    tryOrNull { (state.authState as AuthState.Authenticated).account }
+                }
+                AccountInfo(
+                    photoUrl = accountInfo?.photoUrl.orEmpty(),
+                    email = accountInfo?.email.orEmpty(),
+                    displayName = accountInfo?.displayName.orEmpty()
+                )
+            }
             SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,
                 summary = stringResource(state.appTheme.labelRes),
@@ -168,6 +208,7 @@ fun SettingsScreen(
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_source_code,
+                summary = stringResource(R.string.preference_source_code_summary),
                 leadingIcon = ImageVector.vectorResource(R.drawable.ic_filled_source_code),
                 onClick = {
                     launchUriInBrowser(
@@ -181,6 +222,15 @@ fun SettingsScreen(
                 leadingIcon = Icons.Rounded.Info,
                 summary = BuildUtil.versionName
             )
+
+            AnimatedVisibility(isAccountAuthenticated) {
+                SimpleSettingsPreference(
+                    titleRes = R.string.preference_logout,
+                    summary = stringResource(R.string.preference_logout_summary),
+                    leadingIcon = Icons.AutoMirrored.Rounded.Logout,
+                    onClick = actions::onLogoutClick
+                )
+            }
         }
 
         if (state.showAppThemeSelection) {
@@ -224,10 +274,57 @@ fun SettingsScreen(
                 onSettingsClick = actions::onSmsPermissionRationaleSettingsClick
             )
         }
+
+        if (state.showLogoutConfirmation) {
+            ConfirmationDialog(
+                titleRes = R.string.account_logout_confirmation_title,
+                contentRes = R.string.account_logout_confirmation_message,
+                onConfirm = actions::onLogoutConfirm,
+                onDismiss = actions::onLogoutDismiss
+            )
+        }
     }
 }
 
 private val PreferenceDividerVerticalPadding = 12.dp
+
+@Composable
+private fun AccountInfo(
+    photoUrl: String,
+    email: String,
+    displayName: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .padding(horizontal = SpacingMedium),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpacingMedium),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                url = photoUrl,
+                contentDescription = displayName,
+                size = ProfileImageSize,
+                placeholderRes = R.drawable.ic_rounded_person,
+                errorRes = R.drawable.ic_rounded_person
+            )
+            SpacerMedium()
+            Column {
+                TitleMediumText(title = displayName)
+                BodyMediumText(
+                    text = email,
+                    color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+                )
+            }
+        }
+    }
+}
+
+private val ProfileImageSize = 40.dp
 
 @Composable
 fun BudgetInputSheet(

@@ -156,6 +156,8 @@
     <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
     <string name="delete_transaction_folder_confirmation_title">Delete Folder?</string>
     <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
+    <string name="account_logout_confirmation_title">Logout of your account?</string>
+    <string name="account_logout_confirmation_message">If you logout of your account you won\'t be able to use features like backup anymore. Do you want to continue?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
@@ -176,6 +178,7 @@
     <string name="preference_auto_detect_transactions">Auto-detect Transactions</string>
     <string name="preference_auto_detect_transactions_summary">Try to add transactions from SMS</string>
     <string name="preference_source_code">Source Code</string>
+    <string name="preference_source_code_summary">Take a look at the app\'s Source Code</string>
     <string name="preference_version">Version</string>
     <string name="preference_backup">Backup</string>
     <string name="preference_backup_summary">Backup your transactions</string>
@@ -193,6 +196,8 @@
     <string name="preference_screen_security">Screen security</string>
     <string name="preference_screen_security_summary">Block screenshots in the recents list and inside the app</string>
     <string name="preference_app_lock_summary">Require Android screen lock or fingerprint to unlock %s</string>
+    <string name="preference_logout">Logout</string>
+    <string name="preference_logout_summary">Logout of your account</string>
 
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
