@@ -123,11 +123,14 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(top = SpacingMedium)
                 .padding(bottom = SpacingListEnd),
             verticalArrangement = screenArrangement
         ) {
-            AnimatedVisibility(isAccountAuthenticated) {
+            AnimatedVisibility(
+                visible = isAccountAuthenticated,
+                modifier = Modifier
+                    .padding(vertical = SpacingMedium)
+            ) {
                 val accountInfo = remember(state.authState) {
                     tryOrNull { (state.authState as AuthState.Authenticated).account }
                 }
