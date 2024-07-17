@@ -3,7 +3,7 @@
     <shortcut
         android:enabled="true"
         android:icon="@drawable/ic_add"
-        android:shortcutId="add_new_expense"
+        android:shortcutId="add_new_expense_static_shortcut"
         android:shortcutLongLabel="@string/shortcut_add_new_transaction_label"
         android:shortcutShortLabel="@string/shortcut_add_new_transaction_label">
         <intent
@@ -16,7 +16,7 @@
     <shortcut
         android:enabled="true"
         android:icon="@drawable/ic_outline_add_folder"
-        android:shortcutId="add_new_folder"
+        android:shortcutId="add_new_folder_static_shortcut"
         android:shortcutLongLabel="@string/shortcut_add_new_folder_label"
         android:shortcutShortLabel="@string/shortcut_add_new_folder_label">
         <intent
