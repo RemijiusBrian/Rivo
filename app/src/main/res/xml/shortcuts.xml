@@ -8,7 +8,7 @@
         android:shortcutShortLabel="@string/shortcut_add_new_transaction_label">
         <intent
             android:action="android.intent.action.VIEW"
-            android:data="https://www.rivo.com/add_transaction_shortcut"
+            android:data="dev.ridill.rivo://app/add_transaction_shortcut"
             android:targetClass="dev.ridill.rivo.application.RivoActivity"
             android:targetPackage="dev.ridill.rivo.internal" />
     </shortcut>
@@ -21,7 +21,7 @@
         android:shortcutShortLabel="@string/shortcut_add_new_folder_label">
         <intent
             android:action="android.intent.action.VIEW"
-            android:data="https://www.rivo.com/add_folder_shortcut"
+            android:data="dev.ridill.rivo://app/add_folder_shortcut"
             android:targetClass="dev.ridill.rivo.application.RivoActivity"
             android:targetPackage="dev.ridill.rivo.internal" />
     </shortcut>
