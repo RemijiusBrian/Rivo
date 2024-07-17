@@ -22,5 +22,5 @@ sealed interface NavDestination {
     val labelRes: Int
 }
 
-const val DEEP_LINK_URI = "https://www.rivo.com"
+const val DEEP_LINK_URI = "dev.ridill.rivo://app"
 const val ARG_INVALID_ID_LONG = -1L
