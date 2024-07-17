@@ -6,12 +6,12 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.account.domain.model.AuthState
+import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
-import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED

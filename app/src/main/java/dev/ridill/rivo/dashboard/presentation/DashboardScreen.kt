@@ -233,7 +233,7 @@ fun DashboardScreen(
                             .padding(horizontal = SpacingMedium)
                             .padding(top = SpacingMedium)
                     ) {
-                        ListLabel(text = stringResource(R.string.recent_spends))
+                        ListLabel(stringResource(R.string.recent_spends))
 
                         SpentAmountAndAllTransactionsButton(
                             currency = appCurrencyPreference,
@@ -433,7 +433,7 @@ private fun SpentAmountAndAllTransactionsButton(
 ) {
     val contentColor = LocalContentColor.current
     val spentAmountContentDescription = stringResource(
-        R.string.cd_new_transaction_fab,
+        R.string.cd_recent_spent_amount,
         TextFormat.currency(amount, currency)
     )
     Row(
