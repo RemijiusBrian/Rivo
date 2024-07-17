@@ -3,7 +3,6 @@ package dev.ridill.rivo.folders.presentation.folderDetails
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +19,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -247,18 +247,22 @@ fun FolderDetailsScreen(
                                         modifier = Modifier
                                             .animateItemPlacement()
                                     ) {
-                                        TransactionListItem(
-                                            showTypeIndicator = true,
-                                            note = item.transaction.note,
-                                            amount = item.transaction
-                                                .amountFormattedWithCurrency(appCurrencyPreference),
-                                            date = item.transaction.date,
-                                            type = item.transaction.type,
-                                            excluded = item.transaction.excluded,
-                                            tag = item.transaction.tag,
-                                            modifier = Modifier
-                                                .clickable { navigateToAddEditTransaction(item.transaction.id) }
-                                        )
+                                        Card(
+                                            onClick = { navigateToAddEditTransaction(item.transaction.id) }
+                                        ) {
+                                            TransactionListItem(
+                                                showTypeIndicator = true,
+                                                note = item.transaction.note,
+                                                amount = item.transaction
+                                                    .amountFormattedWithCurrency(
+                                                        appCurrencyPreference
+                                                    ),
+                                                date = item.transaction.date,
+                                                type = item.transaction.type,
+                                                excluded = item.transaction.excluded,
+                                                tag = item.transaction.tag
+                                            )
+                                        }
                                     }
                                 }
                             }
