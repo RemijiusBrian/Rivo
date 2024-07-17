@@ -297,6 +297,13 @@ private fun Greeting(
 
     Column(
         modifier = modifier
+            .mergedContentDescription(
+                contentDescription = stringResource(
+                    R.string.cd_app_greeting_user,
+                    partOfDay.labelRes,
+                    username.orEmpty()
+                )
+            )
     ) {
         Crossfade(targetState = partOfDay, label = "Greeting") { part ->
             Text(
