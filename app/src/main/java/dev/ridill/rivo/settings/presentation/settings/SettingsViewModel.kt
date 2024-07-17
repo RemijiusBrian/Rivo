@@ -131,7 +131,15 @@ class SettingsViewModel @Inject constructor(
 
     override fun onLogoutConfirm() {
         viewModelScope.launch {
-            authRepo.signUserOut()
+            when (authRepo.signUserOut()) {
+                is Result.Error -> {
+                    eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.error_sign_out_failed)))
+                }
+
+                is Result.Success -> {
+                    preferencesManager.updateEncryptionPasswordHash(null)
+                }
+            }
             savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
         }
     }

@@ -101,6 +101,7 @@
     <string name="error_app_data_backup_failed">Failed to backup App Data</string>
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
+    <string name="error_sign_out_failed">Sign out failed</string>
     <string name="error_unknown">An Unknown error occurred</string>
     <string name="error_authorization_required">Authorization required</string>
     <string name="error_authorization_failed">An Unknown error occurred</string>
