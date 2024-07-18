@@ -15,6 +15,7 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -25,11 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.IconSizeMedium
 import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingLarge
+import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.settings.domain.modal.BaseRadioOption
 
 @Composable
@@ -219,12 +226,13 @@ fun MultiActionConfirmationDialog(
 }
 
 @Composable
-fun AdditionalInfoDialog(
+fun FeatureInfoDialog(
     title: String,
     text: String,
     onAcknowledge: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isExperimental: Boolean = false
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -239,7 +247,35 @@ fun AdditionalInfoDialog(
             }
         },
         title = { Text(title) },
-        text = { Text(text) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            ) {
+                Text(text)
+                if (isExperimental) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                        modifier = Modifier
+                            .mergedContentDescription(
+                                stringResource(R.string.feature_experimental_message)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_filled_experiment),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(IconSizeMedium)
+                        )
+                        Text(
+                            text = stringResource(R.string.feature_experimental_message),
+                            color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+                        )
+                    }
+                }
+            }
+        },
         modifier = modifier
     )
 }

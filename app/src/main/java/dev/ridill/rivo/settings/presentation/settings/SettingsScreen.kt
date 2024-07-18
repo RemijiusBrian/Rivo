@@ -52,12 +52,12 @@ import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.core.ui.components.AdditionalInfoDialog
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.ArrangementTopWithFooter
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.FeatureInfoDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
@@ -296,14 +296,15 @@ fun SettingsScreen(
         }
 
         if (state.showAutoDetectTransactionFeatureInfo) {
-            AdditionalInfoDialog(
-                title = stringResource(R.string.auto_detect_transaction_additional_info_title),
+            FeatureInfoDialog(
+                title = stringResource(R.string.feature_info_auto_detect_transaction_title),
                 text = stringResource(
-                    R.string.auto_detect_transaction_additional_info_message,
+                    R.string.feature_info_auto_detect_transaction_message,
                     stringResource(R.string.app_name)
                 ),
                 onAcknowledge = actions::onAutoDetectTxFeatureInfoAcknowledge,
-                onDismiss = actions::onAutoDetectTxFeatureInfoDismiss
+                onDismiss = actions::onAutoDetectTxFeatureInfoDismiss,
+                isExperimental = true
             )
         }
     }

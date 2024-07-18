@@ -169,6 +169,10 @@
     <string name="permission_sms">Receive SMS Messages</string>
     <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
 
+    <string name="feature_info_auto_detect_transaction_title">Auto-Detect Transactions</string>
+    <string name="feature_info_auto_detect_transaction_message">%s tries to read SMS data to automatically detect and add transactions.</string>
+    <string name="feature_experimental_message">Note: This feature is still experimental and may not function properly.</string>
+
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>
     <string name="preference_dynamic_colors">Dynamic Colors</string>
@@ -414,6 +418,4 @@
     <string name="check_for_backups">Check for Backups</string>
     <string name="restore_backup">Restore Backup</string>
     <string name="sign_in_success">Signed in successfully</string>
-    <string name="auto_detect_transaction_additional_info_title">Auto-Detect Transactions</string>
-    <string name="auto_detect_transaction_additional_info_message">%s tries to read SMS data to automatically detect and add transactions.\n\n*Note: This feature is still experimental and may not be entirely accurate.</string>
 </resources>
