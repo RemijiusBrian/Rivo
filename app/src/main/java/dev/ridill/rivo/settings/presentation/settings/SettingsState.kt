@@ -16,5 +16,6 @@ data class SettingsState(
     val budgetInputError: UiText? = null,
     val showCurrencySelection: Boolean = false,
     val autoAddTransactionEnabled: Boolean = false,
-    val showSmsPermissionRationale: Boolean = false
+    val showSmsPermissionRationale: Boolean = false,
+    val showAutoDetectTransactionFeatureInfo: Boolean = false
 )

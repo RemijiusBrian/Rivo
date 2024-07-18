@@ -135,6 +135,8 @@
     <string name="action_undo">Undo</string>
     <string name="action_view">View</string>
     <string name="action_next">Next</string>
+    <string name="action_acknowledge">I understand</string>
+    <string name="action_dismiss">Dismiss</string>
 
     <!-- Texts -->
     <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
@@ -412,4 +414,6 @@
     <string name="check_for_backups">Check for Backups</string>
     <string name="restore_backup">Restore Backup</string>
     <string name="sign_in_success">Signed in successfully</string>
+    <string name="auto_detect_transaction_additional_info_title">Auto-Detect Transactions</string>
+    <string name="auto_detect_transaction_additional_info_message">%s tries to read SMS data to automatically detect and add transactions.\n\n*Note: This feature is still experimental and may not be entirely accurate.</string>
 </resources>

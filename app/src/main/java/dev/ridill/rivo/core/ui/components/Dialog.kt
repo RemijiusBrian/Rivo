@@ -217,3 +217,29 @@ fun MultiActionConfirmationDialog(
         text = { Text(text) }
     )
 }
+
+@Composable
+fun AdditionalInfoDialog(
+    title: String,
+    text: String,
+    onAcknowledge: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onAcknowledge) {
+                Text(stringResource(R.string.action_acknowledge))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_dismiss))
+            }
+        },
+        title = { Text(title) },
+        text = { Text(text) },
+        modifier = modifier
+    )
+}

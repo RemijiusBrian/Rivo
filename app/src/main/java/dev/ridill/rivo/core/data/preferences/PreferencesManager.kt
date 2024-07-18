@@ -26,4 +26,5 @@ interface PreferencesManager {
     suspend fun updateScreenSecurityEnabled(enabled: Boolean)
     suspend fun updateEncryptionPasswordHash(hash: String?)
     suspend fun updateFatalBackupError(error: FatalBackupError?)
+    suspend fun toggleShowAutoDetectTxInfoFalse()
 }

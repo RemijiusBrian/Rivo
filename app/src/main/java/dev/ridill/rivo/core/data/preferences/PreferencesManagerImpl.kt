@@ -56,6 +56,7 @@ class PreferencesManagerImpl(
             val fatalBackupError = tryOrNull {
                 preferences[Keys.FATAL_BACKUP_ERROR]?.let { FatalBackupError.valueOf(it) }
             }
+            val showAutoDetectTxInfo = preferences[Keys.SHOW_AUTO_DETECT_TX_INFO].orTrue()
 
             RivoPreferences(
                 showOnboarding = showOnboarding,
@@ -69,7 +70,8 @@ class PreferencesManagerImpl(
                 isAppLocked = isAppLocked,
                 screenSecurityEnabled = screenSecurityEnabled,
                 encryptionPasswordHash = encryptionPasswordHash,
-                fatalBackupError = fatalBackupError
+                fatalBackupError = fatalBackupError,
+                showAutoDetectTxInfo = showAutoDetectTxInfo
             )
         }
 
@@ -169,6 +171,14 @@ class PreferencesManagerImpl(
         }
     }
 
+    override suspend fun toggleShowAutoDetectTxInfoFalse() {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preferences ->
+                preferences[Keys.SHOW_AUTO_DETECT_TX_INFO] = false
+            }
+        }
+    }
+
     private object Keys {
         val SHOW_ONBOARDING = booleanPreferencesKey("SHOW_ONBOARDING")
         val APP_THEME = stringPreferencesKey("APP_THEME")
@@ -183,5 +193,6 @@ class PreferencesManagerImpl(
         val SCREEN_SECURITY_ENABLED = booleanPreferencesKey("SCREEN_SECURITY_ENABLED")
         val ENCRYPTION_PASSWORD_HASH = stringPreferencesKey("ENCRYPTION_PASSWORD_HASH")
         val FATAL_BACKUP_ERROR = stringPreferencesKey("FATAL_BACKUP_ERROR")
+        val SHOW_AUTO_DETECT_TX_INFO = booleanPreferencesKey("SHOW_AUTO_DETECT_TX_INFO")
     }
 }
