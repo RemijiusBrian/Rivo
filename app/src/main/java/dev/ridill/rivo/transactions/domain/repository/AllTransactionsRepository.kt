@@ -19,7 +19,7 @@ interface AllTransactionsRepository {
         selectedTxIds: Set<Long>?
     ): Flow<Double>
 
-    fun getTransactionsForDateByTag(
+    fun getAllTransactionsList(
         date: LocalDate,
         tagId: Long?,
         transactionType: TransactionType?,

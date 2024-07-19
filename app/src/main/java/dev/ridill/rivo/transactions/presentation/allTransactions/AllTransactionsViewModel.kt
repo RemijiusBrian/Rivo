@@ -72,7 +72,7 @@ class AllTransactionsViewModel @Inject constructor(
                           transactionType,
                           showExcluded
                       ) ->
-        transactionRepo.getTransactionsForDateByTag(
+        transactionRepo.getAllTransactionsList(
             date = date,
             tagId = tagId,
             transactionType = transactionType,

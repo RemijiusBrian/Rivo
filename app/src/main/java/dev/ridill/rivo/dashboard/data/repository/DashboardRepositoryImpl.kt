@@ -27,12 +27,12 @@ class DashboardRepositoryImpl(
 
     override fun getExpenditureForCurrentMonth(): Flow<Double> = transactionDao.getAmountSum(
         typeName = TransactionType.DEBIT.name,
-        dateTime = DateUtil.now()
+        date = DateUtil.dateNow()
     ).distinctUntilChanged()
 
     override fun getTotalCreditsForCurrentMonth(): Flow<Double> = transactionDao.getAmountSum(
         typeName = TransactionType.CREDIT.name,
-        dateTime = DateUtil.now()
+        date = DateUtil.dateNow()
     ).distinctUntilChanged()
 
     override fun getSchedulesActiveThisMonth(): Flow<List<ActiveSchedule>> = schedulesDao
@@ -41,7 +41,7 @@ class DashboardRepositoryImpl(
 
     override fun getRecentSpends(): Flow<List<TransactionListItem>> = transactionDao
         .getTransactionsList(
-            monthAndYear = DateUtil.now(),
+            date = DateUtil.dateNow(),
             transactionTypeName = TransactionType.DEBIT.name,
             showExcluded = false
         ).map { it.map(TransactionDetailsView::toTransactionListItem) }
