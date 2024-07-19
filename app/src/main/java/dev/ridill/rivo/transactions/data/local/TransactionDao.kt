@@ -74,7 +74,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
             AND (:tagId IS NULL OR t1.tagId = :tagId)
             AND (:addExcluded = 1 OR t1.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, '') = '' OR t1.transactionId IN (:selectedTxIds))
+            AND (COALESCE(:selectedTxIds, 1) = 1 OR t1.transactionId IN (:selectedTxIds))
             ) - (
             SELECT IFNULL(SUM(t2.transactionAmount), 0.0)
             FROM transaction_details_view t2
@@ -82,17 +82,32 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
             AND (:tagId IS NULL OR t2.tagId = :tagId)
             AND (:addExcluded = 1 OR t2.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, '') = '' OR t2.transactionId IN (:selectedTxIds))
+            AND (COALESCE(:selectedTxIds, 1) = 1 OR t2.transactionId IN (:selectedTxIds))
         )
     """
     )
     fun getAmountAggregate(
-        dateTime: LocalDateTime?,
+        dateTime: LocalDateTime? = null,
         typeName: String? = null,
         tagId: Long? = null,
         addExcluded: Boolean = false,
         selectedTxIds: Set<Long>? = null
     ): Flow<Double>
+
+    @Query("""
+        SELECT (
+            SELECT IFNULL(SUM(t1.amount), 0.0)
+            FROM transaction_table t1
+            WHERE t1.type = 'DEBIT'
+            AND t1.id IN (:ids)
+            ) - (
+            SELECT IFNULL(SUM(t2.amount), 0.0)
+            FROM transaction_table t2
+            WHERE t2.type = 'CREDIT'
+            AND t2.id IN (:ids)
+        )
+    """)
+    suspend fun getAggregateAmountByIds(ids: Set<Long>): Double
 
     @Transaction
     @Query(

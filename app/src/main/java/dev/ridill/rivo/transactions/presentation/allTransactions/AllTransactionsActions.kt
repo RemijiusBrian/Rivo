@@ -34,4 +34,6 @@ interface AllTransactionsActions {
     fun onDeleteTagDismiss()
     fun onDeleteTagConfirm()
     fun onDeleteTagWithTransactionsClick()
+    fun onAggregationDismiss()
+    fun onAggregationConfirm()
 }

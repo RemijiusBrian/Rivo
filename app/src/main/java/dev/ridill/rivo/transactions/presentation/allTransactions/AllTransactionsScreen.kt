@@ -349,6 +349,15 @@ fun AllTransactionsScreen(
                 onDismiss = actions::onTransactionFolderSelectionDismiss
             )
         }
+
+        if (state.showAggregationConfirmation) {
+            ConfirmationDialog(
+                titleRes = R.string.transaction_aggregation_confirmation_title,
+                contentRes = R.string.transaction_aggregation_confirmation_message,
+                onConfirm = actions::onAggregationConfirm,
+                onDismiss = actions::onAggregationDismiss
+            )
+        }
     }
 }
 

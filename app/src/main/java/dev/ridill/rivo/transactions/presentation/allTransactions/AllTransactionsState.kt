@@ -28,5 +28,6 @@ data class AllTransactionsState(
     val showTagInput: Boolean = false,
     val tagInputError: UiText? = null,
     val showExcludedOption: Boolean = false,
-    val showFolderSelection: Boolean = false
+    val showFolderSelection: Boolean = false,
+    val showAggregationConfirmation: Boolean = false
 )

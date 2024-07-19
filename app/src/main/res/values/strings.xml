@@ -163,6 +163,8 @@
     <string name="account_logout_confirmation_title">Logout of your account?</string>
     <string name="account_logout_confirmation_message">If you logout of your account you won\'t be able to use features like backup anymore. Do you want to continue?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
+    <string name="transaction_aggregation_confirmation_title">Aggregate transactions?</string>
+    <string name="transaction_aggregation_confirmation_message">This action will delete the selected transactions and instead create a new entry in their place, that is the aggregate of the selected transactions. If the aggregation cancels out, no new transaction will be created. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
     <string name="permission_rationale_notification">%s needs permission to post notifications to provide updates regarding various activities like Data Backup, auto-added Transactions, and schedules.</string>
@@ -318,6 +320,7 @@
     <string name="all_transactions_multi_selection_option_un_mark_excluded">Un-mark Excluded</string>
     <string name="all_transactions_multi_selection_option_add_to_folder">Add to Folder</string>
     <string name="all_transactions_multi_selection_option_remove_from_folders">Remove from Folders</string>
+    <string name="all_transactions_multi_selection_option_aggregate">Aggregate</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="excluded">Excluded</string>
@@ -418,4 +421,5 @@
     <string name="check_for_backups">Check for Backups</string>
     <string name="restore_backup">Restore Backup</string>
     <string name="sign_in_success">Signed in successfully</string>
+    <string name="aggregation_successful">Aggregation successful</string>
 </resources>
