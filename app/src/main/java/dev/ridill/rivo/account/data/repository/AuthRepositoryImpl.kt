@@ -3,23 +3,21 @@ package dev.ridill.rivo.account.data.repository
 import android.app.PendingIntent
 import android.content.Intent
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.data.util.tryNetworkCall
 import dev.ridill.rivo.account.domain.model.AuthState
-import dev.ridill.rivo.core.domain.model.DataError
-import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.account.domain.model.UserAccount
+import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.account.domain.service.AccessTokenService
 import dev.ridill.rivo.account.domain.service.AuthService
 import dev.ridill.rivo.account.presentation.AuthorizationFailedThrowable
 import dev.ridill.rivo.account.presentation.AuthorizationNeedsResolutionThrowable
 import dev.ridill.rivo.account.presentation.AuthorizationService
 import dev.ridill.rivo.account.presentation.CredentialService
+import dev.ridill.rivo.core.data.util.tryNetworkCall
+import dev.ridill.rivo.core.domain.model.DataError
+import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.account.domain.repository.AuthRepository
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 
 class AuthRepositoryImpl(
     private val credentialService: CredentialService,
@@ -40,9 +38,10 @@ class AuthRepositoryImpl(
         Result.Success(Unit)
     }
 
-    override suspend fun signUserOut() = withContext(Dispatchers.IO) {
+    override suspend fun signUserOut(): Result<Unit, DataError> = tryNetworkCall {
         authService.signUserOut()
         credentialService.clearCredentials()
+        Result.Success(Unit)
     }
 
     override suspend fun authorizeUserAccount(): Result<PendingIntent?, AuthorizationService.AuthorizationError> =

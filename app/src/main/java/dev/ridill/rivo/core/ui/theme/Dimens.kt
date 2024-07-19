@@ -18,6 +18,7 @@ val CornerRadiusExtraLarge = 24.dp
 val BorderWidthStandard = 1.dp
 
 val IconSizeSmall = 12.dp
+val IconSizeMedium = 16.dp
 
 val ElevationLevel0 = 0.0.dp
 val ElevationLevel1 = 1.0.dp

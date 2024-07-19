@@ -74,6 +74,9 @@ class SettingsViewModel @Inject constructor(
     private val showLogoutConfirmation = savedStateHandle
         .getStateFlow(SHOW_LOGOUT_CONFIRMATION, false)
 
+    private val showTransactionAutoDetectInfo = savedStateHandle
+        .getStateFlow(SHOW_AUTO_DETECT_TX_INFO, false)
+
     val state = combineTuple(
         authState,
         showLogoutConfirmation,
@@ -85,7 +88,8 @@ class SettingsViewModel @Inject constructor(
         showMonthlyBudgetInput,
         showCurrencySelection,
         autoAddTransactionEnabled,
-        showSmsPermissionRationale
+        showSmsPermissionRationale,
+        showTransactionAutoDetectInfo
     ).map { (
                 authState,
                 showLogoutConfirmation,
@@ -97,7 +101,8 @@ class SettingsViewModel @Inject constructor(
                 showMonthlyBudgetInput,
                 showCurrencySelection,
                 autoAddTransactionEnabled,
-                showSmsPermissionRationale
+                showSmsPermissionRationale,
+                showTransactionAutoDetectInfo
             ) ->
         SettingsState(
             authState = authState,
@@ -110,7 +115,8 @@ class SettingsViewModel @Inject constructor(
             budgetInputError = budgetInputError,
             showCurrencySelection = showCurrencySelection,
             autoAddTransactionEnabled = autoAddTransactionEnabled,
-            showSmsPermissionRationale = showSmsPermissionRationale
+            showSmsPermissionRationale = showSmsPermissionRationale,
+            showAutoDetectTransactionFeatureInfo = showTransactionAutoDetectInfo
         )
     }.asStateFlow(viewModelScope, SettingsState())
 
@@ -131,7 +137,15 @@ class SettingsViewModel @Inject constructor(
 
     override fun onLogoutConfirm() {
         viewModelScope.launch {
-            authRepo.signUserOut()
+            when (authRepo.signUserOut()) {
+                is Result.Error -> {
+                    eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.error_sign_out_failed)))
+                }
+
+                is Result.Success -> {
+                    preferencesManager.updateEncryptionPasswordHash(null)
+                }
+            }
             savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
         }
     }
@@ -255,6 +269,22 @@ class SettingsViewModel @Inject constructor(
     override fun onToggleAutoAddTransactions(enabled: Boolean) {
         viewModelScope.launch {
             savedStateHandle[TEMP_AUTO_ADD_TRANSACTION_STATE] = enabled
+            if (preferences.first().showAutoDetectTxInfo && enabled) {
+                savedStateHandle[SHOW_AUTO_DETECT_TX_INFO] = true
+            } else {
+                eventBus.send(SettingsEvent.RequestSMSPermission)
+            }
+        }
+    }
+
+    override fun onAutoDetectTxFeatureInfoDismiss() {
+        savedStateHandle[SHOW_AUTO_DETECT_TX_INFO] = false
+    }
+
+    override fun onAutoDetectTxFeatureInfoAcknowledge() {
+        viewModelScope.launch {
+            preferencesManager.toggleShowAutoDetectTxInfoFalse()
+            savedStateHandle[SHOW_AUTO_DETECT_TX_INFO] = false
             eventBus.send(SettingsEvent.RequestSMSPermission)
         }
     }
@@ -295,3 +325,4 @@ private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
 private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TEMP_AUTO_ADD_TRANSACTION_STATE"
 private const val SHOW_LOGOUT_CONFIRMATION = "SHOW_LOGOUT_CONFIRMATION"
+private const val SHOW_AUTO_DETECT_TX_INFO = "SHOW_AUTO_DETECT_TX_INFO"

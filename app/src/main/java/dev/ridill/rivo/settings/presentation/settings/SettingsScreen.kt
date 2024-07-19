@@ -57,12 +57,13 @@ import dev.ridill.rivo.core.ui.components.ArrangementTopWithFooter
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
-import dev.ridill.rivo.core.ui.components.Image
+import dev.ridill.rivo.core.ui.components.FeatureInfoDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
+import dev.ridill.rivo.core.ui.components.RivoImage
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerMedium
@@ -293,6 +294,19 @@ fun SettingsScreen(
                 onDismiss = actions::onLogoutDismiss
             )
         }
+
+        if (state.showAutoDetectTransactionFeatureInfo) {
+            FeatureInfoDialog(
+                title = stringResource(R.string.feature_info_auto_detect_transaction_title),
+                text = stringResource(
+                    R.string.feature_info_auto_detect_transaction_message,
+                    stringResource(R.string.app_name)
+                ),
+                onAcknowledge = actions::onAutoDetectTxFeatureInfoAcknowledge,
+                onDismiss = actions::onAutoDetectTxFeatureInfoDismiss,
+                isExperimental = true
+            )
+        }
     }
 }
 
@@ -315,7 +329,7 @@ private fun AccountInfo(
                 .padding(SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
+            RivoImage(
                 url = photoUrl,
                 contentDescription = displayName,
                 size = ProfileImageSize,

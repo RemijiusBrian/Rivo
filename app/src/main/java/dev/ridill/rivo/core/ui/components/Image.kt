@@ -14,7 +14,7 @@ import coil.compose.AsyncImage
 import dev.ridill.rivo.R
 
 @Composable
-fun Image(
+fun RivoImage(
     url: String,
     contentDescription: String?,
     size: Dp,

@@ -35,6 +35,7 @@
     <string name="notification_channel_app_init_name">App Init</string>
 
     <!-- Content Description -->
+    <string name="cd_app_greeting_user">Good %s, %s</string>
     <string name="cd_balance_and_budget_amounts">You have a balance of %1$s from your budget of %2$s</string>
     <string name="cd_recent_spent_amount">You have spent %s this month</string>
     <string name="cd_transaction_list_item_debit">You have spent %1$s with note %2$s on %3$s</string>
@@ -100,6 +101,7 @@
     <string name="error_app_data_backup_failed">Failed to backup App Data</string>
     <string name="error_app_data_restore_failed">Failed to restore App Data</string>
     <string name="error_sign_in_failed">Failed to sign in to your account</string>
+    <string name="error_sign_out_failed">Sign out failed</string>
     <string name="error_unknown">An Unknown error occurred</string>
     <string name="error_authorization_required">Authorization required</string>
     <string name="error_authorization_failed">An Unknown error occurred</string>
@@ -133,6 +135,8 @@
     <string name="action_undo">Undo</string>
     <string name="action_view">View</string>
     <string name="action_next">Next</string>
+    <string name="action_acknowledge">I understand</string>
+    <string name="action_dismiss">Dismiss</string>
 
     <!-- Texts -->
     <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
@@ -164,6 +168,10 @@
     <string name="permission_rationale_notification">%s needs permission to post notifications to provide updates regarding various activities like Data Backup, auto-added Transactions, and schedules.</string>
     <string name="permission_sms">Receive SMS Messages</string>
     <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
+
+    <string name="feature_info_auto_detect_transaction_title">Auto-Detect Transactions</string>
+    <string name="feature_info_auto_detect_transaction_message">%s tries to read SMS data to automatically detect and add transactions.</string>
+    <string name="feature_experimental_message">Note: This feature is still experimental and may not function properly.</string>
 
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>
