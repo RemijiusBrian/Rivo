@@ -10,5 +10,6 @@ enum class AllTransactionsMultiSelectionOption(
     MARK_EXCLUDED(R.string.all_transactions_multi_selection_option_mark_excluded),
     UN_MARK_EXCLUDED(R.string.all_transactions_multi_selection_option_un_mark_excluded),
     ADD_TO_FOLDER(R.string.all_transactions_multi_selection_option_add_to_folder),
-    REMOVE_FROM_FOLDERS(R.string.all_transactions_multi_selection_option_remove_from_folders)
+    REMOVE_FROM_FOLDERS(R.string.all_transactions_multi_selection_option_remove_from_folders),
+    AGGREGATE(R.string.all_transactions_multi_selection_option_aggregate)
 }

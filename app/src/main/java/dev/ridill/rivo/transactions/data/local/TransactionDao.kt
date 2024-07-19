@@ -11,7 +11,6 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.TransactionAmountLimits
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Dao
 interface TransactionDao : BaseDao<TransactionEntity> {
@@ -25,12 +24,12 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id
         WHERE (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) = 0
         AND tx.type = :typeName
-        AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', tx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+        AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', tx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
     """
     )
     fun getAmountSum(
         typeName: String,
-        dateTime: LocalDateTime? = null
+        date: LocalDate? = null
     ): Flow<Double>
 
     @Query(
@@ -48,7 +47,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Query(
         """
         SELECT * FROM transaction_details_view
-        WHERE (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
+        WHERE (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
@@ -57,7 +56,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         """
     )
     fun getTransactionsList(
-        monthAndYear: LocalDateTime? = null,
+        date: LocalDate? = null,
         transactionTypeName: String? = null,
         tagId: Long? = null,
         folderId: Long? = null,
@@ -71,34 +70,51 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             SELECT IFNULL(SUM(t1.transactionAmount), 0.0)
             FROM transaction_details_view t1
             WHERE (:typeName = 'DEBIT' OR t1.transactionTypeName = 'DEBIT')
-            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+            AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
             AND (:tagId IS NULL OR t1.tagId = :tagId)
             AND (:addExcluded = 1 OR t1.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, '') = '' OR t1.transactionId IN (:selectedTxIds))
+            AND (COALESCE(:selectedTxIds, 1) = 1 OR t1.transactionId IN (:selectedTxIds))
             ) - (
             SELECT IFNULL(SUM(t2.transactionAmount), 0.0)
             FROM transaction_details_view t2
             WHERE (:typeName = 'CREDIT' OR t2.transactionTypeName = 'CREDIT')
-            AND (:dateTime IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :dateTime))
+            AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
             AND (:tagId IS NULL OR t2.tagId = :tagId)
             AND (:addExcluded = 1 OR t2.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, '') = '' OR t2.transactionId IN (:selectedTxIds))
+            AND (COALESCE(:selectedTxIds, 1) = 1 OR t2.transactionId IN (:selectedTxIds))
         )
     """
     )
     fun getAmountAggregate(
-        dateTime: LocalDateTime?,
+        date: LocalDate? = null,
         typeName: String? = null,
         tagId: Long? = null,
         addExcluded: Boolean = false,
         selectedTxIds: Set<Long>? = null
     ): Flow<Double>
 
+    @Query(
+        """
+        SELECT (
+            SELECT IFNULL(SUM(t1.amount), 0.0)
+            FROM transaction_table t1
+            WHERE t1.type = 'DEBIT'
+            AND t1.id IN (:ids)
+            ) - (
+            SELECT IFNULL(SUM(t2.amount), 0.0)
+            FROM transaction_table t2
+            WHERE t2.type = 'CREDIT'
+            AND t2.id IN (:ids)
+        )
+    """
+    )
+    suspend fun getAggregateAmountByIds(ids: Set<Long>): Double
+
     @Transaction
     @Query(
         """
         SELECT * FROM transaction_details_view
-        WHERE (:monthAndYear IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :monthAndYear))
+        WHERE (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
             AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
@@ -107,7 +123,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         """
     )
     fun getTransactionsListPaginated(
-        monthAndYear: LocalDateTime? = null,
+        date: LocalDate? = null,
         transactionTypeName: String? = null,
         tagId: Long? = null,
         folderId: Long? = null,
@@ -131,10 +147,4 @@ interface TransactionDao : BaseDao<TransactionEntity> {
 
     @Query("UPDATE transaction_table SET folder_id = NULL WHERE id IN (:ids)")
     suspend fun removeFolderFromTransactionsByIds(ids: Set<Long>)
-
-    @Query("SELECT * FROM transaction_table WHERE schedule_id = :scheduleId AND strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date)")
-    suspend fun getTransactionForScheduleAndDate(
-        scheduleId: Long,
-        date: LocalDate
-    ): TransactionEntity?
 }

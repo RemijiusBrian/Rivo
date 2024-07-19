@@ -1,9 +1,14 @@
 package dev.ridill.rivo.transactions.data.repository
 
+import androidx.room.withTransaction
+import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
+import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
@@ -15,9 +20,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Currency
+import kotlin.math.absoluteValue
 
 class AllTransactionsRepositoryImpl(
+    private val db: RivoDatabase,
     private val dao: TransactionDao,
     private val preferencesManager: PreferencesManager,
     private val currencyPrefRepo: CurrencyPreferenceRepository
@@ -34,26 +42,26 @@ class AllTransactionsRepositoryImpl(
             .map { it.ifEmpty { listOf(DateUtil.now().year) } }
 
     override fun getAmountAggregate(
-        date: LocalDate,
+        date: LocalDate?,
         type: TransactionType?,
         tagId: Long?,
         addExcluded: Boolean,
         selectedTxIds: Set<Long>?
     ): Flow<Double> = dao.getAmountAggregate(
-        dateTime = date.atStartOfDay(),
+        date = date,
         selectedTxIds = selectedTxIds,
         tagId = tagId,
         typeName = type?.name,
         addExcluded = addExcluded
     ).distinctUntilChanged()
 
-    override fun getTransactionsForDateByTag(
+    override fun getAllTransactionsList(
         date: LocalDate,
         tagId: Long?,
         transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>> = dao.getTransactionsList(
-        monthAndYear = date.atStartOfDay(),
+        date = date,
         transactionTypeName = transactionType?.name,
         tagId = tagId,
         showExcluded = showExcluded
@@ -80,4 +88,31 @@ class AllTransactionsRepositoryImpl(
         withContext(Dispatchers.IO) {
             dao.removeFolderFromTransactionsByIds(ids)
         }
+
+    override suspend fun aggregateIntoSingleNewTransactions(
+        ids: Set<Long>,
+        dateTime: LocalDateTime
+    ): Long = withContext(Dispatchers.IO) {
+        db.withTransaction {
+            val aggregatedAmount = dao.getAggregateAmountByIds(ids)
+            var insertedId = -1L
+            if (aggregatedAmount != Double.Zero) {
+                val type = if (aggregatedAmount > 0) TransactionType.DEBIT
+                else TransactionType.CREDIT
+                val entity = TransactionEntity(
+                    note = String.Empty,
+                    amount = aggregatedAmount.absoluteValue,
+                    timestamp = dateTime,
+                    typeName = type.name,
+                    isExcluded = false,
+                    tagId = null,
+                    folderId = null,
+                    scheduleId = null
+                )
+                insertedId = dao.insert(entity).first()
+            }
+            dao.deleteMultipleTransactionsById(ids)
+            insertedId
+        }
+    }
 }
