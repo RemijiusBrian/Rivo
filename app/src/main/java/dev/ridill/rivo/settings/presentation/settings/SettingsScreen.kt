@@ -2,7 +2,6 @@ package dev.ridill.rivo.settings.presentation.settings
 
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,8 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
-import androidx.compose.material.icons.automirrored.rounded.Login
-import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.BrightnessMedium
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
@@ -53,10 +50,8 @@ import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
-import dev.ridill.rivo.core.ui.components.ArrangementTopWithFooter
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.BodyMediumText
-import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.FeatureInfoDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
@@ -91,20 +86,12 @@ fun SettingsScreen(
     currenciesPagingData: LazyPagingItems<Currency>,
     actions: SettingsActions,
     navigateUp: () -> Unit,
+    navigateToAccountDetails: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToSecuritySettings: () -> Unit,
     launchUriInBrowser: (Uri) -> Unit
 ) {
-    val isAccountAuthenticated by remember(state.authState) {
-        derivedStateOf {
-            state.authState is AuthState.Authenticated
-        }
-    }
-    val screenArrangement = remember(isAccountAuthenticated) {
-        if (isAccountAuthenticated) ArrangementTopWithFooter()
-        else Arrangement.Top
-    }
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     RivoScaffold(
         modifier = Modifier
@@ -124,23 +111,12 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = SpacingListEnd),
-            verticalArrangement = screenArrangement
+                .padding(bottom = SpacingListEnd)
         ) {
-            AnimatedVisibility(
-                visible = isAccountAuthenticated,
-                modifier = Modifier
-                    .padding(vertical = SpacingMedium)
-            ) {
-                val accountInfo = remember(state.authState) {
-                    tryOrNull { (state.authState as AuthState.Authenticated).account }
-                }
-                AccountInfo(
-                    photoUrl = accountInfo?.photoUrl.orEmpty(),
-                    email = accountInfo?.email.orEmpty(),
-                    displayName = accountInfo?.displayName.orEmpty()
-                )
-            }
+            AccountInfo(
+                onClick = navigateToAccountDetails,
+                authState = state.authState
+            )
             SimpleSettingsPreference(
                 titleRes = R.string.preference_app_theme,
                 summary = stringResource(state.appTheme.labelRes),
@@ -230,18 +206,6 @@ fun SettingsScreen(
                 leadingIcon = Icons.Rounded.Info,
                 summary = BuildUtil.versionName
             )
-
-            SimpleSettingsPreference(
-                titleRes = if (isAccountAuthenticated) R.string.preference_logout
-                else R.string.preference_login,
-                summary = stringResource(
-                    if (isAccountAuthenticated) R.string.preference_logout_summary
-                    else R.string.preference_login_summary
-                ),
-                leadingIcon = if (isAccountAuthenticated) Icons.AutoMirrored.Rounded.Logout
-                else Icons.AutoMirrored.Rounded.Login,
-                onClick = actions::onLoginOrLogoutPreferenceClick
-            )
         }
 
         if (state.showAppThemeSelection) {
@@ -286,15 +250,6 @@ fun SettingsScreen(
             )
         }
 
-        if (state.showLogoutConfirmation) {
-            ConfirmationDialog(
-                titleRes = R.string.account_logout_confirmation_title,
-                contentRes = R.string.account_logout_confirmation_message,
-                onConfirm = actions::onLogoutConfirm,
-                onDismiss = actions::onLogoutDismiss
-            )
-        }
-
         if (state.showAutoDetectTransactionFeatureInfo) {
             FeatureInfoDialog(
                 title = stringResource(R.string.feature_info_auto_detect_transaction_title),
@@ -314,14 +269,20 @@ private val PreferenceDividerVerticalPadding = 12.dp
 
 @Composable
 private fun AccountInfo(
-    photoUrl: String,
-    email: String,
-    displayName: String,
+    onClick: () -> Unit,
+    authState: AuthState,
     modifier: Modifier = Modifier
 ) {
+    val isAccountAuthenticate by remember(authState) {
+        derivedStateOf { authState is AuthState.Authenticated }
+    }
+    val accountInfo = remember(authState) {
+        tryOrNull { (authState as AuthState.Authenticated).account }
+    }
     Card(
+        onClick = onClick,
         modifier = modifier
-            .padding(horizontal = SpacingMedium),
+            .padding(horizontal = SpacingMedium)
     ) {
         Row(
             modifier = Modifier
@@ -329,20 +290,29 @@ private fun AccountInfo(
                 .padding(SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            RivoImage(
-                url = photoUrl,
-                contentDescription = displayName,
-                size = ProfileImageSize,
-                placeholderRes = R.drawable.ic_rounded_person,
-                errorRes = R.drawable.ic_rounded_person
-            )
+            AnimatedVisibility(visible = isAccountAuthenticate) {
+                RivoImage(
+                    url = accountInfo?.photoUrl.orEmpty(),
+                    contentDescription = accountInfo?.displayName,
+                    size = ProfileImageSize,
+                    placeholderRes = R.drawable.ic_rounded_person,
+                    errorRes = R.drawable.ic_rounded_person,
+                )
+            }
             SpacerMedium()
             Column {
-                TitleMediumText(title = displayName)
-                BodyMediumText(
-                    text = email,
-                    color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+                TitleMediumText(
+                    title = when (authState) {
+                        is AuthState.Authenticated -> authState.account.displayName
+                        AuthState.UnAuthenticated -> stringResource(R.string.login_to_your_account)
+                    }
                 )
+                AnimatedVisibility(visible = isAccountAuthenticate) {
+                    BodyMediumText(
+                        text = accountInfo?.displayName.orEmpty(),
+                        color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+                    )
+                }
             }
         }
     }

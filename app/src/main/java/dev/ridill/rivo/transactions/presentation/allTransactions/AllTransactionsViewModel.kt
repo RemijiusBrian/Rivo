@@ -21,7 +21,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionType
+import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
@@ -59,7 +59,7 @@ class AllTransactionsViewModel @Inject constructor(
     private val showExcludedOption = transactionRepo.getShowExcludedOption()
 
     private val transactionTypeFilter = savedStateHandle
-        .getStateFlow<TransactionType?>(TRANSACTION_TYPE_FILTER, null)
+        .getStateFlow(TRANSACTION_TYPE_FILTER, TransactionTypeFilter.ALL)
 
     private val transactionList = combineTuple(
         selectedDate,
@@ -69,13 +69,13 @@ class AllTransactionsViewModel @Inject constructor(
     ).flatMapLatest { (
                           date,
                           tagId,
-                          transactionType,
+                          typeFilter,
                           showExcluded
                       ) ->
         transactionRepo.getAllTransactionsList(
             date = date,
             tagId = tagId,
-            transactionType = transactionType,
+            transactionType = TransactionTypeFilter.mapToTransactionType(typeFilter),
             showExcluded = showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
@@ -106,14 +106,14 @@ class AllTransactionsViewModel @Inject constructor(
         selectedTransactionIds
     ).flatMapLatest { (
                           date,
-                          type,
+                          typeFilter,
                           selectedTagId,
                           addExcluded,
                           selectedTxIds
                       ) ->
         transactionRepo.getAmountAggregate(
             date = date,
-            type = type,
+            type = TransactionTypeFilter.mapToTransactionType(typeFilter),
             tagId = selectedTagId,
             addExcluded = addExcluded,
             selectedTxIds = selectedTxIds.ifEmpty { null }
@@ -124,12 +124,11 @@ class AllTransactionsViewModel @Inject constructor(
         selectedTagId,
         transactionTypeFilter
     ).map { (tagId, type) ->
-        if (type != null) when (type) {
-            TransactionType.CREDIT -> UiText.StringResource(R.string.credits)
-            TransactionType.DEBIT -> UiText.StringResource(R.string.debits)
-        } else if (tagId != null) {
-            UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
-        } else UiText.StringResource(R.string.all_transactions)
+        when {
+            tagId != null -> UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
+            type == TransactionTypeFilter.ALL -> UiText.StringResource(R.string.all_transactions)
+            else -> UiText.StringResource(type.labelRes)
+        }
     }.distinctUntilChanged()
 
 
@@ -326,9 +325,9 @@ class AllTransactionsViewModel @Inject constructor(
 
     override fun onTransactionTypeFilterToggle() {
         savedStateHandle[TRANSACTION_TYPE_FILTER] = when (transactionTypeFilter.value) {
-            TransactionType.CREDIT -> null
-            TransactionType.DEBIT -> TransactionType.CREDIT
-            null -> TransactionType.DEBIT
+            TransactionTypeFilter.DEBITS -> TransactionTypeFilter.CREDITS
+            TransactionTypeFilter.CREDITS -> TransactionTypeFilter.ALL
+            TransactionTypeFilter.ALL -> TransactionTypeFilter.DEBITS
         }
     }
 

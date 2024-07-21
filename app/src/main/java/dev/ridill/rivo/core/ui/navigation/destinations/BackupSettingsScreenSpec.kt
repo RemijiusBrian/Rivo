@@ -20,13 +20,11 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
-import dev.ridill.rivo.account.presentation.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
-import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
@@ -46,6 +44,12 @@ data object BackupSettingsScreenSpec : ScreenSpec {
 
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
         { slideInHorizontallyWithFadeIn { it } }
+
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutHorizontallyWithFadeOut { -it } }
+
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInHorizontallyWithFadeIn { -it } }
 
     fun buildBackupSettingsDeeplinkUri(): Uri = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN.toUri()
 
@@ -68,7 +72,6 @@ data object BackupSettingsScreenSpec : ScreenSpec {
             onResult = viewModel::onDestinationResult
         )
 
-        val credentialService = rememberCredentialService(context)
         val authorizationResultLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartIntentSenderForResult(),
             onResult = { result ->
@@ -96,12 +99,8 @@ data object BackupSettingsScreenSpec : ScreenSpec {
                     )
                 }
 
-                is BackupSettingsViewModel.BackupSettingsEvent.StartAutoSignInFlow -> {
-                    val result = credentialService.startGetCredentialFlow(
-                        filterByAuthorizedUsers = event.filterByAuthorizedAccounts,
-                        activityContext = context.findActivity()
-                    )
-                    viewModel.onCredentialResult(result)
+                BackupSettingsViewModel.BackupSettingsEvent.NavigateToAccountDetailsPage -> {
+                    navController.navigate(AccountDetailsScreenSpec.route)
                 }
             }
         }

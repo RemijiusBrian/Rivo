@@ -12,8 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.account.domain.repository.AuthRepository
-import dev.ridill.rivo.account.presentation.AuthorizationService
-import dev.ridill.rivo.account.presentation.CredentialService
+import dev.ridill.rivo.account.presentation.util.AuthorizationService
+import dev.ridill.rivo.account.presentation.util.CredentialService
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.model.Result

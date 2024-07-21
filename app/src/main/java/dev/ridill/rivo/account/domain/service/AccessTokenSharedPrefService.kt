@@ -11,7 +11,7 @@ class AccessTokenSharedPrefService(
         sharedPref.getString(ACCESS_TOKEN_KEY, null)
     }
 
-    override suspend fun updateAccessToken(token: String) = withContext(Dispatchers.IO) {
+    override suspend fun updateAccessToken(token: String?) = withContext(Dispatchers.IO) {
         with(sharedPref.edit()) {
             putString(ACCESS_TOKEN_KEY, token)
             apply()

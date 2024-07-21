@@ -7,7 +7,7 @@ import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionType
+import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import java.time.LocalDate
 import java.util.Currency
 
@@ -17,7 +17,7 @@ data class AllTransactionsState(
     val aggregateAmount: Double = Double.Zero,
     val currency: Currency = LocaleUtil.defaultCurrency,
     val selectedTagId: Long? = null,
-    val selectedTransactionTypeFilter: TransactionType? = null,
+    val selectedTransactionTypeFilter: TransactionTypeFilter = TransactionTypeFilter.ALL,
     val transactionListLabel: UiText = UiText.DynamicString(String.Empty),
     val transactionList: List<TransactionListItem> = emptyList(),
     val selectedTransactionIds: Set<Long> = emptySet(),

@@ -7,11 +7,13 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.account.domain.model.UserAccount
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class FirebaseAuthService : AuthService {
     private val auth = Firebase.auth
@@ -41,7 +43,17 @@ class FirebaseAuthService : AuthService {
     override suspend fun signUserOut() {
         auth.signOut()
     }
+
+    override suspend fun deleteAccount() {
+        withContext(Dispatchers.IO) {
+            val currentUser = auth.currentUser
+                ?: throw CurrentUserUnavailableThrowable()
+            currentUser.delete().await()
+        }
+    }
 }
+
+class CurrentUserUnavailableThrowable : Throwable()
 
 fun FirebaseUser.toUserAccount(): UserAccount = UserAccount(
     email = email.orEmpty(),

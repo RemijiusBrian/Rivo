@@ -9,4 +9,5 @@ interface AuthService {
     fun getAuthStateFlow(): Flow<AuthState>
     suspend fun signUserWithIdToken(idToken: String)
     suspend fun signUserOut()
+    suspend fun deleteAccount()
 }

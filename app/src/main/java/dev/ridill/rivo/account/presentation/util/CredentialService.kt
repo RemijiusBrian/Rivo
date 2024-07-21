@@ -1,4 +1,4 @@
-package dev.ridill.rivo.account.presentation
+package dev.ridill.rivo.account.presentation.util
 
 import android.content.Context
 import androidx.compose.runtime.Composable

@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +41,8 @@ fun SimpleSettingsPreference(
     onClick: (() -> Unit)? = null,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    contentPadding: PaddingValues = PreferenceContentPadding
+    contentPadding: PaddingValues = PreferenceContentPadding,
+    contentColor: Color = LocalContentColor.current
 ) = BasicPreference(
     titleContent = { Text(text = stringResource(titleRes)) },
     summaryContent = summary?.let {
@@ -63,7 +65,8 @@ fun SimpleSettingsPreference(
             else Modifier
         )
         .then(modifier),
-    contentPadding = contentPadding
+    contentPadding = contentPadding,
+    contentColor = contentColor
 )
 
 @Composable
@@ -141,33 +144,32 @@ fun BasicPreference(
     contentColor: Color = LocalContentColor.current,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
 ) {
-    Row(
-        modifier = modifier
-            .padding(contentPadding),
-        verticalAlignment = verticalAlignment,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
-    ) {
-        leadingIcon?.invoke()
-        Column(
-            modifier = Modifier
-                .weight(Float.One)
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        Row(
+            modifier = modifier
+                .padding(contentPadding),
+            verticalAlignment = verticalAlignment,
+            horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
         ) {
-            CompositionLocalProvider(
-                LocalTextStyle provides titleTextStyle,
-                LocalContentColor provides contentColor
+            leadingIcon?.invoke()
+            Column(
+                modifier = Modifier
+                    .weight(Float.One)
             ) {
-                titleContent()
-            }
-            summaryContent?.let { content ->
-                CompositionLocalProvider(
-                    LocalTextStyle provides summaryTextStyle,
-                    LocalContentColor provides contentColor.copy(alpha = 0.64f)
-                ) {
-                    content()
+                ProvideTextStyle(titleTextStyle) {
+                    titleContent()
+                }
+                summaryContent?.let { content ->
+                    CompositionLocalProvider(
+                        LocalTextStyle provides summaryTextStyle,
+                        LocalContentColor provides LocalContentColor.current.copy(alpha = 0.64f)
+                    ) {
+                        content()
+                    }
                 }
             }
+            trailingContent?.invoke()
         }
-        trailingContent?.invoke()
     }
 }
 
