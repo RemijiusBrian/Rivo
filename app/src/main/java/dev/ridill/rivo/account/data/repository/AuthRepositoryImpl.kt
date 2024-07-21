@@ -52,19 +52,19 @@ class AuthRepositoryImpl(
         } catch (t: AuthorizationNeedsResolutionThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.NEEDS_RESOLUTION,
-                message = UiText.StringResource(R.string.error_authorization_required),
+                message = UiText.StringResource(R.string.error_authorization_required, true),
                 data = t.pendingIntent
             )
         } catch (t: AuthorizationFailedThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
-                message = UiText.StringResource(R.string.error_authorization_failed)
+                message = UiText.StringResource(R.string.error_authorization_failed, true)
             )
         } catch (t: Throwable) {
             if (t is CancellationException) throw t
             Result.Error(
                 error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
-                message = UiText.StringResource(R.string.error_authorization_failed)
+                message = UiText.StringResource(R.string.error_authorization_failed, true)
             )
         }
 
@@ -76,18 +76,18 @@ class AuthRepositoryImpl(
         } catch (t: AuthorizationNeedsResolutionThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.NEEDS_RESOLUTION,
-                message = UiText.StringResource(R.string.error_authorization_required)
+                message = UiText.StringResource(R.string.error_authorization_required, true)
             )
         } catch (t: AuthorizationFailedThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
-                message = UiText.StringResource(R.string.error_authorization_failed)
+                message = UiText.StringResource(R.string.error_authorization_failed, true)
             )
         } catch (t: Throwable) {
             if (t is CancellationException) throw t
             Result.Error(
                 error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
-                message = UiText.StringResource(R.string.error_authorization_failed)
+                message = UiText.StringResource(R.string.error_authorization_failed, true)
             )
         }
 

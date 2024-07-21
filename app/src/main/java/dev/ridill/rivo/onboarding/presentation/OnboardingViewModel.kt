@@ -100,7 +100,10 @@ class OnboardingViewModel @Inject constructor(
                         OnboardingEvent.ShowUiMessage(
                             downloadInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
-                                ?: UiText.StringResource(R.string.error_app_data_restore_failed)
+                                ?: UiText.StringResource(
+                                    R.string.error_app_data_restore_failed,
+                                    true
+                                )
                         )
                     )
                 }
@@ -111,7 +114,10 @@ class OnboardingViewModel @Inject constructor(
                         OnboardingEvent.ShowUiMessage(
                             restoreInfo.outputData.getString(BackupWorkManager.KEY_MESSAGE)
                                 ?.let { UiText.DynamicString(it) }
-                                ?: UiText.StringResource(R.string.error_app_data_restore_failed)
+                                ?: UiText.StringResource(
+                                    R.string.error_app_data_restore_failed,
+                                    true
+                                )
                         )
                     )
                 }
