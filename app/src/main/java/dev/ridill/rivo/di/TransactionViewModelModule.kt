@@ -46,10 +46,12 @@ object TransactionViewModelModule {
 
     @Provides
     fun provideAllTransactionsRepository(
+        db: RivoDatabase,
         dao: TransactionDao,
         preferencesManager: PreferencesManager,
         currencyPreferenceRepository: CurrencyPreferenceRepository
     ): AllTransactionsRepository = AllTransactionsRepositoryImpl(
+        db = db,
         dao = dao,
         preferencesManager = preferencesManager,
         currencyPrefRepo = currencyPreferenceRepository

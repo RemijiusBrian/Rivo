@@ -151,6 +151,9 @@ class AllTransactionsViewModel @Inject constructor(
             foldersListRepo.getFoldersList(query)
         }.cachedIn(viewModelScope)
 
+    private val showAggregationConfirmation = savedStateHandle
+        .getStateFlow(SHOW_AGGREGATION_CONFIRMATION, false)
+
     val state = combineTuple(
         selectedDate,
         yearsList,
@@ -168,7 +171,8 @@ class AllTransactionsViewModel @Inject constructor(
         showTagInput,
         tagInputError,
         showExcludedOption,
-        showFolderSelection
+        showFolderSelection,
+        showAggregationConfirmation
     ).map { (
                 selectedDate,
                 yearsList,
@@ -186,7 +190,8 @@ class AllTransactionsViewModel @Inject constructor(
                 showTagInput,
                 tagInputError,
                 showExcludedOption,
-                showFolderSelection
+                showFolderSelection,
+                showAggregationConfirmation
             ) ->
         AllTransactionsState(
             selectedDate = selectedDate,
@@ -205,7 +210,8 @@ class AllTransactionsViewModel @Inject constructor(
             showTagInput = showTagInput,
             tagInputError = tagInputError,
             showExcludedOption = showExcludedOption,
-            showFolderSelection = showFolderSelection
+            showFolderSelection = showFolderSelection,
+            showAggregationConfirmation = showAggregationConfirmation
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
 
@@ -213,6 +219,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     init {
         refreshSelectedIdsListOnTransactionListChange()
+        keepSelectedDateUpdated()
     }
 
     private fun refreshSelectedIdsListOnTransactionListChange() = viewModelScope.launch {
@@ -221,6 +228,16 @@ class AllTransactionsViewModel @Inject constructor(
             savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value
                 .filter { it in ids }
                 .toSet()
+        }
+    }
+
+    private fun keepSelectedDateUpdated() = viewModelScope.launch {
+        yearsList.collectLatest { yearsList ->
+            val selectedDate = selectedDate.value
+            if (selectedDate.year !in yearsList) {
+                savedStateHandle[SELECTED_DATE] = DateUtil.dateNow()
+                    .withMonth(selectedDate.monthValue)
+            }
         }
     }
 
@@ -379,6 +396,10 @@ class AllTransactionsViewModel @Inject constructor(
                 AllTransactionsMultiSelectionOption.REMOVE_FROM_FOLDERS -> {
                     removeTransactionsFromFolders(selectedTransactionIds)
                 }
+
+                AllTransactionsMultiSelectionOption.AGGREGATE -> {
+                    savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = true
+                }
             }
         }
     }
@@ -523,6 +544,26 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
+    override fun onAggregationDismiss() {
+        savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = false
+    }
+
+    override fun onAggregationConfirm() {
+        viewModelScope.launch {
+            val selectedIds = selectedTransactionIds.value
+            val selectedDate = selectedDate.value
+            val dateTimeNow = DateUtil.now()
+            transactionRepo.aggregateIntoSingleNewTransactions(
+                ids = selectedIds,
+                dateTime = dateTimeNow
+                    .withMonth(selectedDate.monthValue)
+                    .withYear(selectedDate.year)
+            )
+            savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = false
+            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.aggregation_successful)))
+        }
+    }
+
     sealed interface AllTransactionsEvent {
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
@@ -542,3 +583,4 @@ private const val TAG_INPUT = "TAG_INPUT"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
 private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
+private const val SHOW_AGGREGATION_CONFIRMATION = "SHOW_AGGREGATION_CONFIRMATION"
