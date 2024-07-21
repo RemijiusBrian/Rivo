@@ -97,6 +97,8 @@
     <string name="cd_profile_picture">Profile picture</string>
 
     <!-- Error Messages -->
+    <string name="error_no_internet_connection">No internet connection</string>
+    <string name="error_request_timeout">Request timed out</string>
     <string name="error_server_error">A server error occurred</string>
     <string name="error_invalid_amount">Please enter a valid amount</string>
     <string name="error_invalid_tag_name">Invalid tag name</string>
