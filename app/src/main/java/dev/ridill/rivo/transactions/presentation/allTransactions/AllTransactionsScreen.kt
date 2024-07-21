@@ -76,9 +76,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
@@ -115,10 +112,11 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
+import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TransactionType
+import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -582,7 +580,7 @@ private fun TransactionListHeader(
     multiSelectionModeActive: Boolean,
     totalSumAmount: Double,
     currency: Currency,
-    selectedTxTypeFilter: TransactionType?,
+    selectedTxTypeFilter: TransactionTypeFilter,
     listLabel: UiText,
     showExcludedOption: Boolean,
     onToggleTransactionTypeFilter: () -> Unit,
@@ -614,7 +612,7 @@ private fun TransactionListHeader(
                 multiSelectionModeActive = multiSelectionModeActive,
                 sumAmount = totalSumAmount,
                 currency = currency,
-                type = selectedTxTypeFilter,
+                typeFilter = selectedTxTypeFilter,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingMedium)
@@ -632,6 +630,7 @@ private fun TransactionListHeader(
                 onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
                 showExcludedOption = showExcludedOption,
                 onToggleShowExcludedOption = onToggleShowExcludedOption,
+                currentTransactionTypeFilter = selectedTxTypeFilter,
                 multiSelectionModeActive = multiSelectionModeActive,
                 multiSelectionState = multiSelectionState,
                 onSelectionStateChange = onSelectionStateChange,
@@ -801,6 +800,7 @@ private fun DateIndicator(
 private fun TransactionListLabelAndOptions(
     listLabel: UiText,
     showExcludedOption: Boolean,
+    currentTransactionTypeFilter: TransactionTypeFilter,
     onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
@@ -824,6 +824,7 @@ private fun TransactionListLabelAndOptions(
 
         TransactionListOptions(
             showExcludedOption = showExcludedOption,
+            currentTransactionTypeFilter = currentTransactionTypeFilter,
             onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
             onToggleShowExcludedOption = onToggleShowExcludedOption,
             multiSelectionModeActive = multiSelectionModeActive,
@@ -838,6 +839,7 @@ private fun TransactionListLabelAndOptions(
 @Composable
 private fun TransactionListOptions(
     showExcludedOption: Boolean,
+    currentTransactionTypeFilter: TransactionTypeFilter,
     onToggleTransactionTypeFilter: () -> Unit,
     onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
@@ -856,10 +858,15 @@ private fun TransactionListOptions(
     ) {
         AnimatedVisibility(visible = !multiSelectionModeActive) {
             IconButton(onClick = onToggleTransactionTypeFilter) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_funnel_dollar),
-                    contentDescription = stringResource(R.string.cd_filter_transactions_by_type)
-                )
+                AnimatedContent(
+                    targetState = currentTransactionTypeFilter,
+                    label = "TransactionTypeFilterIcon"
+                ) { filter ->
+                    Icon(
+                        imageVector = ImageVector.vectorResource(filter.iconRes),
+                        contentDescription = stringResource(R.string.cd_filter_transactions_by_type)
+                    )
+                }
             }
         }
         AnimatedVisibility(visible = multiSelectionModeActive) {
@@ -927,19 +934,15 @@ private fun AggregateAmount(
     multiSelectionModeActive: Boolean,
     currency: Currency,
     sumAmount: Double,
-    type: TransactionType?,
+    typeFilter: TransactionTypeFilter,
     modifier: Modifier = Modifier
 ) {
-    val showTypeIcon by remember(type) {
-        derivedStateOf { type != null }
-    }
     val aggContentDescription = stringResource(
         R.string.cd_total_transaction_sum,
         stringResource(
             id = when {
                 multiSelectionModeActive -> R.string.selected_aggregate
-                type == null -> R.string.aggregate
-                else -> R.string.total
+                else -> typeFilter.labelRes
             }
         ),
         TextFormat.currency(amount = sumAmount.absoluteValue, currency = currency)
@@ -948,18 +951,15 @@ private fun AggregateAmount(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .semantics(true) {}
-            .clearAndSetSemantics {
-                contentDescription = aggContentDescription
-            }
+            .mergedContentDescription(aggContentDescription)
     ) {
-        Crossfade(targetState = type, label = "TotalAmountLabel") { txType ->
+        Crossfade(targetState = typeFilter, label = "TotalAmountLabel") { txType ->
             Text(
                 text = stringResource(
                     id = when {
                         multiSelectionModeActive -> R.string.selected_aggregate
-                        txType == null -> R.string.aggregate
-                        else -> R.string.total
+                        txType == TransactionTypeFilter.ALL -> R.string.aggregate
+                        else -> txType.labelRes
                     }
                 ),
                 style = MaterialTheme.typography.titleLarge,
@@ -968,29 +968,16 @@ private fun AggregateAmount(
             )
         }
         SpacerSmall()
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
-        ) {
-            VerticalNumberSpinnerContent(sumAmount) { amount ->
-                Text(
-                    text = TextFormat.currency(amount = amount.absoluteValue, currency = currency),
-                    style = MaterialTheme.typography.headlineMedium
-                        .copy(lineBreak = LineBreak.Heading),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
 
-            AnimatedVisibility(showTypeIcon) {
-                type?.let {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(it.iconRes),
-                        contentDescription = null
-                    )
-                }
-            }
+        VerticalNumberSpinnerContent(sumAmount) { amount ->
+            Text(
+                text = TextFormat.currency(amount = amount.absoluteValue, currency = currency),
+                style = MaterialTheme.typography.headlineMedium
+                    .copy(lineBreak = LineBreak.Heading),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }

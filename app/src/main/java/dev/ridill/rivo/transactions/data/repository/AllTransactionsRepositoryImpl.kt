@@ -47,7 +47,7 @@ class AllTransactionsRepositoryImpl(
         addExcluded = addExcluded
     ).distinctUntilChanged()
 
-    override fun getTransactionsForDateByTag(
+    override fun getAllTransactionsList(
         date: LocalDate,
         tagId: Long?,
         transactionType: TransactionType?,
