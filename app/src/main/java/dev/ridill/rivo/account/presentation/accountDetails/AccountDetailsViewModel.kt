@@ -143,7 +143,14 @@ class AccountDetailsViewModel @Inject constructor(
             savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
             when (repo.signUserOut()) {
                 is Result.Error -> {
-                    eventBus.send(AccountDetailsEvent.ShowUiMessage(UiText.StringResource(R.string.error_sign_out_failed)))
+                    eventBus.send(
+                        AccountDetailsEvent.ShowUiMessage(
+                            UiText.StringResource(
+                                R.string.error_sign_out_failed,
+                                true
+                            )
+                        )
+                    )
                 }
 
                 is Result.Success -> {
