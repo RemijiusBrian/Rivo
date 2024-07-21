@@ -8,10 +8,10 @@ import dev.ridill.rivo.account.domain.model.UserAccount
 import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.account.domain.service.AccessTokenService
 import dev.ridill.rivo.account.domain.service.AuthService
-import dev.ridill.rivo.account.presentation.AuthorizationFailedThrowable
-import dev.ridill.rivo.account.presentation.AuthorizationNeedsResolutionThrowable
-import dev.ridill.rivo.account.presentation.AuthorizationService
-import dev.ridill.rivo.account.presentation.CredentialService
+import dev.ridill.rivo.account.presentation.util.AuthorizationFailedThrowable
+import dev.ridill.rivo.account.presentation.util.AuthorizationNeedsResolutionThrowable
+import dev.ridill.rivo.account.presentation.util.AuthorizationService
+import dev.ridill.rivo.account.presentation.util.CredentialService
 import dev.ridill.rivo.core.data.util.tryNetworkCall
 import dev.ridill.rivo.core.domain.model.DataError
 import dev.ridill.rivo.core.domain.model.Result
@@ -90,4 +90,9 @@ class AuthRepositoryImpl(
                 message = UiText.StringResource(R.string.error_authorization_failed)
             )
         }
+
+    override suspend fun deleteAccount(): Result<Unit, DataError> = tryNetworkCall {
+        authService.deleteAccount()
+        Result.Success(Unit)
+    }
 }

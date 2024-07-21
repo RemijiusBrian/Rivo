@@ -7,11 +7,8 @@ import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
-import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.account.domain.repository.AuthRepository
-import dev.ridill.rivo.account.presentation.CredentialService
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
@@ -30,7 +27,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: SettingsRepository,
-    private val authRepo: AuthRepository,
+    authRepo: AuthRepository,
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<SettingsEvent>
 ) : ViewModel(), SettingsActions {
@@ -71,15 +68,11 @@ class SettingsViewModel @Inject constructor(
     private val showSmsPermissionRationale = savedStateHandle
         .getStateFlow(SHOW_SMS_PERMISSION_RATIONALE, false)
 
-    private val showLogoutConfirmation = savedStateHandle
-        .getStateFlow(SHOW_LOGOUT_CONFIRMATION, false)
-
     private val showTransactionAutoDetectInfo = savedStateHandle
         .getStateFlow(SHOW_AUTO_DETECT_TX_INFO, false)
 
     val state = combineTuple(
         authState,
-        showLogoutConfirmation,
         appTheme,
         dynamicColorsEnabled,
         showAppThemeSelection,
@@ -92,7 +85,6 @@ class SettingsViewModel @Inject constructor(
         showTransactionAutoDetectInfo
     ).map { (
                 authState,
-                showLogoutConfirmation,
                 appTheme,
                 dynamicColorsEnabled,
                 showAppThemeSelection,
@@ -106,7 +98,6 @@ class SettingsViewModel @Inject constructor(
             ) ->
         SettingsState(
             authState = authState,
-            showLogoutConfirmation = showLogoutConfirmation,
             appTheme = appTheme,
             dynamicColorsEnabled = dynamicColorsEnabled,
             showAppThemeSelection = showAppThemeSelection,
@@ -121,76 +112,6 @@ class SettingsViewModel @Inject constructor(
     }.asStateFlow(viewModelScope, SettingsState())
 
     val events = eventBus.eventFlow
-
-    override fun onLoginOrLogoutPreferenceClick() {
-        viewModelScope.launch {
-            when (authState.first()) {
-                is AuthState.Authenticated -> startSignOut()
-                AuthState.UnAuthenticated -> startSignIn()
-            }
-        }
-    }
-
-    override fun onLogoutDismiss() {
-        savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
-    }
-
-    override fun onLogoutConfirm() {
-        viewModelScope.launch {
-            when (authRepo.signUserOut()) {
-                is Result.Error -> {
-                    eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.error_sign_out_failed)))
-                }
-
-                is Result.Success -> {
-                    preferencesManager.updateEncryptionPasswordHash(null)
-                }
-            }
-            savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = false
-        }
-    }
-
-    private suspend fun startSignIn() {
-        eventBus.send(SettingsEvent.StartManualSignInFlow)
-    }
-
-    fun onCredentialResult(
-        result: Result<String, CredentialService.CredentialError>
-    ) = viewModelScope.launch {
-        when (result) {
-            is Result.Error -> {
-                when (result.error) {
-                    CredentialService.CredentialError.NO_AUTHORIZED_CREDENTIAL -> {
-                        eventBus.send(SettingsEvent.StartManualSignInFlow)
-                    }
-
-                    CredentialService.CredentialError.CREDENTIAL_PROCESS_FAILED -> eventBus.send(
-                        SettingsEvent.ShowUiMessage(result.message)
-                    )
-                }
-            }
-
-            is Result.Success -> {
-                signInUserWithIdToken(result.data)
-            }
-        }
-    }
-
-    private suspend fun signInUserWithIdToken(idToken: String) {
-        when (val result = authRepo.signUserInWithToken(idToken)) {
-            is Result.Error -> {
-                eventBus.send(SettingsEvent.ShowUiMessage(result.message))
-            }
-
-            is Result.Success -> {
-                eventBus.send(SettingsEvent.ShowUiMessage(UiText.StringResource(R.string.sign_in_success)))
-            }
-        }
-    }
-
-    private fun startSignOut() {
-        savedStateHandle[SHOW_LOGOUT_CONFIRMATION] = true
-    }
 
     override fun onAppThemePreferenceClick() {
         savedStateHandle[SHOW_APP_THEME_SELECTION] = true
@@ -313,7 +234,6 @@ class SettingsViewModel @Inject constructor(
         data class ShowUiMessage(val uiText: UiText) : SettingsEvent
         data object RequestSMSPermission : SettingsEvent
         data object LaunchAppSettings : SettingsEvent
-        data object StartManualSignInFlow : SettingsEvent
     }
 }
 
@@ -324,5 +244,4 @@ private const val CURRENCY_SEARCH_QUERY = "CURRENCY_SEARCH_QUERY"
 private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
 private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TEMP_AUTO_ADD_TRANSACTION_STATE"
-private const val SHOW_LOGOUT_CONFIRMATION = "SHOW_LOGOUT_CONFIRMATION"
 private const val SHOW_AUTO_DETECT_TX_INFO = "SHOW_AUTO_DETECT_TX_INFO"

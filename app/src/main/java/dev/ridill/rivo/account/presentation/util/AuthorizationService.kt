@@ -1,4 +1,4 @@
-package dev.ridill.rivo.account.presentation
+package dev.ridill.rivo.account.presentation.util
 
 import android.app.PendingIntent
 import android.content.Intent

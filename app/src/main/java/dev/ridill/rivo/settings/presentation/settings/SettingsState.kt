@@ -7,7 +7,6 @@ import dev.ridill.rivo.settings.domain.modal.AppTheme
 
 data class SettingsState(
     val authState: AuthState = AuthState.UnAuthenticated,
-    val showLogoutConfirmation: Boolean = false,
     val appTheme: AppTheme = AppTheme.SYSTEM_DEFAULT,
     val dynamicColorsEnabled: Boolean = false,
     val showAppThemeSelection: Boolean = false,

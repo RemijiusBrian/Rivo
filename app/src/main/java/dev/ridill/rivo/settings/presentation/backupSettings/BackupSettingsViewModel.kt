@@ -9,17 +9,16 @@ import androidx.work.WorkInfo
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
+import dev.ridill.rivo.account.domain.repository.AuthRepository
+import dev.ridill.rivo.account.presentation.util.AuthorizationService
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.model.Result
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.logD
-import dev.ridill.rivo.account.presentation.AuthorizationService
-import dev.ridill.rivo.account.presentation.CredentialService
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
-import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -149,45 +148,7 @@ class BackupSettingsViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            eventBus.send(BackupSettingsEvent.StartAutoSignInFlow(true))
-        }
-    }
-
-    fun onCredentialResult(
-        result: Result<String, CredentialService.CredentialError>
-    ) = viewModelScope.launch {
-        when (result) {
-            is Result.Error -> {
-                when (result.error) {
-                    CredentialService.CredentialError.NO_AUTHORIZED_CREDENTIAL -> {
-                        eventBus.send(BackupSettingsEvent.StartAutoSignInFlow(false))
-                    }
-
-                    CredentialService.CredentialError.CREDENTIAL_PROCESS_FAILED -> eventBus.send(
-                        BackupSettingsEvent.ShowUiMessage(result.message)
-                    )
-                }
-            }
-
-            is Result.Success -> {
-                signInUser(result.data)
-            }
-        }
-    }
-
-    private suspend fun signInUser(idToken: String) {
-        when (val result = authRepo.signUserInWithToken(idToken)) {
-            is Result.Error -> {
-                eventBus.send(BackupSettingsEvent.ShowUiMessage(result.message))
-            }
-
-            is Result.Success -> {
-                val savedPasswordHash =
-                    preferencesManager.preferences.first().encryptionPasswordHash
-                if (savedPasswordHash.isNullOrEmpty()) {
-                    eventBus.send(BackupSettingsEvent.NavigateToBackupEncryptionScreen)
-                }
-            }
+            eventBus.send(BackupSettingsEvent.NavigateToAccountDetailsPage)
         }
     }
 
@@ -277,9 +238,7 @@ class BackupSettingsViewModel @Inject constructor(
     sealed interface BackupSettingsEvent {
         data class ShowUiMessage(val uiText: UiText) : BackupSettingsEvent
         data object NavigateToBackupEncryptionScreen : BackupSettingsEvent
-        data class StartAutoSignInFlow(val filterByAuthorizedAccounts: Boolean) :
-            BackupSettingsEvent
-
+        data object NavigateToAccountDetailsPage : BackupSettingsEvent
         data class StartAuthorizationFlow(val pendingIntent: PendingIntent) : BackupSettingsEvent
     }
 }

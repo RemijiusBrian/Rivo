@@ -17,6 +17,7 @@
     <string name="destination_folder_details">Folder</string>
     <string name="destination_schedules_graph">Schedules</string>
     <string name="destination_all_schedules">All Schedules</string>
+    <string name="destination_account_details">Account</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -93,6 +94,7 @@
     <string name="cd_new_schedule_fab">Create new schedule</string>
     <string name="cd_delete_selected_schedules">Delete Selected Schedules</string>
     <string name="cd_notification_off_warning">Warning! Notifications permission is required but is currently off</string>
+    <string name="cd_profile_picture">Profile picture</string>
 
     <!-- Error Messages -->
     <string name="error_server_error">A server error occurred</string>
@@ -162,6 +164,8 @@
     <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
     <string name="account_logout_confirmation_title">Logout of your account?</string>
     <string name="account_logout_confirmation_message">If you logout of your account you won\'t be able to use features like backup anymore. Do you want to continue?</string>
+    <string name="account_delete_confirmation_title">Delete account data?</string>
+    <string name="account_delete_confirmation_message">This action will delete all your account data, and cannot be reversed. Are you sure you want to continue?</string>
     <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
 
     <string name="permission_notification">Notifications</string>
@@ -204,10 +208,12 @@
     <string name="preference_screen_security">Screen security</string>
     <string name="preference_screen_security_summary">Block screenshots in the recents list and inside the app</string>
     <string name="preference_app_lock_summary">Require Android screen lock or fingerprint to unlock %s</string>
-    <string name="preference_login">Login</string>
-    <string name="preference_login_summary">Login to your account</string>
     <string name="preference_logout">Logout</string>
     <string name="preference_logout_summary">Logout of your account</string>
+    <string name="preference_delete_account">Delete Account</string>
+    <string name="preference_delete_account_summary">Delete your account data</string>
+    <string name="preference_title_google_sign_in">Google Sign In</string>
+    <string name="preference_google_sign_in_message">%s uses Google sign in for authentication. Signing in to your google account also enables functionality like data backup.</string>
 
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
@@ -419,4 +425,5 @@
     <string name="check_for_backups">Check for Backups</string>
     <string name="restore_backup">Restore Backup</string>
     <string name="sign_in_success">Signed in successfully</string>
+    <string name="login_to_your_account">Login to your account</string>
 </resources>

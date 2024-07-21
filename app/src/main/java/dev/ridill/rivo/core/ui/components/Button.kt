@@ -16,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.common.SignInButton
 import dev.ridill.rivo.R
 
 @Composable
@@ -82,4 +84,21 @@ fun CancelButton(
             contentDescription = contentDescription
         )
     }
+}
+
+@Composable
+fun GoogleSignInButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AndroidView(
+        factory = {
+            SignInButton(it).apply {
+                setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_AUTO)
+
+                setOnClickListener { onClick() }
+            }
+        },
+        modifier = modifier
+    )
 }

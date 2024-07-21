@@ -13,10 +13,12 @@ import dev.ridill.rivo.account.domain.service.AccessTokenService
 import dev.ridill.rivo.account.domain.service.AccessTokenSharedPrefService
 import dev.ridill.rivo.account.domain.service.AuthService
 import dev.ridill.rivo.account.domain.service.FirebaseAuthService
-import dev.ridill.rivo.account.presentation.AuthorizationService
-import dev.ridill.rivo.account.presentation.CredentialService
-import dev.ridill.rivo.account.presentation.DefaultAuthorizationService
-import dev.ridill.rivo.account.presentation.DefaultCredentialService
+import dev.ridill.rivo.account.presentation.accountDetails.AccountDetailsViewModel
+import dev.ridill.rivo.account.presentation.util.AuthorizationService
+import dev.ridill.rivo.account.presentation.util.CredentialService
+import dev.ridill.rivo.account.presentation.util.DefaultAuthorizationService
+import dev.ridill.rivo.account.presentation.util.DefaultCredentialService
+import dev.ridill.rivo.core.domain.util.EventBus
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,4 +56,8 @@ object AccountModule {
         authorizationService = authorizationService,
         accessTokenService = accessTokenService
     )
+
+    @Provides
+    fun provideAccountDetailsEventBus(): EventBus<AccountDetailsViewModel.AccountDetailsEvent> =
+        EventBus()
 }
