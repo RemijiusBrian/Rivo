@@ -31,6 +31,9 @@ class TagsRepositoryImpl(
         dao.getTagById(id)?.toTag()
     }
 
+    override fun getTagByIdFlow(id: Long): Flow<Tag?> = dao.getTagByIdFlow(id)
+        .map { it?.toTag() }
+
     override fun getTagsPagingData(): Flow<PagingData<Tag>> =
         Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
             dao.getAllTagsPaged()

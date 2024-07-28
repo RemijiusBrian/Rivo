@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Month
@@ -55,6 +56,10 @@ class AllTransactionsViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
+    private val selectedTag = selectedTagId.flatMapLatest { tagId ->
+        tagId?.let(tagsRepo::getTagByIdFlow)
+            ?: flowOf(null)
+    }.distinctUntilChanged()
 
     private val showExcludedOption = transactionRepo.getShowExcludedOption()
 
@@ -63,20 +68,20 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val transactionList = combineTuple(
         selectedDate,
-        selectedTagId,
+        selectedTag,
         transactionTypeFilter,
         showExcludedOption
     ).flatMapLatest { (
                           date,
-                          tagId,
+                          selectedTag,
                           typeFilter,
                           showExcluded
                       ) ->
         transactionRepo.getAllTransactionsList(
             date = date,
-            tagId = tagId,
+            tagId = selectedTag?.id,
             transactionType = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            showExcluded = showExcluded
+            showExcluded = selectedTag?.excluded == true || showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
 
@@ -101,31 +106,31 @@ class AllTransactionsViewModel @Inject constructor(
     private val aggregateAmount = combineTuple(
         selectedDate,
         transactionTypeFilter,
-        selectedTagId,
+        selectedTag,
         showExcludedOption,
         selectedTransactionIds
     ).flatMapLatest { (
                           date,
                           typeFilter,
-                          selectedTagId,
+                          selectedTag,
                           addExcluded,
                           selectedTxIds
                       ) ->
         transactionRepo.getAmountAggregate(
             date = date,
             type = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            tagId = selectedTagId,
-            addExcluded = addExcluded,
+            tagId = selectedTag?.id,
+            addExcluded = selectedTag?.excluded == true || addExcluded,
             selectedTxIds = selectedTxIds.ifEmpty { null }
         )
     }.distinctUntilChanged()
 
     private val transactionListLabel = combineTuple(
-        selectedTagId,
+        selectedTag,
         transactionTypeFilter
-    ).map { (tagId, type) ->
+    ).map { (tag, type) ->
         when {
-            tagId != null -> UiText.DynamicString(tagsRepo.getTagById(tagId)?.name.orEmpty())
+            tag != null -> UiText.DynamicString(tag.name)
             type == TransactionTypeFilter.ALL -> UiText.StringResource(R.string.all_transactions)
             else -> UiText.StringResource(type.labelRes)
         }
