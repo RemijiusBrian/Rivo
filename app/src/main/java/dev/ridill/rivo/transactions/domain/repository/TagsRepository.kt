@@ -22,4 +22,5 @@ interface TagsRepository {
     suspend fun deleteTagById(id: Long)
     suspend fun deleteTagWithTransactions(tagId: Long)
     suspend fun getTagById(id: Long): Tag?
+    fun getTagByIdFlow(id: Long): Flow<Tag?>
 }
