@@ -10,8 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun ListSeparator(
@@ -24,8 +23,8 @@ fun ListSeparator(
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(
-                vertical = SpacingSmall,
-                horizontal = SpacingMedium
+                vertical = MaterialTheme.spacing.small,
+                horizontal = MaterialTheme.spacing.medium
             )
     ) {
         Text(

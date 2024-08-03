@@ -31,8 +31,7 @@ import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.SpacerExtraLarge
 import dev.ridill.rivo.core.ui.components.SpacerSmall
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import java.util.Currency
 
 @Composable
@@ -51,13 +50,13 @@ fun SetBudgetPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(SpacingLarge)
+            .padding(MaterialTheme.spacing.large)
             .verticalScroll(rememberScrollState())
     ) {
         MediumDisplayText(
             title = stringResource(R.string.onboarding_page_set_budget_title),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         )
         SpacerExtraLarge()
         BudgetInput(

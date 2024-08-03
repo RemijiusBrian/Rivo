@@ -71,10 +71,8 @@ import dev.ridill.rivo.core.ui.components.SwipeToDismissContainer
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
@@ -158,10 +156,10 @@ fun FolderDetailsScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                top = SpacingMedium,
+                top = MaterialTheme.spacing.medium,
                 bottom = SpacingListEnd
             ),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             item(
                 key = "FolderDetails",
@@ -192,7 +190,7 @@ fun FolderDetailsScreen(
                         onNewTransactionClick = { navigateToAddEditTransaction(null) },
                         modifier = Modifier
                             .fillParentMaxWidth()
-                            .padding(horizontal = SpacingMedium)
+                            .padding(horizontal = MaterialTheme.spacing.medium)
                             .animateItemPlacement()
                     )
                 }
@@ -240,7 +238,7 @@ fun FolderDetailsScreen(
                                                 contentDescription = stringResource(R.string.cd_remove_from_folder),
                                                 enableDismissFromEndToStart = false,
                                                 modifier = Modifier
-                                                    .padding(horizontal = SpacingLarge)
+                                                    .padding(horizontal = MaterialTheme.spacing.large)
                                             )
                                         },
                                         enableDismissFromEndToStart = false,
@@ -310,8 +308,8 @@ private fun FolderDetails(
 ) {
     Column(
         modifier = modifier
-            .padding(horizontal = SpacingMedium),
-        verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            .padding(horizontal = MaterialTheme.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
         NameField(
             name = folderName,
@@ -337,7 +335,7 @@ private fun FolderDetails(
             date = createdTimestamp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = SpacingMedium)
+                .padding(horizontal = MaterialTheme.spacing.medium)
         )
 
         HorizontalDivider()

@@ -49,8 +49,7 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
@@ -125,13 +124,13 @@ fun FoldersListScreen(
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
-                        top = SpacingMedium,
+                        top = MaterialTheme.spacing.medium,
                         bottom = SpacingListEnd,
-                        start = SpacingMedium,
-                        end = SpacingMedium
+                        start = MaterialTheme.spacing.medium,
+                        end = MaterialTheme.spacing.medium
                     ),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
-                    verticalItemSpacing = SpacingMedium
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                    verticalItemSpacing = MaterialTheme.spacing.medium
                 ) {
                     repeat(foldersPagingItems.itemCount) { index ->
                         foldersPagingItems[index]?.let { item ->
@@ -255,7 +254,7 @@ private fun FolderCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(SpacingMedium),
+                            .padding(MaterialTheme.spacing.medium),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -290,7 +289,7 @@ private fun FolderCard(
                 ListMode.GRID -> {
                     Column(
                         modifier = Modifier
-                            .padding(SpacingMedium)
+                            .padding(MaterialTheme.spacing.medium)
                     ) {
                         Text(
                             text = name,
@@ -341,7 +340,7 @@ private fun AggregateAmountText(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             aggregateIconRes?.let {
                 Icon(

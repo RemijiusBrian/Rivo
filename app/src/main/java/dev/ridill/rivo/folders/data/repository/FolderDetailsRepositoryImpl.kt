@@ -74,7 +74,6 @@ class FolderDetailsRepositoryImpl(
                 }
         }
 
-
     override suspend fun addTransactionsToFolderByIds(folderId: Long, transactionIds: Set<Long>) =
         withContext(Dispatchers.IO) {
             transactionDao.setFolderIdToTransactionsByIds(

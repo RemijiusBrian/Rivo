@@ -108,8 +108,7 @@ import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
@@ -237,9 +236,9 @@ fun AddEditTransactionScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .padding(SpacingMedium),
+                    .padding(MaterialTheme.spacing.medium),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
             ) {
                 TransactionTypeSelector(
                     selectedType = state.transactionType,
@@ -521,7 +520,7 @@ private fun TransactionTimestamp(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Column(
             horizontalAlignment = Alignment.End
@@ -675,12 +674,12 @@ fun TagsList(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
         Text(text = stringResource(R.string.tag_your_transaction))
         FlowRow(
             modifier = Modifier,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             NewTagChip(onClick = onNewTagClick)
             repeat(tagsPagingItems.itemCount) { index ->
@@ -726,7 +725,7 @@ private fun AmountTransformationSheet(
             Text(
                 text = stringResource(R.string.transform_amount),
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
         },
         inputValue = { input.value },
@@ -736,7 +735,7 @@ private fun AmountTransformationSheet(
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             ) {
                 AmountTransformation.entries.forEachIndexed { index, transformation ->
                     SegmentedButton(
@@ -868,7 +867,7 @@ private fun RepeatModeSelectionSheet(
             onClick = onCancelClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingSmall)
+                .padding(MaterialTheme.spacing.small)
         ) {
             Text(text = stringResource(R.string.cancel_scheduling))
         }

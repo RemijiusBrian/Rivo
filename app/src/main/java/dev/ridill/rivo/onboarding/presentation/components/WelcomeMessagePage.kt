@@ -6,15 +6,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.LottieAnim
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.components.MediumDisplayText
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun WelcomeMessagePage(
@@ -23,7 +23,7 @@ fun WelcomeMessagePage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(SpacingLarge),
+            .padding(MaterialTheme.spacing.large),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         MediumDisplayText(
@@ -32,7 +32,7 @@ fun WelcomeMessagePage(
                 stringResource(R.string.app_name)
             ),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         )
 
         LottieAnim(

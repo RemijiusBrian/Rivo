@@ -76,10 +76,8 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
@@ -171,7 +169,7 @@ fun DashboardScreen(
                     creditAmount = state.creditAmount,
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .padding(horizontal = SpacingMedium)
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                         .animateItemPlacement()
                 )
             }
@@ -183,19 +181,19 @@ fun DashboardScreen(
                 ) {
                     Surface(
                         modifier = Modifier
-                            .padding(vertical = SpacingSmall)
+                            .padding(vertical = MaterialTheme.spacing.small)
                             .animateItemPlacement(),
                         shape = MaterialTheme.shapes.large
                     ) {
                         Column(
                             modifier = Modifier
-                                .padding(vertical = SpacingSmall)
+                                .padding(vertical = MaterialTheme.spacing.small)
                                 .fillParentMaxWidth()
                         ) {
                             ListLabel(
                                 text = stringResource(R.string.schedules_this_month),
                                 modifier = Modifier
-                                    .padding(horizontal = SpacingMedium),
+                                    .padding(horizontal = MaterialTheme.spacing.medium),
                                 color = MaterialTheme.colorScheme.primary
                             )
 
@@ -203,7 +201,7 @@ fun DashboardScreen(
 
                             HorizontalDivider(
                                 modifier = Modifier
-                                    .padding(horizontal = SpacingMedium),
+                                    .padding(horizontal = MaterialTheme.spacing.medium),
                                 color = MaterialTheme.colorScheme.primary
                             )
 
@@ -228,10 +226,10 @@ fun DashboardScreen(
                         .animateItemPlacement()
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                         modifier = Modifier
-                            .padding(horizontal = SpacingMedium)
-                            .padding(top = SpacingMedium)
+                            .padding(horizontal = MaterialTheme.spacing.medium)
+                            .padding(top = MaterialTheme.spacing.medium)
                     ) {
                         ListLabel(stringResource(R.string.recent_spends))
 
@@ -445,7 +443,7 @@ private fun SpentAmountAndAllTransactionsButton(
                 .weight(weight = Float.One, fill = false)
                 .alignBy(LastBaseline)
                 .mergedContentDescription(spentAmountContentDescription),
-            horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
         ) {
             VerticalNumberSpinnerContent(
                 number = amount,
@@ -493,12 +491,12 @@ private fun ActiveSchedulesRow(
 ) {
     LazyRow(
         contentPadding = PaddingValues(
-            top = SpacingMedium,
-            start = SpacingMedium,
+            top = MaterialTheme.spacing.medium,
+            start = MaterialTheme.spacing.medium,
             end = SpacingListEnd
         ),
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         items(
             items = activeSchedules,
@@ -532,8 +530,8 @@ private fun ActiveScheduleCard(
         Column(
             modifier = Modifier
                 .padding(
-                    horizontal = SpacingMedium,
-                    vertical = SpacingSmall
+                    horizontal = MaterialTheme.spacing.medium,
+                    vertical = MaterialTheme.spacing.small
                 )
                 .heightIn(min = UpcomingScheduleCardMinHeight)
         ) {
@@ -572,7 +570,7 @@ private fun ActiveScheduleCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .padding(SpacingExtraSmall)
+                        .padding(MaterialTheme.spacing.extraSmall)
                 )
             }
 

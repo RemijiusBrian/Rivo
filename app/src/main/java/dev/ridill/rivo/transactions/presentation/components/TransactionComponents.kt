@@ -48,8 +48,7 @@ import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.transactions.domain.model.Tag
@@ -119,7 +118,10 @@ fun TransactionListItem(
         leadingContent = { TransactionDate(date) },
         trailingContent = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(SpacingSmall, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(
+                    MaterialTheme.spacing.small,
+                    Alignment.End
+                ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -144,7 +146,7 @@ fun TransactionListItem(
         supportingContent = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -189,7 +191,7 @@ fun TransactionDate(
     containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = ElevationLevel0,
-    contentPadding: PaddingValues = PaddingValues(SpacingSmall)
+    contentPadding: PaddingValues = PaddingValues(MaterialTheme.spacing.small)
 ) {
     val dateFormatted = remember(date) {
         date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
@@ -228,7 +230,7 @@ private fun TagIndicator(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Icon(
             imageVector = Icons.Rounded.Tags,
@@ -253,7 +255,7 @@ private fun FolderIndicator(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_filled_folder),

@@ -65,8 +65,7 @@ import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.schedules.domain.model.ScheduleListItemUiModel
@@ -150,7 +149,7 @@ fun AllSchedulesScreen(
             modifier = Modifier
                 .fillMaxSize(),
             contentPadding = paddingValues,
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             if (areSchedulesEmpty) {
                 item(
@@ -196,7 +195,7 @@ fun AllSchedulesScreen(
                                     onMarkPaidClick = { actions.onMarkSchedulePaidClick(item.scheduleItem.id) },
                                     canMarkPaid = item.scheduleItem.canMarkPaid,
                                     modifier = Modifier
-                                        .padding(horizontal = SpacingSmall)
+                                        .padding(horizontal = MaterialTheme.spacing.small)
                                         .animateItemPlacement(),
                                     selectionModeActive = state.multiSelectionModeActive,
                                     selected = selected,
@@ -353,7 +352,7 @@ private fun ScheduleListItemCard(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingSmall)
+                    .padding(horizontal = MaterialTheme.spacing.small)
             ) {
                 lastPaymentTimestamp?.let {
                     Text(
@@ -361,7 +360,7 @@ private fun ScheduleListItemCard(
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier
-                            .padding(SpacingExtraSmall)
+                            .padding(MaterialTheme.spacing.extraSmall)
                             .weight(Float.One)
                     )
                 }

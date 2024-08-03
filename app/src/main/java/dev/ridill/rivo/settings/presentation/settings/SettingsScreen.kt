@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -68,7 +69,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
@@ -282,12 +283,12 @@ private fun AccountInfo(
     Card(
         onClick = onClick,
         modifier = modifier
-            .padding(horizontal = SpacingMedium)
+            .padding(horizontal = MaterialTheme.spacing.medium)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingMedium),
+                .padding(MaterialTheme.spacing.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedVisibility(visible = isAccountAuthenticate) {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +23,7 @@ import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.folders.domain.model.Folder
 
 @Composable
@@ -45,7 +45,7 @@ fun FolderListSearchSheet(
         contentPadding = PaddingValues(
             bottom = SpacingListEnd
         ),
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         item(
             key = "CreateNewFolderItem",
@@ -68,7 +68,7 @@ fun FolderListSearchSheet(
                     excluded = folder.excluded,
                     onClick = { onFolderClick(folder) },
                     modifier = Modifier
-                        .padding(horizontal = SpacingMedium)
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                         .animateItemPlacement()
                 )
             }

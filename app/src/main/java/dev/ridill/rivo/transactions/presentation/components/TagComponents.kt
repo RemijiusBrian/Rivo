@@ -35,8 +35,8 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.HorizontalColorSelectionList
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 
@@ -121,7 +121,7 @@ fun TagInputSheet(
         title = {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             ) {
                 Text(
                     text = stringResource(
@@ -152,7 +152,7 @@ fun TagInputSheet(
                     text = stringResource(R.string.new_tag_input_text),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
-                        .padding(horizontal = SpacingMedium)
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                 )
             }
         },
@@ -175,7 +175,7 @@ fun TagInputSheet(
                 checked = excluded() == true,
                 onCheckedChange = onExclusionToggle,
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
                     .align(Alignment.End)
             )
         },
@@ -185,7 +185,7 @@ fun TagInputSheet(
                 onClick = onConfirm,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             ) {
                 Text(stringResource(R.string.action_confirm))
             }

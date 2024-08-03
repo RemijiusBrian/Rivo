@@ -19,6 +19,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,8 +31,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.HorizontalSpacer
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun SimpleSettingsPreference(
@@ -149,7 +149,7 @@ fun BasicPreference(
             modifier = modifier
                 .padding(contentPadding),
             verticalAlignment = verticalAlignment,
-            horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             leadingIcon?.invoke()
             Column(
@@ -191,7 +191,10 @@ fun PreferenceIcon(
 fun EmptyPreferenceIconSpacer() = HorizontalSpacer(spacing = PreferenceIconSize)
 
 val PreferenceIconSize = 24.dp
-val PreferenceContentPadding = PaddingValues(
-    horizontal = SpacingMedium,
-    vertical = SpacingSmall
-)
+val PreferenceContentPadding
+    @Composable
+    @ReadOnlyComposable
+    get() = PaddingValues(
+        horizontal = MaterialTheme.spacing.medium,
+        vertical = MaterialTheme.spacing.small
+    )

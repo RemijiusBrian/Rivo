@@ -103,11 +103,9 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.IconSizeSmall
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
@@ -199,7 +197,7 @@ fun AllTransactionsScreen(
                     start = paddingValues.calculateStartPadding(localLayoutDirection),
                     end = paddingValues.calculateEndPadding(localLayoutDirection)
                 ),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             contentPadding = PaddingValues(
                 bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
             )
@@ -387,7 +385,7 @@ private fun TagsInfoList(
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -398,7 +396,7 @@ private fun TagsInfoList(
                 text = stringResource(R.string.tags),
                 modifier = Modifier
                     .weight(Float.One)
-                    .padding(horizontal = SpacingMedium),
+                    .padding(horizontal = MaterialTheme.spacing.medium),
             )
             SpacerSmall()
             TextButton(onClick = onNewTagClick) {
@@ -427,10 +425,10 @@ private fun TagsInfoList(
                 modifier = Modifier
                     .matchParentSize(),
                 contentPadding = PaddingValues(
-                    start = SpacingMedium,
+                    start = MaterialTheme.spacing.medium,
                     end = SpacingListEnd
                 ),
-                horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 state = tagsListState
             ) {
                 items(
@@ -479,7 +477,7 @@ private fun TagsInfoList(
                 text = stringResource(R.string.tap_tag_to_assign_to_selected_transactions),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium),
+                    .padding(horizontal = MaterialTheme.spacing.medium),
                 color = LocalContentColor.current
                     .copy(alpha = 0.80f)
             )
@@ -535,7 +533,7 @@ private fun TagCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(SpacingMedium),
+                .padding(MaterialTheme.spacing.medium),
             verticalArrangement = Arrangement.Center
         ) {
             Row(
@@ -605,9 +603,9 @@ private fun TransactionListHeader(
             .then(modifier)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             modifier = Modifier
-                .padding(vertical = SpacingSmall)
+                .padding(vertical = MaterialTheme.spacing.small)
         ) {
             DateFilter(
                 selectedDate = selectedDate,
@@ -624,13 +622,13 @@ private fun TransactionListHeader(
                 typeFilter = selectedTxTypeFilter,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
             HorizontalDivider(
                 modifier = Modifier
                     .padding(
-                        vertical = SpacingSmall,
-                        horizontal = SpacingMedium
+                        vertical = MaterialTheme.spacing.small,
+                        horizontal = MaterialTheme.spacing.medium
                     )
             )
 
@@ -673,7 +671,7 @@ private fun DateFilter(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -683,7 +681,7 @@ private fun DateFilter(
                 isSelected = showYearsList,
                 onClick = { showYearsList = !showYearsList },
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
             AnimatedVisibility(
                 visible = showYearsList,
@@ -691,9 +689,9 @@ private fun DateFilter(
                 exit = slideOutHorizontally { it / 2 } + fadeOut()
             ) {
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                     contentPadding = PaddingValues(
-                        start = SpacingMedium,
+                        start = MaterialTheme.spacing.medium,
                         end = SpacingListEnd
                     )
                 ) {
@@ -715,9 +713,9 @@ private fun DateFilter(
         }
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             contentPadding = PaddingValues(
-                start = SpacingMedium,
+                start = MaterialTheme.spacing.medium,
                 end = SpacingListEnd
             ),
             state = monthsListState
@@ -767,9 +765,9 @@ private fun DateIndicator(
     ) {
         Row(
             modifier = Modifier
-                .padding(SpacingSmall),
+                .padding(MaterialTheme.spacing.small),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             Icon(
                 imageVector = Icons.Outlined.CalendarClock,
@@ -827,7 +825,7 @@ private fun TransactionListLabelAndOptions(
             targetState = listLabel.asString(),
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
-                .padding(horizontal = SpacingMedium)
+                .padding(horizontal = MaterialTheme.spacing.medium)
                 .weight(Float.One)
         ) { ListLabel(text = it) }
 
@@ -881,7 +879,7 @@ private fun TransactionListOptions(
         AnimatedVisibility(visible = multiSelectionModeActive) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
             ) {
                 IconButton(onClick = onDeleteClick) {
                     Icon(

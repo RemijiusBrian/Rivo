@@ -3,13 +3,14 @@ package dev.ridill.rivo.transactions.presentation.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import java.util.Currency
 
@@ -20,11 +21,14 @@ fun AmountRecommendationsRow(
     onRecommendationClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(SpacingMedium, Alignment.CenterHorizontally)
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(
+        MaterialTheme.spacing.medium,
+        Alignment.CenterHorizontally
+    )
 ) {
     Row(
         modifier = modifier
-            .padding(horizontal = SpacingMedium),
+            .padding(horizontal = MaterialTheme.spacing.medium),
         verticalAlignment = verticalAlignment,
         horizontalArrangement = horizontalArrangement
     ) {

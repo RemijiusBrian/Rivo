@@ -52,7 +52,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 
 @Composable
@@ -84,7 +84,7 @@ fun OutlinedTextFieldSheet(
             text = stringResource(titleRes),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier
-                .padding(horizontal = SpacingMedium)
+                .padding(horizontal = MaterialTheme.spacing.medium)
         )
     },
     inputValue = inputValue,
@@ -95,7 +95,7 @@ fun OutlinedTextFieldSheet(
             onClick = onConfirm,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = SpacingMedium)
+                .padding(horizontal = MaterialTheme.spacing.medium)
         ) {
             Text(stringResource(actionLabel))
         }
@@ -107,7 +107,7 @@ fun OutlinedTextFieldSheet(
                 text = it,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
         }
     },
@@ -158,9 +158,9 @@ fun OutlinedTextFieldSheet(
         modifier = modifier
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         ) {
             title()
 
@@ -172,7 +172,7 @@ fun OutlinedTextFieldSheet(
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
                     .focusRequester(focusRequester)
                     .then(textFieldModifier),
                 keyboardOptions = keyboardOptions,
@@ -243,9 +243,9 @@ fun TextFieldSheet(
         modifier = modifier
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         ) {
             title()
 
@@ -257,7 +257,7 @@ fun TextFieldSheet(
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
                     .focusRequester(focusRequester),
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
@@ -288,7 +288,7 @@ fun TextFieldSheet(
             Box(
                 modifier = Modifier
                     .align(Alignment.End)
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             ) {
                 actionButton()
             }

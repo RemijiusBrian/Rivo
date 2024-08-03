@@ -47,10 +47,7 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.icons.Google
 import dev.ridill.rivo.core.ui.navigation.destinations.BackupSettingsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.settings.domain.modal.BackupInterval
 import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import dev.ridill.rivo.settings.presentation.components.BasicPreference
@@ -88,7 +85,7 @@ fun BackupSettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             val showBackupError by remember(state.fatalBackupError) {
                 derivedStateOf { state.fatalBackupError != null }
@@ -98,14 +95,14 @@ fun BackupSettingsScreen(
                     FatalBackupErrorMessage(
                         error = it,
                         modifier = Modifier
-                            .padding(horizontal = SpacingMedium)
+                            .padding(horizontal = MaterialTheme.spacing.medium)
                     )
                 }
             }
 
             val infoVerticalDp by animateDpAsState(
                 targetValue = if (showBackupError) Dp.Zero
-                else SpacingLarge,
+                else MaterialTheme.spacing.large,
                 label = "VerticalSpacingDpForInfo"
             )
             BackupInfoText(
@@ -128,7 +125,7 @@ fun BackupSettingsScreen(
 
             AnimatedVisibility(visible = isAuthenticated) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
                 ) {
                     SimplePreference(
                         titleRes = R.string.preference_backup_interval,
@@ -228,9 +225,9 @@ fun PreviousBackupDetails(
         leadingIcon = { EmptyPreferenceIconSpacer() },
         summaryContent = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
                 modifier = Modifier
-                    .padding(vertical = SpacingSmall)
+                    .padding(vertical = MaterialTheme.spacing.small)
             ) {
                 lastBackupDate?.let { Text(stringResource(R.string.date_label, it)) }
                 lastBackupTime?.let { Text(stringResource(R.string.time_label, it)) }
@@ -269,9 +266,9 @@ private fun FatalBackupErrorMessage(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingMedium),
+                .padding(MaterialTheme.spacing.medium),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             Icon(
                 imageVector = Icons.Rounded.ErrorOutline,

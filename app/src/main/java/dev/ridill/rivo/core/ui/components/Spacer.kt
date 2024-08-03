@@ -5,30 +5,27 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import dev.ridill.rivo.core.ui.theme.SpacingExtraLarge
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 
 // Spacers For Columns
 @Composable
-fun ColumnScope.SpacerExtraSmall() = VerticalSpacer(SpacingExtraSmall)
+fun ColumnScope.SpacerExtraSmall() = VerticalSpacer(MaterialTheme.spacing.extraSmall)
 
 @Composable
-fun ColumnScope.SpacerSmall() = VerticalSpacer(SpacingSmall)
+fun ColumnScope.SpacerSmall() = VerticalSpacer(MaterialTheme.spacing.small)
 
 @Composable
-fun ColumnScope.SpacerMedium() = VerticalSpacer(SpacingMedium)
+fun ColumnScope.SpacerMedium() = VerticalSpacer(MaterialTheme.spacing.medium)
 
 @Composable
-fun ColumnScope.SpacerLarge() = VerticalSpacer(SpacingLarge)
+fun ColumnScope.SpacerLarge() = VerticalSpacer(MaterialTheme.spacing.large)
 
 @Composable
-fun ColumnScope.SpacerExtraLarge() = VerticalSpacer(SpacingExtraLarge)
+fun ColumnScope.SpacerExtraLarge() = VerticalSpacer(MaterialTheme.spacing.extraLarge)
 
 @Composable
 fun ColumnScope.Spacer(spacing: Dp) = VerticalSpacer(spacing)
@@ -45,19 +42,19 @@ fun VerticalSpacer(
 
 // Spacers For Rows
 @Composable
-fun RowScope.SpacerExtraSmall() = HorizontalSpacer(SpacingExtraSmall)
+fun RowScope.SpacerExtraSmall() = HorizontalSpacer(MaterialTheme.spacing.extraSmall)
 
 @Composable
-fun RowScope.SpacerSmall() = HorizontalSpacer(SpacingSmall)
+fun RowScope.SpacerSmall() = HorizontalSpacer(MaterialTheme.spacing.small)
 
 @Composable
-fun RowScope.SpacerMedium() = HorizontalSpacer(SpacingMedium)
+fun RowScope.SpacerMedium() = HorizontalSpacer(MaterialTheme.spacing.medium)
 
 @Composable
-fun RowScope.SpacerLarge() = HorizontalSpacer(SpacingLarge)
+fun RowScope.SpacerLarge() = HorizontalSpacer(MaterialTheme.spacing.large)
 
 @Composable
-fun RowScope.SpacerExtraLarge() = HorizontalSpacer(SpacingExtraLarge)
+fun RowScope.SpacerExtraLarge() = HorizontalSpacer(MaterialTheme.spacing.extraLarge)
 
 @Composable
 fun RowScope.Spacer(spacing: Dp) = HorizontalSpacer(spacing)
