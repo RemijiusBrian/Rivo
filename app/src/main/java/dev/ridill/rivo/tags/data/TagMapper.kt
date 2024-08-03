@@ -1,9 +1,9 @@
-package dev.ridill.rivo.transactions.data
+package dev.ridill.rivo.tags.data
 
 import androidx.compose.ui.graphics.Color
-import dev.ridill.rivo.transactions.data.local.entity.TagEntity
-import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagSelector
+import dev.ridill.rivo.tags.data.local.entity.TagEntity
+import dev.ridill.rivo.tags.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.TagSelector
 
 fun TagEntity.toTagSelector(): TagSelector = TagSelector(
     id = id,

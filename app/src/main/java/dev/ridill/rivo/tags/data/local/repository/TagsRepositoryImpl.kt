@@ -1,17 +1,17 @@
-package dev.ridill.rivo.transactions.data.repository
+package dev.ridill.rivo.tags.data.local.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import dev.ridill.rivo.core.domain.util.UtilConstants
-import dev.ridill.rivo.transactions.data.local.TagsDao
-import dev.ridill.rivo.transactions.data.local.entity.TagEntity
-import dev.ridill.rivo.transactions.data.toTag
-import dev.ridill.rivo.transactions.data.toTagSelector
-import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagSelector
-import dev.ridill.rivo.transactions.domain.repository.TagsRepository
+import dev.ridill.rivo.tags.data.local.TagsDao
+import dev.ridill.rivo.tags.data.local.entity.TagEntity
+import dev.ridill.rivo.tags.data.toTag
+import dev.ridill.rivo.tags.data.toTagSelector
+import dev.ridill.rivo.tags.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.TagSelector
+import dev.ridill.rivo.tags.domain.repository.TagsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

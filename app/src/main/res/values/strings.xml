@@ -7,6 +7,9 @@
     <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
     <string name="destination_new_transaction">New Transaction</string>
     <string name="destination_edit_transaction">Edit Transaction</string>
+    <string name="destination_add_edit_tag">Add/Edit Tag</string>
+    <string name="destination_new_tag">New Tag</string>
+    <string name="destination_edit_tag">Edit Tag</string>
     <string name="destination_settings">Settings</string>
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_backup_encryption">Backup Encryption</string>
@@ -238,8 +241,6 @@
     <string name="transaction_repeat_mode_bi_monthly">Bi-monthly</string>
     <string name="transaction_repeat_mode_yearly">Yearly</string>
 
-    <string name="new_tag_input_title">New Tag</string>
-    <string name="edit_tag_input_title">Edit Tag</string>
     <string name="new_tag_input_text">Create a tag to help organize your transactions</string>
 
     <string name="today">Today</string>
@@ -262,6 +263,11 @@
     <string name="biometric_or_screen_lock_prompt_message" tools:override="true">Use your biometric or screen lock to continue</string>
 
     <string name="app_lock_service_special_use_message">The service runs as a timer to auto update the app to the locked state after the specified time interval</string>
+
+    <string name="filter_section_date">Date</string>
+    <string name="filter_section_transaction_type">Transaction Type</string>
+    <string name="filter_section_tags">Tags</string>
+    <string name="filter_section_more">More</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -433,5 +439,4 @@
     <string name="sign_in_success">Signed in successfully</string>
     <string name="aggregation_successful">Aggregation successful</string>
     <string name="login_to_your_account">Login to your account</string>
-    <string name="date">Date</string>
 </resources>

@@ -1,8 +1,8 @@
-package dev.ridill.rivo.transactions.domain.repository
+package dev.ridill.rivo.tags.domain.repository
 
 import androidx.paging.PagingData
-import dev.ridill.rivo.transactions.domain.model.Tag
-import dev.ridill.rivo.transactions.domain.model.TagSelector
+import dev.ridill.rivo.tags.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.TagSelector
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 

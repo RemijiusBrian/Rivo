@@ -1,11 +1,11 @@
-package dev.ridill.rivo.transactions.data.local
+package dev.ridill.rivo.tags.data.local
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
-import dev.ridill.rivo.transactions.data.local.entity.TagEntity
+import dev.ridill.rivo.tags.data.local.entity.TagEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

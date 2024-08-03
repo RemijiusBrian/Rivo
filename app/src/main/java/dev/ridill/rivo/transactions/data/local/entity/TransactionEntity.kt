@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
+import dev.ridill.rivo.tags.data.local.entity.TagEntity
 import java.time.LocalDateTime
 
 @Entity(

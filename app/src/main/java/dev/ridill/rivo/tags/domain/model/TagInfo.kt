@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.domain.model
+package dev.ridill.rivo.tags.domain.model
 
 import androidx.compose.ui.graphics.Color
 import java.time.LocalDateTime
