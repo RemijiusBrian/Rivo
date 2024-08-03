@@ -54,7 +54,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
         navArgument(ARG_FOLDER_ID) {
             type = NavType.LongType
             nullable = false
-            defaultValue = ARG_INVALID_ID_LONG
+            defaultValue = NavDestination.ARG_INVALID_ID_LONG
         },
         navArgument(ARG_TX_IDS_LIST) {
             type = NavType.StringType
@@ -83,7 +83,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     ): String = route
         .replace(
             oldValue = "{$ARG_FOLDER_ID}",
-            newValue = (transactionFolderId ?: ARG_INVALID_ID_LONG).toString()
+            newValue = (transactionFolderId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
         )
         .replace(
             oldValue = "{$ARG_EXIT_AFTER_CREATE}",
@@ -95,7 +95,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
         )
 
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
-        savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: ARG_INVALID_ID_LONG
+        savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: NavDestination.ARG_INVALID_ID_LONG
 
     fun getTxIdsArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Set<Long> =
         savedStateHandle.get<String>(ARG_TX_IDS_LIST).orEmpty()
@@ -103,7 +103,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
             .mapNotNull { it.toLongOrNull() }
             .toSet()
 
-    fun isIdInvalid(folderId: Long): Boolean = folderId == ARG_INVALID_ID_LONG
+    fun isIdInvalid(folderId: Long): Boolean = folderId == NavDestination.ARG_INVALID_ID_LONG
 
     @Composable
     override fun Content(
@@ -187,4 +187,4 @@ private const val ARG_TX_IDS_LIST = "ARG_TX_IDS_LIST"
 private const val TX_IDS_SEPARATOR = "-"
 
 private const val ADD_FOLDER_SHORTCUT_DEEPLINK_URI =
-    "$DEEP_LINK_URI/add_folder_shortcut"
+    "${NavDestination.DEEP_LINK_URI}/add_folder_shortcut"

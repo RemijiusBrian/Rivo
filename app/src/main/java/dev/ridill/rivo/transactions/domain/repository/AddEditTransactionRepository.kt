@@ -14,4 +14,5 @@ interface AddEditTransactionRepository {
     suspend fun getScheduleById(id: Long): Schedule?
     suspend fun deleteSchedule(id: Long)
     suspend fun saveSchedule(transaction: Transaction, repeatMode: ScheduleRepeatMode)
+    fun getFolderNameForId(folderId: Long?): Flow<String?>
 }

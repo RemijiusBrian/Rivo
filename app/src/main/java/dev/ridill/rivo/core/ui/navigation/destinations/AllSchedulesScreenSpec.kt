@@ -89,4 +89,4 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN = "$DEEP_LINK_URI/view_all_schedules"
+private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN = "${NavDestination.DEEP_LINK_URI}/view_all_schedules"

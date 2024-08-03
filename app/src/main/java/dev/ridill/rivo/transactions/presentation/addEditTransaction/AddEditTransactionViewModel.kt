@@ -18,12 +18,11 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.ifInfinite
 import dev.ridill.rivo.core.domain.util.orZero
-import dev.ridill.rivo.core.ui.navigation.destinations.ARG_INVALID_ID_LONG
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
+import dev.ridill.rivo.core.ui.navigation.destinations.TransformationResult
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.schedules.data.toTransaction
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
@@ -46,7 +45,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val transactionRepo: AddEditTransactionRepository,
     private val tagsRepo: TagsRepository,
-    private val foldersListRepo: FoldersListRepository,
     private val eventBus: EventBus<AddEditTransactionEvent>,
     private val evalService: ExpEvalService
 ) : ViewModel(), AddEditTransactionActions {
@@ -69,11 +67,6 @@ class AddEditTransactionViewModel @Inject constructor(
     private val txInput = savedStateHandle.getStateFlow(TX_INPUT, Transaction.DEFAULT)
     val amountInput = txInput.map { it.amount }
         .asStateFlow(viewModelScope, String.Empty)
-
-    private val amountTransformation = savedStateHandle
-        .getStateFlow(SELECTED_AMOUNT_TRANSFORMATION, AmountTransformation.DIVIDE_BY)
-    private val showAmountTransformationInput = savedStateHandle
-        .getStateFlow(SHOW_AMOUNT_TRANSFORMATION_INPUT, false)
 
     val noteInput = txInput.map { it.note }
 
@@ -108,19 +101,11 @@ class AddEditTransactionViewModel @Inject constructor(
     private val showDatePicker = savedStateHandle.getStateFlow(SHOW_DATE_PICKER, false)
     private val showTimePicker = savedStateHandle.getStateFlow(SHOW_TIME_PICKER, false)
 
-    private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
-
-    val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
-    val foldersList = folderSearchQuery
-        .flatMapLatest { query ->
-            foldersListRepo.getFoldersList(query)
-        }.cachedIn(viewModelScope)
-
     private val linkedFolderName = transactionFolderId
-        .map { selectedId ->
-            selectedId?.let { foldersListRepo.getFolderById(it) }
+        .flatMapLatest { selectedId ->
+            transactionRepo.getFolderNameForId(selectedId)
         }
-        .map { it?.name }
+        .distinctUntilChanged()
 
     private val showRepeatModeSelection = savedStateHandle
         .getStateFlow(SHOW_REPEAT_MODE_SELECTION, false)
@@ -131,8 +116,6 @@ class AddEditTransactionViewModel @Inject constructor(
         isLoading,
         transactionType,
         amountRecommendations,
-        amountTransformation,
-        showAmountTransformationInput,
         timestamp,
         showDatePicker,
         showTimePicker,
@@ -142,7 +125,6 @@ class AddEditTransactionViewModel @Inject constructor(
         newTagError,
         showDeleteConfirmation,
         linkedFolderName,
-        showFolderSelection,
         isScheduleTxMode,
         selectedRepeatMode,
         showRepeatModeSelection
@@ -150,8 +132,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 isLoading,
                 transactionType,
                 amountRecommendations,
-                amountTransformation,
-                showAmountTransformationInput,
                 timestamp,
                 showDatePicker,
                 showTimePicker,
@@ -161,7 +141,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 newTagError,
                 showDeleteConfirmation,
                 linkedFolderName,
-                showFolderSelection,
                 isScheduleTxMode,
                 selectedRepeatMode,
                 showRepeatModeSelection
@@ -170,8 +149,6 @@ class AddEditTransactionViewModel @Inject constructor(
             isLoading = isLoading,
             transactionType = transactionType,
             amountRecommendations = amountRecommendations,
-            amountTransformation = amountTransformation,
-            showAmountTransformationInput = showAmountTransformationInput,
             timestamp = timestamp,
             showDatePicker = showDatePicker,
             showTimePicker = showTimePicker,
@@ -181,7 +158,6 @@ class AddEditTransactionViewModel @Inject constructor(
             newTagError = newTagError,
             showDeleteConfirmation = showDeleteConfirmation,
             linkedFolderName = linkedFolderName,
-            showFolderSelection = showFolderSelection,
             isScheduleTxMode = isScheduleTxMode,
             selectedRepeatMode = selectedRepeatMode,
             showRepeatModeSelection = showRepeatModeSelection
@@ -215,7 +191,8 @@ class AddEditTransactionViewModel @Inject constructor(
             .getInitialTimestampFromSavedStateHandle(savedStateHandle)
         val timestamp = if (isScheduleTxMode.value && transaction.timestamp <= dateNow)
             dateNow.plusDays(1)
-        else if (transactionIdArg == ARG_INVALID_ID_LONG) initialTimestampArg ?: DateUtil.now()
+        else if (transactionIdArg == NavDestination.ARG_INVALID_ID_LONG) initialTimestampArg
+            ?: DateUtil.now()
         else transaction.timestamp
 
         savedStateHandle[TX_INPUT] = transaction.copy(
@@ -316,24 +293,12 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
-    override fun onTransformAmountClick() {
-        savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = true
-    }
-
-    override fun onTransformAmountDismiss() {
-        savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = false
-    }
-
-    override fun onAmountTransformationSelect(criteria: AmountTransformation) {
-        savedStateHandle[SELECTED_AMOUNT_TRANSFORMATION] = criteria
-    }
-
-    override fun onAmountTransformationConfirm(value: String) {
+    fun onAmountTransformationResult(result: TransformationResult) {
         val amount = amountInput.value.toDoubleOrNull() ?: return
-        val transformedAmount = when (amountTransformation.value) {
-            AmountTransformation.DIVIDE_BY -> amount / value.toDoubleOrNull().orZero()
-            AmountTransformation.MULTIPLIER -> amount * value.toDoubleOrNull().orZero()
-            AmountTransformation.PERCENT -> amount * (value.toFloatOrNull().orZero() / 100f)
+        val transformedAmount = when (result.transformation) {
+            AmountTransformation.DIVIDE_BY -> amount / result.factor.toDoubleOrNull().orZero()
+            AmountTransformation.MULTIPLIER -> amount * result.factor.toDoubleOrNull().orZero()
+            AmountTransformation.PERCENT -> amount * (result.factor.toFloatOrNull().orZero() / 100f)
         }
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             amount = TextFormat.number(
@@ -341,7 +306,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 isGroupingUsed = false
             )
         )
-        savedStateHandle[SHOW_AMOUNT_TRANSFORMATION_INPUT] = false
     }
 
     override fun onDeleteClick() {
@@ -423,35 +387,16 @@ class AddEditTransactionViewModel @Inject constructor(
         }
     }
 
-    override fun onAddToFolderClick() {
-        savedStateHandle[FOLDER_SEARCH_QUERY] = String.Empty
-        savedStateHandle[SHOW_FOLDER_SELECTION] = true
-    }
-
     override fun onRemoveFromFolderClick() {
-        savedStateHandle[TRANSACTION_FOLDER_ID] = null
-    }
-
-    override fun onFolderSearchQueryChange(query: String) {
-        savedStateHandle[FOLDER_SEARCH_QUERY] = query
-    }
-
-    override fun onFolderSelectionDismiss() {
-        savedStateHandle[SHOW_FOLDER_SELECTION] = false
-    }
-
-    override fun onFolderSelect(folder: Folder) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
-            folderId = folder.id
+            folderId = null
         )
-        savedStateHandle[SHOW_FOLDER_SELECTION] = false
     }
 
-    override fun onCreateFolderClick() {
-        viewModelScope.launch {
-            savedStateHandle[SHOW_FOLDER_SELECTION] = false
-            eventBus.send(AddEditTransactionEvent.NavigateToFolderDetailsForCreation)
-        }
+    fun onFolderSelectionResult(id: Long) {
+        savedStateHandle[TX_INPUT] = txInput.value.copy(
+            folderId = id
+        )
     }
 
     fun onCreateFolderResult(folderIdString: String?) {
@@ -579,7 +524,6 @@ class AddEditTransactionViewModel @Inject constructor(
     sealed interface AddEditTransactionEvent {
         data object TransactionDeleted : AddEditTransactionEvent
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent
-        data object NavigateToFolderDetailsForCreation : AddEditTransactionEvent
         data object TransactionSaved : AddEditTransactionEvent
         data object ScheduleSaved : AddEditTransactionEvent
     }
@@ -593,11 +537,6 @@ private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
 private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
-private const val TRANSACTION_FOLDER_ID = "TRANSACTION_FOLDER_ID"
-private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
-private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
-private const val SHOW_AMOUNT_TRANSFORMATION_INPUT = "SHOW_AMOUNT_TRANSFORMATION_INPUT"
-private const val SELECTED_AMOUNT_TRANSFORMATION = "SELECTED_AMOUNT_TRANSFORMATION"
 private const val SHOW_REPEAT_MODE_SELECTION = "SHOW_REPEAT_MODE_SELECTION"
 private const val SELECTED_REPEAT_MODE = "SELECTED_TX_REPEAT_MODE"
 

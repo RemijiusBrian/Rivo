@@ -14,10 +14,12 @@
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_folders_graph">Folders</string>
     <string name="destination_folders_list">Folders</string>
+    <string name="destination_folder_selection_sheet">Select Folder</string>
     <string name="destination_folder_details">Folder</string>
     <string name="destination_schedules_graph">Schedules</string>
     <string name="destination_all_schedules">All Schedules</string>
     <string name="destination_account_details">Account</string>
+    <string name="destination_amount_transformation_selection">Amount Transformation</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -431,4 +433,5 @@
     <string name="sign_in_success">Signed in successfully</string>
     <string name="aggregation_successful">Aggregation successful</string>
     <string name="login_to_your_account">Login to your account</string>
+    <string name="date">Date</string>
 </resources>

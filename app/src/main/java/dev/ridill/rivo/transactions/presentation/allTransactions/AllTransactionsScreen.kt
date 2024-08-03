@@ -80,6 +80,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -91,6 +92,7 @@ import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
+import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
@@ -103,6 +105,7 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.IconSizeSmall
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -339,7 +342,7 @@ fun AllTransactionsScreen(
             FolderListSearchSheet(
                 searchQuery = folderSearchQuery,
                 onSearchQueryChange = actions::onTransactionFolderQueryChange,
-                foldersList = foldersList,
+                foldersListLazyPagingItems = foldersList,
                 onFolderClick = actions::onTransactionFolderSelect,
                 onCreateNewClick = actions::onCreateNewFolderClick,
                 onDismiss = actions::onTransactionFolderSelectionDismiss
@@ -937,6 +940,28 @@ private fun TransactionListOptions(
 }
 
 @Composable
+private fun FilterOptionsSheet(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RivoModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
+    ) {
+        ListLabel(
+            text = stringResource(R.string.date)
+        )
+    }
+}
+
+@Composable
+private fun MultiSelectionOptionsSheet(
+    modifier: Modifier = Modifier
+) {
+
+}
+
+@Composable
 private fun AggregateAmount(
     multiSelectionModeActive: Boolean,
     currency: Currency,
@@ -986,5 +1011,13 @@ private fun AggregateAmount(
                 fontWeight = FontWeight.SemiBold
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewFilterOptionsSheet() {
+    RivoTheme {
+        FilterOptionsSheet(onDismissRequest = { })
     }
 }

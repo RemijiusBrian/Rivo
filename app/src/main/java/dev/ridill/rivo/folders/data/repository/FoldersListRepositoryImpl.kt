@@ -65,7 +65,7 @@ class FoldersListRepositoryImpl(
         }
     }
 
-    override fun getFoldersList(searchQuery: String): Flow<PagingData<Folder>> =
+    override fun getFoldersListPaged(searchQuery: String): Flow<PagingData<Folder>> =
         Pager(
             config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
         ) { folderDao.getFoldersList(searchQuery) }
@@ -75,4 +75,7 @@ class FoldersListRepositoryImpl(
     override suspend fun getFolderById(id: Long): Folder? = withContext(Dispatchers.IO) {
         folderDao.getFolderById(id)?.toFolder()
     }
+
+    override fun getFolderByIdFlow(id: Long): Flow<Folder?> = folderDao.getFolderByIdFlow(id)
+        .map { it?.toFolder() }
 }

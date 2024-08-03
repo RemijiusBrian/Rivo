@@ -17,6 +17,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
@@ -245,13 +246,15 @@ private fun ScreenContent(
         darkTheme = darkTheme,
         dynamicColor = dynamicTheme
     ) {
-        val navController = rememberNavController()
+        val bottomSheetNavigator = rememberBottomSheetNavigator()
+        val navController = rememberNavController(bottomSheetNavigator)
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             RivoNavHost(
                 windowSizeClass = windowSizeClass,
+                bottomSheetNavigator = bottomSheetNavigator,
                 navController = navController,
                 startOnboarding = showOnboarding,
                 appCurrencyPreference = appCurrencyPreference

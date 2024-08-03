@@ -115,4 +115,4 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN = "$DEEP_LINK_URI/view_backup_settings"
+private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN = "${NavDestination.DEEP_LINK_URI}/view_backup_settings"

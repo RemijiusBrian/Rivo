@@ -34,6 +34,9 @@ interface FolderDao : BaseDao<FolderEntity> {
     @Query("SELECT * FROM folder_table WHERE id = :id")
     suspend fun getFolderById(id: Long): FolderEntity?
 
+    @Query("SELECT * FROM folder_table WHERE id = :id")
+    fun getFolderByIdFlow(id: Long): Flow<FolderEntity?>
+
     @Transaction
     suspend fun deleteFolderOnlyById(id: Long) {
         removeTransactionsFromFolderById(id)

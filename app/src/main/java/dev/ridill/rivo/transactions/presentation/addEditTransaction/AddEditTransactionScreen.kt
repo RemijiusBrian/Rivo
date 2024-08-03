@@ -33,7 +33,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -55,7 +54,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,7 +75,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,7 +84,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
@@ -103,17 +99,13 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.RivoTimePickerDialog
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
-import dev.ridill.rivo.core.ui.components.TextFieldSheet
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
-import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
-import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.TagSelector
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
@@ -138,11 +130,11 @@ fun AddEditTransactionScreen(
     tagColorInput: () -> Int?,
     tagExclusionInput: () -> Boolean?,
     tagsPagingItems: LazyPagingItems<TagSelector>,
-    folderSearchQuery: () -> String,
-    folderList: LazyPagingItems<Folder>,
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    navigateToFolderSelection: () -> Unit,
+    navigateToAmountTransformationSelection: () -> Unit,
 ) {
     val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -252,7 +244,7 @@ fun AddEditTransactionScreen(
                     currency = appCurrencyPreference,
                     amount = amountInput,
                     onAmountChange = actions::onAmountChange,
-                    onTransformClick = actions::onTransformAmountClick,
+                    onTransformClick = navigateToAmountTransformationSelection,
                     modifier = Modifier
                         .focusRequester(amountFocusRequester)
                 )
@@ -286,7 +278,7 @@ fun AddEditTransactionScreen(
                 ) {
                     FolderIndicator(
                         folderName = state.linkedFolderName,
-                        onAddToFolderClick = actions::onAddToFolderClick,
+                        onAddToFolderClick = navigateToFolderSelection,
                         onRemoveFolderClick = actions::onRemoveFromFolderClick,
                         modifier = Modifier
                             .weight(weight = Float.One, fill = false)
@@ -385,26 +377,6 @@ fun AddEditTransactionScreen(
                 onConfirm = actions::onTimeSelectionConfirm,
                 onPickDateClick = actions::onPickDateClick,
                 state = timePickerState
-            )
-        }
-
-        if (state.showFolderSelection) {
-            FolderListSearchSheet(
-                searchQuery = folderSearchQuery,
-                onSearchQueryChange = actions::onFolderSearchQueryChange,
-                foldersList = folderList,
-                onFolderClick = actions::onFolderSelect,
-                onCreateNewClick = actions::onCreateFolderClick,
-                onDismiss = actions::onFolderSelectionDismiss
-            )
-        }
-
-        if (state.showAmountTransformationInput) {
-            AmountTransformationSheet(
-                onDismiss = actions::onTransformAmountDismiss,
-                selectedTransformation = state.amountTransformation,
-                onTransformationSelect = actions::onAmountTransformationSelect,
-                onTransformClick = actions::onAmountTransformationConfirm
             )
         }
 
@@ -698,73 +670,6 @@ fun TagsList(
 }
 
 @Composable
-private fun AmountTransformationSheet(
-    onDismiss: () -> Unit,
-    selectedTransformation: AmountTransformation,
-    onTransformationSelect: (AmountTransformation) -> Unit,
-    onTransformClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val transformationsCount = remember { AmountTransformation.entries.size }
-    val input = rememberSaveable { mutableStateOf(String.Empty) }
-    val keyboardOptions = remember {
-        KeyboardOptions(
-            keyboardType = KeyboardType.Decimal,
-            imeAction = ImeAction.Done
-        )
-    }
-    val labelRes = remember(selectedTransformation) {
-        when (selectedTransformation) {
-            AmountTransformation.DIVIDE_BY -> R.string.enter_divider
-            AmountTransformation.MULTIPLIER -> R.string.enter_multiplier
-            AmountTransformation.PERCENT -> R.string.enter_percent
-        }
-    }
-    TextFieldSheet(
-        title = {
-            Text(
-                text = stringResource(R.string.transform_amount),
-                modifier = Modifier
-                    .padding(horizontal = MaterialTheme.spacing.medium)
-            )
-        },
-        inputValue = { input.value },
-        onValueChange = { input.value = it },
-        onDismiss = onDismiss,
-        text = {
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MaterialTheme.spacing.medium)
-            ) {
-                AmountTransformation.entries.forEachIndexed { index, transformation ->
-                    SegmentedButton(
-                        selected = selectedTransformation == transformation,
-                        onClick = { onTransformationSelect(transformation) },
-                        shape = SegmentedButtonDefaults
-                            .itemShape(index = index, count = transformationsCount)
-                    ) {
-                        Text(stringResource(transformation.labelRes))
-                    }
-                }
-            }
-        },
-        actionButton = {
-            Button(onClick = { onTransformClick(input.value) }) {
-                Text(text = stringResource(R.string.transform))
-            }
-        },
-        modifier = modifier,
-        keyboardOptions = keyboardOptions,
-        label = stringResource(labelRes),
-        suffix = { Text(selectedTransformation.symbol) },
-        textStyle = LocalTextStyle.current
-            .copy(textAlign = TextAlign.End),
-        showClearOption = false
-    )
-}
-
-@Composable
 private fun AddEditOptions(
     onOptionClick: (AddEditTxOption) -> Unit,
     modifier: Modifier = Modifier,
@@ -886,8 +791,6 @@ private fun PreviewScreenContent() {
             tagNameInput = { "" },
             tagColorInput = { Color.Black.toArgb() },
             tagExclusionInput = { false },
-            folderSearchQuery = { "" },
-            folderList = flowOf(PagingData.empty<Folder>()).collectAsLazyPagingItems(),
             tagsPagingItems = flowOf(PagingData.empty<TagSelector>()).collectAsLazyPagingItems(),
             state = AddEditTransactionState(
                 isScheduleTxMode = true,
@@ -908,10 +811,6 @@ private fun PreviewScreenContent() {
                 override fun onTimeSelectionConfirm(hour: Int, minute: Int) {}
                 override fun onTypeChange(type: TransactionType) {}
                 override fun onExclusionToggle(excluded: Boolean) {}
-                override fun onTransformAmountClick() {}
-                override fun onTransformAmountDismiss() {}
-                override fun onAmountTransformationSelect(criteria: AmountTransformation) {}
-                override fun onAmountTransformationConfirm(value: String) {}
                 override fun onDeleteClick() {}
                 override fun onDeleteDismiss() {}
                 override fun onDeleteConfirm() {}
@@ -921,12 +820,7 @@ private fun PreviewScreenContent() {
                 override fun onNewTagExclusionChange(excluded: Boolean) {}
                 override fun onNewTagInputDismiss() {}
                 override fun onNewTagInputConfirm() {}
-                override fun onAddToFolderClick() {}
                 override fun onRemoveFromFolderClick() {}
-                override fun onFolderSearchQueryChange(query: String) {}
-                override fun onFolderSelectionDismiss() {}
-                override fun onFolderSelect(folder: Folder) {}
-                override fun onCreateFolderClick() {}
                 override fun onAddEditOptionSelect(option: AddEditTxOption) {}
                 override fun onCancelSchedulingClick() {}
                 override fun onRepeatModeClick() {}
@@ -935,7 +829,9 @@ private fun PreviewScreenContent() {
                 override fun onSaveClick() {}
             },
             navigateUp = {},
-            appCurrencyPreference = LocaleUtil.defaultCurrency
+            appCurrencyPreference = LocaleUtil.defaultCurrency,
+            navigateToFolderSelection = {},
+            navigateToAmountTransformationSelection = {}
         )
     }
 }

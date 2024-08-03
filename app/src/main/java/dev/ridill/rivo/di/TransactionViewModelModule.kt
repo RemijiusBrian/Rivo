@@ -7,6 +7,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TagsDao
@@ -30,11 +31,13 @@ object TransactionViewModelModule {
     fun provideAddEditTransactionRepository(
         db: RivoDatabase,
         dao: TransactionDao,
-        schedulesRepository: SchedulesRepository
+        schedulesRepository: SchedulesRepository,
+        foldersListRepository: FoldersListRepository
     ): AddEditTransactionRepository = AddEditTransactionRepositoryImpl(
         db = db,
         dao = dao,
-        schedulesRepo = schedulesRepository
+        schedulesRepo = schedulesRepository,
+        folderRepo = foldersListRepository
     )
 
     @Provides

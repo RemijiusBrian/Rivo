@@ -37,7 +37,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
+        DestinationResultEffect<String>(
             key = ACTION_FOLDER_DETAILS,
             navBackStackEntry = navBackStackEntry,
             context,

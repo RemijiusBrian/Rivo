@@ -30,7 +30,7 @@ import dev.ridill.rivo.folders.domain.model.Folder
 fun FolderListSearchSheet(
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
-    foldersList: LazyPagingItems<Folder>,
+    foldersListLazyPagingItems: LazyPagingItems<Folder>,
     onFolderClick: (Folder) -> Unit,
     onCreateNewClick: () -> Unit,
     onDismiss: () -> Unit,
@@ -58,11 +58,11 @@ fun FolderListSearchSheet(
             )
         }
         items(
-            count = foldersList.itemCount,
-            key = foldersList.itemKey { it.id },
-            contentType = foldersList.itemContentType { "FolderCard" }
+            count = foldersListLazyPagingItems.itemCount,
+            key = foldersListLazyPagingItems.itemKey { it.id },
+            contentType = foldersListLazyPagingItems.itemContentType { "FolderCard" }
         ) { index ->
-            foldersList[index]?.let { folder ->
+            foldersListLazyPagingItems[index]?.let { folder ->
                 FolderCard(
                     name = folder.name,
                     excluded = folder.excluded,

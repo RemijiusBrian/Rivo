@@ -153,7 +153,7 @@ class AllTransactionsViewModel @Inject constructor(
     val foldersList = folderSearchQuery
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest { query ->
-            foldersListRepo.getFoldersList(query)
+            foldersListRepo.getFoldersListPaged(query)
         }.cachedIn(viewModelScope)
 
     private val showAggregationConfirmation = savedStateHandle

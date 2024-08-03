@@ -11,6 +11,7 @@ interface FoldersListRepository {
     fun getFoldersWithAggregateList(): Flow<PagingData<FolderUIModel>>
     fun getFoldersListMode(): Flow<ListMode>
     suspend fun updateFoldersListMode(listMode: ListMode)
-    fun getFoldersList(searchQuery: String = String.Empty): Flow<PagingData<Folder>>
+    fun getFoldersListPaged(searchQuery: String = String.Empty): Flow<PagingData<Folder>>
     suspend fun getFolderById(id: Long): Folder?
+    fun getFolderByIdFlow(id: Long): Flow<Folder?>
 }

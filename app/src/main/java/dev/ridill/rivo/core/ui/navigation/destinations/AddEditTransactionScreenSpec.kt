@@ -55,7 +55,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         navArgument(ARG_TRANSACTION_ID) {
             type = NavType.LongType
             nullable = false
-            defaultValue = ARG_INVALID_ID_LONG
+            defaultValue = NavDestination.ARG_INVALID_ID_LONG
         },
         navArgument(ARG_LINK_FOLDER_ID) {
             type = NavType.StringType
@@ -84,6 +84,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
         { slideOutVertically { it } }
 
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInVertically { it } }
+
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutVertically { it } }
+
     fun routeWithArg(
         transactionId: Long? = null,
         transactionFolderId: Long? = null,
@@ -92,7 +98,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     ): String = route
         .replace(
             oldValue = "{$ARG_TRANSACTION_ID}",
-            newValue = (transactionId ?: ARG_INVALID_ID_LONG).toString()
+            newValue = (transactionId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
         )
         .replace(
             oldValue = "{$ARG_LINK_FOLDER_ID}",
@@ -108,7 +114,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
-        savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
+        savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: NavDestination.ARG_INVALID_ID_LONG
 
     fun getFolderIdToLinkFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
         savedStateHandle.get<String?>(ARG_LINK_FOLDER_ID)?.toLongOrNull()
@@ -118,11 +124,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun getInitialTimestampFromSavedStateHandle(savedStateHandle: SavedStateHandle): LocalDateTime? =
         savedStateHandle.get<String?>(ARG_INITIAL_TIMESTAMP)?.let {
-            DateUtil.parseDateTimeOrNull(it)
+            if (it.isEmpty()) null
+            else DateUtil.parseDateTimeOrNull(it)
         }
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
-        navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
+        navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != NavDestination.ARG_INVALID_ID_LONG
 
     fun buildAutoDetectTransactionDeeplinkUri(id: Long): Uri =
         AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString())
@@ -141,18 +148,31 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
         val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
-        val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
-        val folderList = viewModel.foldersList.collectAsLazyPagingItems()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
+        DestinationResultEffect<String>(
             key = ACTION_NEW_FOLDER_CREATE,
             navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
             onResult = viewModel::onCreateFolderResult
+        )
+
+        DestinationResultEffect(
+            key = SELECTED_FOLDER_ID,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onFolderSelectionResult
+        )
+
+        DestinationResultEffect(
+            key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onAmountTransformationResult
         )
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
@@ -168,15 +188,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                     snackbarController.showSnackbar(
                         message = event.uiText.asString(context),
                         isError = event.uiText.isErrorText
-                    )
-                }
-
-                AddEditTransactionViewModel.AddEditTransactionEvent.NavigateToFolderDetailsForCreation -> {
-                    navController.navigate(
-                        FolderDetailsScreenSpec.routeWithArgs(
-                            transactionFolderId = null,
-                            exitAfterClear = true
-                        )
                     )
                 }
 
@@ -206,11 +217,15 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             tagColorInput = { tagInput.value?.colorCode },
             tagExclusionInput = { tagInput.value?.excluded },
             tagsPagingItems = tagsPagingItems,
-            folderSearchQuery = { folderSearchQuery.value },
-            folderList = folderList,
             state = state,
             actions = viewModel,
-            navigateUp = navController::navigateUp
+            navigateUp = navController::navigateUp,
+            navigateToFolderSelection = {
+                navController.navigate(FolderSelectionSheetSpec.route)
+            },
+            navigateToAmountTransformationSelection = {
+                navController.navigate(AmountTransformationSheetSpec.route)
+            }
         )
     }
 }
@@ -221,8 +236,8 @@ private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
 private const val ARG_INITIAL_TIMESTAMP = "ARG_INITIAL_TIMESTAMP"
 
 private const val AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN =
-    "$DEEP_LINK_URI/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
+    "${NavDestination.DEEP_LINK_URI}/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
 private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN =
-    "$DEEP_LINK_URI/add_transaction_shortcut"
+    "${NavDestination.DEEP_LINK_URI}/add_transaction_shortcut"
 
 const val ACTION_NEW_FOLDER_CREATE = "ACTION_NEW_FOLDER_CREATE"

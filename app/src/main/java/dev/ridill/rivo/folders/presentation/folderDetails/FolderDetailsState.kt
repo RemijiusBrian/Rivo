@@ -2,12 +2,12 @@ package dev.ridill.rivo.folders.presentation.folderDetails
 
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.core.ui.navigation.destinations.ARG_INVALID_ID_LONG
+import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import java.time.LocalDateTime
 
 data class FolderDetailsState(
-    val folderId: Long = ARG_INVALID_ID_LONG,
+    val folderId: Long = NavDestination.ARG_INVALID_ID_LONG,
     val isNewFolder: Boolean = true,
     val editModeActive: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
