@@ -154,15 +154,15 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect<String>(
-            key = ACTION_NEW_FOLDER_CREATE,
+        DestinationResultEffect(
+            key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
-            onResult = viewModel::onCreateFolderResult
+            onResult = viewModel::onFolderSelectionResult
         )
 
         DestinationResultEffect(
-            key = SELECTED_FOLDER_ID,
+            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelectionResult
@@ -239,5 +239,3 @@ private const val AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN =
     "${NavDestination.DEEP_LINK_URI}/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
 private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN =
     "${NavDestination.DEEP_LINK_URI}/add_transaction_shortcut"
-
-const val ACTION_NEW_FOLDER_CREATE = "ACTION_NEW_FOLDER_CREATE"

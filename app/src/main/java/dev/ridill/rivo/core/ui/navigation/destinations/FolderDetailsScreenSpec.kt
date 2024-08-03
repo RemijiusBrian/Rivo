@@ -30,8 +30,6 @@ import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
-import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
-import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 import java.util.Currency
 
 data object FolderDetailsScreenSpec : ScreenSpec {
@@ -105,6 +103,10 @@ data object FolderDetailsScreenSpec : ScreenSpec {
 
     fun isIdInvalid(folderId: Long): Boolean = folderId == NavDestination.ARG_INVALID_ID_LONG
 
+    const val ACTION_NEW_FOLDER_CREATE = "ACTION_NEW_FOLDER_CREATE"
+    const val ACTION_FOLDER_DETAILS = "ACTION_FOLDER_DETAILS"
+    const val RESULT_FOLDER_DELETED = "RESULT_FOLDER_DELETED"
+
     @Composable
     override fun Content(
         windowSizeClass: WindowSizeClass,
@@ -143,7 +145,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
                 is FolderDetailsViewModel.FolderDetailsEvent.NavigateUpWithFolderId -> {
                     navController.navigateUpWithResult(
                         ACTION_NEW_FOLDER_CREATE,
-                        event.folderId.toString()
+                        event.folderId
                     )
                 }
 

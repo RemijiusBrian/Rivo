@@ -399,12 +399,6 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
-    fun onCreateFolderResult(folderIdString: String?) {
-        savedStateHandle[TX_INPUT] = txInput.value.copy(
-            folderId = folderIdString?.toLongOrNull()
-        )
-    }
-
     private fun clearAndHideTagInput() {
         savedStateHandle[SHOW_NEW_TAG_INPUT] = false
         savedStateHandle[TAG_INPUT] = null

@@ -14,6 +14,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
+import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
@@ -36,13 +37,25 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
-        val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
-        val foldersList = viewModel.foldersList.collectAsLazyPagingItems()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
 
         val hapticFeedback = LocalHapticFeedback.current
+
+        DestinationResultEffect(
+            key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onFolderSelect
+        )
+
+        DestinationResultEffect(
+            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onFolderSelect
+        )
 
         CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
             when (event) {
@@ -65,6 +78,10 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                         )
                     )
                 }
+
+                AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderSelection -> {
+                    navController.navigate(FolderSelectionSheetSpec.route)
+                }
             }
         }
 
@@ -78,8 +95,6 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG },
-            folderSearchQuery = { folderSearchQuery.value },
-            foldersList = foldersList,
             navigateToAddEditTransaction = { txId, selectedDate ->
                 navController.navigate(
                     AddEditTransactionScreenSpec.routeWithArg(

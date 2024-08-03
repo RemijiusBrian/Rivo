@@ -17,6 +17,8 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
     override val route: String = "folder_selection_sheet"
     override val labelRes: Int = R.string.destination_folder_selection_sheet
 
+    const val SELECTED_FOLDER_ID = "SELECTED_FOLDER_ID"
+
     @Composable
     override fun Content(
         windowSizeClass: WindowSizeClass,
@@ -47,5 +49,3 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
         )
     }
 }
-
-const val SELECTED_FOLDER_ID = "SELECTED_FOLDER_ID"

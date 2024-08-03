@@ -35,15 +35,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DeleteForever
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -51,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -64,7 +62,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,6 +93,7 @@ import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
+import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
@@ -114,8 +112,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
-import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
 import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
@@ -140,8 +136,6 @@ fun AllTransactionsScreen(
     tagNameInput: () -> String,
     tagInputColorCode: () -> Int?,
     tagExclusionInput: () -> Boolean?,
-    folderSearchQuery: () -> String,
-    foldersList: LazyPagingItems<Folder>,
     actions: AllTransactionsActions,
     navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
     navigateUp: () -> Unit
@@ -180,6 +174,22 @@ fun AllTransactionsScreen(
                         }
                     } else {
                         BackArrowButton(onClick = navigateUp)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = actions::onFilterOptionsClick) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_filter),
+                            contentDescription = stringResource(id = R.string.cd_filter_options)
+                        )
+                    }
+                    AnimatedVisibility(visible = state.transactionMultiSelectionModeActive) {
+                        IconButton(onClick = actions::onMultiSelectionOptionsClick) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.cd_options)
+                            )
+                        }
                     }
                 },
                 scrollBehavior = topAppBarScrollBehavior
@@ -228,7 +238,7 @@ fun AllTransactionsScreen(
                 key = "TransactionListHeader",
                 contentType = "TransactionListHeader"
             ) {
-                TransactionListHeader(
+                TransactionListDateFilterAndLabel(
                     selectedDate = state.selectedDate,
                     onMonthSelect = actions::onMonthSelect,
                     yearsList = state.yearsList,
@@ -238,13 +248,8 @@ fun AllTransactionsScreen(
                     currency = state.currency,
                     selectedTxTypeFilter = state.selectedTransactionTypeFilter,
                     listLabel = state.transactionListLabel,
-                    showExcludedOption = state.showExcludedOption,
-                    onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
-                    onToggleShowExcludedOption = actions::onToggleShowExcludedOption,
                     multiSelectionState = state.transactionSelectionState,
                     onSelectionStateChange = actions::onSelectionStateChange,
-                    onDeleteClick = actions::onDeleteSelectedTransactionsClick,
-                    onTransactionOptionClick = actions::onTransactionOptionClick,
                     modifier = Modifier
                         .animateItemPlacement()
                 )
@@ -338,17 +343,6 @@ fun AllTransactionsScreen(
             )
         }
 
-        if (state.showFolderSelection) {
-            FolderListSearchSheet(
-                searchQuery = folderSearchQuery,
-                onSearchQueryChange = actions::onTransactionFolderQueryChange,
-                foldersListLazyPagingItems = foldersList,
-                onFolderClick = actions::onTransactionFolderSelect,
-                onCreateNewClick = actions::onCreateNewFolderClick,
-                onDismiss = actions::onTransactionFolderSelectionDismiss
-            )
-        }
-
         if (state.showAggregationConfirmation) {
             ConfirmationDialog(
                 titleRes = R.string.transaction_aggregation_confirmation_title,
@@ -357,6 +351,19 @@ fun AllTransactionsScreen(
                 onDismiss = actions::onAggregationDismiss
             )
         }
+    }
+
+    if (state.showMultiSelectionOptions) {
+        MultiSelectionOptionsSheet(
+            onDismiss = actions::onMultiSelectionOptionsDismiss,
+            onOptionClick = actions::onMultiSelectionOptionSelect
+        )
+    }
+
+    if (state.showFilterOptions) {
+        FilterOptionsSheet(
+            onDismissRequest = actions::onFilterOptionsDismiss
+        )
     }
 }
 
@@ -582,7 +589,7 @@ private fun TagCard(
 }
 
 @Composable
-private fun TransactionListHeader(
+private fun TransactionListDateFilterAndLabel(
     selectedDate: LocalDate,
     onMonthSelect: (Month) -> Unit,
     yearsList: List<Int>,
@@ -592,13 +599,8 @@ private fun TransactionListHeader(
     currency: Currency,
     selectedTxTypeFilter: TransactionTypeFilter,
     listLabel: UiText,
-    showExcludedOption: Boolean,
-    onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -635,17 +637,11 @@ private fun TransactionListHeader(
                     )
             )
 
-            TransactionListLabelAndOptions(
+            TransactionLabelHeader(
                 listLabel = listLabel,
-                onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-                showExcludedOption = showExcludedOption,
-                onToggleShowExcludedOption = onToggleShowExcludedOption,
-                currentTransactionTypeFilter = selectedTxTypeFilter,
                 multiSelectionModeActive = multiSelectionModeActive,
                 multiSelectionState = multiSelectionState,
                 onSelectionStateChange = onSelectionStateChange,
-                onDeleteClick = onDeleteClick,
-                onTransactionOptionClick = onTransactionOptionClick,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -807,17 +803,11 @@ private fun DateIndicator(
 }
 
 @Composable
-private fun TransactionListLabelAndOptions(
+private fun TransactionLabelHeader(
     listLabel: UiText,
-    showExcludedOption: Boolean,
-    currentTransactionTypeFilter: TransactionTypeFilter,
-    onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -832,109 +822,11 @@ private fun TransactionListLabelAndOptions(
                 .weight(Float.One)
         ) { ListLabel(text = it) }
 
-        TransactionListOptions(
-            showExcludedOption = showExcludedOption,
-            currentTransactionTypeFilter = currentTransactionTypeFilter,
-            onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-            onToggleShowExcludedOption = onToggleShowExcludedOption,
-            multiSelectionModeActive = multiSelectionModeActive,
-            onTransactionOptionClick = onTransactionOptionClick,
-            selectionState = multiSelectionState,
-            onSelectionStateChange = onSelectionStateChange,
-            onDeleteClick = onDeleteClick
-        )
-    }
-}
-
-@Composable
-private fun TransactionListOptions(
-    showExcludedOption: Boolean,
-    currentTransactionTypeFilter: TransactionTypeFilter,
-    onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedOption: (Boolean) -> Unit,
-    multiSelectionModeActive: Boolean,
-    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
-    selectionState: ToggleableState,
-    onSelectionStateChange: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var menuExpanded by rememberSaveable { mutableStateOf(false) }
-
-    Row(
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        AnimatedVisibility(visible = !multiSelectionModeActive) {
-            IconButton(onClick = onToggleTransactionTypeFilter) {
-                AnimatedContent(
-                    targetState = currentTransactionTypeFilter,
-                    label = "TransactionTypeFilterIcon"
-                ) { filter ->
-                    Icon(
-                        imageVector = ImageVector.vectorResource(filter.iconRes),
-                        contentDescription = stringResource(R.string.cd_filter_transactions_by_type)
-                    )
-                }
-            }
-        }
         AnimatedVisibility(visible = multiSelectionModeActive) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
-            ) {
-                IconButton(onClick = onDeleteClick) {
-                    Icon(
-                        imageVector = Icons.Rounded.DeleteForever,
-                        contentDescription = stringResource(R.string.cd_delete_selected_transactions)
-                    )
-                }
-                TriStateCheckbox(
-                    state = selectionState,
-                    onClick = onSelectionStateChange
-                )
-            }
-        }
-
-        Box {
-            IconButton(onClick = { menuExpanded = !menuExpanded }) {
-                Icon(
-                    imageVector = Icons.Rounded.MoreVert,
-                    contentDescription = stringResource(R.string.cd_options)
-                )
-            }
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                if (multiSelectionModeActive) {
-                    AllTransactionsMultiSelectionOption.entries.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(option.labelRes)) },
-                            onClick = {
-                                menuExpanded = false
-                                onTransactionOptionClick(option)
-                            }
-                        )
-                    }
-                } else {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(
-                                    id = if (showExcludedOption) R.string.hide_excluded_transactions
-                                    else R.string.show_excluded_transactions
-                                )
-                            )
-                        },
-                        onClick = {
-                            menuExpanded = false
-                            onToggleShowExcludedOption(!showExcludedOption)
-                        }
-                    )
-                }
-            }
+            TriStateCheckbox(
+                state = multiSelectionState,
+                onClick = onSelectionStateChange
+            )
         }
     }
 }
@@ -956,9 +848,50 @@ private fun FilterOptionsSheet(
 
 @Composable
 private fun MultiSelectionOptionsSheet(
+    onDismiss: () -> Unit,
+    onOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
+    RivoModalBottomSheet(
+        onDismissRequest = onDismiss,
+        modifier = modifier
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = MaterialTheme.spacing.medium,
+                bottom = SpacingListEnd
+            )
+        ) {
+            items(
+                items = AllTransactionsMultiSelectionOption.entries,
+                key = { it.name },
+                contentType = { "MultiSelectionOptionItem" }
+            ) { option ->
+                OutlinedCard(
+                    onClick = { onOptionClick(option) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(MaterialTheme.spacing.medium)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(option.iconRes),
+                            contentDescription = null
+                        )
+                        SpacerMedium()
+                        Text(
+                            text = stringResource(option.labelRes)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

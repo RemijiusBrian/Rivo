@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -74,25 +78,33 @@ fun RivoModalBottomSheet(
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
     content: @Composable ColumnScope.() -> Unit,
-) = ModalBottomSheet(
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    sheetState = sheetState,
-    sheetMaxWidth = sheetMaxWidth,
-    shape = shape,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    scrimColor = scrimColor,
-    dragHandle = dragHandle,
-    windowInsets = windowInsets,
-    properties = properties,
-    content = content
-)
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        sheetState = sheetState,
+        sheetMaxWidth = sheetMaxWidth,
+        shape = shape,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        tonalElevation = tonalElevation,
+        scrimColor = scrimColor,
+        dragHandle = dragHandle,
+        windowInsets = windowInsets.only(WindowInsetsSides.Start + WindowInsetsSides.Start + WindowInsetsSides.Top),
+        properties = properties,
+        content = {
+            Column(
+                modifier = Modifier
+                    .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding()),
+                content = content
+            )
+        }
+    )
+}
 
 @Composable
 fun OutlinedTextFieldSheet(
@@ -191,15 +203,14 @@ fun OutlinedTextFieldSheet(
     val isInputEmpty by remember {
         derivedStateOf { inputValue().isEmpty() }
     }
-    ModalBottomSheet(
+    RivoModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = modifier
+            .imePadding()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             modifier = Modifier
-                .padding(vertical = MaterialTheme.spacing.medium)
         ) {
             title()
 
@@ -276,10 +287,10 @@ fun TextFieldSheet(
     val isInputEmpty by remember {
         derivedStateOf { inputValue().isEmpty() }
     }
-    ModalBottomSheet(
+    RivoModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = modifier
+            .imePadding()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
@@ -353,9 +364,8 @@ fun <T> ListSearchSheet(
         derivedStateOf { searchQuery().isEmpty() }
     }
 
-    ModalBottomSheet(
+    RivoModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = modifier
     ) {
         SearchBar(
@@ -411,9 +421,8 @@ fun ListSearchSheet(
 
     val shape = remember { RoundedCornerShape(Dp.Zero) }
 
-    ModalBottomSheet(
+    RivoModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = modifier,
         shape = shape
     ) {

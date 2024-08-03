@@ -12,8 +12,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.folders.presentation.folderDetails.RESULT_FOLDER_DELETED
-import dev.ridill.rivo.folders.presentation.foldersList.ACTION_FOLDER_DETAILS
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
 import java.util.Currency
@@ -38,13 +36,13 @@ data object FoldersListScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         DestinationResultEffect<String>(
-            key = ACTION_FOLDER_DETAILS,
+            key = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
             navBackStackEntry = navBackStackEntry,
             context,
             snackbarController
         ) {
             when (it) {
-                RESULT_FOLDER_DELETED -> R.string.transaction_folder_deleted
+                FolderDetailsScreenSpec.RESULT_FOLDER_DELETED -> R.string.transaction_folder_deleted
                 else -> null
             }?.let { resId ->
                 snackbarController.showSnackbar(context.getString(resId))
