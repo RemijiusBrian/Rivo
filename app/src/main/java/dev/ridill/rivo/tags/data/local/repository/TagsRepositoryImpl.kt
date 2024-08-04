@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class TagsRepositoryImpl(
@@ -26,6 +27,12 @@ class TagsRepositoryImpl(
             dao.getAllTagsPaged()
         }.flow
             .map { pagingData -> pagingData.map(TagEntity::toTagSelector) }
+
+    override fun getTopTags(date: LocalDate?, limit: Int): Flow<PagingData<Tag>> =
+        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+            dao.getTagSortedByAmountPaged(date = date, limit = limit)
+        }.flow
+            .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
     override suspend fun getTagById(id: Long): Tag? = withContext(Dispatchers.IO) {
         dao.getTagById(id)?.toTag()

@@ -1,6 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
-import androidx.compose.ui.graphics.Color
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -23,12 +22,6 @@ interface AddEditTransactionActions {
     fun onDeleteClick()
     fun onDeleteDismiss()
     fun onDeleteConfirm()
-    fun onNewTagClick()
-    fun onNewTagNameChange(value: String)
-    fun onNewTagColorSelect(color: Color)
-    fun onNewTagExclusionChange(excluded: Boolean)
-    fun onNewTagInputDismiss()
-    fun onNewTagInputConfirm()
     fun onRemoveFromFolderClick()
     fun onAddEditOptionSelect(option: AddEditTxOption)
     fun onCancelSchedulingClick()

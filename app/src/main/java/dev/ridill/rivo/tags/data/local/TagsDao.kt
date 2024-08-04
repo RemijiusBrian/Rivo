@@ -5,13 +5,33 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.tags.data.local.entity.TagEntity
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface TagsDao : BaseDao<TagEntity> {
     @Query("SELECT * FROM tag_table ORDER BY DATETIME(created_timestamp) DESC, name ASC")
     fun getAllTagsPaged(): PagingSource<Int, TagEntity>
+
+    @Query(
+        """
+        SELECT *
+        FROM tag_table tg
+        ORDER BY (
+            SELECT IFNULL(SUM(tx.amount), 0.0)
+            FROM transaction_table tx
+            WHERE tx.tag_id = tg.id
+            AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', tx.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
+        )
+        LIMIT :limit
+    """
+    )
+    fun getTagSortedByAmountPaged(
+        date: LocalDate?,
+        limit: Int
+    ): PagingSource<Int, TagEntity>
 
     @Query("SELECT * FROM tag_table WHERE id = :id")
     suspend fun getTagById(id: Long): TagEntity?

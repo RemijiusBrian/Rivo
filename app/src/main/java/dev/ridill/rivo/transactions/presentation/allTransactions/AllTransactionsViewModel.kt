@@ -1,7 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.state.ToggleableState
 import androidx.lifecycle.SavedStateHandle
@@ -16,10 +14,9 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.addOrRemove
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.tags.domain.repository.TagsRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
-import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -46,8 +43,9 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    val tagsPagingData = tagsRepo.getTagsPagingData()
-        .cachedIn(viewModelScope)
+    val tagsPagingData = selectedDate.flatMapLatest {
+        tagsRepo.getTopTags(it)
+    }.cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
     private val selectedTag = selectedTagId.flatMapLatest { tagId ->
@@ -134,14 +132,6 @@ class AllTransactionsViewModel @Inject constructor(
     private val showDeleteTransactionConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_TRANSACTION_CONFIRMATION, false)
 
-    private val showDeleteTagConfirmation = savedStateHandle
-        .getStateFlow(SHOW_DELETE_TAG_CONFIRMATION, false)
-
-    private val showTagInput = savedStateHandle
-        .getStateFlow(SHOW_TAG_INPUT, false)
-    val tagInput = savedStateHandle.getStateFlow<Tag?>(TAG_INPUT, null)
-    private val tagInputError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
-
     private val showAggregationConfirmation = savedStateHandle
         .getStateFlow(SHOW_AGGREGATION_CONFIRMATION, false)
 
@@ -164,9 +154,6 @@ class AllTransactionsViewModel @Inject constructor(
         transactionSelectionState,
         transactionMultiSelectionModeActive,
         showDeleteTransactionConfirmation,
-        showDeleteTagConfirmation,
-        showTagInput,
-        tagInputError,
         showExcludedOption,
         showAggregationConfirmation,
         showMultiSelectionOptions,
@@ -184,9 +171,6 @@ class AllTransactionsViewModel @Inject constructor(
                 transactionSelectionState,
                 transactionMultiSelectionModeActive,
                 showDeleteTransactionConfirmation,
-                showDeleteTagConfirmation,
-                showTagInput,
-                tagInputError,
                 showExcludedOption,
                 showAggregationConfirmation,
                 showMultiSelectionOptions,
@@ -205,9 +189,6 @@ class AllTransactionsViewModel @Inject constructor(
             transactionSelectionState = transactionSelectionState,
             transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
             showDeleteTransactionConfirmation = showDeleteTransactionConfirmation,
-            showDeleteTagConfirmation = showDeleteTagConfirmation,
-            showTagInput = showTagInput,
-            tagInputError = tagInputError,
             showExcludedOption = showExcludedOption,
             showAggregationConfirmation = showAggregationConfirmation,
             showMultiSelectionOptions = showMultiSelectionOptions,
@@ -256,11 +237,6 @@ class AllTransactionsViewModel @Inject constructor(
             .takeIf { it != selectedTagId.value }
     }
 
-    override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = Tag.NEW
-        savedStateHandle[SHOW_TAG_INPUT] = true
-    }
-
     override fun onAssignTagToTransactions(tagId: Long) {
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
@@ -268,66 +244,6 @@ class AllTransactionsViewModel @Inject constructor(
             dismissMultiSelectionMode()
             savedStateHandle[SELECTED_TAG_ID] = tagId
             eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
-        }
-    }
-
-    override fun onTagInputNameChange(value: String) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(name = value)
-        savedStateHandle[NEW_TAG_ERROR] = null
-    }
-
-    override fun onTagInputColorSelect(color: Color) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(colorCode = color.toArgb())
-    }
-
-    override fun onTagInputExclusionChange(excluded: Boolean) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(excluded = excluded)
-    }
-
-    override fun onTagInputDismiss() {
-        hideAndClearTagInput()
-    }
-
-    override fun onTagInputConfirm() {
-        val tagInput = tagInput.value ?: return
-        viewModelScope.launch {
-            val name = tagInput.name.trim()
-            if (name.isEmpty()) {
-                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
-                    R.string.error_invalid_tag_name,
-                    isErrorText = true
-                )
-                return@launch
-            }
-
-            val colorCode = tagInput.colorCode
-            tagsRepo.saveTag(
-                name = name,
-                colorCode = colorCode,
-                id = tagInput.id,
-                timestamp = tagInput.createdTimestamp,
-                excluded = tagInput.excluded
-            )
-            hideAndClearTagInput()
-            eventBus.send(
-                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
-            )
-        }
-    }
-
-    private fun hideAndClearTagInput() {
-        savedStateHandle[SHOW_TAG_INPUT] = false
-        savedStateHandle[TAG_INPUT] = null
-    }
-
-    fun onTransactionTypeFilterToggle() {
-        savedStateHandle[TRANSACTION_TYPE_FILTER] = when (transactionTypeFilter.value) {
-            TransactionTypeFilter.DEBITS -> TransactionTypeFilter.CREDITS
-            TransactionTypeFilter.CREDITS -> TransactionTypeFilter.ALL
-            TransactionTypeFilter.ALL -> TransactionTypeFilter.DEBITS
         }
     }
 
@@ -490,50 +406,6 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.deleteTransactionsByIds(ids)
     }
 
-    override fun onTagLongClick(tagId: Long) {
-        viewModelScope.launch {
-            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
-            savedStateHandle[TAG_INPUT] = tagsRepo.getTagById(tagId)
-            savedStateHandle[SHOW_TAG_INPUT] = tagInput.value != null
-        }
-    }
-
-    override fun onDeleteTagClick() {
-        savedStateHandle[SHOW_TAG_INPUT] = false
-        savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = true
-    }
-
-    override fun onDeleteTagDismiss() {
-        savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-        hideAndClearTagInput()
-    }
-
-    override fun onDeleteTagConfirm() {
-        val tagId = tagInput.value?.id ?: return
-        viewModelScope.launch {
-            tagsRepo.deleteTagById(tagId)
-            savedStateHandle[SELECTED_TAG_ID] = null
-            savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            hideAndClearTagInput()
-            eventBus.send(
-                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted))
-            )
-        }
-    }
-
-    override fun onDeleteTagWithTransactionsClick() {
-        val tagId = tagInput.value?.id ?: return
-        viewModelScope.launch {
-            tagsRepo.deleteTagWithTransactions(tagId)
-            savedStateHandle[SELECTED_TAG_ID] = null
-            savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            hideAndClearTagInput()
-            eventBus.send(
-                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_transactions))
-            )
-        }
-    }
-
     override fun onAggregationDismiss() {
         savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = false
     }
@@ -576,10 +448,6 @@ private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
 private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
 private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
 private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"
-private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
-private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
-private const val TAG_INPUT = "TAG_INPUT"
-private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val SHOW_AGGREGATION_CONFIRMATION = "SHOW_AGGREGATION_CONFIRMATION"
 private const val SHOW_MULTI_SELECTION_OPTIONS = "SHOW_MULTI_SELECTION_OPTIONS"
 private const val SHOW_FILTER_OPTIONS = "SHOW_FILTER_OPTIONS"

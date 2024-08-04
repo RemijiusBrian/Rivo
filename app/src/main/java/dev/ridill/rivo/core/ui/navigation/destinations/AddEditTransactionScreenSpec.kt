@@ -146,7 +146,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
         val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
@@ -213,9 +212,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
-            tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagColorInput = { tagInput.value?.colorCode },
-            tagExclusionInput = { tagInput.value?.excluded },
             tagsPagingItems = tagsPagingItems,
             state = state,
             actions = viewModel,

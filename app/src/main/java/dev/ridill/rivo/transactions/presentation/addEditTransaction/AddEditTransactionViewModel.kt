@@ -1,7 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,13 +23,12 @@ import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.data.toTransaction
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.tags.domain.repository.TagsRepository
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
-import dev.ridill.rivo.transactions.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AddEditTransactionRepository
-import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -92,12 +89,6 @@ class AddEditTransactionViewModel @Inject constructor(
 
     private val amountRecommendations = transactionRepo.getAmountRecommendations()
 
-    private val showNewTagInput = savedStateHandle
-        .getStateFlow(SHOW_NEW_TAG_INPUT, false)
-    val tagInput = savedStateHandle
-        .getStateFlow<Tag?>(TAG_INPUT, null)
-    private val newTagError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
-
     private val showDatePicker = savedStateHandle.getStateFlow(SHOW_DATE_PICKER, false)
     private val showTimePicker = savedStateHandle.getStateFlow(SHOW_TIME_PICKER, false)
 
@@ -121,8 +112,6 @@ class AddEditTransactionViewModel @Inject constructor(
         showTimePicker,
         isTransactionExcluded,
         selectedTagId,
-        showNewTagInput,
-        newTagError,
         showDeleteConfirmation,
         linkedFolderName,
         isScheduleTxMode,
@@ -137,8 +126,6 @@ class AddEditTransactionViewModel @Inject constructor(
                 showTimePicker,
                 isTransactionExcluded,
                 selectedTagId,
-                showNewTagInput,
-                newTagError,
                 showDeleteConfirmation,
                 linkedFolderName,
                 isScheduleTxMode,
@@ -154,8 +141,6 @@ class AddEditTransactionViewModel @Inject constructor(
             showTimePicker = showTimePicker,
             isTransactionExcluded = isTransactionExcluded,
             selectedTagId = selectedTagId,
-            showNewTagInput = showNewTagInput,
-            newTagError = newTagError,
             showDeleteConfirmation = showDeleteConfirmation,
             linkedFolderName = linkedFolderName,
             isScheduleTxMode = isScheduleTxMode,
@@ -329,64 +314,6 @@ class AddEditTransactionViewModel @Inject constructor(
         }
     }
 
-    override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = Tag.NEW
-        savedStateHandle[SHOW_NEW_TAG_INPUT] = true
-    }
-
-    override fun onNewTagNameChange(value: String) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(name = value)
-        savedStateHandle[NEW_TAG_ERROR] = null
-
-    }
-
-    override fun onNewTagColorSelect(color: Color) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(colorCode = color.toArgb())
-    }
-
-    override fun onNewTagExclusionChange(excluded: Boolean) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(excluded = excluded)
-    }
-
-    override fun onNewTagInputDismiss() {
-        clearAndHideTagInput()
-    }
-
-    override fun onNewTagInputConfirm() {
-        val tagInput = tagInput.value ?: return
-        viewModelScope.launch {
-            val name = tagInput.name.trim()
-            val color = tagInput.colorCode
-
-            if (name.isEmpty()) {
-                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
-                    R.string.error_invalid_tag_name,
-                    true
-                )
-                return@launch
-            }
-
-            val insertedId = tagsRepo.saveTag(
-                id = tagInput.id,
-                name = name,
-                colorCode = color,
-                excluded = tagInput.excluded,
-                timestamp = DateUtil.now()
-            )
-
-            clearAndHideTagInput()
-            savedStateHandle[TX_INPUT] = txInput.value.copy(
-                tagId = insertedId
-            )
-            eventBus.send(
-                AddEditTransactionEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
-            )
-        }
-    }
-
     override fun onRemoveFromFolderClick() {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             folderId = null
@@ -397,11 +324,6 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             folderId = id
         )
-    }
-
-    private fun clearAndHideTagInput() {
-        savedStateHandle[SHOW_NEW_TAG_INPUT] = false
-        savedStateHandle[TAG_INPUT] = null
     }
 
     override fun onAddEditOptionSelect(option: AddEditTxOption) {
@@ -526,8 +448,6 @@ class AddEditTransactionViewModel @Inject constructor(
 private const val IS_SCHEDULE_MODE = "IS_SCHEDULE_MODE"
 private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
-private const val SHOW_NEW_TAG_INPUT = "SHOW_NEW_TAG_INPUT"
-private const val TAG_INPUT = "TAG_INPUT"
 private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
 private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"

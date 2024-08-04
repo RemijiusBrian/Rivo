@@ -62,7 +62,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
@@ -105,13 +104,12 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.tags.domain.model.TagSelector
+import dev.ridill.rivo.tags.presentation.components.NewTagChip
+import dev.ridill.rivo.tags.presentation.components.TagChip
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
-import dev.ridill.rivo.transactions.domain.model.TagSelector
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
-import dev.ridill.rivo.transactions.presentation.components.NewTagChip
-import dev.ridill.rivo.transactions.presentation.components.TagChip
-import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -126,9 +124,6 @@ fun AddEditTransactionScreen(
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
-    tagNameInput: () -> String,
-    tagColorInput: () -> Int?,
-    tagExclusionInput: () -> Boolean?,
     tagsPagingItems: LazyPagingItems<TagSelector>,
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
@@ -318,7 +313,7 @@ fun AddEditTransactionScreen(
                     tagsPagingItems = tagsPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagClick,
-                    onNewTagClick = actions::onNewTagClick,
+                    onNewTagClick = {},
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -343,22 +338,6 @@ fun AddEditTransactionScreen(
                 contentRes = R.string.action_irreversible_message,
                 onConfirm = actions::onDeleteConfirm,
                 onDismiss = actions::onDeleteDismiss
-            )
-        }
-
-        if (state.showNewTagInput) {
-            TagInputSheet(
-                nameInput = tagNameInput,
-                onNameChange = actions::onNewTagNameChange,
-                selectedColorCode = tagColorInput,
-                onColorSelect = actions::onNewTagColorSelect,
-                excluded = tagExclusionInput,
-                onExclusionToggle = actions::onNewTagExclusionChange,
-                onDismiss = actions::onNewTagInputDismiss,
-                onConfirm = actions::onNewTagInputConfirm,
-                errorMessage = state.newTagError,
-                isEditMode = { false },
-                onDeleteClick = null
             )
         }
 
@@ -788,9 +767,6 @@ private fun PreviewScreenContent() {
             snackbarController = rememberSnackbarController(),
             amountInput = { "" },
             noteInput = { "" },
-            tagNameInput = { "" },
-            tagColorInput = { Color.Black.toArgb() },
-            tagExclusionInput = { false },
             tagsPagingItems = flowOf(PagingData.empty<TagSelector>()).collectAsLazyPagingItems(),
             state = AddEditTransactionState(
                 isScheduleTxMode = true,
@@ -814,12 +790,6 @@ private fun PreviewScreenContent() {
                 override fun onDeleteClick() {}
                 override fun onDeleteDismiss() {}
                 override fun onDeleteConfirm() {}
-                override fun onNewTagClick() {}
-                override fun onNewTagNameChange(value: String) {}
-                override fun onNewTagColorSelect(color: Color) {}
-                override fun onNewTagExclusionChange(excluded: Boolean) {}
-                override fun onNewTagInputDismiss() {}
-                override fun onNewTagInputConfirm() {}
                 override fun onRemoveFromFolderClick() {}
                 override fun onAddEditOptionSelect(option: AddEditTxOption) {}
                 override fun onCancelSchedulingClick() {}

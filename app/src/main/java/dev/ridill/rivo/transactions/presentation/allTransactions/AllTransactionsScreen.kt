@@ -88,7 +88,6 @@ import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
-import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
@@ -112,10 +111,9 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
-import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -132,10 +130,6 @@ fun AllTransactionsScreen(
     snackbarController: SnackbarController,
     tagsPagingItems: LazyPagingItems<Tag>,
     state: AllTransactionsState,
-    isTagInputEditMode: () -> Boolean,
-    tagNameInput: () -> String,
-    tagInputColorCode: () -> Int?,
-    tagExclusionInput: () -> Boolean?,
     actions: AllTransactionsActions,
     navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
     navigateUp: () -> Unit
@@ -223,8 +217,8 @@ fun AllTransactionsScreen(
                     tagsPagingItems = tagsPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagSelect = actions::onTagSelect,
-                    onTagLongClick = actions::onTagLongClick,
-                    onNewTagClick = actions::onNewTagClick,
+                    onTagLongClick = {},
+                    onNewTagClick = {},
                     tagAssignModeActive = state.transactionMultiSelectionModeActive,
                     onAssignToTransactions = actions::onAssignTagToTransactions,
                     modifier = Modifier
@@ -315,7 +309,7 @@ fun AllTransactionsScreen(
             )
         }
 
-        if (state.showDeleteTagConfirmation) {
+        /*if (state.showDeleteTagConfirmation) {
             MultiActionConfirmationDialog(
                 title = stringResource(R.string.delete_tag_confirmation_title, tagNameInput()),
                 text = stringResource(R.string.action_irreversible_message),
@@ -325,23 +319,7 @@ fun AllTransactionsScreen(
                 onSecondaryActionClick = actions::onDeleteTagWithTransactionsClick,
                 onDismiss = actions::onDeleteTagDismiss
             )
-        }
-
-        if (state.showTagInput) {
-            TagInputSheet(
-                nameInput = tagNameInput,
-                onNameChange = actions::onTagInputNameChange,
-                selectedColorCode = tagInputColorCode,
-                onColorSelect = actions::onTagInputColorSelect,
-                excluded = tagExclusionInput,
-                onExclusionToggle = actions::onTagInputExclusionChange,
-                onDismiss = actions::onTagInputDismiss,
-                onConfirm = actions::onTagInputConfirm,
-                errorMessage = state.tagInputError,
-                isEditMode = isTagInputEditMode,
-                onDeleteClick = actions::onDeleteTagClick
-            )
-        }
+        }*/
 
         if (state.showAggregationConfirmation) {
             ConfirmationDialog(

@@ -1,7 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
@@ -18,8 +17,6 @@ data class AddEditTransactionState(
     val showTimePicker: Boolean = false,
     val isTransactionExcluded: Boolean = false,
     val selectedTagId: Long? = null,
-    val showNewTagInput: Boolean = false,
-    val newTagError: UiText? = null,
     val showDeleteConfirmation: Boolean = false,
     val linkedFolderName: String? = null,
     val isScheduleTxMode: Boolean = false,

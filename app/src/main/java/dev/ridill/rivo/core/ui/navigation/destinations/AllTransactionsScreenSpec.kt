@@ -11,7 +11,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.DestinationResultEffect
@@ -36,7 +35,6 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
         val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -89,12 +87,8 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             tagsPagingItems = tagsPagingItems,
             state = state,
-            tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagInputColorCode = { tagInput.value?.colorCode },
-            tagExclusionInput = { tagInput.value?.excluded },
             actions = viewModel,
             navigateUp = navController::navigateUp,
-            isTagInputEditMode = { tagInput.value?.id != RivoDatabase.DEFAULT_ID_LONG },
             navigateToAddEditTransaction = { txId, selectedDate ->
                 navController.navigate(
                     AddEditTransactionScreenSpec.routeWithArg(
