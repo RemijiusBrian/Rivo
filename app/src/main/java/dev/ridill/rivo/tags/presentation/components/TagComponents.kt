@@ -19,7 +19,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 
-@Composable
+/*@Composable
 fun NewTagChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -36,7 +36,7 @@ fun NewTagChip(
     },
     modifier = modifier,
     enabled = enabled
-)
+)*/
 
 @Composable
 fun TagChip(

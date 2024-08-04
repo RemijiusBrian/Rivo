@@ -89,6 +89,7 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.LabelledSwitch
@@ -104,8 +105,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
-import dev.ridill.rivo.tags.domain.model.TagSelector
-import dev.ridill.rivo.tags.presentation.components.NewTagChip
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TagChip
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -124,10 +124,11 @@ fun AddEditTransactionScreen(
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
-    tagsPagingItems: LazyPagingItems<TagSelector>,
+    topTagsLazyPagingItems: LazyPagingItems<Tag>,
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit,
+    navigateToTagSelection: () -> Unit,
     navigateToFolderSelection: () -> Unit,
     navigateToAmountTransformationSelection: () -> Unit,
 ) {
@@ -309,11 +310,11 @@ fun AddEditTransactionScreen(
                     )
                 }
 
-                TagsList(
-                    tagsPagingItems = tagsPagingItems,
+                TopTagsSelector(
+                    topTagsLazyPagingItems = topTagsLazyPagingItems,
                     selectedTagId = state.selectedTagId,
-                    onTagClick = actions::onTagClick,
-                    onNewTagClick = {},
+                    onTagClick = actions::onTagSelect,
+                    onViewAllClick = navigateToTagSelection,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -616,25 +617,24 @@ private fun ExclusionToggle(
 }
 
 @Composable
-fun TagsList(
-    tagsPagingItems: LazyPagingItems<TagSelector>,
+fun TopTagsSelector(
+    topTagsLazyPagingItems: LazyPagingItems<Tag>,
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
-    onNewTagClick: () -> Unit,
+    onViewAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
-        Text(text = stringResource(R.string.tag_your_transaction))
+        BodyMediumText(stringResource(R.string.tag_your_transaction))
         FlowRow(
             modifier = Modifier,
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
-            NewTagChip(onClick = onNewTagClick)
-            repeat(tagsPagingItems.itemCount) { index ->
-                tagsPagingItems[index]?.let { tag ->
+            repeat(topTagsLazyPagingItems.itemCount) { index ->
+                topTagsLazyPagingItems[index]?.let { tag ->
                     TagChip(
                         name = tag.name,
                         color = tag.color,
@@ -644,6 +644,11 @@ fun TagsList(
                     )
                 }
             }
+
+            ElevatedAssistChip(
+                onClick = onViewAllClick,
+                label = { Text(stringResource(R.string.view_all)) }
+            )
         }
     }
 }
@@ -767,7 +772,7 @@ private fun PreviewScreenContent() {
             snackbarController = rememberSnackbarController(),
             amountInput = { "" },
             noteInput = { "" },
-            tagsPagingItems = flowOf(PagingData.empty<TagSelector>()).collectAsLazyPagingItems(),
+            topTagsLazyPagingItems = flowOf(PagingData.empty<Tag>()).collectAsLazyPagingItems(),
             state = AddEditTransactionState(
                 isScheduleTxMode = true,
                 selectedRepeatMode = ScheduleRepeatMode.MONTHLY
@@ -777,7 +782,7 @@ private fun PreviewScreenContent() {
                 override fun onNoteInputFocused() {}
                 override fun onNoteChange(value: String) {}
                 override fun onRecommendedAmountClick(amount: Long) {}
-                override fun onTagClick(tagId: Long) {}
+                override fun onTagSelect(tagId: Long) {}
                 override fun onTimestampClick() {}
                 override fun onDateSelectionDismiss() {}
                 override fun onPickTimeClick() {}
@@ -801,7 +806,8 @@ private fun PreviewScreenContent() {
             navigateUp = {},
             appCurrencyPreference = LocaleUtil.defaultCurrency,
             navigateToFolderSelection = {},
-            navigateToAmountTransformationSelection = {}
+            navigateToAmountTransformationSelection = {},
+            navigateToTagSelection = {}
         )
     }
 }

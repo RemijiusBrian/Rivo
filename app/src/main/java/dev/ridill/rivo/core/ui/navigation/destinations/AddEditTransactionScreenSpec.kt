@@ -146,7 +146,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
+        val topTagsLazyPagingItems = viewModel.topTagsPagingData.collectAsLazyPagingItems()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
@@ -173,6 +173,14 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             keys = arrayOf(viewModel),
             onResult = viewModel::onAmountTransformationResult
         )
+
+        DestinationResultEffect<Set<Long>>(
+            key = TagSelectionSheetSpec.SELECTED_IDS,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+        ) { selectedIds ->
+            selectedIds.firstOrNull()?.let(viewModel::onTagSelect)
+        }
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
@@ -212,7 +220,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
-            tagsPagingItems = tagsPagingItems,
+            topTagsLazyPagingItems = topTagsLazyPagingItems,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
@@ -221,6 +229,9 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             },
             navigateToAmountTransformationSelection = {
                 navController.navigate(AmountTransformationSheetSpec.route)
+            },
+            navigateToTagSelection = {
+                navController.navigate(TagSelectionSheetSpec.routeWithArgs(false))
             }
         )
     }

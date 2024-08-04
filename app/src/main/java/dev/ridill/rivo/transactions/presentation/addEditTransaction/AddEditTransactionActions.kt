@@ -9,7 +9,7 @@ interface AddEditTransactionActions {
     fun onNoteInputFocused()
     fun onNoteChange(value: String)
     fun onRecommendedAmountClick(amount: Long)
-    fun onTagClick(tagId: Long)
+    fun onTagSelect(tagId: Long)
     fun onTimestampClick()
     fun onDateSelectionDismiss()
     fun onDateSelectionConfirm(millis: Long)

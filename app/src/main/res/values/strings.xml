@@ -442,4 +442,5 @@
     <string name="login_to_your_account">Login to your account</string>
     <string name="date">Date</string>
     <string name="search_tags">Search Tags</string>
+    <string name="view_all">View All…</string>
 </resources>

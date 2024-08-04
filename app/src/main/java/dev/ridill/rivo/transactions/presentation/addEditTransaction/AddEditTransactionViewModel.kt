@@ -41,9 +41,9 @@ import javax.inject.Inject
 class AddEditTransactionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val transactionRepo: AddEditTransactionRepository,
-    private val tagsRepo: TagsRepository,
-    private val eventBus: EventBus<AddEditTransactionEvent>,
-    private val evalService: ExpEvalService
+    tagsRepo: TagsRepository,
+    private val evalService: ExpEvalService,
+    private val eventBus: EventBus<AddEditTransactionEvent>
 ) : ViewModel(), AddEditTransactionActions {
     private val transactionIdArg = AddEditTransactionScreenSpec
         .getTransactionIdFromSavedStateHandle(savedStateHandle)
@@ -67,8 +67,6 @@ class AddEditTransactionViewModel @Inject constructor(
 
     val noteInput = txInput.map { it.note }
 
-    val tagsPagingData = tagsRepo.getTagSelectorsPagingData()
-        .cachedIn(viewModelScope)
     private val selectedTagId = txInput.map { it.tagId }
         .distinctUntilChanged()
 
@@ -84,6 +82,9 @@ class AddEditTransactionViewModel @Inject constructor(
     private val isTransactionExcluded = txInput.map { it.excluded }
         .distinctUntilChanged()
 
+    val topTagsPagingData = tagsRepo.getTopTags(null)
+        .cachedIn(viewModelScope)
+
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
 
@@ -92,11 +93,9 @@ class AddEditTransactionViewModel @Inject constructor(
     private val showDatePicker = savedStateHandle.getStateFlow(SHOW_DATE_PICKER, false)
     private val showTimePicker = savedStateHandle.getStateFlow(SHOW_TIME_PICKER, false)
 
-    private val linkedFolderName = transactionFolderId
-        .flatMapLatest { selectedId ->
-            transactionRepo.getFolderNameForId(selectedId)
-        }
-        .distinctUntilChanged()
+    private val linkedFolderName = transactionFolderId.flatMapLatest { selectedId ->
+        transactionRepo.getFolderNameForId(selectedId)
+    }.distinctUntilChanged()
 
     private val showRepeatModeSelection = savedStateHandle
         .getStateFlow(SHOW_REPEAT_MODE_SELECTION, false)
@@ -219,7 +218,7 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
-    override fun onTagClick(tagId: Long) {
+    override fun onTagSelect(tagId: Long) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             tagId = tagId.takeIf { it != txInput.value.tagId }
         )
@@ -450,7 +449,6 @@ private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
 private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
-private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
 private const val SHOW_REPEAT_MODE_SELECTION = "SHOW_REPEAT_MODE_SELECTION"
 private const val SELECTED_REPEAT_MODE = "SELECTED_TX_REPEAT_MODE"
 
