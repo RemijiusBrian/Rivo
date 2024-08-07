@@ -13,7 +13,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
@@ -33,7 +33,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         appCurrencyPreference: Currency
     ) {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
-        val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
+        val tagInfoLazyPagingItems = viewModel.tagInfoPagingData.collectAsLazyPagingItems()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
@@ -41,19 +41,26 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        DestinationResultEffect(
+        NavigationResultEffect(
             key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelect
         )
 
-        DestinationResultEffect(
+        NavigationResultEffect(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelect
         )
+
+        NavigationResultEffect<Set<Long>>(
+            key = TagSelectionSheetSpec.SELECTED_IDS,
+            navBackStackEntry = navBackStackEntry
+        ) { ids ->
+            ids.firstOrNull()?.let(viewModel::onTagSelectionResultToAssignTag)
+        }
 
         CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
             when (event) {
@@ -80,12 +87,16 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                 AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderSelection -> {
                     navController.navigate(FolderSelectionSheetSpec.route)
                 }
+
+                is AllTransactionsViewModel.AllTransactionsEvent.NavigateToTagSelection -> {
+                    navController.navigate(TagSelectionSheetSpec.routeWithArgs(event.multiSelection))
+                }
             }
         }
 
         AllTransactionsScreen(
             snackbarController = snackbarController,
-            tagsPagingItems = tagsPagingItems,
+            tagsPagingItems = tagInfoLazyPagingItems,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,

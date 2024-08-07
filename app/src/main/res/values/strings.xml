@@ -260,6 +260,11 @@
         <item quantity="other">Transactions added to folder</item>
     </plurals>
 
+    <plurals name="select_tag">
+        <item quantity="one">Select Tag</item>
+        <item quantity="other">Select Tags</item>
+    </plurals>
+
     <string name="biometric_prompt_title_app_name">Unlock %s</string>
     <string name="biometric_or_screen_lock_prompt_message" tools:override="true">Use your biometric or screen lock to continue</string>
 
@@ -290,7 +295,7 @@
     <string name="count_selected">%s Selected</string>
     <string name="tap_tag_to_assign_to_selected_transactions">Tap on a tag to assign it to the selected transactions</string>
     <string name="tag_assigned_to_transactions">Tag assigned to transactions</string>
-    <string name="transactions_untagged">Transactions Untagged</string>
+    <string name="tag_removed_from_transactions">Tag removed from transactions</string>
     <string name="transactions_deleted">Transactions Deleted</string>
     <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
@@ -332,12 +337,13 @@
     <string name="search_currency">Search Currency</string>
     <string name="hide_excluded_transactions">Hide Excluded</string>
     <string name="show_excluded_transactions">Show Excluded</string>
-    <string name="all_transactions_multi_selection_option_untag">Untag</string>
-    <string name="all_transactions_multi_selection_option_mark_excluded">Mark Excluded</string>
-    <string name="all_transactions_multi_selection_option_un_mark_excluded">Un-mark Excluded</string>
+    <string name="all_transactions_multi_selection_option_assign_tag">Assign Tag</string>
+    <string name="all_transactions_multi_selection_option_remove_tag">Remove Tag</string>
+    <string name="all_transactions_multi_selection_option_mark_excluded">Exclude from Expenditure</string>
+    <string name="all_transactions_multi_selection_option_un_mark_excluded">Include in Expenditure</string>
     <string name="all_transactions_multi_selection_option_add_to_folder">Add to Folder</string>
     <string name="all_transactions_multi_selection_option_remove_from_folders">Remove from Folders</string>
-    <string name="all_transactions_multi_selection_option_aggregate">Aggregate</string>
+    <string name="all_transactions_multi_selection_option_aggregate_together">Aggregate Together</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="excluded">Excluded</string>

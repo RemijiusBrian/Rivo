@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
@@ -34,7 +35,6 @@ import dev.ridill.rivo.core.ui.components.ArrangementTopWithFooter
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.TitleLargeText
-import dev.ridill.rivo.core.ui.navigation.destinations.TagSelectionSheetSpec
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TagChip
@@ -63,13 +63,12 @@ fun TagSelectionSheet(
                 .padding(MaterialTheme.spacing.medium),
             verticalArrangement = ArrangementTopWithFooter(MaterialTheme.spacing.small)
         ) {
-            /*TitleLargeText(
+            TitleLargeText(
                 title = pluralStringResource(
                     id = R.plurals.select_tag,
                     count = if (multiSelection) 2 else 1
                 )
-            )*/
-            TitleLargeText(stringResource(TagSelectionSheetSpec.labelRes))
+            )
             TextButton(
                 onClick = navigateToAddEditTag,
                 modifier = Modifier

@@ -43,8 +43,8 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    val tagsPagingData = selectedDate.flatMapLatest {
-        tagsRepo.getTopTags(it)
+    val tagInfoPagingData = selectedDate.flatMapLatest {
+        tagsRepo.getTagAndAggregatePagingData(it)
     }.cachedIn(viewModelScope)
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
@@ -237,20 +237,8 @@ class AllTransactionsViewModel @Inject constructor(
             .takeIf { it != selectedTagId.value }
     }
 
-    override fun onAssignTagToTransactions(tagId: Long) {
-        viewModelScope.launch {
-            val selectedIds = selectedTransactionIds.value
-            tagsRepo.assignTagToTransactions(tagId, selectedIds.toList())
-            dismissMultiSelectionMode()
-            savedStateHandle[SELECTED_TAG_ID] = tagId
-            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
-        }
-    }
-
-    fun onToggleShowExcludedOption(value: Boolean) {
-        viewModelScope.launch {
-            transactionRepo.toggleShowExcludedOption(value)
-        }
+    fun onToggleShowExcludedOption(value: Boolean) = viewModelScope.launch {
+        transactionRepo.toggleShowExcludedOption(value)
     }
 
     override fun onTransactionLongPress(id: Long) {
@@ -302,15 +290,23 @@ class AllTransactionsViewModel @Inject constructor(
         val selectedTransactionIds = selectedTransactionIds.value.ifEmpty { return }
         viewModelScope.launch {
             when (option) {
-                AllTransactionsMultiSelectionOption.UNTAG -> {
-                    untagTransactions(selectedTransactionIds)
+                AllTransactionsMultiSelectionOption.DELETE -> {
+                    savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = true
                 }
 
-                AllTransactionsMultiSelectionOption.MARK_EXCLUDED -> {
+                AllTransactionsMultiSelectionOption.ASSIGN_TAG -> {
+                    eventBus.send(AllTransactionsEvent.NavigateToTagSelection(false))
+                }
+
+                AllTransactionsMultiSelectionOption.REMOVE_TAG -> {
+                    removeTagForTransactions(selectedTransactionIds)
+                }
+
+                AllTransactionsMultiSelectionOption.EXCLUDE_FROM_EXPENDITURE -> {
                     toggleTransactionExclusion(selectedTransactionIds, true)
                 }
 
-                AllTransactionsMultiSelectionOption.UN_MARK_EXCLUDED -> {
+                AllTransactionsMultiSelectionOption.INCLUDE_IN_EXPENDITURE -> {
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
 
@@ -322,21 +318,24 @@ class AllTransactionsViewModel @Inject constructor(
                     removeTransactionsFromFolders(selectedTransactionIds)
                 }
 
-                AllTransactionsMultiSelectionOption.AGGREGATE -> {
+                AllTransactionsMultiSelectionOption.AGGREGATE_TOGETHER -> {
                     savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = true
-                }
-
-                AllTransactionsMultiSelectionOption.DELETE -> {
-                    savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = true
                 }
             }
         }
     }
 
-    private suspend fun untagTransactions(ids: Set<Long>) {
-        tagsRepo.untagTransactions(ids.toList())
+    fun onTagSelectionResultToAssignTag(selectedId: Long) = viewModelScope.launch {
+        transactionRepo.setTagIdToTransactions(selectedId, selectedTransactionIds.value)
         dismissMultiSelectionMode()
-        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_untagged)))
+        savedStateHandle[SELECTED_TAG_ID] = selectedId
+        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
+    }
+
+    private suspend fun removeTagForTransactions(ids: Set<Long>) {
+        transactionRepo.setTagIdToTransactions(null, ids)
+        dismissMultiSelectionMode()
+        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_removed_from_transactions)))
     }
 
     private suspend fun toggleTransactionExclusion(ids: Set<Long>, excluded: Boolean) {
@@ -437,6 +436,7 @@ class AllTransactionsViewModel @Inject constructor(
     sealed interface AllTransactionsEvent {
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
+        data class NavigateToTagSelection(val multiSelection: Boolean) : AllTransactionsEvent
         data object NavigateToFolderSelection : AllTransactionsEvent
         data class NavigateToFolderDetailsWithIds(val transactionIds: Set<Long>) :
             AllTransactionsEvent

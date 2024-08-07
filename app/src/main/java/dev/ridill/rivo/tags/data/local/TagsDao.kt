@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.tags.data.local.entity.TagEntity
+import dev.ridill.rivo.transactions.data.local.relation.TagAndAggregateRelation
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -33,17 +34,34 @@ interface TagsDao : BaseDao<TagEntity> {
         limit: Int
     ): PagingSource<Int, TagEntity>
 
+    @Query(
+        """
+        SELECT tg.id as id, tg.name as name, tg.color_code as colorCode, tg.is_excluded as excluded, tg.created_timestamp as createdTimestamp, (
+            SELECT (
+                SELECT IFNULL(SUM(t1.amount), 0.0)
+                FROM transaction_table t1
+                WHERE t1.type = 'DEBIT'
+                AND t1.tag_id = tg.id
+                AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
+                ) - (
+                SELECT IFNULL(SUM(t2.amount), 0.0)
+                FROM transaction_table t2
+                WHERE t2.type = 'CREDIT'
+                AND t2.tag_id = tg.id
+                AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
+            )
+        ) AS aggregate
+        FROM tag_table tg
+        ORDER BY aggregate DESC, dateTime(tg.created_timestamp) DESC
+    """
+    )
+    fun getTagAndAggForDatePaged(date: LocalDate?): PagingSource<Int, TagAndAggregateRelation>
+
     @Query("SELECT * FROM tag_table WHERE id = :id")
     suspend fun getTagById(id: Long): TagEntity?
 
     @Query("SELECT * FROM tag_table WHERE id = :id")
     fun getTagByIdFlow(id: Long): Flow<TagEntity?>
-
-    @Query("UPDATE transaction_table SET tag_id = :tagId WHERE id IN (:ids)")
-    suspend fun assignTagToTransactionsByIds(tagId: Long, ids: List<Long>)
-
-    @Query("UPDATE transaction_table SET tag_id = NULL WHERE id IN (:ids)")
-    suspend fun untagTransactionsByIds(ids: List<Long>)
 
     @Transaction
     suspend fun untagTransactionsAndDeleteTag(id: Long) {

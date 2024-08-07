@@ -67,6 +67,13 @@ class AllTransactionsRepositoryImpl(
         showExcluded = showExcluded
     ).map { it.map(TransactionDetailsView::toTransactionListItem) }
 
+    override suspend fun setTagIdToTransactions(
+        tagId: Long?,
+        transactionIds: Set<Long>
+    ) = withContext(Dispatchers.IO) {
+        dao.setTagIdToTransactionsByIds(tagId = tagId, ids = transactionIds)
+    }
+
     override fun getShowExcludedOption(): Flow<Boolean> =
         preferencesManager.preferences.map { it.allTransactionsShowExcludedOption }
             .distinctUntilChanged()

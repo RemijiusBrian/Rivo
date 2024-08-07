@@ -6,7 +6,6 @@ interface AllTransactionsActions {
     fun onMonthSelect(month: Month)
     fun onYearSelect(year: Int)
     fun onTagSelect(tagId: Long)
-    fun onAssignTagToTransactions(tagId: Long)
     fun onTransactionLongPress(id: Long)
     fun onTransactionSelectionChange(id: Long)
     fun onSelectionStateChange()

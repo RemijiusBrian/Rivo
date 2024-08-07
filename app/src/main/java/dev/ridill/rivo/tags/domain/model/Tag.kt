@@ -18,10 +18,6 @@ data class Tag(
     val createdTimestamp: LocalDateTime,
     val excluded: Boolean
 ) : Parcelable {
-
-    val createdTimestampFormatted: String
-        get() = createdTimestamp.format(DateUtil.Formatters.localizedDateMedium)
-
     val color: Color
         get() = Color(colorCode)
 

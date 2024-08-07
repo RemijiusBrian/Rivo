@@ -133,6 +133,9 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     @Query("SELECT DISTINCT(strftime('${UtilConstants.DB_YEAR_FORMAT}', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
     fun getYearsFromTransactions(): Flow<List<Int>>
 
+    @Query("UPDATE transaction_table SET tag_id = :tagId WHERE id IN (:ids)")
+    suspend fun setTagIdToTransactionsByIds(tagId: Long?, ids: Set<Long>)
+
     @Query("UPDATE transaction_table SET is_excluded = :exclude WHERE id IN (:ids)")
     suspend fun toggleExclusionByIds(ids: Set<Long>, exclude: Boolean)
 

@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
@@ -77,7 +78,6 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -102,7 +102,6 @@ import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
 import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.IconSizeSmall
-import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -111,7 +110,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
-import dev.ridill.rivo.tags.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.TagInfo
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -128,7 +127,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun AllTransactionsScreen(
     snackbarController: SnackbarController,
-    tagsPagingItems: LazyPagingItems<Tag>,
+    tagsPagingItems: LazyPagingItems<TagInfo>,
     state: AllTransactionsState,
     actions: AllTransactionsActions,
     navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
@@ -173,7 +172,7 @@ fun AllTransactionsScreen(
                 actions = {
                     IconButton(onClick = actions::onFilterOptionsClick) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_filter),
+                            imageVector = Icons.Default.FilterList,
                             contentDescription = stringResource(id = R.string.cd_filter_options)
                         )
                     }
@@ -220,7 +219,7 @@ fun AllTransactionsScreen(
                     onTagLongClick = {},
                     onNewTagClick = {},
                     tagAssignModeActive = state.transactionMultiSelectionModeActive,
-                    onAssignToTransactions = actions::onAssignTagToTransactions,
+                    onAssignToTransactions = {},
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = TagsRowMinHeight)
@@ -309,18 +308,6 @@ fun AllTransactionsScreen(
             )
         }
 
-        /*if (state.showDeleteTagConfirmation) {
-            MultiActionConfirmationDialog(
-                title = stringResource(R.string.delete_tag_confirmation_title, tagNameInput()),
-                text = stringResource(R.string.action_irreversible_message),
-                primaryActionLabelRes = R.string.delete_tag,
-                onPrimaryActionClick = actions::onDeleteTagConfirm,
-                secondaryActionLabelRes = R.string.delete_tag_with_transactions,
-                onSecondaryActionClick = actions::onDeleteTagWithTransactionsClick,
-                onDismiss = actions::onDeleteTagDismiss
-            )
-        }*/
-
         if (state.showAggregationConfirmation) {
             ConfirmationDialog(
                 titleRes = R.string.transaction_aggregation_confirmation_title,
@@ -349,7 +336,7 @@ private val TagsRowMinHeight = 100.dp
 
 @Composable
 private fun TagsInfoList(
-    tagsPagingItems: LazyPagingItems<Tag>,
+    tagsPagingItems: LazyPagingItems<TagInfo>,
     selectedTagId: Long?,
     onTagSelect: (Long) -> Unit,
     onTagLongClick: (Long) -> Unit,
@@ -426,9 +413,9 @@ private fun TagsInfoList(
                 ) { index ->
                     tagsPagingItems[index]?.let { tag ->
                         val selected = tag.id == selectedTagId
-                        TagCard(
+                        TagInfoCard(
                             name = tag.name,
-                            color = Color(tag.colorCode),
+                            color = tag.color,
                             isExcluded = tag.excluded,
                             createdTimestamp = tag.createdTimestampFormatted,
                             isSelected = selected,
@@ -441,6 +428,7 @@ private fun TagsInfoList(
                             },
                             onLongClick = { onTagLongClick(tag.id) },
                             tagAssignModeActive = tagAssignModeActive,
+                            aggregateAmount = tag.aggregate.toString(),
                             onAssignToTransactions = { onAssignToTransactions(tag.id) },
                             modifier = Modifier
                                 .animateContentSize()
@@ -477,12 +465,13 @@ private val TagInfoCardMinWidth = 100.dp
 private val TagInfoCardMaxWidth = 200.dp
 
 @Composable
-private fun TagCard(
+private fun TagInfoCard(
     name: String,
     color: Color,
     isExcluded: Boolean,
     isSelected: Boolean,
     createdTimestamp: String,
+    aggregateAmount: String,
     onSelect: () -> Unit,
     onLongClick: () -> Unit,
     tagAssignModeActive: Boolean,
@@ -555,7 +544,8 @@ private fun TagCard(
 
             AnimatedVisibility(showLongPressMessage) {
                 Text(
-                    text = stringResource(R.string.asterisk_long_press_to_edit),
+//                    text = stringResource(R.string.asterisk_long_press_to_edit),
+                    text = aggregateAmount,
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -825,54 +815,6 @@ private fun FilterOptionsSheet(
 }
 
 @Composable
-private fun MultiSelectionOptionsSheet(
-    onDismiss: () -> Unit,
-    onOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    RivoModalBottomSheet(
-        onDismissRequest = onDismiss,
-        modifier = modifier
-    ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            contentPadding = PaddingValues(
-                start = MaterialTheme.spacing.medium,
-                end = MaterialTheme.spacing.medium,
-                bottom = SpacingListEnd
-            )
-        ) {
-            items(
-                items = AllTransactionsMultiSelectionOption.entries,
-                key = { it.name },
-                contentType = { "MultiSelectionOptionItem" }
-            ) { option ->
-                OutlinedCard(
-                    onClick = { onOptionClick(option) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItem()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(MaterialTheme.spacing.medium)
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(option.iconRes),
-                            contentDescription = null
-                        )
-                        SpacerMedium()
-                        Text(
-                            text = stringResource(option.labelRes)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun AggregateAmount(
     multiSelectionModeActive: Boolean,
     currency: Currency,
@@ -925,10 +867,50 @@ private fun AggregateAmount(
     }
 }
 
-@Preview
 @Composable
-private fun PreviewFilterOptionsSheet() {
-    RivoTheme {
-        FilterOptionsSheet(onDismissRequest = { })
+private fun MultiSelectionOptionsSheet(
+    onDismiss: () -> Unit,
+    onOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RivoModalBottomSheet(
+        onDismissRequest = onDismiss,
+        modifier = modifier
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = MaterialTheme.spacing.medium,
+                bottom = SpacingListEnd
+            )
+        ) {
+            items(
+                items = AllTransactionsMultiSelectionOption.entries,
+                key = { it.name },
+                contentType = { "MultiSelectionOptionItem" }
+            ) { option ->
+                OutlinedCard(
+                    onClick = { onOptionClick(option) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(MaterialTheme.spacing.medium)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(option.iconRes),
+                            contentDescription = null
+                        )
+                        SpacerMedium()
+                        Text(
+                            text = stringResource(option.labelRes)
+                        )
+                    }
+                }
+            }
+        }
     }
 }

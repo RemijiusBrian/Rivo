@@ -12,15 +12,19 @@ enum class AllTransactionsMultiSelectionOption(
         iconRes = R.drawable.ic_rounded_delete,
         labelRes = R.string.action_delete
     ),
-    UNTAG(
-        iconRes = R.drawable.ic_rounded_untag,
-        labelRes = R.string.all_transactions_multi_selection_option_untag
+    ASSIGN_TAG(
+        iconRes = R.drawable.ic_rounded_tags,
+        labelRes = R.string.all_transactions_multi_selection_option_assign_tag
     ),
-    MARK_EXCLUDED(
+    REMOVE_TAG(
+        iconRes = R.drawable.ic_rounded_untag,
+        labelRes = R.string.all_transactions_multi_selection_option_remove_tag
+    ),
+    EXCLUDE_FROM_EXPENDITURE(
         iconRes = R.drawable.ic_rounded_exclude,
         labelRes = R.string.all_transactions_multi_selection_option_mark_excluded
     ),
-    UN_MARK_EXCLUDED(
+    INCLUDE_IN_EXPENDITURE(
         iconRes = R.drawable.ic_rounded_exclude,
         labelRes = R.string.all_transactions_multi_selection_option_un_mark_excluded
     ),
@@ -32,8 +36,8 @@ enum class AllTransactionsMultiSelectionOption(
         iconRes = R.drawable.ic_outline_remove_folder,
         labelRes = R.string.all_transactions_multi_selection_option_remove_from_folders
     ),
-    AGGREGATE(
+    AGGREGATE_TOGETHER(
         iconRes = R.drawable.ic_total,
-        labelRes = R.string.all_transactions_multi_selection_option_aggregate
+        labelRes = R.string.all_transactions_multi_selection_option_aggregate_together
     )
 }
