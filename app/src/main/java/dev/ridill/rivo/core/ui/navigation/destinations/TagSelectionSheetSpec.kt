@@ -14,7 +14,7 @@ import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.orFalse
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.tags.presentation.tagSelection.TagSelectionSheet
 import dev.ridill.rivo.tags.presentation.tagSelection.TagSelectionViewModel
@@ -60,7 +60,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
         val selectedIds by viewModel.selectedIds.collectAsStateWithLifecycle()
         val tagsLazyPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
 
-        DestinationResultEffect<Long>(
+        NavigationResultEffect<Long>(
             key = AddEditTagSheetSpec.CRATED_TAG_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel

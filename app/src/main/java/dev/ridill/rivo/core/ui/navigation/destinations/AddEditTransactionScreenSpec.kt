@@ -27,7 +27,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
@@ -153,28 +153,28 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
+        NavigationResultEffect(
             key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelectionResult
         )
 
-        DestinationResultEffect(
+        NavigationResultEffect(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelectionResult
         )
 
-        DestinationResultEffect(
+        NavigationResultEffect(
             key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onAmountTransformationResult
         )
 
-        DestinationResultEffect<Set<Long>>(
+        NavigationResultEffect<Set<Long>>(
             key = TagSelectionSheetSpec.SELECTED_IDS,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),

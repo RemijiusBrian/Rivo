@@ -10,7 +10,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
@@ -35,7 +35,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect<String>(
+        NavigationResultEffect<String>(
             key = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
             navBackStackEntry = navBackStackEntry,
             context,

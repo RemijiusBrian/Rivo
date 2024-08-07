@@ -6,7 +6,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 
 @Composable
-fun <T> DestinationResultEffect(
+fun <T> NavigationResultEffect(
     key: String,
     navBackStackEntry: NavBackStackEntry,
     vararg keys: Any,

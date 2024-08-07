@@ -21,7 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
@@ -66,7 +66,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
+        NavigationResultEffect(
             key = ACTION_ENCRYPTION_PASSWORD,
             navBackStackEntry = navBackStackEntry,
             onResult = viewModel::onDestinationResult
