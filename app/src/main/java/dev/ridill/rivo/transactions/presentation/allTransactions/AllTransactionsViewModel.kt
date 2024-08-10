@@ -44,8 +44,16 @@ class AllTransactionsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     val tagInfoPagingData = selectedDate.flatMapLatest {
-        tagsRepo.getTagAndAggregatePagingData(it)
+        tagsRepo.getTopTagInfoPagingData(
+            date = it,
+            limit = 5
+        )
     }.cachedIn(viewModelScope)
+
+    private val transactionTypeFilter = savedStateHandle
+        .getStateFlow(TRANSACTION_TYPE_FILTER, TransactionTypeFilter.ALL)
+
+    private val showExcludedTransactions = transactionRepo.getShowExcludedOption()
 
     private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
     private val selectedTag = selectedTagId.flatMapLatest { tagId ->
@@ -53,16 +61,11 @@ class AllTransactionsViewModel @Inject constructor(
             ?: flowOf(null)
     }.distinctUntilChanged()
 
-    private val showExcludedOption = transactionRepo.getShowExcludedOption()
-
-    private val transactionTypeFilter = savedStateHandle
-        .getStateFlow(TRANSACTION_TYPE_FILTER, TransactionTypeFilter.ALL)
-
     private val transactionList = combineTuple(
         selectedDate,
         selectedTag,
         transactionTypeFilter,
-        showExcludedOption
+        showExcludedTransactions
     ).flatMapLatest { (
                           date,
                           selectedTag,
@@ -99,7 +102,7 @@ class AllTransactionsViewModel @Inject constructor(
         selectedDate,
         transactionTypeFilter,
         selectedTag,
-        showExcludedOption,
+        showExcludedTransactions,
         selectedTransactionIds
     ).flatMapLatest { (
                           date,
@@ -138,61 +141,58 @@ class AllTransactionsViewModel @Inject constructor(
     private val showMultiSelectionOptions = savedStateHandle
         .getStateFlow(SHOW_MULTI_SELECTION_OPTIONS, false)
 
-    private val showSortOptions = savedStateHandle
+    private val showFilterOptions = savedStateHandle
         .getStateFlow(SHOW_FILTER_OPTIONS, false)
 
     val state = combineTuple(
         selectedDate,
         yearsList,
+        transactionTypeFilter,
         currency,
         aggregateAmount,
-        selectedTagId,
-        transactionTypeFilter,
         transactionListLabel,
         transactionList,
         selectedTransactionIds,
         transactionSelectionState,
         transactionMultiSelectionModeActive,
         showDeleteTransactionConfirmation,
-        showExcludedOption,
+        showExcludedTransactions,
         showAggregationConfirmation,
         showMultiSelectionOptions,
-        showSortOptions
+        showFilterOptions
     ).map { (
                 selectedDate,
                 yearsList,
+                transactionTypeFilter,
                 currency,
                 aggregateAmount,
-                selectedTagId,
-                transactionTypeFilter,
                 transactionListLabel,
                 transactionList,
                 selectedTransactionIds,
                 transactionSelectionState,
                 transactionMultiSelectionModeActive,
                 showDeleteTransactionConfirmation,
-                showExcludedOption,
+                showExcludedTransactions,
                 showAggregationConfirmation,
                 showMultiSelectionOptions,
-                showSortOptions
+                showFilterOptions
             ) ->
         AllTransactionsState(
             selectedDate = selectedDate,
             yearsList = yearsList,
+            selectedTransactionTypeFilter = transactionTypeFilter,
             currency = currency,
             aggregateAmount = aggregateAmount,
-            selectedTagId = selectedTagId,
-            selectedTransactionTypeFilter = transactionTypeFilter,
-            transactionList = transactionList,
             transactionListLabel = transactionListLabel,
+            transactionList = transactionList,
             selectedTransactionIds = selectedTransactionIds,
             transactionSelectionState = transactionSelectionState,
             transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
             showDeleteTransactionConfirmation = showDeleteTransactionConfirmation,
-            showExcludedOption = showExcludedOption,
+            showExcludedTransactions = showExcludedTransactions,
             showAggregationConfirmation = showAggregationConfirmation,
             showMultiSelectionOptions = showMultiSelectionOptions,
-            showFilterOptions = showSortOptions
+            showFilterOptions = showFilterOptions
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
 
@@ -232,13 +232,14 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
     }
 
-    override fun onTagSelect(tagId: Long) {
-        savedStateHandle[SELECTED_TAG_ID] = tagId
-            .takeIf { it != selectedTagId.value }
+    override fun onTypeFilterSelect(filter: TransactionTypeFilter) {
+        savedStateHandle[TRANSACTION_TYPE_FILTER] = filter
     }
 
-    fun onToggleShowExcludedOption(value: Boolean) = viewModelScope.launch {
-        transactionRepo.toggleShowExcludedOption(value)
+    override fun onShowExcludedToggle(showExcluded: Boolean) {
+        viewModelScope.launch {
+            transactionRepo.toggleShowExcludedOption(showExcluded)
+        }
     }
 
     override fun onTransactionLongPress(id: Long) {
@@ -444,9 +445,9 @@ class AllTransactionsViewModel @Inject constructor(
 }
 
 private const val SELECTED_DATE = "SELECTED_DATE"
+private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
 private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
 private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
-private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
 private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"
 private const val SHOW_AGGREGATION_CONFIRMATION = "SHOW_AGGREGATION_CONFIRMATION"
 private const val SHOW_MULTI_SELECTION_OPTIONS = "SHOW_MULTI_SELECTION_OPTIONS"

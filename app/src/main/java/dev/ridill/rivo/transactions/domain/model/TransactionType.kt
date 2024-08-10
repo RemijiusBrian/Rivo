@@ -9,5 +9,6 @@ enum class TransactionType(
     @DrawableRes val iconRes: Int
 ) {
     CREDIT(R.string.transaction_type_label_credit, R.drawable.ic_rounded_arrow_inward),
-    DEBIT(R.string.transaction_type_label_debit, R.drawable.ic_rounded_arrow_outward)
+    DEBIT(R.string.transaction_type_label_debit, R.drawable.ic_rounded_arrow_outward),
+//    NONE(R.string.transaction_type_label_none, R.drawable.ic_rounded_arrow_up_down)
 }

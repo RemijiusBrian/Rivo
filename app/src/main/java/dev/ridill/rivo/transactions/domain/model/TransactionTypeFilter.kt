@@ -9,8 +9,8 @@ enum class TransactionTypeFilter(
     @StringRes val labelRes: Int
 ) {
     DEBITS(R.drawable.ic_rounded_arrow_inward, R.string.debits),
-    CREDITS(R.drawable.ic_rounded_arrow_outward, R.string.credits),
-    ALL(R.drawable.ic_rounded_arrow_up_down, R.string.all);
+    ALL(R.drawable.ic_rounded_arrow_up_down, R.string.all),
+    CREDITS(R.drawable.ic_rounded_arrow_outward, R.string.credits);
 
     companion object {
         fun mapToTransactionType(

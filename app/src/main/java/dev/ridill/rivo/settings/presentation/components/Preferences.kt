@@ -76,6 +76,7 @@ fun SimplePreference(
     summary: String? = null,
     onClick: (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     contentPadding: PaddingValues = PreferenceContentPadding
 ) = BasicPreference(
     titleContent = { Text(text = stringResource(titleRes)) },
@@ -94,6 +95,37 @@ fun SimplePreference(
             else Modifier
         )
         .then(modifier),
+    trailingContent = trailingIcon,
+    contentPadding = contentPadding
+)
+
+@Composable
+fun SimplePreference(
+    title: String,
+    modifier: Modifier = Modifier,
+    summary: String? = null,
+    onClick: (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    contentPadding: PaddingValues = PreferenceContentPadding
+) = BasicPreference(
+    titleContent = { Text(text = title) },
+    summaryContent = summary?.let {
+        { Text(text = it) }
+    },
+    leadingIcon = leadingIcon,
+    modifier = Modifier
+        .fillMaxWidth()
+        .then(
+            if (onClick != null) Modifier
+                .clickable(
+                    role = Role.Button,
+                    onClick = onClick
+                )
+            else Modifier
+        )
+        .then(modifier),
+    trailingContent = trailingIcon,
     contentPadding = contentPadding
 )
 

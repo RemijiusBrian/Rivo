@@ -82,7 +82,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val isTransactionExcluded = txInput.map { it.excluded }
         .distinctUntilChanged()
 
-    val topTagsPagingData = tagsRepo.getTopTags(null)
+    val topTagsPagingData = tagsRepo.getTopTagsPagingData(null)
         .cachedIn(viewModelScope)
 
     private val showDeleteConfirmation = savedStateHandle

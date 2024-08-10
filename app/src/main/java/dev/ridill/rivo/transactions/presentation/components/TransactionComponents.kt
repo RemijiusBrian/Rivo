@@ -36,7 +36,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -45,6 +44,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
+import dev.ridill.rivo.core.ui.components.AmountWithArrow
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.ElevationLevel0
@@ -117,7 +117,11 @@ fun TransactionListItem(
         },
         leadingContent = { TransactionDate(date) },
         trailingContent = {
-            Row(
+            AmountWithArrow(
+                value = amount,
+                type = type
+            )
+            /*Row(
                 horizontalArrangement = Arrangement.spacedBy(
                     MaterialTheme.spacing.small,
                     Alignment.End
@@ -141,7 +145,7 @@ fun TransactionListItem(
                             .size(TypeIndicatorSize)
                     )
                 }
-            }
+            }*/
         },
         supportingContent = {
             Row(
@@ -180,8 +184,6 @@ fun TransactionListItem(
         shadowElevation = shadowElevation
     )
 }
-
-private val TypeIndicatorSize = 16.dp
 
 @Composable
 fun TransactionDate(

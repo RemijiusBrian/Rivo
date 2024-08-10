@@ -31,7 +31,7 @@ class TagSelectionViewModel @Inject constructor(
     val tagsPagingData = searchQuery
         .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
         .flatMapLatest {
-            repo.getTagsPagingData()
+            repo.getAllTagsPagingData(it)
         }.cachedIn(viewModelScope)
 
     fun onSearchQueryChange(value: String) {

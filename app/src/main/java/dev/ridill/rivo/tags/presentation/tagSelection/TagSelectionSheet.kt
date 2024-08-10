@@ -3,6 +3,7 @@ package dev.ridill.rivo.tags.presentation.tagSelection
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -63,24 +64,17 @@ fun TagSelectionSheet(
                 .padding(MaterialTheme.spacing.medium),
             verticalArrangement = ArrangementTopWithFooter(MaterialTheme.spacing.small)
         ) {
-            TitleLargeText(
-                title = pluralStringResource(
-                    id = R.plurals.select_tag,
-                    count = if (multiSelection) 2 else 1
-                )
-            )
-            TextButton(
-                onClick = navigateToAddEditTag,
+            Row(
                 modifier = Modifier
-                    .align(Alignment.End)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(R.string.create_new_tag))
-                Spacer(spacing = ButtonDefaults.IconSpacing)
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(ButtonDefaults.IconSize)
+                TitleLargeText(
+                    title = pluralStringResource(
+                        id = R.plurals.select_tag,
+                        count = if (multiSelection) 2 else 1
+                    )
                 )
             }
             TagSearchField(
@@ -89,6 +83,16 @@ fun TagSelectionSheet(
                 modifier = Modifier
                     .fillMaxWidth()
             )
+            TextButton(onClick = navigateToAddEditTag) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(ButtonDefaults.IconSize)
+                )
+                Spacer(spacing = ButtonDefaults.IconSpacing)
+                Text(text = stringResource(R.string.create_new_tag))
+            }
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -8,13 +8,19 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface TagsRepository {
-    fun getTagsPagingData(): Flow<PagingData<Tag>>
-    fun getTopTags(
+    fun getAllTagsPagingData(
+        searchQuery: String = ""
+    ): Flow<PagingData<Tag>>
+
+    fun getTopTagsPagingData(
         date: LocalDate?,
         limit: Int = DEFAULT_TOP_TAG_LIMIT
     ): Flow<PagingData<Tag>>
 
-    fun getTagAndAggregatePagingData(date: LocalDate?): Flow<PagingData<TagInfo>>
+    fun getTopTagInfoPagingData(
+        date: LocalDate?,
+        limit: Int = DEFAULT_TOP_TAG_LIMIT
+    ): Flow<PagingData<TagInfo>>
 
     suspend fun saveTag(
         id: Long,

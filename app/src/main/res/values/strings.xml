@@ -293,7 +293,6 @@
     <string name="new_tag_chip_label">New</string>
     <string name="amount_worth_spent">%s worth spent</string>
     <string name="count_selected">%s Selected</string>
-    <string name="tap_tag_to_assign_to_selected_transactions">Tap on a tag to assign it to the selected transactions</string>
     <string name="tag_assigned_to_transactions">Tag assigned to transactions</string>
     <string name="tag_removed_from_transactions">Tag removed from transactions</string>
     <string name="transactions_deleted">Transactions Deleted</string>
@@ -360,6 +359,7 @@
     <string name="created">Created</string>
     <string name="transaction_type_label_credit">Credit</string>
     <string name="transaction_type_label_debit">Debit</string>
+    <string name="transaction_type_label_none">None</string>
     <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
     <string name="tags_list_empty_message">Your tags will appear here</string>
     <string name="all_transactions_list_empty_message">You don\'t have any transactions yet</string>
@@ -435,7 +435,6 @@
     <string name="due_on_date">Due on %s</string>
     <string name="schedules_this_month">Schedules this month</string>
     <string name="created_colon_timestamp_value">Created: %s</string>
-    <string name="asterisk_long_press_to_edit">*Long press to edit</string>
     <string name="initializing_app">Initializing %s</string>
     <string name="backup_running_message">Your backup is currently in progress, so please wait till it finishes to continue with your operation.</string>
     <string name="timestamp_label">Timestamp</string>
@@ -449,4 +448,5 @@
     <string name="date">Date</string>
     <string name="search_tags">Search Tags</string>
     <string name="view_all">View All…</string>
+    <string name="your_top_tags">Your top tags</string>
 </resources>

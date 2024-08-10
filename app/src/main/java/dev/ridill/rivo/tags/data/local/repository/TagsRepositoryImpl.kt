@@ -23,17 +23,30 @@ import java.time.LocalDateTime
 class TagsRepositoryImpl(
     private val dao: TagsDao
 ) : TagsRepository {
-    override fun getTopTags(date: LocalDate?, limit: Int): Flow<PagingData<Tag>> =
+    override fun getAllTagsPagingData(searchQuery: String): Flow<PagingData<Tag>> =
         Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-            dao.getTagSortedByAmountPaged(date = date, limit = limit)
+            dao.getAllTagsPaged(searchQuery)
         }.flow
             .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
-    override fun getTagAndAggregatePagingData(date: LocalDate?): Flow<PagingData<TagInfo>> =
-        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-            dao.getTagAndAggForDatePaged(date = date)
-        }.flow
-            .map { pagingData -> pagingData.map(TagAndAggregateRelation::toTagInfo) }
+    override fun getTopTagsPagingData(
+        date: LocalDate?,
+        limit: Int
+    ): Flow<PagingData<Tag>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+        dao.getTagAndAggForDateSortedByAggPaged(date = date, limit = limit)
+    }.flow
+        .map { pagingData -> pagingData.map(TagAndAggregateRelation::toTag) }
+
+    override fun getTopTagInfoPagingData(
+        date: LocalDate?,
+        limit: Int
+    ): Flow<PagingData<TagInfo>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+        dao.getTagAndAggForDateSortedByAggPaged(
+            date = date,
+            limit = limit
+        )
+    }.flow
+        .map { pagingData -> pagingData.map(TagAndAggregateRelation::toTagInfo) }
 
     override suspend fun getTagById(id: Long): Tag? = withContext(Dispatchers.IO) {
         dao.getTagById(id)?.toTag()
@@ -41,12 +54,6 @@ class TagsRepositoryImpl(
 
     override fun getTagByIdFlow(id: Long): Flow<Tag?> = dao.getTagByIdFlow(id)
         .map { it?.toTag() }
-
-    override fun getTagsPagingData(): Flow<PagingData<Tag>> =
-        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-            dao.getAllTagsPaged()
-        }.flow
-            .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
     override suspend fun saveTag(
         id: Long,

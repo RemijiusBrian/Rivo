@@ -1,11 +1,13 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
+import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import java.time.Month
 
 interface AllTransactionsActions {
     fun onMonthSelect(month: Month)
     fun onYearSelect(year: Int)
-    fun onTagSelect(tagId: Long)
+    fun onTypeFilterSelect(filter: TransactionTypeFilter)
+    fun onShowExcludedToggle(showExcluded: Boolean)
     fun onTransactionLongPress(id: Long)
     fun onTransactionSelectionChange(id: Long)
     fun onSelectionStateChange()
