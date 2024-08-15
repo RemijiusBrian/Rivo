@@ -98,22 +98,26 @@ fun TransactionListItem(
     }
     ListItem(
         headlineContent = {
-            Text(
-                text = note
-                    .ifEmpty { stringResource(type.labelRes) },
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                color = LocalContentColor.current.copy(
-                    alpha = if (isNoteEmpty) ContentAlpha.SUB_CONTENT
-                    else Float.One
-                ),
-                style = LocalTextStyle.current.copy(
-                    fontStyle = if (note.isEmpty()) FontStyle.Italic
-                    else null
+            if (note.isEmpty() && (tag != null || folder != null)) {
+                TagAndFolderIndicator(tag = tag, folder = folder)
+            } else {
+                Text(
+                    text = note
+                        .ifEmpty { stringResource(type.labelRes) },
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    color = LocalContentColor.current.copy(
+                        alpha = if (isNoteEmpty) ContentAlpha.SUB_CONTENT
+                        else Float.One
+                    ),
+                    style = LocalTextStyle.current.copy(
+                        fontStyle = if (note.isEmpty()) FontStyle.Italic
+                        else null
+                    )
                 )
-            )
+            }
             // FIXME: note text not visible if amount text is too long
         },
         leadingContent = {
@@ -146,27 +150,13 @@ fun TransactionListItem(
             }
         },
         supportingContent = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                tag?.let {
-                    TagIndicator(
-                        name = it.name,
-                        color = Color(it.colorCode),
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-                }
-                folder?.let {
-                    FolderIndicator(
-                        name = it.name,
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-                }
+            if (note.isNotEmpty()) {
+                TagAndFolderIndicator(
+                    tag = tag,
+                    folder = folder,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
         },
         overlineContent = overlineContent,
@@ -181,6 +171,35 @@ fun TransactionListItem(
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
     )
+}
+
+@Composable
+private fun TagAndFolderIndicator(
+    tag: Tag?,
+    folder: Folder?,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+        modifier = modifier
+    ) {
+        tag?.let {
+            TagIndicator(
+                name = it.name,
+                color = Color(it.colorCode),
+                modifier = Modifier
+                    .weight(weight = Float.One, fill = false)
+            )
+        }
+        folder?.let {
+            FolderIndicator(
+                name = it.name,
+                modifier = Modifier
+                    .weight(weight = Float.One, fill = false)
+            )
+        }
+    }
 }
 
 @Composable
