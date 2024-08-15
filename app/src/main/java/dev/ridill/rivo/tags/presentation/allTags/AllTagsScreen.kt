@@ -30,7 +30,7 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TagListItem
@@ -86,7 +86,7 @@ fun AllTagsScreen(
                 modifier = Modifier,
                 contentPadding = PaddingValues(
                     top = MaterialTheme.spacing.medium,
-                    bottom = SpacingListEnd
+                    bottom = PaddingScrollEnd
                 )
             ) {
                 items(

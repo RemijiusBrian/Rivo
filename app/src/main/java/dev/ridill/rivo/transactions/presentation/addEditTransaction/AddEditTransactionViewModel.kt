@@ -24,7 +24,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.data.toTransaction
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.tags.domain.repository.TagsRepository
-import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -325,12 +324,8 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
-    override fun onAddEditOptionSelect(option: AddEditTxOption) {
-        when (option) {
-            AddEditTxOption.SCHEDULE_FOR_LATER -> {
-                toggleScheduling(true)
-            }
-        }
+    override fun onScheduleForLaterClick() {
+        toggleScheduling(true)
     }
 
     override fun onCancelSchedulingClick() {

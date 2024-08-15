@@ -1,9 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +15,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
@@ -51,9 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -66,14 +58,12 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,14 +73,14 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
-import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
+import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
-import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoDatePickerDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -100,12 +90,14 @@ import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.settings.presentation.components.SimplePreference
+import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TopTagsSelectorFlowRow
-import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
 import kotlinx.coroutines.flow.flowOf
@@ -113,7 +105,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.Currency
-import kotlin.enums.EnumEntries
 
 @Composable
 fun AddEditTransactionScreen(
@@ -186,6 +177,15 @@ fun AddEditTransactionScreen(
                 },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 actions = {
+                    AnimatedVisibility(!state.isScheduleTxMode) {
+                        IconButton(onClick = actions::onScheduleForLaterClick) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_time_forward),
+                                contentDescription = stringResource(R.string.cd_schedule_transaction_for_later)
+                            )
+                        }
+                    }
+
                     if (isEditMode) {
                         IconButton(onClick = actions::onDeleteClick) {
                             Icon(
@@ -194,8 +194,6 @@ fun AddEditTransactionScreen(
                             )
                         }
                     }
-
-                    AddEditOptions(onOptionClick = actions::onAddEditOptionSelect)
                 },
                 scrollBehavior = topAppBarScrollBehavior
             )
@@ -222,7 +220,10 @@ fun AddEditTransactionScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .padding(MaterialTheme.spacing.medium),
+                    .padding(
+                        top = MaterialTheme.spacing.medium,
+                        bottom = PaddingScrollEnd
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
             ) {
@@ -240,13 +241,16 @@ fun AddEditTransactionScreen(
                     onAmountChange = actions::onAmountChange,
                     onTransformClick = navigateToAmountTransformationSelection,
                     modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                         .focusRequester(amountFocusRequester)
                 )
 
                 NoteInput(
                     input = noteInput,
                     onValueChange = actions::onNoteChange,
-                    onFocused = actions::onNoteInputFocused
+                    onFocused = actions::onNoteInputFocused,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                 )
 
                 if (!isEditMode) {
@@ -264,38 +268,20 @@ fun AddEditTransactionScreen(
 
                 HorizontalDivider()
 
-                Row(
+                TransactionTimestamp(
+                    timestamp = state.timestamp,
+                    onClick = actions::onTimestampClick,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    FolderIndicator(
-                        folderName = state.linkedFolderName,
-                        onAddToFolderClick = navigateToFolderSelection,
-                        onRemoveFolderClick = actions::onRemoveFromFolderClick,
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-
-                    TransactionTimestamp(
-                        timestamp = state.timestamp,
-                        onClick = actions::onTimestampClick,
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = !state.isScheduleTxMode,
-                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                         .align(Alignment.End)
-                ) {
-                    MarkExcludedSwitch(
-                        excluded = state.isTransactionExcluded,
-                        onToggle = actions::onExclusionToggle
-                    )
-                }
+                )
+
+                FolderIndicator(
+                    folderName = state.linkedFolderName,
+                    onSelectFolderClick = navigateToFolderSelection,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                )
 
                 AnimatedVisibility(
                     visible = state.isScheduleTxMode,
@@ -304,18 +290,32 @@ fun AddEditTransactionScreen(
                 ) {
                     TransactionRepeatModeIndicator(
                         selectedRepeatMode = state.selectedRepeatMode,
-                        onClick = actions::onRepeatModeClick
+                        onClick = actions::onRepeatModeClick,
+                        modifier = Modifier
+                            .padding(horizontal = MaterialTheme.spacing.medium)
                     )
                 }
 
-                TopTagsSelectorFlowRow(
-                    topTagsLazyPagingItems = topTagsLazyPagingItems,
+                TagSelection(
+                    tagsLazyPagingItems = topTagsLazyPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagSelect,
                     onViewAllClick = navigateToTagSelection,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                 )
+
+                AnimatedVisibility(
+                    visible = !state.isScheduleTxMode,
+                    modifier = Modifier
+                ) {
+                    SwitchPreference(
+                        titleRes = R.string.exclude_from_expenditure,
+                        value = state.isTransactionExcluded,
+                        onValueChange = actions::onExclusionToggle,
+                        leadingIcon = { ExcludedIcon() }
+                    )
+                }
             }
 
             AnimatedVisibility(
@@ -499,58 +499,22 @@ private fun TransactionTimestamp(
 @Composable
 private fun FolderIndicator(
     folderName: String?,
-    onAddToFolderClick: () -> Unit,
-    onRemoveFolderClick: () -> Unit,
+    onSelectFolderClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isFolderLinked by remember(folderName) {
-        derivedStateOf { !folderName.isNullOrEmpty() }
-    }
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Crossfade(
-            targetState = isFolderLinked,
-            label = "FolderIcon"
-        ) { isLinked ->
-            FilledTonalIconButton(
-                onClick = {
-                    if (isLinked) onRemoveFolderClick()
-                    else onAddToFolderClick()
-                }
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(
-                        id = if (isLinked) R.drawable.ic_outline_remove_folder
-                        else R.drawable.ic_outline_move_to_folder
-                    ),
-                    contentDescription = stringResource(R.string.cd_add_transaction_to_folder)
-                )
-            }
-        }
-        Column {
-            Text(
-                text = stringResource(R.string.transaction_folder_indicator_label),
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold
+    SimplePreference(
+        title = folderName ?: stringResource(R.string.transaction_folder_indicator_label),
+        leadingIcon = {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_move_to_folder),
+                contentDescription = stringResource(R.string.cd_add_transaction_to_folder)
             )
-            Text(
-                text = folderName ?: stringResource(R.string.add_to_folder),
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable(
-                    onClick = onAddToFolderClick,
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClickLabel = stringResource(R.string.cd_click_to_change_folder),
-                    role = Role.Button
-                )
-            )
-        }
-    }
+        },
+        onClick = onSelectFolderClick,
+        modifier = modifier
+            .fillMaxWidth(),
+        summary = stringResource(R.string.tap_to_select_folder)
+    )
 }
 
 @Composable
@@ -596,38 +560,27 @@ private fun TransactionTypeSelector(
     }
 }
 
-
 @Composable
-private fun AddEditOptions(
-    onOptionClick: (AddEditTxOption) -> Unit,
-    modifier: Modifier = Modifier,
-    options: EnumEntries<AddEditTxOption> = remember { AddEditTxOption.entries }
+private fun TagSelection(
+    tagsLazyPagingItems: LazyPagingItems<Tag>,
+    selectedTagId: Long?,
+    onTagClick: (Long) -> Unit,
+    onViewAllClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    var optionsExpanded by remember { mutableStateOf(false) }
-    Box(
-        modifier = modifier
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
-        IconButton(onClick = { optionsExpanded = !optionsExpanded }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(R.string.cd_options)
-            )
-        }
-
-        DropdownMenu(
-            expanded = optionsExpanded,
-            onDismissRequest = { optionsExpanded = false }
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(option.labelRes)) },
-                    onClick = {
-                        optionsExpanded = false
-                        onOptionClick(option)
-                    }
-                )
-            }
-        }
+        BodyMediumText(stringResource(R.string.tag_your_transaction))
+        TopTagsSelectorFlowRow(
+            topTagsLazyPagingItems = tagsLazyPagingItems,
+            selectedTagId = selectedTagId,
+            onTagClick = onTagClick,
+            onViewAllClick = onViewAllClick,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
     }
 }
 
@@ -740,7 +693,7 @@ private fun PreviewScreenContent() {
                 override fun onDeleteDismiss() {}
                 override fun onDeleteConfirm() {}
                 override fun onRemoveFromFolderClick() {}
-                override fun onAddEditOptionSelect(option: AddEditTxOption) {}
+                override fun onScheduleForLaterClick() {}
                 override fun onCancelSchedulingClick() {}
                 override fun onRepeatModeClick() {}
                 override fun onRepeatModeDismiss() {}

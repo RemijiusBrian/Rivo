@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -22,6 +23,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -167,6 +169,7 @@ fun SwitchPreference(
 fun BasicPreference(
     titleContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    shape: CornerBasedShape = MaterialTheme.shapes.extraSmall,
     summaryContent: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
@@ -178,7 +181,9 @@ fun BasicPreference(
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
-            modifier = modifier
+            modifier = Modifier
+                .clip(shape)
+                .then(modifier)
                 .padding(contentPadding),
             verticalAlignment = verticalAlignment,
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)

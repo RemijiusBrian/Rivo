@@ -1,10 +1,11 @@
 package dev.ridill.rivo.tags.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +19,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.ui.components.BodyMediumText
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
+import dev.ridill.rivo.core.ui.theme.IconSizeMedium
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
@@ -32,34 +34,28 @@ fun TopTagsSelectorFlowRow(
     onViewAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    FlowRow(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
     ) {
-        BodyMediumText(stringResource(R.string.tag_your_transaction))
-        FlowRow(
-            modifier = Modifier,
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-        ) {
-            repeat(topTagsLazyPagingItems.itemCount) { index ->
-                topTagsLazyPagingItems[index]?.let { tag ->
-                    TagChip(
-                        name = tag.name,
-                        color = tag.color,
-                        excluded = tag.excluded,
-                        selected = tag.id == selectedTagId,
-                        onClick = { onTagClick(tag.id) }
-                    )
-                }
+        repeat(topTagsLazyPagingItems.itemCount) { index ->
+            topTagsLazyPagingItems[index]?.let { tag ->
+                TagChip(
+                    name = tag.name,
+                    color = tag.color,
+                    excluded = tag.excluded,
+                    selected = tag.id == selectedTagId,
+                    onClick = { onTagClick(tag.id) }
+                )
             }
-
-            AssistChip(
-                onClick = onViewAllClick,
-                label = { Text(stringResource(R.string.view_all)) },
-                border = null
-            )
         }
+
+        ElevatedAssistChip(
+            onClick = onViewAllClick,
+            label = { Text(stringResource(R.string.view_all)) },
+            border = null
+        )
     }
 }
 
@@ -85,13 +81,23 @@ fun TagChip(
     },
     colors = FilterChipDefaults.filterChipColors(
         selectedContainerColor = color,
-        selectedLabelColor = color.contentColor()
+        selectedLabelColor = color.contentColor(),
+        selectedLeadingIconColor = color.contentColor(),
+        iconColor = color
     ),
     modifier = Modifier
         .widthIn(max = TagChipMaxWidth)
-        .then(modifier)
-        .exclusionGraphicsLayer(excluded),
-    enabled = enabled
+        .then(modifier),
+//        .exclusionGraphicsLayer(excluded),
+    enabled = enabled,
+    leadingIcon = if (excluded) {
+        {
+            ExcludedIcon(
+                modifier = Modifier
+                    .size(IconSizeMedium)
+            )
+        }
+    } else null
 )
 
 private val TagChipMaxWidth = 150.dp

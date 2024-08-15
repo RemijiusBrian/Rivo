@@ -26,7 +26,7 @@ import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
 import dev.ridill.rivo.core.ui.components.HorizontalColorSelectionList
 import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 
@@ -114,7 +114,7 @@ fun AddEditTagSheet(
             )
         },
         modifier = modifier
-            .padding(bottom = SpacingListEnd),
+            .padding(bottom = PaddingScrollEnd),
         actionButton = {
             ButtonWithLoadingIndicator(
                 onClick = actions::onConfirm,

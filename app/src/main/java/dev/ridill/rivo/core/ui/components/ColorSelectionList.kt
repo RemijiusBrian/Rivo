@@ -29,7 +29,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.theme.RivoSelectableColorsList
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
@@ -40,7 +40,7 @@ fun HorizontalColorSelectionList(
     selectedColorCode: () -> Int? = { null },
     contentPadding: PaddingValues = PaddingValues(
         start = MaterialTheme.spacing.medium,
-        end = SpacingListEnd
+        end = PaddingScrollEnd
     ),
     reverseLayout: Boolean = false,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(MaterialTheme.spacing.small)

@@ -76,7 +76,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
@@ -155,7 +155,7 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                bottom = SpacingListEnd
+                bottom = PaddingScrollEnd
             )
         ) {
             item(
@@ -493,7 +493,7 @@ private fun ActiveSchedulesRow(
         contentPadding = PaddingValues(
             top = MaterialTheme.spacing.medium,
             start = MaterialTheme.spacing.medium,
-            end = SpacingListEnd
+            end = PaddingScrollEnd
         ),
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)

@@ -48,7 +48,7 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
@@ -125,7 +125,7 @@ fun FoldersListScreen(
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
                         top = MaterialTheme.spacing.medium,
-                        bottom = SpacingListEnd,
+                        bottom = PaddingScrollEnd,
                         start = MaterialTheme.spacing.medium,
                         end = MaterialTheme.spacing.medium
                     ),

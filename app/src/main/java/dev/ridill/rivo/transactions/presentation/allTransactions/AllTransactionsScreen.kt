@@ -105,7 +105,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.IconSizeSmall
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -209,7 +209,7 @@ fun AllTransactionsScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             contentPadding = PaddingValues(
-                bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
+                bottom = paddingValues.calculateBottomPadding() + PaddingScrollEnd
             )
         ) {
             item(
@@ -395,7 +395,7 @@ private fun TagsInfoList(
                     .matchParentSize(),
                 contentPadding = PaddingValues(
                     start = MaterialTheme.spacing.medium,
-                    end = SpacingListEnd
+                    end = PaddingScrollEnd
                 ),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 state = tagsListState
@@ -602,7 +602,7 @@ private fun DateFilter(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                     contentPadding = PaddingValues(
                         start = MaterialTheme.spacing.medium,
-                        end = SpacingListEnd
+                        end = PaddingScrollEnd
                     )
                 ) {
                     items(
@@ -626,7 +626,7 @@ private fun DateFilter(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             contentPadding = PaddingValues(
                 start = MaterialTheme.spacing.medium,
-                end = SpacingListEnd
+                end = PaddingScrollEnd
             ),
             state = monthsListState
         ) {
@@ -818,7 +818,7 @@ private fun MultiSelectionOptionsSheet(
             contentPadding = PaddingValues(
                 start = MaterialTheme.spacing.medium,
                 end = MaterialTheme.spacing.medium,
-                bottom = SpacingListEnd
+                bottom = PaddingScrollEnd
             )
         ) {
             items(
@@ -874,7 +874,7 @@ private fun FilterOptionsSheet(
                 .verticalScroll(rememberScrollState())
                 .padding(
                     top = MaterialTheme.spacing.medium,
-                    bottom = SpacingListEnd
+                    bottom = PaddingScrollEnd
                 ),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {

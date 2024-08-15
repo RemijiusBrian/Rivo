@@ -71,7 +71,7 @@ import dev.ridill.rivo.core.ui.components.SwipeToDismissContainer
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
@@ -157,7 +157,7 @@ fun FolderDetailsScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(
                 top = MaterialTheme.spacing.medium,
-                bottom = SpacingListEnd
+                bottom = PaddingScrollEnd
             ),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {

@@ -16,7 +16,7 @@ data class Spacing(
 
 val LocalSpacing = compositionLocalOf { Spacing() }
 
-val SpacingListEnd = 80.dp
+val PaddingScrollEnd = 80.dp
 
 val BorderWidthStandard = 1.dp
 

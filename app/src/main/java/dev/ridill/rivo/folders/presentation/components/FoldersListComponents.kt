@@ -22,7 +22,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.folders.domain.model.Folder
 
@@ -43,7 +43,7 @@ fun FolderListSearchSheet(
         placeholder = stringResource(R.string.search_folder),
         modifier = modifier,
         contentPadding = PaddingValues(
-            bottom = SpacingListEnd
+            bottom = PaddingScrollEnd
         ),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {

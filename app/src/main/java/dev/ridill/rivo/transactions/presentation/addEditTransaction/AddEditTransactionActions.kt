@@ -1,7 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.addEditTransaction
 
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
-import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 interface AddEditTransactionActions {
@@ -23,7 +22,7 @@ interface AddEditTransactionActions {
     fun onDeleteDismiss()
     fun onDeleteConfirm()
     fun onRemoveFromFolderClick()
-    fun onAddEditOptionSelect(option: AddEditTxOption)
+    fun onScheduleForLaterClick()
     fun onCancelSchedulingClick()
     fun onRepeatModeClick()
     fun onRepeatModeDismiss()
