@@ -75,8 +75,8 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
@@ -298,7 +298,7 @@ private fun Greeting(
             .mergedContentDescription(
                 contentDescription = stringResource(
                     R.string.cd_app_greeting_user,
-                    partOfDay.labelRes,
+                    stringResource(partOfDay.labelRes),
                     username.orEmpty()
                 )
             )
