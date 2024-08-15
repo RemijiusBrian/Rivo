@@ -16,7 +16,8 @@ sealed interface NavDestination {
                 FolderSelectionSheetSpec,
                 AmountTransformationSheetSpec,
                 AddEditTagSheetSpec,
-                TagSelectionSheetSpec
+                TagSelectionSheetSpec,
+                AllTagsScreenSpec
             )
 
         const val DEEP_LINK_URI = "dev.ridill.rivo://app"

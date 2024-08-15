@@ -1,5 +1,8 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,6 +18,8 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
+import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
 import java.util.Currency
@@ -24,6 +29,12 @@ data object AllTransactionsScreenSpec : ScreenSpec {
     override val route: String = "all_transactions"
 
     override val labelRes: Int = R.string.destination_all_transactions
+
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutHorizontallyWithFadeOut { -it } }
+
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInHorizontallyWithFadeIn { -it } }
 
     @Composable
     override fun Content(
@@ -100,6 +111,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
+            navigateToAllTags = { navController.navigate(AllTagsScreenSpec.route) },
             navigateToAddEditTransaction = { txId, selectedDate ->
                 navController.navigate(
                     AddEditTransactionScreenSpec.routeWithArg(

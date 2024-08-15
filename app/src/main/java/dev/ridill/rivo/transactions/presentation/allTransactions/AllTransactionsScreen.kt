@@ -56,6 +56,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TriStateCheckbox
@@ -100,13 +101,13 @@ import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.icons.Tags
+import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.ElevationLevel0
-import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
@@ -115,6 +116,7 @@ import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 import dev.ridill.rivo.tags.domain.model.TagInfo
+import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
@@ -131,6 +133,7 @@ fun AllTransactionsScreen(
     tagsPagingItems: LazyPagingItems<TagInfo>,
     state: AllTransactionsState,
     actions: AllTransactionsActions,
+    navigateToAllTags: () -> Unit,
     navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -215,6 +218,7 @@ fun AllTransactionsScreen(
             ) {
                 TagsInfoList(
                     currency = state.currency,
+                    onAllTagsClick = navigateToAllTags,
                     tagsPagingItems = tagsPagingItems,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -279,18 +283,17 @@ fun AllTransactionsScreen(
                 }
 
                 TransactionListItem(
-                    showTypeIndicator = true,
-                    tag = transaction.tag,
-                    tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
                     note = transaction.note,
                     amount = transaction.amountFormattedWithCurrency(state.currency),
                     date = transaction.date,
                     type = transaction.type,
-                    excluded = transaction.excluded,
-                    folder = transaction.folder,
                     modifier = Modifier
                         .then(clickableModifier)
-                        .animateItemPlacement()
+                        .animateItemPlacement(),
+                    tag = transaction.tag,
+                    folder = transaction.folder,
+                    excluded = transaction.excluded,
+                    tonalElevation = if (selected) MaterialTheme.elevation.level1 else MaterialTheme.elevation.level0
                 )
             }
         }
@@ -342,6 +345,7 @@ private val TagsRowMinHeight = 100.dp
 private fun TagsInfoList(
     currency: Currency,
     tagsPagingItems: LazyPagingItems<TagInfo>,
+    onAllTagsClick: () -> Unit,
     modifier: Modifier = Modifier,
     tagsListState: LazyListState = rememberLazyListState()
 ) {
@@ -371,16 +375,9 @@ private fun TagsInfoList(
                     .padding(horizontal = MaterialTheme.spacing.medium),
             )
             SpacerSmall()
-            /*TextButton(onClick = onNewTagClick) {
-                Text(text = stringResource(R.string.create_new_tag))
-                Spacer(spacing = ButtonDefaults.IconSpacing)
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(ButtonDefaults.IconSize)
-                )
-            }*/
+            TextButton(onClick = onAllTagsClick) {
+                Text(text = "${stringResource(AllTagsScreenSpec.labelRes)}>")
+            }
         }
         Box(
             modifier = modifier,
