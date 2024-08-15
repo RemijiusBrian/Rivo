@@ -72,7 +72,6 @@ fun TransactionListItem(
             .replace(" ", "\n")
     }
 
-    val isNoteEmpty = remember(note) { note.isEmpty() }
     val transactionListItemContentDescription = buildString {
         append(
             stringResource(
@@ -109,7 +108,7 @@ fun TransactionListItem(
                     modifier = Modifier
                         .fillMaxWidth(),
                     color = LocalContentColor.current.copy(
-                        alpha = if (isNoteEmpty) ContentAlpha.SUB_CONTENT
+                        alpha = if (note.isEmpty()) ContentAlpha.SUB_CONTENT
                         else Float.One
                     ),
                     style = LocalTextStyle.current.copy(
