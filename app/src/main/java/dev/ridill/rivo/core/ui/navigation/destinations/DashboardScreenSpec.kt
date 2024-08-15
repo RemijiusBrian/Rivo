@@ -15,7 +15,6 @@ import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
 import java.util.Currency
 
 data object DashboardScreenSpec : ScreenSpec {
@@ -36,8 +35,8 @@ data object DashboardScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        NavigationResultEffect<String>(
-            key = ACTION_ADD_EDIT_TX_OR_SCHEDULE,
+        NavigationResultEffect<AddEditTxResult>(
+            key = AddEditTxResult::name.name,
             navBackStackEntry = navBackStackEntry,
             context,
             snackbarController,

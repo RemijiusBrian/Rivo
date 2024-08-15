@@ -30,12 +30,8 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
 import java.time.LocalDateTime
 import java.util.Currency
 
@@ -177,31 +173,10 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
-                        RESULT_TRANSACTION_DELETED
-                    )
-                }
-
                 is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
                     snackbarController.showSnackbar(
                         message = event.uiText.asString(context),
                         isError = event.uiText.isErrorText
-                    )
-                }
-
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionSaved -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
-                        RESULT_TRANSACTION_SAVED
-                    )
-                }
-
-                AddEditTransactionViewModel.AddEditTransactionEvent.ScheduleSaved -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
-                        RESULT_SCHEDULE_SAVED
                     )
                 }
 
@@ -217,6 +192,13 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                             multiSelection = false,
                             preselectedId = event.preselectedId
                         )
+                    )
+                }
+
+                is AddEditTransactionViewModel.AddEditTransactionEvent.NavigateUpWithResult -> {
+                    navController.navigateUpWithResult<AddEditTxResult>(
+                        AddEditTxResult::name.name,
+                        event.result
                     )
                 }
             }
@@ -237,6 +219,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             },
         )
     }
+}
+
+enum class AddEditTxResult {
+    TRANSACTION_DELETED,
+    TRANSACTION_SAVED,
+    SCHEDULE_SAVED
 }
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"

@@ -17,6 +17,7 @@ import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.ifInfinite
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTransactionScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTxResult
 import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.navigation.destinations.TransformationResult
 import dev.ridill.rivo.core.ui.util.TextFormat
@@ -314,7 +315,7 @@ class AddEditTransactionViewModel @Inject constructor(
                 transactionRepo.deleteTransaction(coercedIdArg)
             isLoading.update { false }
             savedStateHandle[SHOW_DELETE_CONFIRMATION] = false
-            eventBus.send(AddEditTransactionEvent.TransactionDeleted)
+            eventBus.send(AddEditTransactionEvent.NavigateUpWithResult(AddEditTxResult.TRANSACTION_DELETED))
         }
     }
 
@@ -411,7 +412,7 @@ class AddEditTransactionViewModel @Inject constructor(
                     repeatMode = selectedRepeatMode.value
                 )
                 isLoading.update { false }
-                eventBus.send(AddEditTransactionEvent.ScheduleSaved)
+                eventBus.send(AddEditTransactionEvent.NavigateUpWithResult(AddEditTxResult.SCHEDULE_SAVED))
             } else {
                 // Saving transaction
                 // scheduleModeArg = true means this input started off as a schedule
@@ -432,16 +433,14 @@ class AddEditTransactionViewModel @Inject constructor(
                     )
                 )
                 isLoading.update { false }
-                eventBus.send(AddEditTransactionEvent.TransactionSaved)
+                eventBus.send(AddEditTransactionEvent.NavigateUpWithResult(AddEditTxResult.TRANSACTION_SAVED))
             }
         }
     }
 
     sealed interface AddEditTransactionEvent {
-        data object TransactionDeleted : AddEditTransactionEvent
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent
-        data object TransactionSaved : AddEditTransactionEvent
-        data object ScheduleSaved : AddEditTransactionEvent
+        data class NavigateUpWithResult(val result: AddEditTxResult) : AddEditTransactionEvent
         data class LaunchFolderSelection(val preselectedId: Long?) : AddEditTransactionEvent
         data class LaunchTagSelection(val preselectedId: Long?) : AddEditTransactionEvent
     }
@@ -454,8 +453,3 @@ private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
 private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
 private const val SHOW_REPEAT_MODE_SELECTION = "SHOW_REPEAT_MODE_SELECTION"
 private const val SELECTED_REPEAT_MODE = "SELECTED_TX_REPEAT_MODE"
-
-const val ACTION_ADD_EDIT_TX_OR_SCHEDULE = "ACTION_ADD_EDIT_TX_OR_SCHEDULE"
-const val RESULT_TRANSACTION_DELETED = "RESULT_TRANSACTION_DELETED"
-const val RESULT_TRANSACTION_SAVED = "RESULT_TRANSACTION_SAVED"
-const val RESULT_SCHEDULE_SAVED = "RESULT_SCHEDULE_SAVED"
