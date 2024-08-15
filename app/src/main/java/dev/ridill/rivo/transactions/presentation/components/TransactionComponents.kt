@@ -1,13 +1,9 @@
 package dev.ridill.rivo.transactions.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -20,15 +16,12 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -45,9 +38,13 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.AmountWithArrow
+import dev.ridill.rivo.core.ui.components.BodyMediumText
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
+import dev.ridill.rivo.core.ui.components.ListItemLeadingContentContainer
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.ElevationLevel0
+import dev.ridill.rivo.core.ui.theme.IconSizeMedium
+import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.folders.domain.model.Folder
@@ -62,7 +59,6 @@ fun TransactionListItem(
     date: LocalDate,
     type: TransactionType,
     modifier: Modifier = Modifier,
-    showTypeIndicator: Boolean = false,
     tag: Tag? = null,
     folder: Folder? = null,
     excluded: Boolean = false,
@@ -71,6 +67,11 @@ fun TransactionListItem(
     tonalElevation: Dp = ListItemDefaults.Elevation,
     shadowElevation: Dp = ListItemDefaults.Elevation
 ) {
+    val dateFormatted = remember(date) {
+        date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
+            .replace(" ", "\n")
+    }
+
     val isNoteEmpty = remember(note) { note.isEmpty() }
     val transactionListItemContentDescription = buildString {
         append(
@@ -115,37 +116,34 @@ fun TransactionListItem(
             )
             // FIXME: note text not visible if amount text is too long
         },
-        leadingContent = { TransactionDate(date) },
-        trailingContent = {
-            AmountWithArrow(
-                value = amount,
-                type = type
-            )
-            /*Row(
-                horizontalArrangement = Arrangement.spacedBy(
-                    MaterialTheme.spacing.small,
-                    Alignment.End
-                ),
-                verticalAlignment = Alignment.CenterVertically,
+        leadingContent = {
+            ListItemLeadingContentContainer(
+                modifier = modifier,
+                tonalElevation = MaterialTheme.elevation.level1
             ) {
-                Text(
-                    text = amount,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .weight(weight = Float.One, fill = false)
+                BodyMediumText(
+                    text = dateFormatted,
+                    textAlign = TextAlign.Center
                 )
-                if (showTypeIndicator) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(type.iconRes),
-                        contentDescription = stringResource(type.labelRes),
+            }
+        },
+        trailingContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                AmountWithArrow(
+                    value = amount,
+                    type = type
+                )
+
+                if (excluded) {
+                    ExcludedIcon(
                         modifier = Modifier
-                            .size(TypeIndicatorSize)
+                            .size(IconSizeMedium)
                     )
                 }
-            }*/
+            }
         },
         supportingContent = {
             Row(
@@ -184,44 +182,6 @@ fun TransactionListItem(
         shadowElevation = shadowElevation
     )
 }
-
-@Composable
-fun TransactionDate(
-    date: LocalDate,
-    modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.small,
-    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = ElevationLevel0,
-    contentPadding: PaddingValues = PaddingValues(MaterialTheme.spacing.small)
-) {
-    val dateFormatted = remember(date) {
-        date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
-            .replace(" ", "\n")
-    }
-    Surface(
-        shape = shape,
-        color = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation
-    ) {
-        Box(
-            modifier = Modifier
-                .widthIn(min = DateContainerMinWidth)
-                .padding(contentPadding)
-                .then(modifier),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = dateFormatted,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-private val DateContainerMinWidth: Dp = 56.dp
 
 @Composable
 private fun TagIndicator(

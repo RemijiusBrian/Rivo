@@ -63,8 +63,8 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
@@ -344,7 +344,7 @@ private fun ScheduleListItemCard(
                 },
                 modifier = Modifier
                     .clip(CardDefaults.shape),
-                tonalElevation = ElevationLevel1
+                tonalElevation = MaterialTheme.elevation.level1
             )
             HorizontalDivider()
             Row(

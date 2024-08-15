@@ -108,7 +108,8 @@ fun RivoTheme(
     }
 
     CompositionLocalProvider(
-        LocalSpacing provides Spacing()
+        LocalSpacing provides Spacing(),
+        LocalElevation provides Elevation()
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
@@ -123,3 +124,8 @@ val MaterialTheme.spacing: Spacing
     @Composable
     @ReadOnlyComposable
     get() = LocalSpacing.current
+
+val MaterialTheme.elevation: Elevation
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalElevation.current

@@ -1,5 +1,6 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
+import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import java.time.Month
 

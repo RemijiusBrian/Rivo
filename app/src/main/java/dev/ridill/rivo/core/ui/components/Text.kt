@@ -2,7 +2,6 @@ package dev.ridill.rivo.core.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -18,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -117,14 +117,38 @@ fun BodyMediumText(
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Ellipsis,
-    color: Color = LocalContentColor.current
+    color: Color = LocalContentColor.current,
+    textAlign: TextAlign? = null,
+    textDecoration: TextDecoration? = null
 ) = Text(
     text = text,
     style = MaterialTheme.typography.bodyMedium,
     maxLines = maxLines,
     overflow = overflow,
     modifier = modifier,
-    color = color
+    color = color,
+    textAlign = textAlign,
+    textDecoration = textDecoration
+)
+
+@Composable
+fun LabelLargeText(
+    text: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = LocalContentColor.current,
+    textAlign: TextAlign? = null,
+    textDecoration: TextDecoration? = null
+) = Text(
+    text = text,
+    style = MaterialTheme.typography.labelLarge,
+    maxLines = maxLines,
+    overflow = overflow,
+    modifier = modifier,
+    color = color,
+    textAlign = textAlign,
+    textDecoration = textDecoration
 )
 
 @Composable

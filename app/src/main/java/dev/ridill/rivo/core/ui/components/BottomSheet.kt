@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.core.ui.theme.ElevationLevel0
+import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 
@@ -385,7 +385,7 @@ fun <T> ListSearchSheet(
                 }
             },
             placeholder = { placeholder?.let { Text(it) } },
-            tonalElevation = ElevationLevel0
+            tonalElevation = MaterialTheme.elevation.level0
         ) {
             LazyColumn {
                 items(items = itemsList, key = itemKey) { item ->
@@ -443,7 +443,7 @@ fun ListSearchSheet(
                 }
             },
             placeholder = { placeholder?.let { Text(it) } },
-            tonalElevation = ElevationLevel0
+            tonalElevation = MaterialTheme.elevation.level0
         ) {
             LazyColumn(
                 state = listState,

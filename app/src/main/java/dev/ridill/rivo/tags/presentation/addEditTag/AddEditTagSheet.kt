@@ -24,7 +24,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
 import dev.ridill.rivo.core.ui.components.HorizontalColorSelectionList
-import dev.ridill.rivo.core.ui.components.LabelledSwitch
+import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.theme.SpacingListEnd
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -105,10 +105,9 @@ fun AddEditTagSheet(
                 onColorSelect = actions::onColorSelect
             )
 
-            LabelledSwitch(
-                labelRes = R.string.mark_excluded_question,
-                checked = excluded() == true,
-                onCheckedChange = actions::onExclusionChange,
+            MarkExcludedSwitch(
+                excluded = excluded() == true,
+                onToggle = actions::onExclusionChange,
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.spacing.medium)
                     .align(Alignment.End)

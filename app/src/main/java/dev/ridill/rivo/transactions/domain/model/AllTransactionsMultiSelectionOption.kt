@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.presentation.allTransactions
+package dev.ridill.rivo.transactions.domain.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -25,7 +25,7 @@ enum class AllTransactionsMultiSelectionOption(
         labelRes = R.string.all_transactions_multi_selection_option_mark_excluded
     ),
     INCLUDE_IN_EXPENDITURE(
-        iconRes = R.drawable.ic_rounded_exclude,
+        iconRes = R.drawable.ic_rounded_include,
         labelRes = R.string.all_transactions_multi_selection_option_un_mark_excluded
     ),
     ADD_TO_FOLDER(

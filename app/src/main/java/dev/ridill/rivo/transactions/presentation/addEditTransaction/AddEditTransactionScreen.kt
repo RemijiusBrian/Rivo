@@ -7,7 +7,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -89,10 +88,9 @@ import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
-import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
-import dev.ridill.rivo.core.ui.components.LabelledSwitch
+import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.MinWidthOutlinedTextField
 import dev.ridill.rivo.core.ui.components.RivoDatePickerDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -106,7 +104,7 @@ import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.tags.domain.model.Tag
-import dev.ridill.rivo.tags.presentation.components.TagChip
+import dev.ridill.rivo.tags.presentation.components.TopTagsSelectorFlowRow
 import dev.ridill.rivo.transactions.domain.model.AddEditTxOption
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
@@ -293,7 +291,7 @@ fun AddEditTransactionScreen(
                     modifier = Modifier
                         .align(Alignment.End)
                 ) {
-                    ExclusionToggle(
+                    MarkExcludedSwitch(
                         excluded = state.isTransactionExcluded,
                         onToggle = actions::onExclusionToggle
                     )
@@ -310,7 +308,7 @@ fun AddEditTransactionScreen(
                     )
                 }
 
-                TopTagsSelector(
+                TopTagsSelectorFlowRow(
                     topTagsLazyPagingItems = topTagsLazyPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagSelect,
@@ -598,60 +596,6 @@ private fun TransactionTypeSelector(
     }
 }
 
-@Composable
-private fun ExclusionToggle(
-    excluded: Boolean,
-    onToggle: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End
-    ) {
-        LabelledSwitch(
-            labelRes = R.string.mark_excluded_question,
-            checked = excluded,
-            onCheckedChange = onToggle
-        )
-    }
-}
-
-@Composable
-fun TopTagsSelector(
-    topTagsLazyPagingItems: LazyPagingItems<Tag>,
-    selectedTagId: Long?,
-    onTagClick: (Long) -> Unit,
-    onViewAllClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
-    ) {
-        BodyMediumText(stringResource(R.string.tag_your_transaction))
-        FlowRow(
-            modifier = Modifier,
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-        ) {
-            repeat(topTagsLazyPagingItems.itemCount) { index ->
-                topTagsLazyPagingItems[index]?.let { tag ->
-                    TagChip(
-                        name = tag.name,
-                        color = tag.color,
-                        excluded = tag.excluded,
-                        selected = tag.id == selectedTagId,
-                        onClick = { onTagClick(tag.id) }
-                    )
-                }
-            }
-
-            ElevatedAssistChip(
-                onClick = onViewAllClick,
-                label = { Text(stringResource(R.string.view_all)) }
-            )
-        }
-    }
-}
 
 @Composable
 private fun AddEditOptions(

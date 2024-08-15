@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -21,8 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +36,7 @@ import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TagChip
+import dev.ridill.rivo.tags.presentation.components.TagSearchField
 
 @Composable
 fun TagSelectionSheet(
@@ -128,24 +126,3 @@ fun TagSelectionSheet(
 }
 
 private val TagsFlowRowMinHeight = 200.dp
-
-@Composable
-private fun TagSearchField(
-    query: () -> String,
-    onSearchQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextField(
-        value = query(),
-        onValueChange = onSearchQueryChange,
-        modifier = modifier,
-        shape = CircleShape,
-        placeholder = { Text(stringResource(R.string.search_tags)) },
-        colors = TextFieldDefaults.colors(
-            disabledIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent
-        )
-    )
-}

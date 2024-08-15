@@ -249,7 +249,6 @@ fun FolderDetailsScreen(
                                             onClick = { navigateToAddEditTransaction(item.transaction.id) }
                                         ) {
                                             TransactionListItem(
-                                                showTypeIndicator = true,
                                                 note = item.transaction.note,
                                                 amount = item.transaction
                                                     .amountFormattedWithCurrency(
@@ -257,8 +256,8 @@ fun FolderDetailsScreen(
                                                     ),
                                                 date = item.transaction.date,
                                                 type = item.transaction.type,
-                                                excluded = item.transaction.excluded,
-                                                tag = item.transaction.tag
+                                                tag = item.transaction.tag,
+                                                excluded = item.transaction.excluded
                                             )
                                         }
                                     }
