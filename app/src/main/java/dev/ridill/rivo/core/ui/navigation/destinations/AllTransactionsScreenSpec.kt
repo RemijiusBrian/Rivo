@@ -59,7 +59,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             onResult = viewModel::onFolderSelect
         )*/
 
-        NavigationResultEffect<Long?>(
+        NavigationResultEffect<Long>(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
@@ -70,7 +70,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             key = TagSelectionSheetSpec.SELECTED_IDS,
             navBackStackEntry = navBackStackEntry
         ) { ids ->
-            ids?.firstOrNull()?.let(viewModel::onTagSelectionResultToAssignTag)
+            ids.firstOrNull()?.let(viewModel::onTagSelectionResultToAssignTag)
         }
 
         CollectFlowEffect(viewModel.events, context, snackbarController) { event ->

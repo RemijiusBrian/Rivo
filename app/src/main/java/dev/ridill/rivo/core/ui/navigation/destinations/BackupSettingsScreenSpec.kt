@@ -69,7 +69,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         NavigationResultEffect<String>(
             key = ACTION_ENCRYPTION_PASSWORD,
             navBackStackEntry = navBackStackEntry,
-            onResult = { it?.let(viewModel::onDestinationResult) }
+            onResult = viewModel::onDestinationResult
         )
 
         val authorizationResultLauncher = rememberLauncherForActivityResult(
@@ -115,4 +115,5 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN = "${NavDestination.DEEP_LINK_URI}/view_backup_settings"
+private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/view_backup_settings"

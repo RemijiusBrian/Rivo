@@ -80,7 +80,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
             key = AddEditTagSheetSpec.CRATED_TAG_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel
-        ) { it?.let(viewModel::onItemClick) }
+        ) { viewModel.onItemClick(it) }
 
         TagSelectionSheet(
             multiSelection = multiSelection,

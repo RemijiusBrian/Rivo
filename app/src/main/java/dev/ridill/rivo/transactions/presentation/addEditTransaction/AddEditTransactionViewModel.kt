@@ -327,7 +327,7 @@ class AddEditTransactionViewModel @Inject constructor(
 
     fun onFolderSelectionResult(id: Long?) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
-            folderId = id
+            folderId = id.takeIf { it != NavDestination.ARG_INVALID_ID_LONG }
         )
     }
 

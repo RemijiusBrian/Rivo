@@ -10,22 +10,22 @@ fun <T> NavigationResultEffect(
     key: String,
     navBackStackEntry: NavBackStackEntry,
     vararg keys: Any,
-    onResult: (T?) -> Unit
+    onResult: (T) -> Unit
 ) {
     val result = navBackStackEntry
         .savedStateHandle
         .get<T>(key)
 
     LaunchedEffect(result, navBackStackEntry, *keys) {
-        onResult(result)
-//        navBackStackEntry.savedStateHandle
-//            .remove<T>(key)
+        result?.let(onResult)
+        navBackStackEntry.savedStateHandle
+            .remove<T>(key)
     }
 }
 
 fun <T> NavHostController.navigateUpWithResult(
     key: String,
-    result: T,
+    result: T?,
     backStackEntry: NavBackStackEntry? = this.previousBackStackEntry
 ) {
     backStackEntry

@@ -149,26 +149,26 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        NavigationResultEffect<Long?>(
+        NavigationResultEffect(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelectionResult
         )
 
-        NavigationResultEffect<TransformationResult>(
+        NavigationResultEffect(
             key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
-            onResult = { it?.let(viewModel::onAmountTransformationResult) }
+            onResult = viewModel::onAmountTransformationResult
         )
 
         NavigationResultEffect<Set<Long>>(
             key = TagSelectionSheetSpec.SELECTED_IDS,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
-        ) { selectedIds ->
-            selectedIds?.firstOrNull()?.let(viewModel::onTagSelect)
+        ) { ids ->
+            ids.firstOrNull()?.let(viewModel::onTagSelect)
         }
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->

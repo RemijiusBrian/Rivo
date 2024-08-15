@@ -13,6 +13,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.addOrRemove
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.tags.domain.repository.TagsRepository
 import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
@@ -366,8 +367,8 @@ class AllTransactionsViewModel @Inject constructor(
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_removed_from_their_folders)))
     }
 
-    fun onFolderSelect(folderId: Long?) {
-        if (folderId == null) return
+    fun onFolderSelect(folderId: Long) {
+        if (folderId == NavDestination.ARG_INVALID_ID_LONG) return
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             transactionRepo.addTransactionsToFolderByIds(

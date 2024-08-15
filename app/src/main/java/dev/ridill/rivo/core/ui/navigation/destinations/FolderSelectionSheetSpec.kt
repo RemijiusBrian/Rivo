@@ -55,11 +55,11 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
         val foldersList = viewModel.folderListPaged.collectAsLazyPagingItems()
         val selectedId by viewModel.selectedFolderId.collectAsStateWithLifecycle()
 
-        NavigationResultEffect<Long>(
+        NavigationResultEffect(
             key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
-            onResult = { it?.let(viewModel::onFolderSelect) }
+            onResult = viewModel::onFolderSelect
         )
 
         FolderSelectionSheet(
@@ -77,13 +77,13 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
             },
             onDismiss = navController::navigateUp,
             onClearSelectionClick = {
-                navController.navigateUpWithResult<Long?>(
+                navController.navigateUpWithResult(
                     key = SELECTED_FOLDER_ID,
-                    result = null
+                    result = NavDestination.ARG_INVALID_ID_LONG
                 )
             },
             onConfirm = {
-                navController.navigateUpWithResult<Long?>(
+                navController.navigateUpWithResult(
                     key = SELECTED_FOLDER_ID,
                     result = selectedId
                 )
