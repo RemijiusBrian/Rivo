@@ -293,6 +293,7 @@ fun AddEditTransactionScreen(
                             .padding(horizontal = MaterialTheme.spacing.medium)
                     )
                 }
+                HorizontalDivider()
 
                 TagSelection(
                     tagsLazyPagingItems = topTagsLazyPagingItems,
@@ -302,6 +303,8 @@ fun AddEditTransactionScreen(
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                 )
+
+                HorizontalDivider()
 
                 AnimatedVisibility(
                     visible = !state.isScheduleTxMode,
