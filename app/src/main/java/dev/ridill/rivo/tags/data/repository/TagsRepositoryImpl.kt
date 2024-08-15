@@ -1,4 +1,4 @@
-package dev.ridill.rivo.tags.data.local.repository
+package dev.ridill.rivo.tags.data.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig

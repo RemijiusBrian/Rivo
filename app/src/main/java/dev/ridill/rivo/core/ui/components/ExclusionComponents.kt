@@ -52,22 +52,24 @@ fun ExcludedIcon(
 @Composable
 fun MarkExcludedSwitch(
     excluded: Boolean,
-    onToggle: (Boolean) -> Unit,
+    onToggle: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.bodyLarge
 ) {
+    val toggleableModifier = if (onToggle != null) Modifier
+        .toggleable(
+            value = excluded,
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            enabled = true,
+            role = Role.Switch,
+            onValueChange = onToggle
+        )
+    else Modifier
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-        modifier = Modifier
-            .toggleable(
-                value = excluded,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                enabled = true,
-                role = Role.Switch,
-                onValueChange = onToggle
-            )
+        modifier = toggleableModifier
             .then(modifier)
     ) {
         Icon(

@@ -67,7 +67,8 @@ fun FoldersListScreen(
     foldersPagingItems: LazyPagingItems<FolderUIModel>,
     state: FoldersListState,
     actions: FoldersListActions,
-    navigateToFolderDetails: (Long?) -> Unit,
+    navigateToAddFolder: () -> Unit,
+    navigateToFolderDetails: (Long) -> Unit,
     navigateUp: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -91,7 +92,7 @@ fun FoldersListScreen(
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         floatingActionButton = {
-            FloatingActionButton(onClick = { navigateToFolderDetails(null) }) {
+            FloatingActionButton(onClick = navigateToAddFolder) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_outline_add_folder),
                     contentDescription = stringResource(R.string.cd_new_folder)

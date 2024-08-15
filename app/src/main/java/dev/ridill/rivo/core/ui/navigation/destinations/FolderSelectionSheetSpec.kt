@@ -56,7 +56,7 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
         val selectedId by viewModel.selectedFolderId.collectAsStateWithLifecycle()
 
         NavigationResultEffect(
-            key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
+            key = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelect
@@ -69,10 +69,7 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
             onFolderSelect = viewModel::onFolderSelect,
             onCreateNewClick = {
                 navController.navigate(
-                    FolderDetailsScreenSpec.routeWithArgs(
-                        folderId = null,
-                        exitAfterCreate = true
-                    )
+                    AddEditFolderSheetSpec.routeWithArg()
                 )
             },
             onDismiss = navController::navigateUp,

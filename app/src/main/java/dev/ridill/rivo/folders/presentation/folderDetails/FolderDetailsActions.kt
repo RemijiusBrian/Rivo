@@ -7,10 +7,5 @@ interface FolderDetailsActions {
     fun onDeleteDismiss()
     fun onDeleteFolderOnlyClick()
     fun onDeleteFolderAndTransactionsClick()
-    fun onEditClick()
-    fun onEditDismiss()
-    fun onEditConfirm()
-    fun onNameChange(value: String)
-    fun onExclusionToggle(excluded: Boolean)
     fun onTransactionSwipeToDismiss(transaction: TransactionListItem)
 }

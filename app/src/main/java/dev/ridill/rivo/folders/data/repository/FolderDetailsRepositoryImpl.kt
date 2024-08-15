@@ -7,7 +7,6 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.folders.data.local.FolderDao
-import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.toFolderDetails
 import dev.ridill.rivo.folders.domain.model.FolderDetails
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
@@ -21,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
 
 class FolderDetailsRepositoryImpl(
     private val dao: FolderDao,
@@ -29,21 +27,6 @@ class FolderDetailsRepositoryImpl(
 ) : FolderDetailsRepository {
     override fun getFolderDetailsById(id: Long): Flow<FolderDetails?> = dao
         .getFolderWithAggregateExpenditureById(id).map { it?.toFolderDetails() }
-
-    override suspend fun saveFolder(
-        id: Long,
-        name: String,
-        createdTimestamp: LocalDateTime,
-        excluded: Boolean
-    ): Long = withContext(Dispatchers.IO) {
-        val entity = FolderEntity(
-            id = id,
-            name = name,
-            createdTimestamp = createdTimestamp,
-            isExcluded = excluded
-        )
-        dao.insert(entity).first()
-    }
 
     override fun getPagedTransactionsInFolder(
         folderId: Long

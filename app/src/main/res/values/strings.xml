@@ -25,6 +25,9 @@
     <string name="destination_amount_transformation_selection">Amount Transformation</string>
     <string name="destination_tag_selection">Select Tag</string>
     <string name="destination_all_tags">All Tags</string>
+    <string name="destination_add_edit_folder">Add/Edit Folder</string>
+    <string name="destination_new_folder">New Folder</string>
+    <string name="destination_edit_folder">Edit Folder</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -122,7 +125,7 @@
     <string name="error_invalid_encryption_password">Invalid encryption password</string>
     <string name="error_incorrect_encryption_password">Incorrect encryption password</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
-    <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
+    <string name="error_invalid_folder_name">Please enter a valid name</string>
     <string name="error_biometric_hw_unavailable">Biometric features are currently unavailable</string>
     <string name="error_biometric_auth_failed">Authentication failed</string>
     <string name="error_passwords_do_not_match">Passwords do not match</string>
