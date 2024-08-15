@@ -36,12 +36,12 @@ data object DashboardScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        NavigationResultEffect(
+        NavigationResultEffect<String>(
             key = ACTION_ADD_EDIT_TX_OR_SCHEDULE,
             navBackStackEntry = navBackStackEntry,
             context,
             snackbarController,
-            onResult = viewModel::onNavResult
+            onResult = { it?.let(viewModel::onNavResult) }
         )
 
         CollectFlowEffect(

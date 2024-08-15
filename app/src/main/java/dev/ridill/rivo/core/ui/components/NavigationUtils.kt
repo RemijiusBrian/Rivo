@@ -10,16 +10,16 @@ fun <T> NavigationResultEffect(
     key: String,
     navBackStackEntry: NavBackStackEntry,
     vararg keys: Any,
-    onResult: (T) -> Unit
+    onResult: (T?) -> Unit
 ) {
     val result = navBackStackEntry
         .savedStateHandle
         .get<T>(key)
 
     LaunchedEffect(result, navBackStackEntry, *keys) {
-        result?.let(onResult)
-        navBackStackEntry.savedStateHandle
-            .remove<T>(key)
+        onResult(result)
+//        navBackStackEntry.savedStateHandle
+//            .remove<T>(key)
     }
 }
 

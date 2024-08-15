@@ -22,7 +22,7 @@ import java.util.Currency
 
 data object TagSelectionSheetSpec : BottomSheetSpec {
 
-    override val route: String = "tag_selection/{$ARG_MULTI_SELECTION}"
+    override val route: String = "tag_selection/{$ARG_MULTI_SELECTION}/{$ARG_PRE_SELECTED_ID}"
     override val labelRes: Int = R.string.destination_tag_selection
 
     override val arguments: List<NamedNavArgument> = listOf(
@@ -30,13 +30,25 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
             type = NavType.BoolType
             nullable = false
             defaultValue = false
+        },
+        navArgument(ARG_PRE_SELECTED_ID) {
+            type = NavType.LongType
+            nullable = false
+            defaultValue = NavDestination.ARG_INVALID_ID_LONG
         }
     )
 
-    fun routeWithArgs(multiSelection: Boolean) = route
+    fun routeWithArgs(
+        multiSelection: Boolean,
+        preselectedId: Long? = null
+    ) = route
         .replace(
             oldValue = "{$ARG_MULTI_SELECTION}",
             newValue = multiSelection.toString()
+        )
+        .replace(
+            oldValue = "{$ARG_PRE_SELECTED_ID}",
+            newValue = (preselectedId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
         )
 
     fun getMultiSelectionFromSavedStateHandle(savedStateHandle: SavedStateHandle): Boolean =
@@ -44,6 +56,10 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
 
     private fun getMultiSelectionArg(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getBoolean(ARG_MULTI_SELECTION).orFalse()
+
+    fun getPreselectedIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
+        savedStateHandle.get<Long>(ARG_PRE_SELECTED_ID)
+            ?.takeIf { it > NavDestination.ARG_INVALID_ID_LONG }
 
     const val SELECTED_IDS = "SELECTED_IDS"
 
@@ -64,9 +80,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
             key = AddEditTagSheetSpec.CRATED_TAG_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel
-        ) { tagId ->
-            viewModel.onItemClick(tagId)
-        }
+        ) { it?.let(viewModel::onItemClick) }
 
         TagSelectionSheet(
             multiSelection = multiSelection,
@@ -90,3 +104,4 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
 }
 
 private const val ARG_MULTI_SELECTION = "ARG_MULTI_SELECTION"
+private const val ARG_PRE_SELECTED_ID = "ARG_PRE_SELECTED_ID"

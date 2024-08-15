@@ -117,8 +117,6 @@ fun AddEditTransactionScreen(
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit,
-    navigateToTagSelection: () -> Unit,
-    navigateToFolderSelection: () -> Unit,
     navigateToAmountTransformationSelection: () -> Unit,
 ) {
     val amountFocusRequester = remember { FocusRequester() }
@@ -278,7 +276,7 @@ fun AddEditTransactionScreen(
 
                 FolderIndicator(
                     folderName = state.linkedFolderName,
-                    onSelectFolderClick = navigateToFolderSelection,
+                    onSelectFolderClick = actions::onSelectFolderClick,
                     modifier = Modifier
                         .align(Alignment.Start)
                 )
@@ -300,7 +298,7 @@ fun AddEditTransactionScreen(
                     tagsLazyPagingItems = topTagsLazyPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagSelect,
-                    onViewAllClick = navigateToTagSelection,
+                    onViewAllClick = actions::onViewAllTagsClick,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                 )
@@ -680,6 +678,7 @@ private fun PreviewScreenContent() {
                 override fun onNoteChange(value: String) {}
                 override fun onRecommendedAmountClick(amount: Long) {}
                 override fun onTagSelect(tagId: Long) {}
+                override fun onViewAllTagsClick() {}
                 override fun onTimestampClick() {}
                 override fun onDateSelectionDismiss() {}
                 override fun onPickTimeClick() {}
@@ -692,7 +691,7 @@ private fun PreviewScreenContent() {
                 override fun onDeleteClick() {}
                 override fun onDeleteDismiss() {}
                 override fun onDeleteConfirm() {}
-                override fun onRemoveFromFolderClick() {}
+                override fun onSelectFolderClick() {}
                 override fun onScheduleForLaterClick() {}
                 override fun onCancelSchedulingClick() {}
                 override fun onRepeatModeClick() {}
@@ -702,9 +701,7 @@ private fun PreviewScreenContent() {
             },
             navigateUp = {},
             appCurrencyPreference = LocaleUtil.defaultCurrency,
-            navigateToFolderSelection = {},
-            navigateToAmountTransformationSelection = {},
-            navigateToTagSelection = {}
+            navigateToAmountTransformationSelection = {}
         )
     }
 }

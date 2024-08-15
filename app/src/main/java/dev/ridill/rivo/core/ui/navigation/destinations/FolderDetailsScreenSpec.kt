@@ -75,17 +75,17 @@ data object FolderDetailsScreenSpec : ScreenSpec {
         { slideOutVertically { it } }
 
     fun routeWithArgs(
-        transactionFolderId: Long?,
-        exitAfterClear: Boolean = false,
+        folderId: Long?,
+        exitAfterCreate: Boolean = false,
         txIds: Set<Long> = emptySet()
     ): String = route
         .replace(
             oldValue = "{$ARG_FOLDER_ID}",
-            newValue = (transactionFolderId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
+            newValue = (folderId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
         )
         .replace(
             oldValue = "{$ARG_EXIT_AFTER_CREATE}",
-            newValue = exitAfterClear.toString()
+            newValue = exitAfterCreate.toString()
         )
         .replace(
             oldValue = "{$ARG_TX_IDS_LIST}",

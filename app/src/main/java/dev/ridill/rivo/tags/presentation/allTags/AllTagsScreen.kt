@@ -27,6 +27,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.RivoScaffold
+import dev.ridill.rivo.core.ui.components.SearchField
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
@@ -34,7 +35,6 @@ import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TagListItem
-import dev.ridill.rivo.tags.presentation.components.TagSearchField
 
 @Composable
 fun AllTagsScreen(
@@ -61,9 +61,10 @@ fun AllTagsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TagSearchField(
+            SearchField(
                 query = searchQuery,
                 onSearchQueryChange = actions::onSearchQueryChange,
+                placeholder = stringResource(R.string.search_tags),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(MaterialTheme.spacing.medium)

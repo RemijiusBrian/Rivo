@@ -452,4 +452,6 @@
     <string name="tap_to_select_folder">Tap to select folder</string>
     <string name="exclude_from_expenditure">Exclude from expenditure</string>
     <string name="cd_schedule_transaction_for_later">Schedule transaction for later</string>
+    <string name="clear_selection">Clear Selection</string>
+    <string name="select_folder">Select Folder</string>
 </resources>

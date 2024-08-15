@@ -34,6 +34,13 @@ class TagSelectionViewModel @Inject constructor(
             repo.getAllTagsPagingData(it)
         }.cachedIn(viewModelScope)
 
+    init {
+        savedStateHandle[SELECTED_IDS] = setOf(
+            TagSelectionSheetSpec
+                .getPreselectedIdFromSavedStateHandle(savedStateHandle)
+        )
+    }
+
     fun onSearchQueryChange(value: String) {
         savedStateHandle[SEARCH_QUERY] = value
     }

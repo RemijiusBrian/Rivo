@@ -52,14 +52,14 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        NavigationResultEffect(
+        /*NavigationResultEffect(
             key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelect
-        )
+        )*/
 
-        NavigationResultEffect(
+        NavigationResultEffect<Long?>(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
@@ -70,7 +70,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             key = TagSelectionSheetSpec.SELECTED_IDS,
             navBackStackEntry = navBackStackEntry
         ) { ids ->
-            ids.firstOrNull()?.let(viewModel::onTagSelectionResultToAssignTag)
+            ids?.firstOrNull()?.let(viewModel::onTagSelectionResultToAssignTag)
         }
 
         CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
@@ -89,7 +89,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                 is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
                     navController.navigate(
                         route = FolderDetailsScreenSpec.routeWithArgs(
-                            transactionFolderId = null,
+                            folderId = null,
                             txIds = event.transactionIds
                         )
                     )

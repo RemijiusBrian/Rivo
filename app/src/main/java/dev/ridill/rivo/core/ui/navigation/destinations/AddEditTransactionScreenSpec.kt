@@ -153,25 +153,18 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        NavigationResultEffect(
-            key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
-            navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
-            onResult = viewModel::onFolderSelectionResult
-        )
-
-        NavigationResultEffect(
+        NavigationResultEffect<Long?>(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelectionResult
         )
 
-        NavigationResultEffect(
+        NavigationResultEffect<TransformationResult>(
             key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
-            onResult = viewModel::onAmountTransformationResult
+            onResult = { it?.let(viewModel::onAmountTransformationResult) }
         )
 
         NavigationResultEffect<Set<Long>>(
@@ -179,7 +172,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
         ) { selectedIds ->
-            selectedIds.firstOrNull()?.let(viewModel::onTagSelect)
+            selectedIds?.firstOrNull()?.let(viewModel::onTagSelect)
         }
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
@@ -211,6 +204,21 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                         RESULT_SCHEDULE_SAVED
                     )
                 }
+
+                is AddEditTransactionViewModel.AddEditTransactionEvent.LaunchFolderSelection -> {
+                    navController.navigate(
+                        FolderSelectionSheetSpec.routeWithArgs(event.preselectedId)
+                    )
+                }
+
+                is AddEditTransactionViewModel.AddEditTransactionEvent.LaunchTagSelection -> {
+                    navController.navigate(
+                        TagSelectionSheetSpec.routeWithArgs(
+                            multiSelection = false,
+                            preselectedId = event.preselectedId
+                        )
+                    )
+                }
             }
         }
 
@@ -224,15 +232,9 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
-            navigateToFolderSelection = {
-                navController.navigate(FolderSelectionSheetSpec.route)
-            },
             navigateToAmountTransformationSelection = {
                 navController.navigate(AmountTransformationSheetSpec.route)
             },
-            navigateToTagSelection = {
-                navController.navigate(TagSelectionSheetSpec.routeWithArgs(false))
-            }
         )
     }
 }

@@ -1,15 +1,23 @@
-package dev.ridill.rivo.folders.presentation.components
+package dev.ridill.rivo.folders.presentation.folderSelection
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -22,21 +30,26 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
+import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.folders.domain.model.Folder
 
 @Composable
-fun FolderListSearchSheet(
+fun FolderSelectionSheet(
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
     foldersListLazyPagingItems: LazyPagingItems<Folder>,
-    onFolderClick: (Folder) -> Unit,
+    selectedId: Long?,
+    onFolderSelect: (Long) -> Unit,
     onCreateNewClick: () -> Unit,
+    onClearSelectionClick: () -> Unit,
+    onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ListSearchSheet(
+        title = stringResource(R.string.select_folder),
         searchQuery = searchQuery,
         onSearchQueryChange = onSearchQueryChange,
         onDismiss = onDismiss,
@@ -45,8 +58,34 @@ fun FolderListSearchSheet(
         contentPadding = PaddingValues(
             bottom = PaddingScrollEnd
         ),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        additionalEndContent = {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.action_confirm))
+            }
+        }
     ) {
+        stickyHeader(
+            key = "ClearSelection",
+            contentType = "ClearSelection"
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                TextButton(
+                    onClick = onClearSelectionClick,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                ) {
+                    Text(
+                        text = stringResource(R.string.clear_selection),
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
+            }
+        }
         item(
             key = "CreateNewFolderItem",
             contentType = "CreateNewFolderItem"
@@ -54,7 +93,7 @@ fun FolderListSearchSheet(
             NewFolderItem(
                 onClick = onCreateNewClick,
                 modifier = Modifier
-                    .animateItemPlacement()
+                    .animateItem()
             )
         }
         items(
@@ -63,13 +102,14 @@ fun FolderListSearchSheet(
             contentType = foldersListLazyPagingItems.itemContentType { "FolderCard" }
         ) { index ->
             foldersListLazyPagingItems[index]?.let { folder ->
-                FolderCard(
+                FolderSelectionCard(
                     name = folder.name,
                     excluded = folder.excluded,
-                    onClick = { onFolderClick(folder) },
+                    onClick = { onFolderSelect(folder.id) },
+                    selected = folder.id == selectedId,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
         }
@@ -99,15 +139,26 @@ private fun NewFolderItem(
 }
 
 @Composable
-private fun FolderCard(
+private fun FolderSelectionCard(
     name: String,
     excluded: Boolean,
+    selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.outline,
+        label = "FolderCardBorderColor"
+    )
+
     OutlinedCard(
         onClick = onClick,
-        modifier = modifier
+        modifier = modifier,
+        border = BorderStroke(
+            width = BorderWidthStandard,
+            borderColor
+        )
     ) {
         ListItem(
             headlineContent = {

@@ -223,6 +223,12 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
+    override fun onViewAllTagsClick() {
+        viewModelScope.launch {
+            eventBus.send(AddEditTransactionEvent.LaunchTagSelection(txInput.value.tagId))
+        }
+    }
+
     override fun onTimestampClick() {
         savedStateHandle[SHOW_DATE_PICKER] = true
     }
@@ -312,13 +318,13 @@ class AddEditTransactionViewModel @Inject constructor(
         }
     }
 
-    override fun onRemoveFromFolderClick() {
-        savedStateHandle[TX_INPUT] = txInput.value.copy(
-            folderId = null
-        )
+    override fun onSelectFolderClick() {
+        viewModelScope.launch {
+            eventBus.send(AddEditTransactionEvent.LaunchFolderSelection(txInput.value.folderId))
+        }
     }
 
-    fun onFolderSelectionResult(id: Long) {
+    fun onFolderSelectionResult(id: Long?) {
         savedStateHandle[TX_INPUT] = txInput.value.copy(
             folderId = id
         )
@@ -436,6 +442,8 @@ class AddEditTransactionViewModel @Inject constructor(
         data class ShowUiMessage(val uiText: UiText) : AddEditTransactionEvent
         data object TransactionSaved : AddEditTransactionEvent
         data object ScheduleSaved : AddEditTransactionEvent
+        data class LaunchFolderSelection(val preselectedId: Long?) : AddEditTransactionEvent
+        data class LaunchTagSelection(val preselectedId: Long?) : AddEditTransactionEvent
     }
 }
 

@@ -366,7 +366,8 @@ class AllTransactionsViewModel @Inject constructor(
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_removed_from_their_folders)))
     }
 
-    fun onFolderSelect(folderId: Long) {
+    fun onFolderSelect(folderId: Long?) {
+        if (folderId == null) return
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             transactionRepo.addTransactionsToFolderByIds(

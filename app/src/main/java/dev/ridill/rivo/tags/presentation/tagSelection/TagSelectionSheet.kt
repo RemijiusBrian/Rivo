@@ -3,7 +3,6 @@ package dev.ridill.rivo.tags.presentation.tagSelection
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -31,12 +30,12 @@ import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.ArrangementTopWithFooter
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
+import dev.ridill.rivo.core.ui.components.SearchField
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TagChip
-import dev.ridill.rivo.tags.presentation.components.TagSearchField
 
 @Composable
 fun TagSelectionSheet(
@@ -62,22 +61,16 @@ fun TagSelectionSheet(
                 .padding(MaterialTheme.spacing.medium),
             verticalArrangement = ArrangementTopWithFooter(MaterialTheme.spacing.small)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TitleLargeText(
-                    title = pluralStringResource(
-                        id = R.plurals.select_tag,
-                        count = if (multiSelection) 2 else 1
-                    )
+            TitleLargeText(
+                title = pluralStringResource(
+                    id = R.plurals.select_tag,
+                    count = if (multiSelection) 2 else 1
                 )
-            }
-            TagSearchField(
+            )
+            SearchField(
                 query = searchQuery,
                 onSearchQueryChange = onSearchQueryChange,
+                placeholder = stringResource(R.string.search_tags),
                 modifier = Modifier
                     .fillMaxWidth()
             )

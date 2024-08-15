@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
@@ -21,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -62,7 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
-import dev.ridill.rivo.core.domain.util.Zero
+import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
@@ -402,10 +402,8 @@ fun ListSearchSheet(
     onSearchQueryChange: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    title: String? = null,
     placeholder: String? = null,
-    onSearch: (String) -> Unit = {},
-    active: Boolean = true,
-    onActiveChange: (Boolean) -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     reverseLayout: Boolean = false,
@@ -413,38 +411,30 @@ fun ListSearchSheet(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
+    additionalEndContent: @Composable (ColumnScope.() -> Unit)? = null,
     content: LazyListScope.() -> Unit
 ) {
-    val isSearchQueryEmpty by remember {
-        derivedStateOf { searchQuery().isEmpty() }
-    }
-
-    val shape = remember { RoundedCornerShape(Dp.Zero) }
-
     RivoModalBottomSheet(
         onDismissRequest = onDismiss,
-        modifier = modifier,
-        shape = shape
+        modifier = modifier
     ) {
-        SearchBar(
-            query = searchQuery(),
-            onQueryChange = onSearchQueryChange,
-            onSearch = onSearch,
-            active = active,
-            onActiveChange = onActiveChange,
-            trailingIcon = {
-                if (!isSearchQueryEmpty) {
-                    IconButton(onClick = { onSearchQueryChange(String.Empty) }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Clear,
-                            contentDescription = stringResource(R.string.cd_clear)
-                        )
-                    }
-                }
-            },
-            placeholder = { placeholder?.let { Text(it) } },
-            tonalElevation = MaterialTheme.elevation.level0
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+                .padding(MaterialTheme.spacing.medium),
+            verticalArrangement = ArrangementTopWithFooter(MaterialTheme.spacing.small)
         ) {
+            if (title != null) {
+                TitleLargeText(title)
+            }
+            SearchField(
+                query = searchQuery,
+                onSearchQueryChange = onSearchQueryChange,
+                placeholder = placeholder,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
             LazyColumn(
                 state = listState,
                 contentPadding = contentPadding,
@@ -453,8 +443,12 @@ fun ListSearchSheet(
                 horizontalAlignment = horizontalAlignment,
                 flingBehavior = flingBehavior,
                 userScrollEnabled = userScrollEnabled,
+                modifier = Modifier
+                    .weight(Float.One),
                 content = content
             )
+
+            additionalEndContent?.invoke(this)
         }
     }
 }
