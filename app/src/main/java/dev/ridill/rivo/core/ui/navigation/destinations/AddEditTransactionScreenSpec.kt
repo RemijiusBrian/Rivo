@@ -150,6 +150,13 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         NavigationResultEffect(
+            key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onFolderSelectionResult
+        )
+
+        NavigationResultEffect(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
