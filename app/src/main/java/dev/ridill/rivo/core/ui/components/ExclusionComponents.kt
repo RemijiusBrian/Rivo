@@ -21,6 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.theme.spacing
 
@@ -40,14 +42,18 @@ fun ExclusionIcon(
 @Composable
 fun ExcludedIcon(
     modifier: Modifier = Modifier,
+    size: Dp = DefaultIndicatorSize,
     tint: Color = LocalContentColor.current
 ) = Icon(
     imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_exclude),
     contentDescription = stringResource(R.string.cd_excluded),
-    modifier = modifier,
+    modifier = Modifier
+        .size(size)
+        .then(modifier),
     tint = tint
-
 )
+
+private val DefaultIndicatorSize = 16.dp
 
 @Composable
 fun MarkExcludedSwitch(

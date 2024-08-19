@@ -54,6 +54,9 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: NavDestination.ARG_INVALID_ID_LONG
 
+    fun getFolderIdArg(navBackStackEntry: NavBackStackEntry): Long? =
+        navBackStackEntry.arguments?.getLong(ARG_FOLDER_ID)
+
     const val ACTION_FOLDER_DETAILS = "ACTION_FOLDER_DETAILS"
     const val RESULT_FOLDER_DELETED = "RESULT_FOLDER_DELETED"
 
@@ -113,6 +116,13 @@ data object FolderDetailsScreenSpec : ScreenSpec {
                         transactionId = transactionId
                     )
                 )
+            },
+            navigateToEditFolder = {
+                getFolderIdArg(navBackStackEntry)?.let {
+                    navController.navigate(
+                        AddEditFolderSheetSpec.routeWithArg(it)
+                    )
+                }
             },
             navigateUp = navController::navigateUp
         )

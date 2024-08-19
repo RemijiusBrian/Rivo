@@ -1,5 +1,6 @@
 package dev.ridill.rivo.folders.presentation.folderDetails
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,10 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -41,10 +44,10 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.DismissBackground
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.ListSeparator
-import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
@@ -73,6 +76,7 @@ fun FolderDetailsScreen(
     state: FolderDetailsState,
     transactionPagingItems: LazyPagingItems<TransactionListItemUIModel>,
     actions: FolderDetailsActions,
+    navigateToEditFolder: () -> Unit,
     navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -86,6 +90,14 @@ fun FolderDetailsScreen(
             TopAppBar(
                 title = { Text(stringResource(FolderDetailsScreenSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
+                actions = {
+                    IconButton(onClick = navigateToEditFolder) {
+                        Icon(
+                            imageVector = Icons.Rounded.Edit,
+                            contentDescription = stringResource(R.string.cd_edit_folder)
+                        )
+                    }
+                },
                 scrollBehavior = topAppBarScrollBehavior
             )
         },
@@ -245,13 +257,15 @@ private fun FolderDetails(
             .padding(horizontal = MaterialTheme.spacing.medium),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
-        TitleLargeText(
-            title = folderName,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        MarkExcludedSwitch(excluded = isExcluded, onToggle = null)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+        ) {
+            AnimatedVisibility(isExcluded) {
+                ExcludedIcon()
+            }
+            TitleLargeText(folderName)
+        }
 
         AggregateAmountAndCreatedDate(
             currency = currency,

@@ -18,7 +18,6 @@ import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
@@ -35,9 +34,7 @@ class FolderDetailsViewModel @Inject constructor(
         .getFolderIdArgFromSavedStateHandle(savedStateHandle)
 
     private val folderIdFlow = MutableStateFlow(folderIdArg)
-    private val folderDetails = folderIdFlow.flatMapLatest {
-        repo.getFolderDetailsById(it)
-    }
+    private val folderDetails = repo.getFolderDetailsById(folderIdArg)
     private val folderName = folderDetails
         .mapLatest { it?.name.orEmpty() }
         .distinctUntilChanged()
@@ -54,9 +51,8 @@ class FolderDetailsViewModel @Inject constructor(
         .map { it?.aggregateType ?: AggregateType.BALANCED }
         .distinctUntilChanged()
 
-    val transactionPagingData = folderIdFlow.flatMapLatest {
-        repo.getPagedTransactionsInFolder(it)
-    }.cachedIn(viewModelScope)
+    val transactionPagingData = repo.getPagedTransactionsInFolder(folderIdArg)
+        .cachedIn(viewModelScope)
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)
