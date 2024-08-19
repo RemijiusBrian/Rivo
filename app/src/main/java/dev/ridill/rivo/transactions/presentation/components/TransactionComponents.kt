@@ -43,6 +43,7 @@ import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListItemLeadingContentContainer
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
@@ -96,6 +97,8 @@ fun TransactionListItem(
     }
     ListItem(
         headlineContent = {
+
+
             if (note.isEmpty() && (tag != null || folder != null)) {
                 TagAndFolderIndicator(tag = tag, folder = folder)
             } else {
@@ -134,14 +137,15 @@ fun TransactionListItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
+                if (excluded) {
+                    ExcludedIcon(
+                        size = IconSizeSmall
+                    )
+                }
                 AmountWithArrow(
                     value = amount,
                     type = type
                 )
-
-                if (excluded) {
-                    ExcludedIcon()
-                }
             }
         },
         supportingContent = {

@@ -87,20 +87,18 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
-import dev.ridill.rivo.core.ui.components.AmountWithArrow
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
@@ -385,7 +383,7 @@ private fun TagsInfoList(
         ) {
             if (isTagsEmpty) {
                 Text(
-                    text = stringResource(R.string.tags_list_empty_message),
+                    text = stringResource(R.string.top_tags_list_empty_message),
                     color = LocalContentColor.current
                         .copy(alpha = ContentAlpha.SUB_CONTENT)
                 )
@@ -459,15 +457,13 @@ private fun TagInfoCard(
             verticalArrangement = Arrangement.Center
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Tags,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(IconSizeSmall)
-                )
-                SpacerSmall()
+                if (isExcluded) {
+                    ExcludedIcon(size = IconSizeSmall)
+                }
+
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -478,18 +474,11 @@ private fun TagInfoCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                 )
-                Spacer(weight = Float.One)
-                if (aggregateAmount != 0.0) {
-                    AmountWithArrow(
-                        value = aggregateAmount,
-                        currency = currency,
-                        textStyle = MaterialTheme.typography.titleLarge
-                    )
-                }
             }
 
             Text(
-                text = stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
+                text = createdTimestamp,
+//                stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
                 style = MaterialTheme.typography.labelMedium,
                 color = contentColor
                     .copy(alpha = ContentAlpha.SUB_CONTENT)
