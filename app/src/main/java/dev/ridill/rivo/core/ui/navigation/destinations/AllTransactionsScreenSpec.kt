@@ -52,12 +52,12 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        /*NavigationResultEffect(
-            key = FolderDetailsScreenSpec.ACTION_NEW_FOLDER_CREATE,
+        NavigationResultEffect(
+            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
             onResult = viewModel::onFolderSelect
-        )*/
+        )
 
         NavigationResultEffect<Long>(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
@@ -86,17 +86,8 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                     hapticFeedback.performHapticFeedback(event.type)
                 }
 
-                is AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderDetailsWithIds -> {
-                    navController.navigate(
-                        route = FolderDetailsScreenSpec.routeWithArgs(
-                            folderId = null,
-                            txIds = event.transactionIds
-                        )
-                    )
-                }
-
                 AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderSelection -> {
-                    navController.navigate(FolderSelectionSheetSpec.route)
+                    navController.navigate(FolderSelectionSheetSpec.routeWithArgs(null))
                 }
 
                 is AllTransactionsViewModel.AllTransactionsEvent.NavigateToTagSelection -> {

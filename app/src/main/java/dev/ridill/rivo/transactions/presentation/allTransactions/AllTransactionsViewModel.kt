@@ -442,8 +442,6 @@ class AllTransactionsViewModel @Inject constructor(
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
         data class NavigateToTagSelection(val multiSelection: Boolean) : AllTransactionsEvent
         data object NavigateToFolderSelection : AllTransactionsEvent
-        data class NavigateToFolderDetailsWithIds(val transactionIds: Set<Long>) :
-            AllTransactionsEvent
     }
 }
 
