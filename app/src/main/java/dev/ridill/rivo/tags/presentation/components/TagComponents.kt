@@ -2,9 +2,7 @@ package dev.ridill.rivo.tags.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -20,10 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.ExcludedIcon
-import dev.ridill.rivo.core.ui.theme.IconSizeMedium
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.theme.spacing
-import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.tags.domain.model.Tag
 
 @Composable
@@ -91,12 +87,7 @@ fun TagChip(
 //        .exclusionGraphicsLayer(excluded),
     enabled = enabled,
     leadingIcon = if (excluded) {
-        {
-            ExcludedIcon(
-                modifier = Modifier
-                    .size(IconSizeMedium)
-            )
-        }
+        { ExcludedIcon() }
     } else null
 )
 
