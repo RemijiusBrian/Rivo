@@ -42,7 +42,7 @@ data object AddEditTagSheetSpec : BottomSheetSpec {
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TAG_ID) != NavDestination.ARG_INVALID_ID_LONG
 
-    const val CRATED_TAG_ID = "SAVED_TAG_ID"
+    const val SAVED_TAG_ID = "SAVED_TAG_ID"
 
     @Composable
     override fun Content(
@@ -64,7 +64,7 @@ data object AddEditTagSheetSpec : BottomSheetSpec {
             when (event) {
                 is AddEditTagViewModel.AddEditTagEvent.TagSaved -> {
                     navController.navigateUpWithResult(
-                        CRATED_TAG_ID,
+                        SAVED_TAG_ID,
                         event.tagId
                     )
                 }
