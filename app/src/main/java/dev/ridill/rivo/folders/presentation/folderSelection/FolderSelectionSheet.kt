@@ -30,6 +30,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
@@ -168,11 +169,12 @@ private fun FolderSelectionCard(
                 Text(
                     text = name,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textDecoration = if (excluded) TextDecoration.LineThrough
-                    else null
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
+            },
+            leadingContent = if (excluded) {
+                { ExcludedIcon() }
+            } else null
         )
     }
 }
