@@ -20,7 +20,7 @@ androidx-lifecycle = "2.8.4"
 
 core-splashscreen = "1.0.1"
 
-dagger-hilt = "2.51.1"
+dagger-hilt = "2.52"
 androidx-hilt = "1.2.0"
 
 androidx-room = "2.6.1"
