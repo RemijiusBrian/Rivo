@@ -382,7 +382,7 @@ private fun TagsInfoList(
             )
             SpacerSmall()
             TextButton(onClick = onAllTagsClick) {
-                Text(text = "${stringResource(AllTagsScreenSpec.labelRes)}>")
+                Text(text = "${stringResource(AllTagsScreenSpec.labelRes)} >")
             }
         }
         Box(
