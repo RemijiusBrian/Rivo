@@ -1,8 +1,8 @@
 [versions]
 agp = "8.5.1"
-kotlin = "1.9.22"
+kotlin = "2.0.20"
 google-services = "4.4.2"
-com-google-devtools-ksp = "1.9.22-1.0.17"
+com-google-devtools-ksp = "2.0.20-1.0.24"
 
 core-ktx = "1.13.1"
 kotlin-bom = "2.0.20"
@@ -152,3 +152,4 @@ com-google-gms-google-services = { id = "com.google.gms.google-services", versio
 org-jetbrains-kotlin-plugin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools-ksp" }
 com-google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
