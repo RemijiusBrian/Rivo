@@ -83,7 +83,7 @@ fun FolderSelectionSheet(
                             .align(Alignment.CenterEnd)
                     ) {
                         Text(
-                            text = stringResource(R.string.clear_selection),
+                            text = stringResource(R.string.clear),
                             textDecoration = TextDecoration.Underline
                         )
                     }

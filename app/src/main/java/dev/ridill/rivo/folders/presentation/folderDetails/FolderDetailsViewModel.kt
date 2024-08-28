@@ -51,7 +51,7 @@ class FolderDetailsViewModel @Inject constructor(
         .map { it?.aggregateType ?: AggregateType.BALANCED }
         .distinctUntilChanged()
 
-    val transactionPagingData = repo.getPagedTransactionsInFolder(folderIdArg)
+    val transactionPagingData = repo.getTransactionsInFolderPaged(folderIdArg)
         .cachedIn(viewModelScope)
 
     private val showDeleteConfirmation = savedStateHandle

@@ -11,7 +11,7 @@ interface FolderDetailsRepository {
     suspend fun deleteFolderById(id: Long)
     suspend fun deleteFolderWithTransactions(id: Long)
 
-    fun getPagedTransactionsInFolder(
+    fun getTransactionsInFolderPaged(
         folderId: Long
     ): Flow<PagingData<TransactionListItemUIModel>>
 

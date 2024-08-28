@@ -28,7 +28,7 @@ class FolderDetailsRepositoryImpl(
     override fun getFolderDetailsById(id: Long): Flow<FolderDetails?> = dao
         .getFolderWithAggregateExpenditureById(id).map { it?.toFolderDetails() }
 
-    override fun getPagedTransactionsInFolder(
+    override fun getTransactionsInFolderPaged(
         folderId: Long
     ): Flow<PagingData<TransactionListItemUIModel>> = Pager(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
