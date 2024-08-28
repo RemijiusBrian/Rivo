@@ -22,8 +22,8 @@ import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import java.time.Month
 import javax.inject.Inject
@@ -57,28 +57,28 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val showExcludedTransactions = transactionRepo.getShowExcludedOption()
 
-    private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
-    private val selectedTag = selectedTagId.flatMapLatest { tagId ->
-        tagId?.let(tagsRepo::getTagByIdFlow)
-            ?: flowOf(null)
-    }.distinctUntilChanged()
+    private val selectedTagIds = savedStateHandle
+        .getStateFlow<Set<Long>>(SELECTED_TAG_IDS, emptySet())
+    private val selectedTags = selectedTagIds.flatMapLatest { ids ->
+        tagsRepo.getTagsListFlowByIds(ids)
+    }
 
     private val transactionList = combineTuple(
         selectedDate,
-        selectedTag,
+        selectedTagIds,
         transactionTypeFilter,
         showExcludedTransactions
     ).flatMapLatest { (
                           date,
-                          selectedTag,
+                          tagIds,
                           typeFilter,
                           showExcluded
                       ) ->
         transactionRepo.getAllTransactionsList(
             date = date,
-            tagId = selectedTag?.id,
+            tagIds = tagIds,
             transactionType = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            showExcluded = selectedTag?.excluded == true || showExcluded
+            showExcluded = showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
 
@@ -103,31 +103,27 @@ class AllTransactionsViewModel @Inject constructor(
     private val aggregateAmount = combineTuple(
         selectedDate,
         transactionTypeFilter,
-        selectedTag,
+        selectedTagIds,
         showExcludedTransactions,
         selectedTransactionIds
     ).flatMapLatest { (
                           date,
                           typeFilter,
-                          selectedTag,
+                          selectedTagIds,
                           addExcluded,
                           selectedTxIds
                       ) ->
         transactionRepo.getAmountAggregate(
             date = date,
             type = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            tagId = selectedTag?.id,
-            addExcluded = selectedTag?.excluded == true || addExcluded,
-            selectedTxIds = selectedTxIds.ifEmpty { null }
+            tagIds = selectedTagIds,
+            addExcluded = addExcluded,
+            selectedTxIds = selectedTxIds
         )
     }.distinctUntilChanged()
 
-    private val transactionListLabel = combineTuple(
-        selectedTag,
-        transactionTypeFilter
-    ).map { (tag, type) ->
+    private val transactionListLabel = transactionTypeFilter.mapLatest { type ->
         when {
-            tag != null -> UiText.DynamicString(tag.name)
             type == TransactionTypeFilter.ALL -> UiText.StringResource(R.string.all_transactions)
             else -> UiText.StringResource(type.labelRes)
         }
@@ -161,7 +157,8 @@ class AllTransactionsViewModel @Inject constructor(
         showExcludedTransactions,
         showAggregationConfirmation,
         showMultiSelectionOptions,
-        showFilterOptions
+        showFilterOptions,
+        selectedTags
     ).map { (
                 selectedDate,
                 yearsList,
@@ -177,7 +174,8 @@ class AllTransactionsViewModel @Inject constructor(
                 showExcludedTransactions,
                 showAggregationConfirmation,
                 showMultiSelectionOptions,
-                showFilterOptions
+                showFilterOptions,
+                selectedTags
             ) ->
         AllTransactionsState(
             selectedDate = selectedDate,
@@ -194,7 +192,8 @@ class AllTransactionsViewModel @Inject constructor(
             showExcludedTransactions = showExcludedTransactions,
             showAggregationConfirmation = showAggregationConfirmation,
             showMultiSelectionOptions = showMultiSelectionOptions,
-            showFilterOptions = showFilterOptions
+            showFilterOptions = showFilterOptions,
+            selectedTagFilters = selectedTags
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
 
@@ -298,7 +297,8 @@ class AllTransactionsViewModel @Inject constructor(
                 }
 
                 AllTransactionsMultiSelectionOption.ASSIGN_TAG -> {
-                    eventBus.send(AllTransactionsEvent.NavigateToTagSelection(false))
+                    savedStateHandle[TAG_RESULT_PURPOSE] = TAG_RESULT_FOR_ASSIGNMENT
+                    eventBus.send(AllTransactionsEvent.NavigateToTagSelection(false, emptySet()))
                 }
 
                 AllTransactionsMultiSelectionOption.REMOVE_TAG -> {
@@ -328,10 +328,24 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
-    fun onTagSelectionResultToAssignTag(selectedId: Long) = viewModelScope.launch {
+    fun onTagSelectionResult(ids: Set<Long>) = viewModelScope.launch {
+        when (savedStateHandle.get<String>(TAG_RESULT_PURPOSE)) {
+            TAG_RESULT_FOR_ASSIGNMENT -> {
+                ids.firstOrNull()
+                    ?.let { assignTagToTransactions(it) }
+            }
+
+            TAG_RESULT_FOR_FILTER -> {
+                savedStateHandle[SELECTED_TAG_IDS] = ids
+            }
+
+            else -> error("Invalid tag result purpose")
+        }
+    }
+
+    private suspend fun assignTagToTransactions(selectedId: Long) {
         transactionRepo.setTagIdToTransactions(selectedId, selectedTransactionIds.value)
         dismissMultiSelectionMode()
-        savedStateHandle[SELECTED_TAG_ID] = selectedId
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
     }
 
@@ -355,6 +369,17 @@ class AllTransactionsViewModel @Inject constructor(
                 )
             )
         )
+    }
+
+    override fun onChangeTagFiltersClick() {
+        viewModelScope.launch {
+            savedStateHandle[TAG_RESULT_PURPOSE] = TAG_RESULT_FOR_FILTER
+            eventBus.send(AllTransactionsEvent.NavigateToTagSelection(true, selectedTagIds.value))
+        }
+    }
+
+    override fun onClearTagFilterClick() {
+        savedStateHandle[SELECTED_TAG_IDS] = emptySet<Long>()
     }
 
     private suspend fun showFolderSelection() {
@@ -440,16 +465,24 @@ class AllTransactionsViewModel @Inject constructor(
     sealed interface AllTransactionsEvent {
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
-        data class NavigateToTagSelection(val multiSelection: Boolean) : AllTransactionsEvent
+        data class NavigateToTagSelection(
+            val multiSelection: Boolean,
+            val preSelectedIds: Set<Long>
+        ) : AllTransactionsEvent
+
         data object NavigateToFolderSelection : AllTransactionsEvent
     }
 }
 
 private const val SELECTED_DATE = "SELECTED_DATE"
 private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
-private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
+private const val SELECTED_TAG_IDS = "SELECTED_TAG_IDS"
 private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
 private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"
 private const val SHOW_AGGREGATION_CONFIRMATION = "SHOW_AGGREGATION_CONFIRMATION"
 private const val SHOW_MULTI_SELECTION_OPTIONS = "SHOW_MULTI_SELECTION_OPTIONS"
 private const val SHOW_FILTER_OPTIONS = "SHOW_FILTER_OPTIONS"
+
+private const val TAG_RESULT_PURPOSE = "TAG_RESULT_PURPOSE"
+private const val TAG_RESULT_FOR_ASSIGNMENT = "TAG_RESULT_FOR_ASSIGNMENT"
+private const val TAG_RESULT_FOR_FILTER = "TAG_RESULT_FOR_FILTER"

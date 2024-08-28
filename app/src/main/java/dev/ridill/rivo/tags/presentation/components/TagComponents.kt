@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ElevatedAssistChip
+import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -75,12 +77,36 @@ fun TagChip(
             overflow = TextOverflow.Ellipsis
         )
     },
-    colors = FilterChipDefaults.filterChipColors(
-        selectedContainerColor = color,
-        selectedLabelColor = color.contentColor(),
-        selectedLeadingIconColor = color.contentColor(),
-        iconColor = color
-    ),
+    colors = tagChipColors(color = color),
+    modifier = Modifier
+        .widthIn(max = TagChipMaxWidth)
+        .then(modifier),
+//        .exclusionGraphicsLayer(excluded),
+    enabled = enabled,
+    leadingIcon = if (excluded) {
+        { ExcludedIcon() }
+    } else null
+)
+
+@Composable
+fun ElevatedTagChip(
+    name: String,
+    color: Color,
+    excluded: Boolean,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) = ElevatedFilterChip(
+    selected = true,
+    onClick = {},
+    label = {
+        Text(
+            text = name,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    },
+    colors = tagChipColors(color = color),
     modifier = Modifier
         .widthIn(max = TagChipMaxWidth)
         .then(modifier),
@@ -92,3 +118,11 @@ fun TagChip(
 )
 
 private val TagChipMaxWidth = 150.dp
+
+@Composable
+private fun tagChipColors(color: Color): SelectableChipColors = FilterChipDefaults.filterChipColors(
+    selectedContainerColor = color,
+    selectedLabelColor = color.contentColor(),
+    selectedLeadingIconColor = color.contentColor(),
+    iconColor = color
+)

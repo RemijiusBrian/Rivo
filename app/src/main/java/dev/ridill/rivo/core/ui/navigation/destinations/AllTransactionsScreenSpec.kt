@@ -67,11 +67,11 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         )
 
         NavigationResultEffect<Set<Long>>(
-            key = TagSelectionSheetSpec.SELECTED_IDS,
-            navBackStackEntry = navBackStackEntry
-        ) { ids ->
-            ids.firstOrNull()?.let(viewModel::onTagSelectionResultToAssignTag)
-        }
+            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onTagSelectionResult
+        )
 
         CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
             when (event) {
@@ -91,7 +91,12 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                 }
 
                 is AllTransactionsViewModel.AllTransactionsEvent.NavigateToTagSelection -> {
-                    navController.navigate(TagSelectionSheetSpec.routeWithArgs(event.multiSelection))
+                    navController.navigate(
+                        TagSelectionSheetSpec.routeWithArgs(
+                            event.multiSelection,
+                            event.preSelectedIds
+                        )
+                    )
                 }
             }
         }

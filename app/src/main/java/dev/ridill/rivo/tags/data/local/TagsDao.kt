@@ -51,6 +51,9 @@ interface TagsDao : BaseDao<TagEntity> {
     @Query("SELECT * FROM tag_table WHERE id = :id")
     fun getTagByIdFlow(id: Long): Flow<TagEntity?>
 
+    @Query("SELECT * FROM tag_table WHERE id IN (:ids)")
+    fun getTagsByIdFlow(ids: Set<Long>): Flow<List<TagEntity>>
+
     @Transaction
     suspend fun untagTransactionsAndDeleteTag(id: Long) {
         untagTransactionsByTag(id)

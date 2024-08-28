@@ -9,6 +9,8 @@ interface AllTransactionsActions {
     fun onYearSelect(year: Int)
     fun onTypeFilterSelect(filter: TransactionTypeFilter)
     fun onShowExcludedToggle(showExcluded: Boolean)
+    fun onChangeTagFiltersClick()
+    fun onClearTagFilterClick()
     fun onTransactionLongPress(id: Long)
     fun onTransactionSelectionChange(id: Long)
     fun onSelectionStateChange()

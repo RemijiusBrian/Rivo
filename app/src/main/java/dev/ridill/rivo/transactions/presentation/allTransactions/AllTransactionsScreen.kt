@@ -18,6 +18,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -50,6 +52,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -113,7 +116,9 @@ import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.domain.model.TagInfo
+import dev.ridill.rivo.tags.presentation.components.ElevatedTagChip
 import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
@@ -332,7 +337,10 @@ fun AllTransactionsScreen(
             selectedTypeFilter = state.selectedTransactionTypeFilter,
             onTypeFilterSelect = actions::onTypeFilterSelect,
             showExcluded = state.showExcludedTransactions,
-            onShowExcludedToggle = actions::onShowExcludedToggle
+            onShowExcludedToggle = actions::onShowExcludedToggle,
+            selectedTags = state.selectedTagFilters,
+            onClearTagSelectionClick = actions::onClearTagFilterClick,
+            onChangeTagSelectionClick = actions::onChangeTagFiltersClick
         )
     }
 }
@@ -554,14 +562,13 @@ private fun DateFilter(
     onMonthSelect: (Month) -> Unit,
     yearsList: List<Int>,
     onYearSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    keepYearListOpen: Boolean = false
+    modifier: Modifier = Modifier
 ) {
     val monthsList = remember { Month.entries.toTypedArray() }
 
     val monthsListState = rememberLazyListState()
 
-    var showYearsList by remember { mutableStateOf(keepYearListOpen) }
+    var showYearsList by remember { mutableStateOf(false) }
 
     // Scroll to initial selected month
     LaunchedEffect(monthsListState) {
@@ -578,7 +585,7 @@ private fun DateFilter(
             DateIndicator(
                 date = selectedDate,
                 isExpanded = showYearsList,
-                onClick = { showYearsList = !showYearsList }.takeIf { !keepYearListOpen },
+                onClick = { showYearsList = !showYearsList },
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.spacing.medium)
             )
@@ -647,7 +654,7 @@ private fun DateFilter(
 private fun DateIndicator(
     date: LocalDate,
     isExpanded: Boolean,
-    onClick: (() -> Unit)?,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val selectedIndicatorRotation by animateFloatAsState(
@@ -655,20 +662,15 @@ private fun DateIndicator(
         animationSpec = tween(AnimationConstants.DefaultDurationMillis),
         label = "SelectedIndicatorRotation"
     )
-    val clickableModifier = remember(onClick) {
-        onClick?.let { lambda ->
-            Modifier
-                .clickable(
-                    onClick = lambda,
-                    role = Role.Button
-                )
-        } ?: Modifier
-    }
+
     Surface(
         tonalElevation = 2.dp,
         shape = MaterialTheme.shapes.small,
         modifier = modifier
-            .then(clickableModifier)
+            .clickable(
+                onClick = onClick,
+                role = Role.Button
+            )
     ) {
         Row(
             modifier = Modifier
@@ -849,6 +851,9 @@ private fun FilterOptionsSheet(
     onYearSelect: (Int) -> Unit,
     selectedTypeFilter: TransactionTypeFilter,
     onTypeFilterSelect: (TransactionTypeFilter) -> Unit,
+    selectedTags: List<Tag>,
+    onChangeTagSelectionClick: () -> Unit,
+    onClearTagSelectionClick: () -> Unit,
     showExcluded: Boolean,
     onShowExcludedToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -868,12 +873,11 @@ private fun FilterOptionsSheet(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             FilterSectionTitle(R.string.date)
-            DateFilter(
+            DateFilterList(
                 selectedDate = selectedDate,
                 onMonthSelect = onMonthSelect,
                 yearsList = yearsList,
-                onYearSelect = onYearSelect,
-                keepYearListOpen = true
+                onYearSelect = onYearSelect
             )
             SpacerMedium()
 
@@ -899,6 +903,47 @@ private fun FilterOptionsSheet(
             }
             SpacerMedium()
 
+            val isSelectedTagsNotEmpty by remember(selectedTags) {
+                derivedStateOf { selectedTags.isNotEmpty() }
+            }
+
+            FilterSectionTitle(
+                R.string.filter_section_tags,
+                additionalTrailingContent = {
+                    if (isSelectedTagsNotEmpty) {
+                        TextButton(onClick = onClearTagSelectionClick) {
+                            Text(stringResource(R.string.clear))
+                        }
+                    }
+                }
+            )
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .sizeIn(minHeight = 120.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        space = MaterialTheme.spacing.small,
+                        alignment = Alignment.CenterHorizontally
+                    ),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    selectedTags.forEach { tag ->
+                        ElevatedTagChip(
+                            name = tag.name,
+                            color = tag.color,
+                            excluded = tag.excluded,
+                        )
+                    }
+                }
+                OutlinedButton(onClick = onChangeTagSelectionClick) {
+                    Text(stringResource(R.string.select_tags))
+                }
+            }
+
             FilterSectionTitle(resId = R.string.filter_section_more)
             SwitchPreference(
                 titleRes = R.string.show_excluded_transactions,
@@ -912,16 +957,101 @@ private fun FilterOptionsSheet(
 @Composable
 private fun FilterSectionTitle(
     @StringRes resId: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    additionalTrailingContent: @Composable (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
             .padding(horizontal = MaterialTheme.spacing.medium)
     ) {
-        ListLabel(stringResource(resId))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            ListLabel(stringResource(resId))
+            additionalTrailingContent?.invoke()
+        }
         HorizontalDivider(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.small)
         )
+    }
+}
+
+@Composable
+private fun DateFilterList(
+    selectedDate: LocalDate,
+    onMonthSelect: (Month) -> Unit,
+    yearsList: List<Int>,
+    onYearSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val monthsList = remember { Month.entries.toTypedArray() }
+
+    val monthsListState = rememberLazyListState()
+
+    // Scroll to initial selected month
+    LaunchedEffect(monthsListState) {
+        monthsListState.scrollToItem(selectedDate.monthValue - 1)
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+    ) {
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = PaddingScrollEnd
+            )
+        ) {
+            items(
+                items = yearsList,
+                key = { it },
+                contentType = { "YearChip" }
+            ) { year ->
+                ElevatedFilterChip(
+                    selected = year == selectedDate.year,
+                    onClick = { onYearSelect(year) },
+                    label = { Text(year.toString()) },
+                    modifier = Modifier
+                        .animateItem()
+                )
+            }
+        }
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = PaddingScrollEnd
+            ),
+            state = monthsListState
+        ) {
+            items(
+                items = monthsList,
+                key = { it.value },
+                contentType = { "MonthChip" }
+            ) { month ->
+                ElevatedFilterChip(
+                    selected = month == selectedDate.month,
+                    onClick = { onMonthSelect(month) },
+                    label = {
+                        Text(
+                            text = month.getDisplayName(
+                                TextStyle.FULL_STANDALONE,
+                                Locale.getDefault()
+                            ),
+                            modifier = Modifier
+                                .animateItem()
+                        )
+                    }
+                )
+            }
+        }
     }
 }

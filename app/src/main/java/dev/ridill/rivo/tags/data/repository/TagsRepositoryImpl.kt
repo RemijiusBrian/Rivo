@@ -52,8 +52,9 @@ class TagsRepositoryImpl(
         dao.getTagById(id)?.toTag()
     }
 
-    override fun getTagByIdFlow(id: Long): Flow<Tag?> = dao.getTagByIdFlow(id)
-        .map { it?.toTag() }
+    override fun getTagsListFlowByIds(ids: Set<Long>): Flow<List<Tag>> =
+        dao.getTagsByIdFlow(ids)
+            .map { entities -> entities.map(TagEntity::toTag) }
 
     override suspend fun saveTag(
         id: Long,

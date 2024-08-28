@@ -164,7 +164,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
 
         NavigationResultEffect<Set<Long>>(
-            key = TagSelectionSheetSpec.SELECTED_IDS,
+            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel),
         ) { ids ->
@@ -190,7 +190,9 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                     navController.navigate(
                         TagSelectionSheetSpec.routeWithArgs(
                             multiSelection = false,
-                            preselectedId = event.preselectedId
+                            preselectedIds = event.preselectedId
+                                ?.let { setOf(it) }
+                                .orEmpty()
                         )
                     )
                 }

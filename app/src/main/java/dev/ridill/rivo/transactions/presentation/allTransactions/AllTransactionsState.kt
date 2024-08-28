@@ -6,6 +6,7 @@ import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import java.time.LocalDate
@@ -24,6 +25,7 @@ data class AllTransactionsState(
     val transactionMultiSelectionModeActive: Boolean = false,
     val showDeleteTransactionConfirmation: Boolean = false,
     val showExcludedTransactions: Boolean = false,
+    val selectedTagFilters: List<Tag> = emptyList(),
     val showAggregationConfirmation: Boolean = false,
     val showMultiSelectionOptions: Boolean = false,
     val showFilterOptions: Boolean = false

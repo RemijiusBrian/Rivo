@@ -44,26 +44,26 @@ class AllTransactionsRepositoryImpl(
     override fun getAmountAggregate(
         date: LocalDate?,
         type: TransactionType?,
-        tagId: Long?,
+        tagIds: Set<Long>,
         addExcluded: Boolean,
-        selectedTxIds: Set<Long>?
+        selectedTxIds: Set<Long>
     ): Flow<Double> = dao.getAmountAggregate(
         date = date,
-        selectedTxIds = selectedTxIds,
-        tagId = tagId,
         typeName = type?.name,
-        addExcluded = addExcluded
+        tagIds = tagIds.takeIf { it.isNotEmpty() },
+        addExcluded = addExcluded,
+        selectedTxIds = selectedTxIds.takeIf { it.isNotEmpty() }
     ).distinctUntilChanged()
 
     override fun getAllTransactionsList(
         date: LocalDate,
-        tagId: Long?,
+        tagIds: Set<Long>,
         transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>> = dao.getTransactionsList(
         date = date,
         transactionTypeName = transactionType?.name,
-        tagId = tagId,
+        tagIds = tagIds.takeIf { it.isNotEmpty() },
         showExcluded = showExcluded
     ).map { it.map(TransactionDetailsView::toTransactionListItem) }
 

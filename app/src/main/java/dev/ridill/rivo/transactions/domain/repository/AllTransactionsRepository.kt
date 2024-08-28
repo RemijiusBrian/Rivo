@@ -14,14 +14,14 @@ interface AllTransactionsRepository {
     fun getAmountAggregate(
         date: LocalDate?,
         type: TransactionType?,
-        tagId: Long?,
+        tagIds: Set<Long>,
         addExcluded: Boolean,
-        selectedTxIds: Set<Long>?
+        selectedTxIds: Set<Long>
     ): Flow<Double>
 
     fun getAllTransactionsList(
         date: LocalDate,
-        tagId: Long?,
+        tagIds: Set<Long>,
         transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>>

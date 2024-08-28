@@ -33,7 +33,7 @@ interface TagsRepository {
     suspend fun deleteTagById(id: Long)
     suspend fun deleteTagWithTransactions(tagId: Long)
     suspend fun getTagById(id: Long): Tag?
-    fun getTagByIdFlow(id: Long): Flow<Tag?>
+    fun getTagsListFlowByIds(ids: Set<Long>): Flow<List<Tag>>
 }
 
 private const val DEFAULT_TOP_TAG_LIMIT = 10

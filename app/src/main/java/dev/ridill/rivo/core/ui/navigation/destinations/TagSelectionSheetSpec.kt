@@ -13,6 +13,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
@@ -22,7 +23,8 @@ import java.util.Currency
 
 data object TagSelectionSheetSpec : BottomSheetSpec {
 
-    override val route: String = "tag_selection/{$ARG_MULTI_SELECTION}/{$ARG_PRE_SELECTED_ID}"
+    override val route: String =
+        "tag_selection/{$ARG_MULTI_SELECTION}?$ARG_PRE_SELECTED_IDS={$ARG_PRE_SELECTED_IDS}"
     override val labelRes: Int = R.string.destination_tag_selection
 
     override val arguments: List<NamedNavArgument> = listOf(
@@ -31,25 +33,31 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
             nullable = false
             defaultValue = false
         },
-        navArgument(ARG_PRE_SELECTED_ID) {
-            type = NavType.LongType
+        navArgument(ARG_PRE_SELECTED_IDS) {
+            type = NavType.LongArrayType
             nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            defaultValue = longArrayOf()
         }
     )
 
     fun routeWithArgs(
         multiSelection: Boolean,
-        preselectedId: Long? = null
-    ) = route
-        .replace(
-            oldValue = "{$ARG_MULTI_SELECTION}",
-            newValue = multiSelection.toString()
-        )
-        .replace(
-            oldValue = "{$ARG_PRE_SELECTED_ID}",
-            newValue = (preselectedId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
-        )
+        preselectedIds: Set<Long> = emptySet()
+    ) = buildString {
+        val routeWithoutArrayParams = route
+            .replace(
+                oldValue = "{$ARG_MULTI_SELECTION}",
+                newValue = multiSelection.toString()
+            )
+            .replace(
+                oldValue = "$ARG_PRE_SELECTED_IDS={$ARG_PRE_SELECTED_IDS}",
+                newValue = String.Empty
+            )
+        append(routeWithoutArrayParams)
+        preselectedIds.forEach {
+            append("&$ARG_PRE_SELECTED_IDS=$it")
+        }
+    }
 
     fun getMultiSelectionFromSavedStateHandle(savedStateHandle: SavedStateHandle): Boolean =
         savedStateHandle.get<Boolean>(ARG_MULTI_SELECTION).orFalse()
@@ -57,11 +65,12 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
     private fun getMultiSelectionArg(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getBoolean(ARG_MULTI_SELECTION).orFalse()
 
-    fun getPreselectedIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
-        savedStateHandle.get<Long>(ARG_PRE_SELECTED_ID)
-            ?.takeIf { it > NavDestination.ARG_INVALID_ID_LONG }
+    fun getPreselectedIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Set<Long> =
+        savedStateHandle.get<LongArray?>(ARG_PRE_SELECTED_IDS)
+            ?.toSet()
+            .orEmpty()
 
-    const val SELECTED_IDS = "SELECTED_IDS"
+    const val SELECTED_TAG_IDS = "SELECTED_TAG_IDS"
 
     @Composable
     override fun Content(
@@ -92,7 +101,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
             onItemClick = viewModel::onItemClick,
             onConfirm = {
                 navController.navigateUpWithResult(
-                    key = SELECTED_IDS,
+                    key = SELECTED_TAG_IDS,
                     result = selectedIds
                 )
             },
@@ -104,4 +113,4 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
 }
 
 private const val ARG_MULTI_SELECTION = "ARG_MULTI_SELECTION"
-private const val ARG_PRE_SELECTED_ID = "ARG_PRE_SELECTED_ID"
+private const val ARG_PRE_SELECTED_IDS = "ARG_PRE_SELECTED_IDS"

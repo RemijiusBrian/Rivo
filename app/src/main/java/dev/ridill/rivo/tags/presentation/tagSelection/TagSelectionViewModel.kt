@@ -35,10 +35,12 @@ class TagSelectionViewModel @Inject constructor(
         }.cachedIn(viewModelScope)
 
     init {
-        savedStateHandle[SELECTED_IDS] = setOf(
-            TagSelectionSheetSpec
-                .getPreselectedIdFromSavedStateHandle(savedStateHandle)
-        )
+        setPreselectedArgIds()
+    }
+
+    private fun setPreselectedArgIds() {
+        savedStateHandle[SELECTED_IDS] = TagSelectionSheetSpec
+            .getPreselectedIdFromSavedStateHandle(savedStateHandle)
     }
 
     fun onSearchQueryChange(value: String) {
