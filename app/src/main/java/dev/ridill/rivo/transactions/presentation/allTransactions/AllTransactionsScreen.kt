@@ -741,7 +741,7 @@ private fun AggregateAmount(
                 else -> typeFilter.labelRes
             }
         ),
-        TextFormat.currency(amount = sumAmount.absoluteValue, currency = currency)
+        TextFormat.currencyAmount(amount = sumAmount.absoluteValue)
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -767,7 +767,7 @@ private fun AggregateAmount(
 
         VerticalNumberSpinnerContent(sumAmount) { amount ->
             Text(
-                text = TextFormat.currency(amount = amount.absoluteValue, currency = currency),
+                text = TextFormat.currencyAmount(amount.absoluteValue),
                 style = MaterialTheme.typography.headlineMedium
                     .copy(lineBreak = LineBreak.Heading),
                 maxLines = 1,

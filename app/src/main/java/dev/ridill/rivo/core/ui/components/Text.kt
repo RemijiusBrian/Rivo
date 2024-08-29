@@ -25,7 +25,6 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import java.util.Currency
 
 @Composable
 fun MediumDisplayText(
@@ -175,7 +174,6 @@ fun ListLabel(
 @Composable
 fun AmountWithArrow(
     value: Double,
-    currency: Currency,
     modifier: Modifier = Modifier,
     showTypeIndicator: Boolean = true,
     textStyle: TextStyle = MaterialTheme.typography.headlineMedium
@@ -193,7 +191,7 @@ fun AmountWithArrow(
         modifier = modifier
     ) {
         Text(
-            text = TextFormat.currency(value, currency),
+            text = TextFormat.currencyAmount(value),
             style = textStyle,
             fontWeight = FontWeight.Bold,
             maxLines = 1,

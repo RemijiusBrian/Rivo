@@ -39,20 +39,6 @@ object TextFormat {
         }
         .format(amount)
 
-    fun currency(
-        amount: Long,
-        currency: Currency = LocaleUtil.defaultCurrency,
-        locale: Locale = LocaleUtil.defaultLocale,
-        maxFractionDigits: Int = currency.defaultFractionDigits,
-        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
-    ): String = NumberFormat.getCurrencyInstance(locale)
-        .apply {
-            maximumFractionDigits = maxFractionDigits
-            minimumFractionDigits = minFractionDigits
-            setCurrency(currency)
-        }
-        .format(amount)
-
     @Composable
     fun currencyAmount(
         amount: Long,
@@ -92,23 +78,6 @@ object TextFormat {
         .apply {
             maximumFractionDigits = maxFractionDigits
             minimumFractionDigits = minFractionDigits
-            this.isGroupingUsed = isGroupingUsed
-        }
-        .format(value)
-
-    fun compactNumber(
-        value: Double,
-        locale: Locale = LocaleUtil.defaultLocale,
-        currency: Currency = LocaleUtil.defaultCurrency,
-        compactStyle: CompactDecimalFormat.CompactStyle = CompactDecimalFormat.CompactStyle.SHORT,
-        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
-        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
-        isGroupingUsed: Boolean = true
-    ): String = CompactDecimalFormat.getInstance(locale, compactStyle)
-        .apply {
-            maximumFractionDigits = maxFractionDigits
-            minimumFractionDigits = minFractionDigits
-            this.currency = android.icu.util.Currency.fromJavaCurrency(currency)
             this.isGroupingUsed = isGroupingUsed
         }
         .format(value)

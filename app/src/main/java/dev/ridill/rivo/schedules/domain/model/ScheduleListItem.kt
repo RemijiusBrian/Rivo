@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.TextFormat
 import java.time.LocalDateTime
-import java.util.Currency
 
 data class ScheduleListItem(
     val id: Long,
@@ -18,9 +17,6 @@ data class ScheduleListItem(
             val dateNow = DateUtil.dateNow()
             return nextReminderDate?.month == dateNow.month
         }
-
-    fun amountFormatted(currency: Currency): String =
-        TextFormat.currency(amount, currency)
 
     val amountFormatted: String
         @Composable get() = TextFormat.currencyAmount(amount)
