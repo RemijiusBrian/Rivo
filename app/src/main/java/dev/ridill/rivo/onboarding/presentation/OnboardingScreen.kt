@@ -46,7 +46,6 @@ import dev.ridill.rivo.onboarding.presentation.components.DataRestorePage
 import dev.ridill.rivo.onboarding.presentation.components.PermissionsPage
 import dev.ridill.rivo.onboarding.presentation.components.SetBudgetPage
 import dev.ridill.rivo.onboarding.presentation.components.WelcomeMessagePage
-import java.util.Currency
 
 @Composable
 fun OnboardingScreen(

@@ -2,7 +2,6 @@ package dev.ridill.rivo.settings.presentation.settings
 
 import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 
 data class SettingsState(
