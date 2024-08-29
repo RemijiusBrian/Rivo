@@ -13,9 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
@@ -48,8 +46,6 @@ data object SettingsScreenSpec : ScreenSpec {
     ) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val currencySearchQueryState = viewModel.currencySearchQuery.collectAsStateWithLifecycle()
-        val currenciesPagingData = viewModel.currenciesPagingData.collectAsLazyPagingItems()
 
         val smsPermissionState = rememberPermissionState(
             permission = Manifest.permission.RECEIVE_SMS,
@@ -83,7 +79,6 @@ data object SettingsScreenSpec : ScreenSpec {
             navBackStackEntry = navBackStackEntry,
             keys = arrayOf(viewModel, snackbarController, context)
         ) { result ->
-            logD { "Update Budget Result: $result" }
             when (result) {
                 UpdateBudgetSheetSpec.RESULT_BUDGET_UPDATED -> {
                     snackbarController.showSnackbar(
@@ -93,11 +88,23 @@ data object SettingsScreenSpec : ScreenSpec {
             }
         }
 
+        NavigationResultEffect<String>(
+            key = UpdateCurrencySheetSpec.UPDATE_CURRENCY_RESULT,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel, snackbarController, context)
+        ) { result ->
+            when (result) {
+                UpdateCurrencySheetSpec.RESULT_CURRENCY_UPDATED -> {
+                    snackbarController.showSnackbar(
+                        UiText.StringResource(R.string.currency_updated).asString(context)
+                    )
+                }
+            }
+        }
+
         SettingsScreen(
             snackbarController = snackbarController,
             state = state,
-            currencySearchQuery = { currencySearchQueryState.value },
-            currenciesPagingData = currenciesPagingData,
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToAccountDetails = { navController.navigate(AccountDetailsScreenSpec.route) },
@@ -105,6 +112,7 @@ data object SettingsScreenSpec : ScreenSpec {
             navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) },
             navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) },
             navigateToUpdateBudget = { navController.navigate(UpdateBudgetSheetSpec.route) },
+            navigateToUpdateCurrency = { navController.navigate(UpdateCurrencySheetSpec.route) },
             launchUriInBrowser = {
                 val intent = Intent(Intent.ACTION_VIEW, it)
                 context.startActivity(intent)

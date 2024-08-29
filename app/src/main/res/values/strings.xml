@@ -12,6 +12,7 @@
     <string name="destination_edit_tag">Edit Tag</string>
     <string name="destination_settings">Settings</string>
     <string name="destination_update_budget">Monthly Budget</string>
+    <string name="destination_update_currency">Update Currency</string>
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_backup_encryption">Backup Encryption</string>
     <string name="destination_security_settings">Security</string>

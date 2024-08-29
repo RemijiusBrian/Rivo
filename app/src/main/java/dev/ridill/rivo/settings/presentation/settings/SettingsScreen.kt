@@ -36,9 +36,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.R
 import dev.ridill.rivo.account.domain.model.AuthState
@@ -48,8 +45,6 @@ import dev.ridill.rivo.core.domain.util.tryOrNull
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.FeatureInfoDialog
-import dev.ridill.rivo.core.ui.components.LabelledRadioButton
-import dev.ridill.rivo.core.ui.components.ListSearchSheet
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoImage
@@ -69,19 +64,17 @@ import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.components.PreferenceIcon
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
-import java.util.Currency
 
 @Composable
 fun SettingsScreen(
     snackbarController: SnackbarController,
     state: SettingsState,
-    currencySearchQuery: () -> String,
-    currenciesPagingData: LazyPagingItems<Currency>,
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToAccountDetails: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
     navigateToUpdateBudget: () -> Unit,
+    navigateToUpdateCurrency: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToSecuritySettings: () -> Unit,
     launchUriInBrowser: (Uri) -> Unit
@@ -156,7 +149,7 @@ fun SettingsScreen(
             SimpleSettingsPreference(
                 titleRes = R.string.preference_currency,
                 summary = LocalCurrencyPreference.current.currencyCode,
-                onClick = actions::onCurrencyPreferenceClick
+                onClick = navigateToUpdateCurrency
             )
 
             SwitchPreference(
@@ -209,16 +202,6 @@ fun SettingsScreen(
                 currentOption = state.appTheme,
                 onDismiss = actions::onAppThemeSelectionDismiss,
                 onOptionSelect = actions::onAppThemeSelectionConfirm
-            )
-        }
-
-        if (state.showCurrencySelection) {
-            CurrencySelectionSheet(
-                onDismiss = actions::onCurrencySelectionDismiss,
-                onConfirm = actions::onCurrencySelectionConfirm,
-                searchQuery = currencySearchQuery,
-                onSearchQueryChange = actions::onCurrencySearchQueryChange,
-                currenciesPagingData = currenciesPagingData
             )
         }
 
@@ -302,42 +285,6 @@ private fun AccountInfo(
 }
 
 private val ProfileImageSize = 40.dp
-
-@Composable
-private fun CurrencySelectionSheet(
-    searchQuery: () -> String,
-    onSearchQueryChange: (String) -> Unit,
-    currenciesPagingData: LazyPagingItems<Currency>,
-    onDismiss: () -> Unit,
-    onConfirm: (Currency) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val currentCurrency = LocalCurrencyPreference.current
-    ListSearchSheet(
-        searchQuery = searchQuery,
-        onSearchQueryChange = onSearchQueryChange,
-        onDismiss = onDismiss,
-        placeholder = stringResource(R.string.search_currency),
-        modifier = modifier
-    ) {
-        items(
-            count = currenciesPagingData.itemCount,
-            key = currenciesPagingData.itemKey { it.currencyCode },
-            contentType = currenciesPagingData.itemContentType { "CurrencySelector" }
-        ) { index ->
-            currenciesPagingData[index]?.let { currency ->
-                LabelledRadioButton(
-                    label = "${currency.displayName} (${currency.currencyCode})",
-                    selected = currency.currencyCode == currentCurrency.currencyCode,
-                    onClick = { onConfirm(currency) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItemPlacement()
-                )
-            }
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

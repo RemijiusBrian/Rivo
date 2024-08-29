@@ -10,7 +10,6 @@ data class SettingsState(
     val dynamicColorsEnabled: Boolean = false,
     val showAppThemeSelection: Boolean = false,
     val currentMonthlyBudget: Long = Long.Zero,
-    val showCurrencySelection: Boolean = false,
     val autoAddTransactionEnabled: Boolean = false,
     val showSmsPermissionRationale: Boolean = false,
     val showAutoDetectTransactionFeatureInfo: Boolean = false

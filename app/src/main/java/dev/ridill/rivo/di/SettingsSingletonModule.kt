@@ -17,12 +17,10 @@ import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.local.CurrencyDao
-import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.AppInitRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.BackupRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.CurrencyPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupService
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
@@ -30,7 +28,6 @@ import dev.ridill.rivo.settings.domain.notification.AppInitNotificationHelper
 import dev.ridill.rivo.settings.domain.notification.BackupNotificationHelper
 import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
-import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -41,22 +38,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object SettingsSingletonModule {
-    @Provides
-    fun provideCurrencyDao(database: RivoDatabase): CurrencyDao =
-        database.currencyDao()
-
-    @Provides
-    fun provideCurrencyPreferenceDao(database: RivoDatabase): CurrencyPreferenceDao =
-        database.currencyPreferenceDao()
-
-    @Provides
-    fun provideCurrencyPreferenceRepository(
-        dao: CurrencyPreferenceDao,
-        currencyDao: CurrencyDao
-    ): CurrencyPreferenceRepository = CurrencyPreferenceRepositoryImpl(
-        dao = dao,
-        currencyDao = currencyDao
-    )
 
     @Provides
     fun provideConfigDao(database: RivoDatabase): ConfigDao = database.configDao()
