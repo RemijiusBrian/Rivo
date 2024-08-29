@@ -150,21 +150,21 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         NavigationResultEffect(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            keys = arrayOf(viewModel, snackbarController, context),
             onResult = viewModel::onFolderSelectionResult
         )
 
         NavigationResultEffect(
             key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            keys = arrayOf(viewModel, snackbarController, context),
             onResult = viewModel::onAmountTransformationResult
         )
 
         NavigationResultEffect<Set<Long>>(
             key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            keys = arrayOf(viewModel, snackbarController, context),
         ) { ids ->
             ids.firstOrNull()?.let(viewModel::onTagSelect)
         }

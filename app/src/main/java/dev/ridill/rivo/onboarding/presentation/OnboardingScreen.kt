@@ -56,7 +56,6 @@ fun OnboardingScreen(
     authState: AuthState,
     restoreState: DataRestoreState,
     showEncryptionPasswordInput: Boolean,
-    currency: Currency,
     budgetInput: () -> String,
     onSignInClick: () -> Unit,
     actions: OnboardingActions
@@ -129,7 +128,6 @@ fun OnboardingScreen(
 
                         OnboardingPage.SET_BUDGET.ordinal -> {
                             SetBudgetPage(
-                                currency = currency,
                                 input = budgetInput,
                                 onInputChange = actions::onBudgetInputChange,
                                 onStartBudgetingClick = actions::onStartBudgetingClick

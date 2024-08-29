@@ -52,7 +52,6 @@ data object OnboardingScreenSpec : ScreenSpec {
         )
         val authState by viewModel.authState.collectAsState(initial = AuthState.UnAuthenticated)
         val restoreState by viewModel.dataRestoreState.collectAsStateWithLifecycle()
-        val currency by viewModel.currency.collectAsStateWithLifecycle(initialValue = LocaleUtil.defaultCurrency)
         val budgetInput = viewModel.budgetInput.collectAsStateWithLifecycle()
         val showEncryptionPasswordInput by viewModel.showEncryptionPasswordInput.collectAsStateWithLifecycle()
 
@@ -144,7 +143,6 @@ data object OnboardingScreenSpec : ScreenSpec {
             authState = authState,
             restoreState = restoreState,
             showEncryptionPasswordInput = showEncryptionPasswordInput,
-            currency = currency,
             budgetInput = { budgetInput.value },
             onSignInClick = {
                 coroutineScope.launch {

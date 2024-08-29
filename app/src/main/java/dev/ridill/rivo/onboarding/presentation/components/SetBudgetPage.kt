@@ -32,11 +32,10 @@ import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.SpacerExtraLarge
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.theme.spacing
-import java.util.Currency
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 
 @Composable
 fun SetBudgetPage(
-    currency: Currency,
     input: () -> String,
     onInputChange: (String) -> Unit,
     onStartBudgetingClick: () -> Unit,
@@ -60,7 +59,6 @@ fun SetBudgetPage(
         )
         SpacerExtraLarge()
         BudgetInput(
-            currency = currency,
             input = input,
             onValueChange = onInputChange
         )
@@ -88,7 +86,6 @@ fun SetBudgetPage(
 
 @Composable
 private fun BudgetInput(
-    currency: Currency,
     input: () -> String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -129,7 +126,7 @@ private fun BudgetInput(
             visualTransformation = remember { AmountVisualTransformation() },
             prefix = {
                 Text(
-                    text = currency.symbol,
+                    text = LocalCurrencyPreference.current.symbol,
                     color = contentColor
                 )
             }

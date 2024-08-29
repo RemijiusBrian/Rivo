@@ -86,8 +86,9 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
         NavigationResultEffect<Long>(
             key = AddEditTagSheetSpec.SAVED_TAG_ID,
             navBackStackEntry = navBackStackEntry,
-            viewModel
-        ) { viewModel.onItemClick(it) }
+            keys = arrayOf(viewModel),
+            onResult = viewModel::onItemClick
+        )
 
         TagSelectionSheet(
             multiSelection = multiSelection,

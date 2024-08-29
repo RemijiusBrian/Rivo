@@ -67,6 +67,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         NavigationResultEffect<String>(
             key = ACTION_ENCRYPTION_PASSWORD,
             navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel, snackbarController, context),
             onResult = viewModel::onDestinationResult
         )
 

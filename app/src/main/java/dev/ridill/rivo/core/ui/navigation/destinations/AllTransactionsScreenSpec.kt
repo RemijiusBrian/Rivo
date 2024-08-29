@@ -53,21 +53,21 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         NavigationResultEffect(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            keys = arrayOf(viewModel, snackbarController, context),
             onResult = viewModel::onFolderSelect
         )
 
         NavigationResultEffect<Long>(
             key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            keys = arrayOf(viewModel, snackbarController, context),
             onResult = viewModel::onFolderSelect
         )
 
         NavigationResultEffect<Set<Long>>(
             key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            keys = arrayOf(viewModel, snackbarController, context),
             onResult = viewModel::onTagSelectionResult
         )
 

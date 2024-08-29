@@ -46,7 +46,8 @@ data object FoldersListScreenSpec : ScreenSpec {
 
         NavigationResultEffect<Long>(
             key = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
-            navBackStackEntry = navBackStackEntry
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel, snackbarController, context)
         ) { id ->
             navController.navigate(
                 FolderDetailsScreenSpec.routeWithArgs(id)
@@ -56,8 +57,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         NavigationResultEffect<String>(
             key = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
             navBackStackEntry = navBackStackEntry,
-            context,
-            snackbarController
+            keys = arrayOf(viewModel, snackbarController, context)
         ) {
             when (it) {
                 FolderDetailsScreenSpec.RESULT_FOLDER_DELETED -> R.string.transaction_folder_deleted
