@@ -300,24 +300,24 @@ fun AllTransactionsScreen(
                 )
             }
         }
+    }
 
-        if (state.showDeleteTransactionConfirmation) {
-            ConfirmationDialog(
-                titleRes = R.string.delete_multiple_transaction_confirmation_title,
-                contentRes = R.string.action_irreversible_message,
-                onConfirm = actions::onDeleteTransactionConfirm,
-                onDismiss = actions::onDeleteTransactionDismiss
-            )
-        }
+    if (state.showDeleteTransactionConfirmation) {
+        ConfirmationDialog(
+            titleRes = R.string.delete_multiple_transaction_confirmation_title,
+            contentRes = R.string.action_irreversible_message,
+            onConfirm = actions::onDeleteTransactionConfirm,
+            onDismiss = actions::onDeleteTransactionDismiss
+        )
+    }
 
-        if (state.showAggregationConfirmation) {
-            ConfirmationDialog(
-                titleRes = R.string.transaction_aggregation_confirmation_title,
-                contentRes = R.string.transaction_aggregation_confirmation_message,
-                onConfirm = actions::onAggregationConfirm,
-                onDismiss = actions::onAggregationDismiss
-            )
-        }
+    if (state.showAggregationConfirmation) {
+        ConfirmationDialog(
+            titleRes = R.string.transaction_aggregation_confirmation_title,
+            contentRes = R.string.transaction_aggregation_confirmation_message,
+            onConfirm = actions::onAggregationConfirm,
+            onDismiss = actions::onAggregationDismiss
+        )
     }
 
     if (state.showMultiSelectionOptions) {
