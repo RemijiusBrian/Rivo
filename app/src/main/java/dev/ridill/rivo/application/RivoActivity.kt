@@ -21,7 +21,6 @@ import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,8 +60,8 @@ class RivoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
         this.intent?.let {
             val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
             logI { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
@@ -100,36 +99,36 @@ class RivoActivity : AppCompatActivity() {
             // Temporary workaround from google
             // Issue with lifecycle and compose version incompatibility
             // see [IssueTracker](https://issuetracker.google.com/issues/336842920?pli=1#comment8)
-            CompositionLocalProvider(
+            /*CompositionLocalProvider(
                 androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current
-            ) {
-                val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
-                val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
-                val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
-                val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
-                val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
-                val appCurrencyPreference by viewModel.currencyPreference
-                    .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
-                val darkTheme = when (appTheme) {
-                    AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
-                    AppTheme.LIGHT -> false
-                    AppTheme.DARK -> true
-                }
-
-                val windowSizeClass = calculateWindowSizeClass(activity = this)
-                ScreenContent(
-                    windowSizeClass = windowSizeClass,
-                    darkTheme = darkTheme,
-                    dynamicTheme = dynamicTheme,
-                    showOnboarding = showOnboarding,
-                    appLockErrorMessage = appLockErrorMessage,
-                    isAppLocked = isAppLocked,
-                    appCurrencyPreference = appCurrencyPreference,
-                    onUnlockClick = ::checkAndLaunchBiometric,
-                    closeApp = ::finish
-                )
+            ) {*/
+            val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
+            val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
+            val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
+            val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
+            val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
+            val appCurrencyPreference by viewModel.currencyPreference
+                .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
+            val darkTheme = when (appTheme) {
+                AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
             }
+
+            val windowSizeClass = calculateWindowSizeClass(activity = this)
+            ScreenContent(
+                windowSizeClass = windowSizeClass,
+                darkTheme = darkTheme,
+                dynamicTheme = dynamicTheme,
+                showOnboarding = showOnboarding,
+                appLockErrorMessage = appLockErrorMessage,
+                isAppLocked = isAppLocked,
+                appCurrencyPreference = appCurrencyPreference,
+                onUnlockClick = ::checkAndLaunchBiometric,
+                closeApp = ::finish
+            )
         }
+//        }
     }
 
     override fun onResume() {
