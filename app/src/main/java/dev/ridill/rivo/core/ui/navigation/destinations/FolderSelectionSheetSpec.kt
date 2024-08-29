@@ -56,7 +56,7 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
         NavigationResultEffect(
             key = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            viewModel,
             onResult = viewModel::onFolderSelect
         )
 

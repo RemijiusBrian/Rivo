@@ -36,7 +36,9 @@ data object DashboardScreenSpec : ScreenSpec {
         NavigationResultEffect(
             key = AddEditTxResult::name.name,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel, snackbarController, context),
+            viewModel,
+            snackbarController,
+            context,
             onResult = viewModel::onNavResult
         )
 

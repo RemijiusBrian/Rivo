@@ -86,7 +86,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
         NavigationResultEffect<Long>(
             key = AddEditTagSheetSpec.SAVED_TAG_ID,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel),
+            viewModel,
             onResult = viewModel::onItemClick
         )
 

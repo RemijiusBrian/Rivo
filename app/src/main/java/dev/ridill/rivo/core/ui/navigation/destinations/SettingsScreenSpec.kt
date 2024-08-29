@@ -77,7 +77,9 @@ data object SettingsScreenSpec : ScreenSpec {
         NavigationResultEffect<String>(
             key = UpdateBudgetSheetSpec.UPDATE_BUDGET_RESULT,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel, snackbarController, context)
+            viewModel,
+            snackbarController,
+            context
         ) { result ->
             when (result) {
                 UpdateBudgetSheetSpec.RESULT_BUDGET_UPDATED -> {
@@ -91,7 +93,9 @@ data object SettingsScreenSpec : ScreenSpec {
         NavigationResultEffect<String>(
             key = UpdateCurrencySheetSpec.UPDATE_CURRENCY_RESULT,
             navBackStackEntry = navBackStackEntry,
-            keys = arrayOf(viewModel, snackbarController, context)
+            viewModel,
+            snackbarController,
+            context
         ) { result ->
             when (result) {
                 UpdateCurrencySheetSpec.RESULT_CURRENCY_UPDATED -> {
