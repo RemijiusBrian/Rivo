@@ -60,7 +60,7 @@ fun HorizontalColorSelectionList(
                 selected = selected,
                 onClick = { onColorSelect(color) },
                 modifier = Modifier
-                    .animateItemPlacement()
+                    .animateItem()
             )
         }
     }

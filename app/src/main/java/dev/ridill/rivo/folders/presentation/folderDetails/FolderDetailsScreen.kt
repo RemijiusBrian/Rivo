@@ -126,7 +126,7 @@ fun FolderDetailsScreen(
                     createdTimestamp = state.createdTimestampFormatted,
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -139,7 +139,7 @@ fun FolderDetailsScreen(
                     modifier = Modifier
                         .fillParentMaxWidth()
                         .padding(horizontal = MaterialTheme.spacing.medium)
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -166,7 +166,7 @@ fun FolderDetailsScreen(
                                 ListSeparator(
                                     label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
                                     modifier = Modifier
-                                        .animateItemPlacement()
+                                        .animateItem()
                                 )
                             }
                         }
@@ -191,7 +191,7 @@ fun FolderDetailsScreen(
                                     },
                                     enableDismissFromEndToStart = false,
                                     modifier = Modifier
-                                        .animateItemPlacement()
+                                        .animateItem()
                                 ) {
                                     Card(
                                         onClick = { navigateToAddEditTransaction(item.transaction.id) }

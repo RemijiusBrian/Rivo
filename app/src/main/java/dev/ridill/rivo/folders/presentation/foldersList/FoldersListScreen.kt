@@ -143,7 +143,7 @@ fun FoldersListScreen(
                                         ListSeparator(
                                             label = stringResource(item.type.labelRes),
                                             modifier = Modifier
-                                                .animateItemPlacement()
+                                                .animateItem()
                                         )
                                     }
                                 }
@@ -164,7 +164,7 @@ fun FoldersListScreen(
                                             aggregateType = item.folderDetails.aggregateType,
                                             onClick = { navigateToFolderDetails(item.folderDetails.id) },
                                             modifier = Modifier
-                                                .animateItemPlacement()
+                                                .animateItem()
                                         )
                                     }
                                 }

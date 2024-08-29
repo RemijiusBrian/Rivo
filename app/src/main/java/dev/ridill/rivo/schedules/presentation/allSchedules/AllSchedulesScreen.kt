@@ -171,7 +171,7 @@ fun AllSchedulesScreen(
                                 ListSeparator(
                                     label = item.label.asString(),
                                     modifier = Modifier
-                                        .animateItemPlacement()
+                                        .animateItem()
                                 )
                             }
                         }
@@ -194,7 +194,7 @@ fun AllSchedulesScreen(
                                     canMarkPaid = item.scheduleItem.canMarkPaid,
                                     modifier = Modifier
                                         .padding(horizontal = MaterialTheme.spacing.small)
-                                        .animateItemPlacement(),
+                                        .animateItem(),
                                     selectionModeActive = state.multiSelectionModeActive,
                                     selected = selected,
                                     onLongPress = { actions.onScheduleLongPress(item.scheduleItem.id) },

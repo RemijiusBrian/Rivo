@@ -61,7 +61,7 @@ fun LazyItemScope.ListEmptyIndicatorItem(
         modifier = Modifier
             .fillParentMaxWidth()
             .fillParentMaxHeight(heightFraction)
-            .animateItemPlacement()
+            .animateItem()
             .then(modifier),
         contentAlignment = Alignment.Center
     ) {

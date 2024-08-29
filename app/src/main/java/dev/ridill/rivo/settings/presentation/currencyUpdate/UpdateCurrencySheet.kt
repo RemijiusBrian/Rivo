@@ -42,7 +42,7 @@ fun UpdateCurrencySheet(
                     onClick = { onConfirm(currency) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
         }

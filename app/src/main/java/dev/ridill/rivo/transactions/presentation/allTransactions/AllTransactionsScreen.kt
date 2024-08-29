@@ -226,7 +226,7 @@ fun AllTransactionsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = TagsRowMinHeight)
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -247,7 +247,7 @@ fun AllTransactionsScreen(
                     multiSelectionState = state.transactionSelectionState,
                     onSelectionStateChange = actions::onSelectionStateChange,
                     modifier = Modifier
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -292,7 +292,7 @@ fun AllTransactionsScreen(
                     type = transaction.type,
                     modifier = Modifier
                         .then(clickableModifier)
-                        .animateItemPlacement(),
+                        .animateItem(),
                     tag = transaction.tag,
                     folder = transaction.folder,
                     excluded = transaction.excluded,
@@ -611,7 +611,7 @@ private fun DateFilter(
                             onClick = { onYearSelect(year) },
                             label = { Text(year.toString()) },
                             modifier = Modifier
-                                .animateItemPlacement()
+                                .animateItem()
                         )
                     }
                 }
@@ -641,7 +641,7 @@ private fun DateFilter(
                                 Locale.getDefault()
                             ),
                             modifier = Modifier
-                                .animateItemPlacement()
+                                .animateItem()
                         )
                     }
                 )

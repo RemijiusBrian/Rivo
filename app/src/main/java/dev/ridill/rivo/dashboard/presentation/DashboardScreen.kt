@@ -166,7 +166,7 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillParentMaxWidth()
                         .padding(horizontal = MaterialTheme.spacing.medium)
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -178,7 +178,7 @@ fun DashboardScreen(
                     Surface(
                         modifier = Modifier
                             .padding(vertical = MaterialTheme.spacing.small)
-                            .animateItemPlacement(),
+                            .animateItem(),
                         shape = MaterialTheme.shapes.large
                     ) {
                         Column(
@@ -218,7 +218,7 @@ fun DashboardScreen(
                 Surface(
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 ) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
@@ -267,7 +267,7 @@ fun DashboardScreen(
                     onClick = { navigateToAddEditTransaction(transaction.id) },
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
         }
@@ -498,7 +498,7 @@ private fun ActiveSchedulesRow(
                 dueDate = schedule.dueDateFormatted,
                 modifier = Modifier
                     .fillParentMaxWidth(UPCOMING_SCHEDULE_CARD_PARENT_WIDTH_FRACTION)
-                    .animateItemPlacement()
+                    .animateItem()
             )
         }
     }
