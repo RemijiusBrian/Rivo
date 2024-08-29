@@ -20,11 +20,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
-import dev.ridill.rivo.application.EXTRA_RUN_CONFIG_RESTORE
 import dev.ridill.rivo.account.domain.model.AuthState
+import dev.ridill.rivo.account.presentation.util.rememberCredentialService
+import dev.ridill.rivo.application.EXTRA_RUN_CONFIG_RESTORE
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.LocaleUtil
-import dev.ridill.rivo.account.presentation.util.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsLauncher
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsState
@@ -35,7 +35,6 @@ import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.onboarding.presentation.OnboardingScreen
 import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
 import kotlinx.coroutines.launch
-import java.util.Currency
 
 data object OnboardingScreenSpec : ScreenSpec {
     override val route: String = "onboarding"
@@ -45,8 +44,7 @@ data object OnboardingScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: OnboardingViewModel = hiltViewModel(navBackStackEntry)
         val pagerState = rememberPagerState(

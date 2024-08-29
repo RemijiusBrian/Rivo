@@ -16,7 +16,6 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.folders.presentation.addEditFolder.AddEditFolderSheet
 import dev.ridill.rivo.folders.presentation.addEditFolder.AddEditFolderViewModel
-import java.util.Currency
 
 data object AddEditFolderSheetSpec : BottomSheetSpec {
 
@@ -49,8 +48,7 @@ data object AddEditFolderSheetSpec : BottomSheetSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AddEditFolderViewModel = hiltViewModel(navBackStackEntry)
         val input = viewModel.folderInput.collectAsStateWithLifecycle()

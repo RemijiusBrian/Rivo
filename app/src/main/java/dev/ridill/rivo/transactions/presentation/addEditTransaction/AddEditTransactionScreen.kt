@@ -72,7 +72,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
@@ -93,6 +92,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
 import dev.ridill.rivo.settings.presentation.components.SimplePreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
@@ -104,12 +104,10 @@ import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.util.Currency
 
 @Composable
 fun AddEditTransactionScreen(
     isEditMode: Boolean,
-    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
@@ -234,7 +232,6 @@ fun AddEditTransactionScreen(
                 )
 
                 AmountInput(
-                    currency = appCurrencyPreference,
                     amount = amountInput,
                     onAmountChange = actions::onAmountChange,
                     onTransformClick = navigateToAmountTransformationSelection,
@@ -253,7 +250,6 @@ fun AddEditTransactionScreen(
 
                 if (!isEditMode) {
                     AmountRecommendationsRow(
-                        currency = appCurrencyPreference,
                         recommendations = state.amountRecommendations,
                         onRecommendationClick = {
                             actions.onRecommendedAmountClick(it)
@@ -372,7 +368,6 @@ fun AddEditTransactionScreen(
 
 @Composable
 private fun AmountInput(
-    currency: Currency,
     amount: () -> String,
     onAmountChange: (String) -> Unit,
     onTransformClick: () -> Unit,
@@ -390,7 +385,7 @@ private fun AmountInput(
             .semantics {
                 contentDescription = amountContentDescription
             },
-        prefix = { Text(currency.symbol) },
+        prefix = { Text(LocalCurrencyPreference.current.symbol) },
         textStyle = MaterialTheme.typography.headlineMedium,
         placeholder = {
             Text(
@@ -703,7 +698,6 @@ private fun PreviewScreenContent() {
                 override fun onSaveClick() {}
             },
             navigateUp = {},
-            appCurrencyPreference = LocaleUtil.defaultCurrency,
             navigateToAmountTransformationSelection = {}
         )
     }

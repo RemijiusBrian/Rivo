@@ -19,7 +19,6 @@ import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.tags.presentation.tagSelection.TagSelectionSheet
 import dev.ridill.rivo.tags.presentation.tagSelection.TagSelectionViewModel
-import java.util.Currency
 
 data object TagSelectionSheetSpec : BottomSheetSpec {
 
@@ -76,8 +75,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: TagSelectionViewModel = hiltViewModel(navBackStackEntry)
         val multiSelection = getMultiSelectionArg(navBackStackEntry)

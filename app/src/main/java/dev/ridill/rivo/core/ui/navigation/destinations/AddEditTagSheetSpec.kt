@@ -16,7 +16,6 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.tags.presentation.addEditTag.AddEditTagSheet
 import dev.ridill.rivo.tags.presentation.addEditTag.AddEditTagViewModel
-import java.util.Currency
 
 data object AddEditTagSheetSpec : BottomSheetSpec {
     override val labelRes: Int = R.string.destination_add_edit_transaction
@@ -48,8 +47,7 @@ data object AddEditTagSheetSpec : BottomSheetSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AddEditTagViewModel = hiltViewModel(navBackStackEntry)
         val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()

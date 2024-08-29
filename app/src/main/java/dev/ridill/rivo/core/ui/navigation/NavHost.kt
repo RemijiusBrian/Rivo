@@ -22,7 +22,6 @@ import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.navigation.destinations.NavGraphSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.OnboardingScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.ScreenSpec
-import java.util.Currency
 
 @Composable
 fun RivoNavHost(
@@ -30,7 +29,6 @@ fun RivoNavHost(
     bottomSheetNavigator: BottomSheetNavigator,
     navController: NavHostController,
     startOnboarding: Boolean,
-    appCurrencyPreference: Currency,
     modifier: Modifier = Modifier
 ) {
     // Without this observation the navigation results break.
@@ -56,22 +54,19 @@ fun RivoNavHost(
                     is NavGraphSpec -> addGraphSpec(
                         windowSizeClass = windowSizeClass,
                         navGraphSpec = destination,
-                        navController = navController,
-                        appCurrencyPreference = appCurrencyPreference
+                        navController = navController
                     )
 
                     is ScreenSpec -> addScreenSpec(
                         windowSizeClass = windowSizeClass,
                         screenSpec = destination,
-                        navController = navController,
-                        appCurrencyPreference = appCurrencyPreference
+                        navController = navController
                     )
 
                     is BottomSheetSpec -> addBottomSheetSpec(
                         windowSizeClass = windowSizeClass,
                         sheetSpec = destination,
-                        navController = navController,
-                        appCurrencyPreference = appCurrencyPreference
+                        navController = navController
                     )
                 }
             }
@@ -82,8 +77,7 @@ fun RivoNavHost(
 private fun NavGraphBuilder.addScreenSpec(
     windowSizeClass: WindowSizeClass,
     screenSpec: ScreenSpec,
-    navController: NavHostController,
-    appCurrencyPreference: Currency
+    navController: NavHostController
 ) {
     composable(
         route = screenSpec.route,
@@ -97,8 +91,7 @@ private fun NavGraphBuilder.addScreenSpec(
         screenSpec.Content(
             windowSizeClass = windowSizeClass,
             navController = navController,
-            navBackStackEntry = navBackStackEntry,
-            appCurrencyPreference = appCurrencyPreference
+            navBackStackEntry = navBackStackEntry
         )
     }
 }
@@ -106,8 +99,7 @@ private fun NavGraphBuilder.addScreenSpec(
 private fun NavGraphBuilder.addBottomSheetSpec(
     windowSizeClass: WindowSizeClass,
     sheetSpec: BottomSheetSpec,
-    navController: NavHostController,
-    appCurrencyPreference: Currency
+    navController: NavHostController
 ) {
     bottomSheet(
         route = sheetSpec.route,
@@ -117,8 +109,7 @@ private fun NavGraphBuilder.addBottomSheetSpec(
         sheetSpec.Content(
             windowSizeClass = windowSizeClass,
             navController = navController,
-            navBackStackEntry = navBackStackEntry,
-            appCurrencyPreference = appCurrencyPreference
+            navBackStackEntry = navBackStackEntry
         )
     }
 }
@@ -126,8 +117,7 @@ private fun NavGraphBuilder.addBottomSheetSpec(
 private fun NavGraphBuilder.addGraphSpec(
     windowSizeClass: WindowSizeClass,
     navGraphSpec: NavGraphSpec,
-    navController: NavHostController,
-    appCurrencyPreference: Currency
+    navController: NavHostController
 ) {
     require(navGraphSpec.children.isNotEmpty()) {
         "NavGraph must contain at least 1 child destination"
@@ -141,22 +131,19 @@ private fun NavGraphBuilder.addGraphSpec(
                 is ScreenSpec -> addScreenSpec(
                     windowSizeClass = windowSizeClass,
                     screenSpec = destination,
-                    navController = navController,
-                    appCurrencyPreference = appCurrencyPreference
+                    navController = navController
                 )
 
                 is NavGraphSpec -> addGraphSpec(
                     windowSizeClass = windowSizeClass,
                     navGraphSpec = navGraphSpec,
-                    navController = navController,
-                    appCurrencyPreference = appCurrencyPreference
+                    navController = navController
                 )
 
                 is BottomSheetSpec -> addBottomSheetSpec(
                     windowSizeClass = windowSizeClass,
                     sheetSpec = destination,
-                    navController = navController,
-                    appCurrencyPreference = appCurrencyPreference
+                    navController = navController
                 )
             }
         }

@@ -25,7 +25,6 @@ import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
-import java.util.Currency
 
 data object FolderDetailsScreenSpec : ScreenSpec {
     override val route: String = "folder_details/{$ARG_FOLDER_ID}"
@@ -54,7 +53,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: NavDestination.ARG_INVALID_ID_LONG
 
-    fun getFolderIdArg(navBackStackEntry: NavBackStackEntry): Long? =
+    private fun getFolderIdArg(navBackStackEntry: NavBackStackEntry): Long? =
         navBackStackEntry.arguments?.getLong(ARG_FOLDER_ID)
 
     const val ACTION_FOLDER_DETAILS = "ACTION_FOLDER_DETAILS"
@@ -64,8 +63,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: FolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -105,7 +103,6 @@ data object FolderDetailsScreenSpec : ScreenSpec {
         }
 
         FolderDetailsScreen(
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             transactionPagingItems = transactionPagingItems,
             state = state,

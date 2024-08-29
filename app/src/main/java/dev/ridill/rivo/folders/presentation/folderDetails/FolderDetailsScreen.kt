@@ -66,12 +66,10 @@ import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
-import java.util.Currency
 import kotlin.math.absoluteValue
 
 @Composable
 fun FolderDetailsScreen(
-    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     state: FolderDetailsState,
     transactionPagingItems: LazyPagingItems<TransactionListItemUIModel>,
@@ -123,7 +121,6 @@ fun FolderDetailsScreen(
                 FolderDetails(
                     folderName = state.folderNname,
                     isExcluded = state.isExcluded,
-                    currency = appCurrencyPreference,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,
                     createdTimestamp = state.createdTimestampFormatted,
@@ -201,10 +198,7 @@ fun FolderDetailsScreen(
                                     ) {
                                         TransactionListItem(
                                             note = item.transaction.note,
-                                            amount = item.transaction
-                                                .amountFormattedWithCurrency(
-                                                    appCurrencyPreference
-                                                ),
+                                            amount = item.transaction.amountFormatted,
                                             date = item.transaction.date,
                                             type = item.transaction.type,
                                             tag = item.transaction.tag,
@@ -246,7 +240,6 @@ fun FolderDetailsScreen(
 private fun FolderDetails(
     folderName: String,
     isExcluded: Boolean,
-    currency: Currency,
     aggregateAmount: Double,
     aggregateType: AggregateType,
     createdTimestamp: String,
@@ -268,7 +261,6 @@ private fun FolderDetails(
         }
 
         AggregateAmountAndCreatedDate(
-            currency = currency,
             aggregateAmount = aggregateAmount,
             aggregateType = aggregateType,
             date = createdTimestamp,
@@ -283,7 +275,6 @@ private fun FolderDetails(
 
 @Composable
 private fun AggregateAmountAndCreatedDate(
-    currency: Currency,
     aggregateAmount: Double,
     aggregateType: AggregateType,
     date: String,
@@ -295,7 +286,6 @@ private fun AggregateAmountAndCreatedDate(
         verticalAlignment = Alignment.Bottom
     ) {
         AggregateAmount(
-            currency = currency,
             amount = aggregateAmount,
             type = aggregateType,
             modifier = Modifier
@@ -360,7 +350,6 @@ private fun TransactionListHeader(
 @Composable
 private fun AggregateAmount(
     amount: Double,
-    currency: Currency,
     type: AggregateType,
     modifier: Modifier = Modifier
 ) {
@@ -368,7 +357,7 @@ private fun AggregateAmount(
         AggregateType.BALANCED -> stringResource(R.string.cd_folder_aggregate_amount_balanced)
         else -> stringResource(
             R.string.cd_folder_aggregate_amount_unbalanced,
-            TextFormat.currency(amount, currency),
+            TextFormat.currencyAmount(amount),
             stringResource(type.labelRes)
         )
     }
@@ -383,7 +372,7 @@ private fun AggregateAmount(
                 .alignBy(LastBaseline)
         ) {
             Text(
-                text = TextFormat.currency(it, currency = currency),
+                text = TextFormat.currencyAmount(it),
                 style = MaterialTheme.typography.headlineLarge
                     .copy(lineBreak = LineBreak.Heading),
                 fontWeight = FontWeight.SemiBold,

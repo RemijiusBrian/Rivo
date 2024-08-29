@@ -17,7 +17,6 @@ import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.folders.presentation.folderSelection.FolderSelectionSheet
 import dev.ridill.rivo.folders.presentation.folderSelection.FolderSelectionViewModel
-import java.util.Currency
 
 data object FolderSelectionSheetSpec : BottomSheetSpec {
     override val route: String = "folder_selection_sheet/{$ARG_PRE_SELECTED_ID}"
@@ -47,8 +46,7 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: FolderSelectionViewModel = hiltViewModel(navBackStackEntry)
         val searchQuery = viewModel.searchQuery.collectAsStateWithLifecycle()

@@ -21,6 +21,7 @@ import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +46,13 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.securitySettings.AppLockScreen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Currency
 
 @AndroidEntryPoint
 class RivoActivity : AppCompatActivity() {
@@ -116,17 +117,20 @@ class RivoActivity : AppCompatActivity() {
             }
 
             val windowSizeClass = calculateWindowSizeClass(activity = this)
-            ScreenContent(
-                windowSizeClass = windowSizeClass,
-                darkTheme = darkTheme,
-                dynamicTheme = dynamicTheme,
-                showOnboarding = showOnboarding,
-                appLockErrorMessage = appLockErrorMessage,
-                isAppLocked = isAppLocked,
-                appCurrencyPreference = appCurrencyPreference,
-                onUnlockClick = ::checkAndLaunchBiometric,
-                closeApp = ::finish
-            )
+            CompositionLocalProvider(
+                LocalCurrencyPreference provides appCurrencyPreference
+            ) {
+                ScreenContent(
+                    windowSizeClass = windowSizeClass,
+                    darkTheme = darkTheme,
+                    dynamicTheme = dynamicTheme,
+                    showOnboarding = showOnboarding,
+                    appLockErrorMessage = appLockErrorMessage,
+                    isAppLocked = isAppLocked,
+                    onUnlockClick = ::checkAndLaunchBiometric,
+                    closeApp = ::finish
+                )
+            }
         }
 //        }
     }
@@ -212,7 +216,6 @@ private fun ScreenContent(
     showOnboarding: Boolean,
     appLockErrorMessage: UiText?,
     isAppLocked: Boolean,
-    appCurrencyPreference: Currency,
     onUnlockClick: () -> Unit,
     closeApp: () -> Unit
 ) {
@@ -255,8 +258,7 @@ private fun ScreenContent(
                 windowSizeClass = windowSizeClass,
                 bottomSheetNavigator = bottomSheetNavigator,
                 navController = navController,
-                startOnboarding = showOnboarding,
-                appCurrencyPreference = appCurrencyPreference
+                startOnboarding = showOnboarding
             )
 
             if (showAppLock) {

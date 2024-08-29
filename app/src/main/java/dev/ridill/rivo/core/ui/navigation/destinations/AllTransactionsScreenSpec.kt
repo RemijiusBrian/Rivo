@@ -22,7 +22,6 @@ import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsScreen
 import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactionsViewModel
-import java.util.Currency
 
 data object AllTransactionsScreenSpec : ScreenSpec {
 
@@ -40,8 +39,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
         val tagInfoLazyPagingItems = viewModel.tagInfoPagingData.collectAsLazyPagingItems()

@@ -12,11 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
-import java.util.Currency
 
 @Composable
 fun AmountRecommendationsRow(
-    currency: Currency,
     recommendations: List<Long>,
     onRecommendationClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
@@ -37,7 +35,7 @@ fun AmountRecommendationsRow(
                 onClick = { onRecommendationClick(amount) },
                 label = {
                     Text(
-                        text = TextFormat.currency(amount, currency),
+                        text = TextFormat.currencyAmount(amount),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

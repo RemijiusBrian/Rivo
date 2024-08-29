@@ -14,7 +14,6 @@ import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.presentation.amountTransformation.AmountTransformationSheet
 import dev.ridill.rivo.transactions.presentation.amountTransformation.AmountTransformationViewModel
 import kotlinx.parcelize.Parcelize
-import java.util.Currency
 
 data object AmountTransformationSheetSpec : BottomSheetSpec {
 
@@ -28,8 +27,7 @@ data object AmountTransformationSheetSpec : BottomSheetSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AmountTransformationViewModel = hiltViewModel(navBackStackEntry)
         val selectedTransformation by viewModel.selectedTransformation.collectAsStateWithLifecycle()

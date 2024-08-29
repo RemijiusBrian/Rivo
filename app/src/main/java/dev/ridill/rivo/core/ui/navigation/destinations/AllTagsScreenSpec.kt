@@ -16,7 +16,6 @@ import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.tags.presentation.allTags.AllTagsScreen
 import dev.ridill.rivo.tags.presentation.allTags.AllTagsViewModel
-import java.util.Currency
 
 data object AllTagsScreenSpec : ScreenSpec {
     override val route: String = "all_tags"
@@ -33,8 +32,7 @@ data object AllTagsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AllTagsViewModel = hiltViewModel(navBackStackEntry)
         val searchQuery = viewModel.searchQuery.collectAsStateWithLifecycle()

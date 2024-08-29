@@ -1,6 +1,7 @@
 package dev.ridill.rivo.core.ui.util
 
 import android.icu.text.CompactDecimalFormat
+import androidx.compose.runtime.Composable
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.tryOrNull
@@ -23,9 +24,39 @@ object TextFormat {
         }
         .format(amount)
 
+    @Composable
+    fun currencyAmount(
+        amount: Double,
+        currency: Currency = LocalCurrencyPreference.current,
+        locale: Locale = LocaleUtil.defaultLocale,
+        maxFractionDigits: Int = currency.defaultFractionDigits,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
+    ): String = NumberFormat.getCurrencyInstance(locale)
+        .apply {
+            maximumFractionDigits = maxFractionDigits
+            minimumFractionDigits = minFractionDigits
+            setCurrency(currency)
+        }
+        .format(amount)
+
     fun currency(
         amount: Long,
         currency: Currency = LocaleUtil.defaultCurrency,
+        locale: Locale = LocaleUtil.defaultLocale,
+        maxFractionDigits: Int = currency.defaultFractionDigits,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
+    ): String = NumberFormat.getCurrencyInstance(locale)
+        .apply {
+            maximumFractionDigits = maxFractionDigits
+            minimumFractionDigits = minFractionDigits
+            setCurrency(currency)
+        }
+        .format(amount)
+
+    @Composable
+    fun currencyAmount(
+        amount: Long,
+        currency: Currency = LocalCurrencyPreference.current,
         locale: Locale = LocaleUtil.defaultLocale,
         maxFractionDigits: Int = currency.defaultFractionDigits,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS
@@ -69,6 +100,24 @@ object TextFormat {
         value: Double,
         locale: Locale = LocaleUtil.defaultLocale,
         currency: Currency = LocaleUtil.defaultCurrency,
+        compactStyle: CompactDecimalFormat.CompactStyle = CompactDecimalFormat.CompactStyle.SHORT,
+        maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
+        minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,
+        isGroupingUsed: Boolean = true
+    ): String = CompactDecimalFormat.getInstance(locale, compactStyle)
+        .apply {
+            maximumFractionDigits = maxFractionDigits
+            minimumFractionDigits = minFractionDigits
+            this.currency = android.icu.util.Currency.fromJavaCurrency(currency)
+            this.isGroupingUsed = isGroupingUsed
+        }
+        .format(value)
+
+    @Composable
+    fun compact(
+        value: Double,
+        locale: Locale = LocaleUtil.defaultLocale,
+        currency: Currency = LocalCurrencyPreference.current,
         compactStyle: CompactDecimalFormat.CompactStyle = CompactDecimalFormat.CompactStyle.SHORT,
         maxFractionDigits: Int = DEFAULT_MAX_FRACTION_DIGITS,
         minFractionDigits: Int = DEFAULT_MIN_FRACTION_DIGITS,

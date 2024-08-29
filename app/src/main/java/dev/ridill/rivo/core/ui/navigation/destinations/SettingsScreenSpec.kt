@@ -24,7 +24,6 @@ import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.core.ui.util.launchAppSettings
 import dev.ridill.rivo.settings.presentation.settings.SettingsScreen
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
-import java.util.Currency
 
 data object SettingsScreenSpec : ScreenSpec {
 
@@ -42,8 +41,7 @@ data object SettingsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -78,7 +76,6 @@ data object SettingsScreenSpec : ScreenSpec {
         }
 
         SettingsScreen(
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             state = state,
             currencySearchQuery = { currencySearchQueryState.value },

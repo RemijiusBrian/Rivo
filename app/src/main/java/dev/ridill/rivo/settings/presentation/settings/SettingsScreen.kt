@@ -67,9 +67,10 @@ import dev.ridill.rivo.core.ui.components.TitleMediumText
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
@@ -80,7 +81,6 @@ import java.util.Currency
 
 @Composable
 fun SettingsScreen(
-    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     state: SettingsState,
     currencySearchQuery: () -> String,
@@ -153,7 +153,7 @@ fun SettingsScreen(
                     ?.let {
                         stringResource(
                             R.string.preference_current_budget_summary,
-                            TextFormat.currency(it, appCurrencyPreference)
+                            TextFormat.currencyAmount(it)
                         )
                     }
                     ?: stringResource(R.string.preference_set_budget_summary),
@@ -162,7 +162,7 @@ fun SettingsScreen(
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_currency,
-                summary = appCurrencyPreference.currencyCode,
+                summary = LocalCurrencyPreference.current.currencyCode,
                 onClick = actions::onCurrencyPreferenceClick
             )
 
@@ -221,7 +221,6 @@ fun SettingsScreen(
 
         if (state.showBudgetInput) {
             BudgetInputSheet(
-                currency = appCurrencyPreference,
                 onConfirm = actions::onMonthlyBudgetInputConfirm,
                 onDismiss = actions::onMonthlyBudgetInputDismiss,
                 placeholder = TextFormat.number(state.currentMonthlyBudget),
@@ -231,7 +230,6 @@ fun SettingsScreen(
 
         if (state.showCurrencySelection) {
             CurrencySelectionSheet(
-                currentCurrency = appCurrencyPreference,
                 onDismiss = actions::onCurrencySelectionDismiss,
                 onConfirm = actions::onCurrencySelectionConfirm,
                 searchQuery = currencySearchQuery,
@@ -323,7 +321,6 @@ private val ProfileImageSize = 40.dp
 
 @Composable
 fun BudgetInputSheet(
-    currency: Currency,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -346,13 +343,12 @@ fun BudgetInputSheet(
         ),
         errorMessage = errorMessage,
         visualTransformation = remember { AmountVisualTransformation() },
-        prefix = { Text(currency.symbol) }
+        prefix = { Text(LocalCurrencyPreference.current.symbol) }
     )
 }
 
 @Composable
 private fun CurrencySelectionSheet(
-    currentCurrency: Currency,
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
     currenciesPagingData: LazyPagingItems<Currency>,
@@ -360,6 +356,7 @@ private fun CurrencySelectionSheet(
     onConfirm: (Currency) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentCurrency = LocalCurrencyPreference.current
     ListSearchSheet(
         searchQuery = searchQuery,
         onSearchQueryChange = onSearchQueryChange,

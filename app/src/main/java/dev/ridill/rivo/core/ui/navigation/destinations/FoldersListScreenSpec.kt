@@ -19,7 +19,6 @@ import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
-import java.util.Currency
 
 data object FoldersListScreenSpec : ScreenSpec {
     override val route: String = "folders_list"
@@ -36,8 +35,7 @@ data object FoldersListScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: FoldersListViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -70,7 +68,6 @@ data object FoldersListScreenSpec : ScreenSpec {
         }
 
         FoldersListScreen(
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             foldersPagingItems = foldersPagingItems,
             state = state,

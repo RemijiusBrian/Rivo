@@ -11,7 +11,6 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
-import java.util.Currency
 
 sealed interface ScreenSpec : NavDestination {
     val arguments: List<NamedNavArgument>
@@ -36,7 +35,6 @@ sealed interface ScreenSpec : NavDestination {
     fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     )
 }

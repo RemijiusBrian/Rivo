@@ -6,7 +6,6 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
-import java.util.Currency
 
 sealed interface BottomSheetSpec : NavDestination {
     val arguments: List<NamedNavArgument>
@@ -19,7 +18,6 @@ sealed interface BottomSheetSpec : NavDestination {
     fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     )
 }

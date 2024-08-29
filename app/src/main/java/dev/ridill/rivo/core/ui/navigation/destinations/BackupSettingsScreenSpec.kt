@@ -28,7 +28,6 @@ import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
-import java.util.Currency
 
 data object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
@@ -57,8 +56,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: BackupSettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()

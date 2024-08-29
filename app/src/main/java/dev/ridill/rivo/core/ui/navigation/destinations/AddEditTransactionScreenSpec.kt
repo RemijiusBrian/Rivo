@@ -33,7 +33,6 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
 import java.time.LocalDateTime
-import java.util.Currency
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String = """
@@ -135,8 +134,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AddEditTransactionViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
@@ -208,7 +206,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
         AddEditTransactionScreen(
             isEditMode = isEditMode,
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
