@@ -13,18 +13,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.core.ui.util.launchAppSettings
 import dev.ridill.rivo.settings.presentation.settings.SettingsScreen
 import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
-import java.util.Currency
 
 data object SettingsScreenSpec : ScreenSpec {
 
@@ -42,13 +42,10 @@ data object SettingsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: SettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val currencySearchQueryState = viewModel.currencySearchQuery.collectAsStateWithLifecycle()
-        val currenciesPagingData = viewModel.currenciesPagingData.collectAsLazyPagingItems()
 
         val smsPermissionState = rememberPermissionState(
             permission = Manifest.permission.RECEIVE_SMS,
@@ -77,18 +74,49 @@ data object SettingsScreenSpec : ScreenSpec {
             }
         }
 
+        NavigationResultEffect<String>(
+            key = UpdateBudgetSheetSpec.UPDATE_BUDGET_RESULT,
+            navBackStackEntry = navBackStackEntry,
+            viewModel,
+            snackbarController,
+            context
+        ) { result ->
+            when (result) {
+                UpdateBudgetSheetSpec.RESULT_BUDGET_UPDATED -> {
+                    snackbarController.showSnackbar(
+                        UiText.StringResource(R.string.budget_updated).asString(context)
+                    )
+                }
+            }
+        }
+
+        NavigationResultEffect<String>(
+            key = UpdateCurrencySheetSpec.UPDATE_CURRENCY_RESULT,
+            navBackStackEntry = navBackStackEntry,
+            viewModel,
+            snackbarController,
+            context
+        ) { result ->
+            when (result) {
+                UpdateCurrencySheetSpec.RESULT_CURRENCY_UPDATED -> {
+                    snackbarController.showSnackbar(
+                        UiText.StringResource(R.string.currency_updated).asString(context)
+                    )
+                }
+            }
+        }
+
         SettingsScreen(
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             state = state,
-            currencySearchQuery = { currencySearchQueryState.value },
-            currenciesPagingData = currenciesPagingData,
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToAccountDetails = { navController.navigate(AccountDetailsScreenSpec.route) },
             navigateToNotificationSettings = context::launchAppNotificationSettings,
             navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) },
             navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) },
+            navigateToUpdateBudget = { navController.navigate(UpdateBudgetSheetSpec.route) },
+            navigateToUpdateCurrency = { navController.navigate(UpdateCurrencySheetSpec.route) },
             launchUriInBrowser = {
                 val intent = Intent(Intent.ACTION_VIEW, it)
                 context.startActivity(intent)

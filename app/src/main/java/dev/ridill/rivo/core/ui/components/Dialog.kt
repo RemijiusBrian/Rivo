@@ -32,10 +32,7 @@ import androidx.compose.ui.window.DialogProperties
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.IconSizeMedium
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.settings.domain.modal.BaseRadioOption
 
@@ -99,7 +96,7 @@ fun PermissionRationaleDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.primary)
-                        .padding(SpacingLarge),
+                        .padding(MaterialTheme.spacing.large),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -195,7 +192,7 @@ fun MultiActionConfirmationDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
             ) {
                 Button(
                     onClick = onPrimaryActionClick,
@@ -249,13 +246,13 @@ fun FeatureInfoDialog(
         title = { Text(title) },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
             ) {
                 Text(text)
                 if (isExperimental) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                         modifier = Modifier
                             .mergedContentDescription(
                                 stringResource(R.string.feature_experimental_message)

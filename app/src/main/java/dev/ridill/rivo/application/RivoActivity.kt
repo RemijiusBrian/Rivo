@@ -17,6 +17,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
@@ -45,13 +46,13 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
 import dev.ridill.rivo.core.ui.theme.RivoTheme
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.securitySettings.AppLockScreen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Currency
 
 @AndroidEntryPoint
 class RivoActivity : AppCompatActivity() {
@@ -60,8 +61,8 @@ class RivoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
         this.intent?.let {
             val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
             logI { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
@@ -99,23 +100,26 @@ class RivoActivity : AppCompatActivity() {
             // Temporary workaround from google
             // Issue with lifecycle and compose version incompatibility
             // see [IssueTracker](https://issuetracker.google.com/issues/336842920?pli=1#comment8)
-            CompositionLocalProvider(
+            /*CompositionLocalProvider(
                 androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current
-            ) {
-                val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
-                val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
-                val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
-                val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
-                val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
-                val appCurrencyPreference by viewModel.currencyPreference
-                    .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
-                val darkTheme = when (appTheme) {
-                    AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
-                    AppTheme.LIGHT -> false
-                    AppTheme.DARK -> true
-                }
+            ) {*/
+            val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
+            val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
+            val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
+            val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
+            val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
+            val appCurrencyPreference by viewModel.currencyPreference
+                .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
+            val darkTheme = when (appTheme) {
+                AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
+            }
 
-                val windowSizeClass = calculateWindowSizeClass(activity = this)
+            val windowSizeClass = calculateWindowSizeClass(activity = this)
+            CompositionLocalProvider(
+                LocalCurrencyPreference provides appCurrencyPreference
+            ) {
                 ScreenContent(
                     windowSizeClass = windowSizeClass,
                     darkTheme = darkTheme,
@@ -123,12 +127,12 @@ class RivoActivity : AppCompatActivity() {
                     showOnboarding = showOnboarding,
                     appLockErrorMessage = appLockErrorMessage,
                     isAppLocked = isAppLocked,
-                    appCurrencyPreference = appCurrencyPreference,
                     onUnlockClick = ::checkAndLaunchBiometric,
                     closeApp = ::finish
                 )
             }
         }
+//        }
     }
 
     override fun onResume() {
@@ -212,7 +216,6 @@ private fun ScreenContent(
     showOnboarding: Boolean,
     appLockErrorMessage: UiText?,
     isAppLocked: Boolean,
-    appCurrencyPreference: Currency,
     onUnlockClick: () -> Unit,
     closeApp: () -> Unit
 ) {
@@ -245,16 +248,17 @@ private fun ScreenContent(
         darkTheme = darkTheme,
         dynamicColor = dynamicTheme
     ) {
-        val navController = rememberNavController()
+        val bottomSheetNavigator = rememberBottomSheetNavigator()
+        val navController = rememberNavController(bottomSheetNavigator)
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             RivoNavHost(
                 windowSizeClass = windowSizeClass,
+                bottomSheetNavigator = bottomSheetNavigator,
                 navController = navController,
-                startOnboarding = showOnboarding,
-                appCurrencyPreference = appCurrencyPreference
+                startOnboarding = showOnboarding
             )
 
             if (showAppLock) {

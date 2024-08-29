@@ -10,12 +10,10 @@ import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTxResult
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -91,17 +89,18 @@ class DashboardViewModel @Inject constructor(
         cancelNotifications()
     }
 
-    fun onNavResult(result: String) = viewModelScope.launch {
-        when (result) {
-            RESULT_TRANSACTION_DELETED ->
+    fun onNavResult(result: AddEditTxResult) = viewModelScope.launch {
+        val event = when (result) {
+            AddEditTxResult.TRANSACTION_DELETED ->
                 DashboardEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_deleted))
 
-            RESULT_TRANSACTION_SAVED ->
+            AddEditTxResult.TRANSACTION_SAVED ->
                 DashboardEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_saved))
 
-            RESULT_SCHEDULE_SAVED -> DashboardEvent.ScheduleSaved
-            else -> null
-        }?.let { eventBus.send(it) }
+            AddEditTxResult.SCHEDULE_SAVED -> DashboardEvent.ScheduleSaved
+        }
+
+        eventBus.send(event)
     }
 
     private fun cancelNotifications() {

@@ -22,9 +22,9 @@ import dev.ridill.rivo.settings.data.local.entity.BudgetPreferenceEntity
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
 import dev.ridill.rivo.settings.data.local.entity.CurrencyEntity
 import dev.ridill.rivo.settings.data.local.entity.CurrencyPreferenceEntity
-import dev.ridill.rivo.transactions.data.local.TagsDao
+import dev.ridill.rivo.tags.data.local.TagsDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
-import dev.ridill.rivo.transactions.data.local.entity.TagEntity
+import dev.ridill.rivo.tags.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 

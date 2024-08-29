@@ -27,6 +27,8 @@ class AppInitWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForeground()
         try {
+            if (!repo.needsInit()) return@withContext Result.success()
+
             repo.initCurrenciesList()
             Result.success()
         } catch (t: Throwable) {

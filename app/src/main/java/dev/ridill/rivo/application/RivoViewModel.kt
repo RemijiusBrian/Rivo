@@ -11,7 +11,6 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.appInit.AppInitWorkManager
 import dev.ridill.rivo.settings.domain.appLock.AppLockServiceManager
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
-import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -28,7 +27,6 @@ class RivoViewModel @Inject constructor(
     private val receiverService: ReceiverService,
     private val appLockServiceManager: AppLockServiceManager,
     private val backupWorkManager: BackupWorkManager,
-    private val appInitRepo: AppInitRepository,
     private val appInitWorkManager: AppInitWorkManager,
     currencyPreferenceRepo: CurrencyPreferenceRepository,
     private val eventBus: EventBus<RivoEvent>
@@ -120,8 +118,7 @@ class RivoViewModel @Inject constructor(
     fun startConfigRestore() = backupWorkManager.runConfigRestoreWork()
 
     private fun runInitIfNeeded() = viewModelScope.launch {
-        if (appInitRepo.needsInit())
-            appInitWorkManager.startAppInitWorker()
+        appInitWorkManager.startAppInitWorker()
     }
 
     sealed class RivoEvent {

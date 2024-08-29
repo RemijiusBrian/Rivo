@@ -6,14 +6,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.settings.data.local.BudgetPreferenceDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.settings.data.repository.BackupSettingsRepositoryImpl
-import dev.ridill.rivo.settings.data.repository.BudgetPreferenceRepositoryImpl
 import dev.ridill.rivo.settings.data.repository.SettingsRepositoryImpl
 import dev.ridill.rivo.settings.domain.appInit.AppInitWorkManager
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
@@ -29,20 +27,16 @@ import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 @Module
 @InstallIn(ViewModelComponent::class)
 object SettingsViewModelModule {
-    @Provides
-    fun provideBudgetPreferenceDao(database: RivoDatabase): BudgetPreferenceDao =
-        database.budgetPreferenceDao()
-
-    @Provides
-    fun provideBudgetPreferenceRepository(
-        dao: BudgetPreferenceDao
-    ): BudgetPreferenceRepository = BudgetPreferenceRepositoryImpl(dao)
 
     @Provides
     fun provideSettingsRepository(
+        authRepository: AuthRepository,
+        preferencesManager: PreferencesManager,
         budgetPreferenceRepository: BudgetPreferenceRepository,
         currencyPreferenceRepository: CurrencyPreferenceRepository
     ): SettingsRepository = SettingsRepositoryImpl(
+        authRepo = authRepository,
+        preferencesManager = preferencesManager,
         budgetPrefRepo = budgetPreferenceRepository,
         currencyPrefRepo = currencyPreferenceRepository
     )

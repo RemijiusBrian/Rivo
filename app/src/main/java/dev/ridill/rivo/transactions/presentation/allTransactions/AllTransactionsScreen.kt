@@ -1,22 +1,15 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.AnimationConstants
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -25,32 +18,33 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowLeft
-import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DeleteForever
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedFilterChip
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -61,14 +55,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -88,41 +77,36 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
-import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
+import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
-import dev.ridill.rivo.core.ui.components.Spacer
+import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
-import dev.ridill.rivo.core.ui.components.icons.CalendarClock
-import dev.ridill.rivo.core.ui.components.icons.Tags
+import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.ElevationLevel0
-import dev.ridill.rivo.core.ui.theme.ElevationLevel1
 import dev.ridill.rivo.core.ui.theme.IconSizeSmall
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.theme.elevation
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
-import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.folders.presentation.components.FolderListSearchSheet
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.settings.presentation.components.SwitchPreference
+import dev.ridill.rivo.tags.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.TagInfo
+import dev.ridill.rivo.tags.presentation.components.ElevatedTagChip
+import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
-import dev.ridill.rivo.transactions.presentation.components.TagInputSheet
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.TextStyle
@@ -133,15 +117,10 @@ import kotlin.math.absoluteValue
 @Composable
 fun AllTransactionsScreen(
     snackbarController: SnackbarController,
-    tagsPagingItems: LazyPagingItems<Tag>,
+    tagsPagingItems: LazyPagingItems<TagInfo>,
     state: AllTransactionsState,
-    isTagInputEditMode: () -> Boolean,
-    tagNameInput: () -> String,
-    tagInputColorCode: () -> Int?,
-    tagExclusionInput: () -> Boolean?,
-    folderSearchQuery: () -> String,
-    foldersList: LazyPagingItems<Folder>,
     actions: AllTransactionsActions,
+    navigateToAllTags: () -> Unit,
     navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
     navigateUp: () -> Unit
 ) {
@@ -181,6 +160,22 @@ fun AllTransactionsScreen(
                         BackArrowButton(onClick = navigateUp)
                     }
                 },
+                actions = {
+                    IconButton(onClick = actions::onFilterOptionsClick) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = stringResource(id = R.string.cd_filter_options)
+                        )
+                    }
+                    AnimatedVisibility(visible = state.transactionMultiSelectionModeActive) {
+                        IconButton(onClick = actions::onMultiSelectionOptionsClick) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.cd_options)
+                            )
+                        }
+                    }
+                },
                 scrollBehavior = topAppBarScrollBehavior
             )
         },
@@ -199,9 +194,9 @@ fun AllTransactionsScreen(
                     start = paddingValues.calculateStartPadding(localLayoutDirection),
                     end = paddingValues.calculateEndPadding(localLayoutDirection)
                 ),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             contentPadding = PaddingValues(
-                bottom = paddingValues.calculateBottomPadding() + SpacingListEnd
+                bottom = paddingValues.calculateBottomPadding() + PaddingScrollEnd
             )
         ) {
             item(
@@ -209,17 +204,13 @@ fun AllTransactionsScreen(
                 contentType = "TagsHorizontalList"
             ) {
                 TagsInfoList(
+                    currency = state.currency,
+                    onAllTagsClick = navigateToAllTags,
                     tagsPagingItems = tagsPagingItems,
-                    selectedTagId = state.selectedTagId,
-                    onTagSelect = actions::onTagSelect,
-                    onTagLongClick = actions::onTagLongClick,
-                    onNewTagClick = actions::onNewTagClick,
-                    tagAssignModeActive = state.transactionMultiSelectionModeActive,
-                    onAssignToTransactions = actions::onAssignTagToTransactions,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = TagsRowMinHeight)
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -227,7 +218,7 @@ fun AllTransactionsScreen(
                 key = "TransactionListHeader",
                 contentType = "TransactionListHeader"
             ) {
-                TransactionListHeader(
+                TransactionListDateFilterAndLabel(
                     selectedDate = state.selectedDate,
                     onMonthSelect = actions::onMonthSelect,
                     yearsList = state.yearsList,
@@ -237,15 +228,10 @@ fun AllTransactionsScreen(
                     currency = state.currency,
                     selectedTxTypeFilter = state.selectedTransactionTypeFilter,
                     listLabel = state.transactionListLabel,
-                    showExcludedOption = state.showExcludedOption,
-                    onToggleTransactionTypeFilter = actions::onTransactionTypeFilterToggle,
-                    onToggleShowExcludedOption = actions::onToggleShowExcludedOption,
                     multiSelectionState = state.transactionSelectionState,
                     onSelectionStateChange = actions::onSelectionStateChange,
-                    onDeleteClick = actions::onDeleteSelectedTransactionsClick,
-                    onTransactionOptionClick = actions::onTransactionOptionClick,
                     modifier = Modifier
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
@@ -284,78 +270,62 @@ fun AllTransactionsScreen(
                 }
 
                 TransactionListItem(
-                    showTypeIndicator = true,
-                    tag = transaction.tag,
-                    tonalElevation = if (selected) ElevationLevel1 else ElevationLevel0,
                     note = transaction.note,
                     amount = transaction.amountFormattedWithCurrency(state.currency),
                     date = transaction.date,
                     type = transaction.type,
-                    excluded = transaction.excluded,
-                    folder = transaction.folder,
                     modifier = Modifier
                         .then(clickableModifier)
-                        .animateItemPlacement()
+                        .animateItem(),
+                    tag = transaction.tag,
+                    folder = transaction.folder,
+                    excluded = transaction.excluded,
+                    tonalElevation = if (selected) MaterialTheme.elevation.level1 else MaterialTheme.elevation.level0
                 )
             }
         }
+    }
 
-        if (state.showDeleteTransactionConfirmation) {
-            ConfirmationDialog(
-                titleRes = R.string.delete_multiple_transaction_confirmation_title,
-                contentRes = R.string.action_irreversible_message,
-                onConfirm = actions::onDeleteTransactionConfirm,
-                onDismiss = actions::onDeleteTransactionDismiss
-            )
-        }
+    if (state.showDeleteTransactionConfirmation) {
+        ConfirmationDialog(
+            titleRes = R.string.delete_multiple_transaction_confirmation_title,
+            contentRes = R.string.action_irreversible_message,
+            onConfirm = actions::onDeleteTransactionConfirm,
+            onDismiss = actions::onDeleteTransactionDismiss
+        )
+    }
 
-        if (state.showDeleteTagConfirmation) {
-            MultiActionConfirmationDialog(
-                title = stringResource(R.string.delete_tag_confirmation_title, tagNameInput()),
-                text = stringResource(R.string.action_irreversible_message),
-                primaryActionLabelRes = R.string.delete_tag,
-                onPrimaryActionClick = actions::onDeleteTagConfirm,
-                secondaryActionLabelRes = R.string.delete_tag_with_transactions,
-                onSecondaryActionClick = actions::onDeleteTagWithTransactionsClick,
-                onDismiss = actions::onDeleteTagDismiss
-            )
-        }
+    if (state.showAggregationConfirmation) {
+        ConfirmationDialog(
+            titleRes = R.string.transaction_aggregation_confirmation_title,
+            contentRes = R.string.transaction_aggregation_confirmation_message,
+            onConfirm = actions::onAggregationConfirm,
+            onDismiss = actions::onAggregationDismiss
+        )
+    }
 
-        if (state.showTagInput) {
-            TagInputSheet(
-                nameInput = tagNameInput,
-                onNameChange = actions::onTagInputNameChange,
-                selectedColorCode = tagInputColorCode,
-                onColorSelect = actions::onTagInputColorSelect,
-                excluded = tagExclusionInput,
-                onExclusionToggle = actions::onTagInputExclusionChange,
-                onDismiss = actions::onTagInputDismiss,
-                onConfirm = actions::onTagInputConfirm,
-                errorMessage = state.tagInputError,
-                isEditMode = isTagInputEditMode,
-                onDeleteClick = actions::onDeleteTagClick
-            )
-        }
+    if (state.showMultiSelectionOptions) {
+        MultiSelectionOptionsSheet(
+            onDismiss = actions::onMultiSelectionOptionsDismiss,
+            onOptionClick = actions::onMultiSelectionOptionSelect
+        )
+    }
 
-        if (state.showFolderSelection) {
-            FolderListSearchSheet(
-                searchQuery = folderSearchQuery,
-                onSearchQueryChange = actions::onTransactionFolderQueryChange,
-                foldersList = foldersList,
-                onFolderClick = actions::onTransactionFolderSelect,
-                onCreateNewClick = actions::onCreateNewFolderClick,
-                onDismiss = actions::onTransactionFolderSelectionDismiss
-            )
-        }
-
-        if (state.showAggregationConfirmation) {
-            ConfirmationDialog(
-                titleRes = R.string.transaction_aggregation_confirmation_title,
-                contentRes = R.string.transaction_aggregation_confirmation_message,
-                onConfirm = actions::onAggregationConfirm,
-                onDismiss = actions::onAggregationDismiss
-            )
-        }
+    if (state.showFilterOptions) {
+        FilterOptionsSheet(
+            onDismissRequest = actions::onFilterOptionsDismiss,
+            selectedDate = state.selectedDate,
+            yearsList = state.yearsList,
+            onMonthSelect = actions::onMonthSelect,
+            onYearSelect = actions::onYearSelect,
+            selectedTypeFilter = state.selectedTransactionTypeFilter,
+            onTypeFilterSelect = actions::onTypeFilterSelect,
+            showExcluded = state.showExcludedTransactions,
+            onShowExcludedToggle = actions::onShowExcludedToggle,
+            selectedTags = state.selectedTagFilters,
+            onClearTagSelectionClick = actions::onClearTagFilterClick,
+            onChangeTagSelectionClick = actions::onChangeTagFiltersClick
+        )
     }
 }
 
@@ -363,18 +333,12 @@ private val TagsRowMinHeight = 100.dp
 
 @Composable
 private fun TagsInfoList(
-    tagsPagingItems: LazyPagingItems<Tag>,
-    selectedTagId: Long?,
-    onTagSelect: (Long) -> Unit,
-    onTagLongClick: (Long) -> Unit,
-    onNewTagClick: () -> Unit,
-    tagAssignModeActive: Boolean,
-    onAssignToTransactions: (Long) -> Unit,
+    currency: Currency,
+    tagsPagingItems: LazyPagingItems<TagInfo>,
+    onAllTagsClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tagsListState: LazyListState = rememberLazyListState(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    tagsListState: LazyListState = rememberLazyListState()
 ) {
-    var scrollJob: Job? = remember { null }
     val isTagsEmpty by remember {
         derivedStateOf { tagsPagingItems.isEmpty() }
     }
@@ -387,29 +351,22 @@ private fun TagsInfoList(
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
         ) {
             ListLabel(
-                text = stringResource(R.string.tags),
+                text = stringResource(R.string.your_top_tags),
                 modifier = Modifier
-                    .weight(Float.One)
-                    .padding(horizontal = SpacingMedium),
+                    .padding(horizontal = MaterialTheme.spacing.medium),
             )
             SpacerSmall()
-            TextButton(onClick = onNewTagClick) {
-                Text(text = stringResource(R.string.create_new_tag))
-                Spacer(spacing = ButtonDefaults.IconSpacing)
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(ButtonDefaults.IconSize)
-                )
+            TextButton(onClick = onAllTagsClick) {
+                Text(text = "${stringResource(AllTagsScreenSpec.labelRes)} >")
             }
         }
         Box(
@@ -418,7 +375,7 @@ private fun TagsInfoList(
         ) {
             if (isTagsEmpty) {
                 Text(
-                    text = stringResource(R.string.tags_list_empty_message),
+                    text = stringResource(R.string.top_tags_list_empty_message),
                     color = LocalContentColor.current
                         .copy(alpha = ContentAlpha.SUB_CONTENT)
                 )
@@ -427,62 +384,37 @@ private fun TagsInfoList(
                 modifier = Modifier
                     .matchParentSize(),
                 contentPadding = PaddingValues(
-                    start = SpacingMedium,
-                    end = SpacingListEnd
+                    start = MaterialTheme.spacing.medium,
+                    end = PaddingScrollEnd
                 ),
-                horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 state = tagsListState
             ) {
                 items(
                     count = tagsPagingItems.itemCount,
                     key = tagsPagingItems.itemKey { it.id },
-                    contentType = tagsPagingItems.itemContentType { "TagCard" }
+                    contentType = tagsPagingItems.itemContentType { "TagInfoCard" }
                 ) { index ->
                     tagsPagingItems[index]?.let { tag ->
-                        val selected = tag.id == selectedTagId
-                        TagCard(
+                        TagInfoCard(
                             name = tag.name,
-                            color = Color(tag.colorCode),
+                            color = tag.color,
                             isExcluded = tag.excluded,
                             createdTimestamp = tag.createdTimestampFormatted,
-                            isSelected = selected,
-                            onSelect = {
-                                scrollJob?.cancel()
-                                scrollJob = coroutineScope.launch {
-                                    onTagSelect(tag.id)
-                                    tagsListState.animateScrollToItem(index)
-                                }
-                            },
-                            onLongClick = { onTagLongClick(tag.id) },
-                            tagAssignModeActive = tagAssignModeActive,
-                            onAssignToTransactions = { onAssignToTransactions(tag.id) },
+                            aggregateAmount = tag.aggregate,
+                            currency = currency,
                             modifier = Modifier
                                 .animateContentSize()
                                 .fillParentMaxHeight()
-                                .then(
-                                    if (selected) Modifier
-                                        .fillParentMaxWidth()
-                                    else Modifier
-                                        .widthIn(
-                                            min = TagInfoCardMinWidth,
-                                            max = TagInfoCardMaxWidth
-                                        )
+                                .widthIn(
+                                    min = TagInfoCardMinWidth,
+                                    max = TagInfoCardMaxWidth
                                 )
-                                .animateItemPlacement()
+                                .animateItem()
                         )
                     }
                 }
             }
-        }
-        AnimatedVisibility(visible = tagAssignModeActive && !isTagsEmpty) {
-            Text(
-                text = stringResource(R.string.tap_tag_to_assign_to_selected_transactions),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(horizontal = SpacingMedium),
-                color = LocalContentColor.current
-                    .copy(alpha = 0.80f)
-            )
         }
     }
 }
@@ -491,37 +423,16 @@ private val TagInfoCardMinWidth = 100.dp
 private val TagInfoCardMaxWidth = 200.dp
 
 @Composable
-private fun TagCard(
+private fun TagInfoCard(
     name: String,
     color: Color,
     isExcluded: Boolean,
-    isSelected: Boolean,
     createdTimestamp: String,
-    onSelect: () -> Unit,
-    onLongClick: () -> Unit,
-    tagAssignModeActive: Boolean,
-    onAssignToTransactions: () -> Unit,
+    currency: Currency,
+    aggregateAmount: Double,
     modifier: Modifier = Modifier
 ) {
     val contentColor = remember(color) { color.contentColor() }
-    val clickableModifier = if (tagAssignModeActive) Modifier.clickable(
-        onClick = onAssignToTransactions,
-        onClickLabel = stringResource(R.string.cd_tap_tag_to_assign_to_transactions)
-    )
-    else if (isSelected) Modifier.combinedClickable(
-        onClick = onSelect,
-        onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions),
-        onLongClick = onLongClick,
-        onLongClickLabel = stringResource(R.string.cd_long_press_tag_to_edit)
-    )
-    else Modifier.clickable(
-        onClick = onSelect,
-        onClickLabel = stringResource(R.string.cd_tap_tag_to_filter_transactions)
-    )
-
-    val showLongPressMessage by remember(isSelected, tagAssignModeActive) {
-        derivedStateOf { isSelected && !tagAssignModeActive }
-    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -529,25 +440,22 @@ private fun TagCard(
             contentColor = contentColor
         ),
         modifier = modifier
-            .then(clickableModifier)
             .exclusionGraphicsLayer(isExcluded)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(SpacingMedium),
+                .padding(MaterialTheme.spacing.medium),
             verticalArrangement = Arrangement.Center
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Tags,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(IconSizeSmall)
-                )
-                SpacerSmall()
+                if (isExcluded) {
+                    ExcludedIcon(size = IconSizeSmall)
+                }
+
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -561,27 +469,18 @@ private fun TagCard(
             }
 
             Text(
-                text = stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
+                text = createdTimestamp,
+//                stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
                 style = MaterialTheme.typography.labelMedium,
                 color = contentColor
                     .copy(alpha = ContentAlpha.SUB_CONTENT)
             )
-
-            AnimatedVisibility(showLongPressMessage) {
-                Text(
-                    text = stringResource(R.string.asterisk_long_press_to_edit),
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = contentColor.copy(alpha = ContentAlpha.SUB_CONTENT)
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun TransactionListHeader(
+private fun TransactionListDateFilterAndLabel(
     selectedDate: LocalDate,
     onMonthSelect: (Month) -> Unit,
     yearsList: List<Int>,
@@ -591,13 +490,8 @@ private fun TransactionListHeader(
     currency: Currency,
     selectedTxTypeFilter: TransactionTypeFilter,
     listLabel: UiText,
-    showExcludedOption: Boolean,
-    onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -605,18 +499,18 @@ private fun TransactionListHeader(
             .then(modifier)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             modifier = Modifier
-                .padding(vertical = SpacingSmall)
+                .padding(vertical = MaterialTheme.spacing.small)
         ) {
-            DateFilter(
+            /*DateFilter(
                 selectedDate = selectedDate,
                 onMonthSelect = onMonthSelect,
                 yearsList = yearsList,
                 onYearSelect = onYearSelect,
                 modifier = Modifier
                     .fillMaxWidth()
-            )
+            )*/
             AggregateAmount(
                 multiSelectionModeActive = multiSelectionModeActive,
                 sumAmount = totalSumAmount,
@@ -624,27 +518,21 @@ private fun TransactionListHeader(
                 typeFilter = selectedTxTypeFilter,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
             HorizontalDivider(
                 modifier = Modifier
                     .padding(
-                        vertical = SpacingSmall,
-                        horizontal = SpacingMedium
+                        vertical = MaterialTheme.spacing.small,
+                        horizontal = MaterialTheme.spacing.medium
                     )
             )
 
-            TransactionListLabelAndOptions(
+            TransactionLabelHeader(
                 listLabel = listLabel,
-                onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-                showExcludedOption = showExcludedOption,
-                onToggleShowExcludedOption = onToggleShowExcludedOption,
-                currentTransactionTypeFilter = selectedTxTypeFilter,
                 multiSelectionModeActive = multiSelectionModeActive,
                 multiSelectionState = multiSelectionState,
                 onSelectionStateChange = onSelectionStateChange,
-                onDeleteClick = onDeleteClick,
-                onTransactionOptionClick = onTransactionOptionClick,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -652,7 +540,7 @@ private fun TransactionListHeader(
     }
 }
 
-@Composable
+/*@Composable
 private fun DateFilter(
     selectedDate: LocalDate,
     onMonthSelect: (Month) -> Unit,
@@ -673,17 +561,17 @@ private fun DateFilter(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             DateIndicator(
                 date = selectedDate,
-                isSelected = showYearsList,
+                isExpanded = showYearsList,
                 onClick = { showYearsList = !showYearsList },
                 modifier = Modifier
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
             AnimatedVisibility(
                 visible = showYearsList,
@@ -691,10 +579,10 @@ private fun DateFilter(
                 exit = slideOutHorizontally { it / 2 } + fadeOut()
             ) {
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                     contentPadding = PaddingValues(
-                        start = SpacingMedium,
-                        end = SpacingListEnd
+                        start = MaterialTheme.spacing.medium,
+                        end = PaddingScrollEnd
                     )
                 ) {
                     items(
@@ -707,7 +595,7 @@ private fun DateFilter(
                             onClick = { onYearSelect(year) },
                             label = { Text(year.toString()) },
                             modifier = Modifier
-                                .animateItemPlacement()
+                                .animateItem()
                         )
                     }
                 }
@@ -715,10 +603,10 @@ private fun DateFilter(
         }
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             contentPadding = PaddingValues(
-                start = SpacingMedium,
-                end = SpacingListEnd
+                start = MaterialTheme.spacing.medium,
+                end = PaddingScrollEnd
             ),
             state = monthsListState
         ) {
@@ -737,39 +625,42 @@ private fun DateFilter(
                                 Locale.getDefault()
                             ),
                             modifier = Modifier
-                                .animateItemPlacement()
+                                .animateItem()
                         )
                     }
                 )
             }
         }
     }
-}
+}*/
 
-@Composable
+/*@Composable
 private fun DateIndicator(
     date: LocalDate,
-    isSelected: Boolean,
+    isExpanded: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val selectedIndicatorRotation by animateFloatAsState(
-        targetValue = if (isSelected) 180f else 0f,
+        targetValue = if (isExpanded) 180f else 0f,
         animationSpec = tween(AnimationConstants.DefaultDurationMillis),
         label = "SelectedIndicatorRotation"
     )
+
     Surface(
         tonalElevation = 2.dp,
         shape = MaterialTheme.shapes.small,
-        modifier = modifier,
-        selected = isSelected,
-        onClick = onClick
+        modifier = modifier
+            .clickable(
+                onClick = onClick,
+                role = Role.Button
+            )
     ) {
         Row(
             modifier = Modifier
-                .padding(SpacingSmall),
+                .padding(MaterialTheme.spacing.small),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             Icon(
                 imageVector = Icons.Outlined.CalendarClock,
@@ -803,20 +694,14 @@ private fun DateIndicator(
             )
         }
     }
-}
+}*/
 
 @Composable
-private fun TransactionListLabelAndOptions(
+private fun TransactionLabelHeader(
     listLabel: UiText,
-    showExcludedOption: Boolean,
-    currentTransactionTypeFilter: TransactionTypeFilter,
-    onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedOption: (Boolean) -> Unit,
     multiSelectionModeActive: Boolean,
     multiSelectionState: ToggleableState,
     onSelectionStateChange: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -827,113 +712,15 @@ private fun TransactionListLabelAndOptions(
             targetState = listLabel.asString(),
             label = "SelectedTagNameAnimatedLabel",
             modifier = Modifier
-                .padding(horizontal = SpacingMedium)
+                .padding(horizontal = MaterialTheme.spacing.medium)
                 .weight(Float.One)
         ) { ListLabel(text = it) }
 
-        TransactionListOptions(
-            showExcludedOption = showExcludedOption,
-            currentTransactionTypeFilter = currentTransactionTypeFilter,
-            onToggleTransactionTypeFilter = onToggleTransactionTypeFilter,
-            onToggleShowExcludedOption = onToggleShowExcludedOption,
-            multiSelectionModeActive = multiSelectionModeActive,
-            onTransactionOptionClick = onTransactionOptionClick,
-            selectionState = multiSelectionState,
-            onSelectionStateChange = onSelectionStateChange,
-            onDeleteClick = onDeleteClick
-        )
-    }
-}
-
-@Composable
-private fun TransactionListOptions(
-    showExcludedOption: Boolean,
-    currentTransactionTypeFilter: TransactionTypeFilter,
-    onToggleTransactionTypeFilter: () -> Unit,
-    onToggleShowExcludedOption: (Boolean) -> Unit,
-    multiSelectionModeActive: Boolean,
-    onTransactionOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
-    selectionState: ToggleableState,
-    onSelectionStateChange: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var menuExpanded by rememberSaveable { mutableStateOf(false) }
-
-    Row(
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        AnimatedVisibility(visible = !multiSelectionModeActive) {
-            IconButton(onClick = onToggleTransactionTypeFilter) {
-                AnimatedContent(
-                    targetState = currentTransactionTypeFilter,
-                    label = "TransactionTypeFilterIcon"
-                ) { filter ->
-                    Icon(
-                        imageVector = ImageVector.vectorResource(filter.iconRes),
-                        contentDescription = stringResource(R.string.cd_filter_transactions_by_type)
-                    )
-                }
-            }
-        }
         AnimatedVisibility(visible = multiSelectionModeActive) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
-            ) {
-                IconButton(onClick = onDeleteClick) {
-                    Icon(
-                        imageVector = Icons.Rounded.DeleteForever,
-                        contentDescription = stringResource(R.string.cd_delete_selected_transactions)
-                    )
-                }
-                TriStateCheckbox(
-                    state = selectionState,
-                    onClick = onSelectionStateChange
-                )
-            }
-        }
-
-        Box {
-            IconButton(onClick = { menuExpanded = !menuExpanded }) {
-                Icon(
-                    imageVector = Icons.Rounded.MoreVert,
-                    contentDescription = stringResource(R.string.cd_options)
-                )
-            }
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                if (multiSelectionModeActive) {
-                    AllTransactionsMultiSelectionOption.entries.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(option.labelRes)) },
-                            onClick = {
-                                menuExpanded = false
-                                onTransactionOptionClick(option)
-                            }
-                        )
-                    }
-                } else {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(
-                                    id = if (showExcludedOption) R.string.hide_excluded_transactions
-                                    else R.string.show_excluded_transactions
-                                )
-                            )
-                        },
-                        onClick = {
-                            menuExpanded = false
-                            onToggleShowExcludedOption(!showExcludedOption)
-                        }
-                    )
-                }
-            }
+            TriStateCheckbox(
+                state = multiSelectionState,
+                onClick = onSelectionStateChange
+            )
         }
     }
 }
@@ -987,6 +774,268 @@ private fun AggregateAmount(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold
             )
+        }
+    }
+}
+
+@Composable
+private fun MultiSelectionOptionsSheet(
+    onDismiss: () -> Unit,
+    onOptionClick: (AllTransactionsMultiSelectionOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RivoModalBottomSheet(
+        onDismissRequest = onDismiss,
+        modifier = modifier
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = MaterialTheme.spacing.medium,
+                bottom = PaddingScrollEnd
+            )
+        ) {
+            items(
+                items = AllTransactionsMultiSelectionOption.entries,
+                key = { it.name },
+                contentType = { "MultiSelectionOptionItem" }
+            ) { option ->
+                OutlinedCard(
+                    onClick = { onOptionClick(option) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(MaterialTheme.spacing.medium)
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(option.iconRes),
+                            contentDescription = null
+                        )
+                        SpacerMedium()
+                        Text(
+                            text = stringResource(option.labelRes)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterOptionsSheet(
+    onDismissRequest: () -> Unit,
+    selectedDate: LocalDate,
+    yearsList: List<Int>,
+    onMonthSelect: (Month) -> Unit,
+    onYearSelect: (Int) -> Unit,
+    selectedTypeFilter: TransactionTypeFilter,
+    onTypeFilterSelect: (TransactionTypeFilter) -> Unit,
+    selectedTags: List<Tag>,
+    onChangeTagSelectionClick: () -> Unit,
+    onClearTagSelectionClick: () -> Unit,
+    showExcluded: Boolean,
+    onShowExcludedToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RivoModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    top = MaterialTheme.spacing.medium,
+                    bottom = PaddingScrollEnd
+                ),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+        ) {
+            FilterSectionTitle(R.string.date)
+            DateFilterList(
+                selectedDate = selectedDate,
+                onMonthSelect = onMonthSelect,
+                yearsList = yearsList,
+                onYearSelect = onYearSelect
+            )
+            SpacerMedium()
+
+            FilterSectionTitle(R.string.filter_section_transaction_type)
+            val filterEntries = remember { TransactionTypeFilter.entries }
+            val filterEntriesSize = remember(filterEntries) { filterEntries.size }
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.medium)
+            ) {
+                filterEntries.forEachIndexed { index, filter ->
+                    SegmentedButton(
+                        selected = filter == selectedTypeFilter,
+                        onClick = { onTypeFilterSelect(filter) },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = filterEntriesSize
+                        ),
+                        label = { Text(stringResource(filter.labelRes)) }
+                    )
+                }
+            }
+            SpacerMedium()
+
+            val isSelectedTagsNotEmpty by remember(selectedTags) {
+                derivedStateOf { selectedTags.isNotEmpty() }
+            }
+
+            FilterSectionTitle(
+                R.string.filter_section_tags,
+                additionalTrailingContent = {
+                    if (isSelectedTagsNotEmpty) {
+                        TextButton(onClick = onClearTagSelectionClick) {
+                            Text(stringResource(R.string.clear))
+                        }
+                    }
+                }
+            )
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .sizeIn(minHeight = 120.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        space = MaterialTheme.spacing.small,
+                        alignment = Alignment.CenterHorizontally
+                    ),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    selectedTags.forEach { tag ->
+                        ElevatedTagChip(
+                            name = tag.name,
+                            color = tag.color,
+                            excluded = tag.excluded,
+                        )
+                    }
+                }
+                OutlinedButton(onClick = onChangeTagSelectionClick) {
+                    Text(stringResource(R.string.select_tags))
+                }
+            }
+
+            FilterSectionTitle(resId = R.string.filter_section_more)
+            SwitchPreference(
+                titleRes = R.string.show_excluded_transactions,
+                value = showExcluded,
+                onValueChange = onShowExcludedToggle
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterSectionTitle(
+    @StringRes resId: Int,
+    modifier: Modifier = Modifier,
+    additionalTrailingContent: @Composable (() -> Unit)? = null
+) {
+    Column(
+        modifier = modifier
+            .padding(horizontal = MaterialTheme.spacing.medium)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            ListLabel(stringResource(resId))
+            additionalTrailingContent?.invoke()
+        }
+        HorizontalDivider(
+            modifier = Modifier
+                .padding(vertical = MaterialTheme.spacing.small)
+        )
+    }
+}
+
+@Composable
+private fun DateFilterList(
+    selectedDate: LocalDate,
+    onMonthSelect: (Month) -> Unit,
+    yearsList: List<Int>,
+    onYearSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val monthsList = remember { Month.entries.toTypedArray() }
+
+    val monthsListState = rememberLazyListState()
+
+    // Scroll to initial selected month
+    LaunchedEffect(monthsListState) {
+        monthsListState.scrollToItem(selectedDate.monthValue - 1)
+    }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+    ) {
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = PaddingScrollEnd
+            )
+        ) {
+            items(
+                items = yearsList,
+                key = { it },
+                contentType = { "YearChip" }
+            ) { year ->
+                ElevatedFilterChip(
+                    selected = year == selectedDate.year,
+                    onClick = { onYearSelect(year) },
+                    label = { Text(year.toString()) },
+                    modifier = Modifier
+                        .animateItem()
+                )
+            }
+        }
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            contentPadding = PaddingValues(
+                start = MaterialTheme.spacing.medium,
+                end = PaddingScrollEnd
+            ),
+            state = monthsListState
+        ) {
+            items(
+                items = monthsList,
+                key = { it.value },
+                contentType = { "MonthChip" }
+            ) { month ->
+                ElevatedFilterChip(
+                    selected = month == selectedDate.month,
+                    onClick = { onMonthSelect(month) },
+                    label = {
+                        Text(
+                            text = month.getDisplayName(
+                                TextStyle.FULL_STANDALONE,
+                                Locale.getDefault()
+                            ),
+                            modifier = Modifier
+                                .animateItem()
+                        )
+                    }
+                )
+            }
         }
     }
 }

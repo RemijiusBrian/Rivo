@@ -4,22 +4,37 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.Empty
 
 @Composable
 fun MinWidthTextField(
@@ -159,5 +174,49 @@ fun MinWidthOutlinedTextField(
                 contentPadding = contentPadding
             )
         }
+    )
+}
+
+@Composable
+fun SearchField(
+    query: () -> String,
+    onSearchQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    onSearch: KeyboardActionScope.() -> Unit = { defaultKeyboardAction(ImeAction.Search) },
+) {
+    val isSearchQueryEmpty by remember {
+        derivedStateOf { query().isEmpty() }
+    }
+
+    TextField(
+        value = query(),
+        onValueChange = onSearchQueryChange,
+        modifier = modifier,
+        shape = CircleShape,
+        placeholder = { placeholder?.let { Text(it) } },
+        colors = TextFieldDefaults.colors(
+            disabledIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent
+        ),
+        trailingIcon = {
+            if (!isSearchQueryEmpty) {
+                IconButton(onClick = { onSearchQueryChange(String.Empty) }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Clear,
+                        contentDescription = stringResource(R.string.cd_clear)
+                    )
+                }
+            }
+        },
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search,
+            keyboardType = KeyboardType.Text
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = onSearch
+        )
     )
 }

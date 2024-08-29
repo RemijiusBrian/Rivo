@@ -14,18 +14,19 @@ interface AllTransactionsRepository {
     fun getAmountAggregate(
         date: LocalDate?,
         type: TransactionType?,
-        tagId: Long?,
+        tagIds: Set<Long>,
         addExcluded: Boolean,
-        selectedTxIds: Set<Long>?
+        selectedTxIds: Set<Long>
     ): Flow<Double>
 
     fun getAllTransactionsList(
         date: LocalDate,
-        tagId: Long?,
+        tagIds: Set<Long>,
         transactionType: TransactionType?,
         showExcluded: Boolean
     ): Flow<List<TransactionListItem>>
 
+    suspend fun setTagIdToTransactions(tagId: Long?, transactionIds: Set<Long>)
     fun getShowExcludedOption(): Flow<Boolean>
     suspend fun toggleShowExcludedOption(show: Boolean)
     suspend fun toggleTransactionExclusionByIds(ids: Set<Long>, excluded: Boolean)

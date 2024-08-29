@@ -27,7 +27,7 @@ import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.modal.BackupDetails
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
-import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
+import dev.ridill.rivo.settings.domain.repositoty.BudgetPreferenceRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,7 +43,7 @@ class OnboardingViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val eventBus: EventBus<OnboardingEvent>,
     private val backupWorkManager: BackupWorkManager,
-    private val settingsRepository: SettingsRepository,
+    private val budgetRepo: BudgetPreferenceRepository,
     private val preferencesManager: PreferencesManager,
     private val backupRepo: BackupRepository,
     private val authRepo: AuthRepository,
@@ -56,7 +56,6 @@ class OnboardingViewModel @Inject constructor(
     val showEncryptionPasswordInput = savedStateHandle
         .getStateFlow(SHOW_ENCRYPTION_PASSWORD_INPUT, false)
 
-    val currency = settingsRepository.getCurrencyPreference()
     val budgetInput = savedStateHandle.getStateFlow(BUDGET_INPUT, "")
 
     val events = eventBus.eventFlow
@@ -301,7 +300,7 @@ class OnboardingViewModel @Inject constructor(
                 )
                 return@launch
             }
-            settingsRepository.updateCurrentBudget(budgetValue)
+            budgetRepo.saveBudgetPreference(budgetValue)
             preferencesManager.concludeOnboarding()
             eventBus.send(OnboardingEvent.OnboardingConcluded)
         }

@@ -57,7 +57,6 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.PartOfDay
 import dev.ridill.rivo.core.domain.util.WhiteSpace
@@ -75,26 +74,22 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.schedules.domain.model.ActiveSchedule
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
-import java.util.Currency
 
 @Composable
 fun DashboardScreen(
-    appCurrencyPreference: Currency,
     state: DashboardState,
     snackbarController: SnackbarController,
     navigateToAllTransactions: () -> Unit,
@@ -157,7 +152,7 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                bottom = SpacingListEnd
+                bottom = PaddingScrollEnd
             )
         ) {
             item(
@@ -165,14 +160,13 @@ fun DashboardScreen(
                 contentType = "BalanceAndBudget"
             ) {
                 BalanceAndBudget(
-                    currency = appCurrencyPreference,
                     balance = state.balance,
                     budget = state.monthlyBudgetInclCredits,
                     creditAmount = state.creditAmount,
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .padding(horizontal = SpacingMedium)
-                        .animateItemPlacement()
+                        .padding(horizontal = MaterialTheme.spacing.medium)
+                        .animateItem()
                 )
             }
 
@@ -183,19 +177,19 @@ fun DashboardScreen(
                 ) {
                     Surface(
                         modifier = Modifier
-                            .padding(vertical = SpacingSmall)
-                            .animateItemPlacement(),
+                            .padding(vertical = MaterialTheme.spacing.small)
+                            .animateItem(),
                         shape = MaterialTheme.shapes.large
                     ) {
                         Column(
                             modifier = Modifier
-                                .padding(vertical = SpacingSmall)
+                                .padding(vertical = MaterialTheme.spacing.small)
                                 .fillParentMaxWidth()
                         ) {
                             ListLabel(
                                 text = stringResource(R.string.schedules_this_month),
                                 modifier = Modifier
-                                    .padding(horizontal = SpacingMedium),
+                                    .padding(horizontal = MaterialTheme.spacing.medium),
                                 color = MaterialTheme.colorScheme.primary
                             )
 
@@ -203,12 +197,11 @@ fun DashboardScreen(
 
                             HorizontalDivider(
                                 modifier = Modifier
-                                    .padding(horizontal = SpacingMedium),
+                                    .padding(horizontal = MaterialTheme.spacing.medium),
                                 color = MaterialTheme.colorScheme.primary
                             )
 
                             ActiveSchedulesRow(
-                                currency = appCurrencyPreference,
                                 activeSchedules = state.activeSchedules,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -225,18 +218,17 @@ fun DashboardScreen(
                 Surface(
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(SpacingSmall),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                         modifier = Modifier
-                            .padding(horizontal = SpacingMedium)
-                            .padding(top = SpacingMedium)
+                            .padding(horizontal = MaterialTheme.spacing.medium)
+                            .padding(top = MaterialTheme.spacing.medium)
                     ) {
                         ListLabel(stringResource(R.string.recent_spends))
 
                         SpentAmountAndAllTransactionsButton(
-                            currency = appCurrencyPreference,
                             amount = state.spentAmount,
                             onAllTransactionsClick = navigateToAllTransactions,
                             modifier = Modifier
@@ -267,7 +259,7 @@ fun DashboardScreen(
             ) { transaction ->
                 RecentSpendCard(
                     note = transaction.note,
-                    amount = transaction.amountFormattedWithCurrency(appCurrencyPreference),
+                    amount = transaction.amountFormatted,
                     date = transaction.date,
                     type = transaction.type,
                     tag = transaction.tag,
@@ -275,7 +267,7 @@ fun DashboardScreen(
                     onClick = { navigateToAddEditTransaction(transaction.id) },
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
         }
@@ -300,7 +292,7 @@ private fun Greeting(
             .mergedContentDescription(
                 contentDescription = stringResource(
                     R.string.cd_app_greeting_user,
-                    partOfDay.labelRes,
+                    stringResource(partOfDay.labelRes),
                     username.orEmpty()
                 )
             )
@@ -327,7 +319,6 @@ private fun Greeting(
 
 @Composable
 private fun BalanceAndBudget(
-    currency: Currency,
     balance: Double,
     budget: Double,
     creditAmount: Double,
@@ -335,8 +326,8 @@ private fun BalanceAndBudget(
 ) {
     val balanceAndBudgetContentDescription = stringResource(
         R.string.cd_balance_and_budget_amounts,
-        TextFormat.currency(balance, currency),
-        TextFormat.currency(budget, currency)
+        TextFormat.currencyAmount(balance),
+        TextFormat.currencyAmount(budget)
     )
     Row(
         modifier = modifier
@@ -344,7 +335,6 @@ private fun BalanceAndBudget(
         verticalAlignment = Alignment.Bottom
     ) {
         Balance(
-            currency = currency,
             amount = balance,
             modifier = Modifier
                 .weight(weight = Float.One, fill = false)
@@ -359,7 +349,7 @@ private fun BalanceAndBudget(
                 tooltipTitle = stringResource(R.string.budget_includes_credited_amounts),
                 tooltipText = stringResource(
                     R.string.budget_includes_credit_amount_of_value,
-                    TextFormat.currency(creditAmount, currency)
+                    TextFormat.currencyAmount(creditAmount)
                 ),
                 state = rememberTooltipState(isPersistent = true)
             ) {
@@ -372,7 +362,7 @@ private fun BalanceAndBudget(
                         Text(
                             text = stringResource(
                                 R.string.fwd_slash_amount_value,
-                                TextFormat.currency(amount = it, currency = currency)
+                                TextFormat.currencyAmount(amount = it)
                             ),
                             style = MaterialTheme.typography.titleLarge,
                             maxLines = 2,
@@ -397,7 +387,6 @@ private fun BalanceAndBudget(
 
 @Composable
 private fun Balance(
-    currency: Currency,
     amount: Double,
     modifier: Modifier = Modifier
 ) {
@@ -413,7 +402,7 @@ private fun Balance(
         )
         VerticalNumberSpinnerContent(number = amount) {
             Text(
-                text = TextFormat.currency(amount = it, currency = currency),
+                text = TextFormat.currencyAmount(amount = it),
                 style = MaterialTheme.typography.displayLarge
                     .copy(lineBreak = LineBreak.Simple),
                 maxLines = 2,
@@ -426,7 +415,6 @@ private fun Balance(
 
 @Composable
 private fun SpentAmountAndAllTransactionsButton(
-    currency: Currency,
     amount: Double,
     onAllTransactionsClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -434,7 +422,7 @@ private fun SpentAmountAndAllTransactionsButton(
     val contentColor = LocalContentColor.current
     val spentAmountContentDescription = stringResource(
         R.string.cd_recent_spent_amount,
-        TextFormat.currency(amount, currency)
+        TextFormat.currencyAmount(amount)
     )
     Row(
         modifier = modifier,
@@ -445,7 +433,7 @@ private fun SpentAmountAndAllTransactionsButton(
                 .weight(weight = Float.One, fill = false)
                 .alignBy(LastBaseline)
                 .mergedContentDescription(spentAmountContentDescription),
-            horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
         ) {
             VerticalNumberSpinnerContent(
                 number = amount,
@@ -454,7 +442,7 @@ private fun SpentAmountAndAllTransactionsButton(
                     .alignBy(LastBaseline)
             ) {
                 Text(
-                    text = TextFormat.currency(amount = it, currency = currency),
+                    text = TextFormat.currencyAmount(amount = it),
                     style = MaterialTheme.typography.headlineMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -487,18 +475,17 @@ private fun SpentAmountAndAllTransactionsButton(
 
 @Composable
 private fun ActiveSchedulesRow(
-    currency: Currency,
     activeSchedules: List<ActiveSchedule>,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
         contentPadding = PaddingValues(
-            top = SpacingMedium,
-            start = SpacingMedium,
-            end = SpacingListEnd
+            top = MaterialTheme.spacing.medium,
+            start = MaterialTheme.spacing.medium,
+            end = PaddingScrollEnd
         ),
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         items(
             items = activeSchedules,
@@ -507,11 +494,11 @@ private fun ActiveSchedulesRow(
         ) { schedule ->
             ActiveScheduleCard(
                 name = schedule.note,
-                amount = schedule.amountFormatted(currency),
+                amount = schedule.amountFormatted,
                 dueDate = schedule.dueDateFormatted,
                 modifier = Modifier
                     .fillParentMaxWidth(UPCOMING_SCHEDULE_CARD_PARENT_WIDTH_FRACTION)
-                    .animateItemPlacement()
+                    .animateItem()
             )
         }
     }
@@ -532,8 +519,8 @@ private fun ActiveScheduleCard(
         Column(
             modifier = Modifier
                 .padding(
-                    horizontal = SpacingMedium,
-                    vertical = SpacingSmall
+                    horizontal = MaterialTheme.spacing.medium,
+                    vertical = MaterialTheme.spacing.small
                 )
                 .heightIn(min = UpcomingScheduleCardMinHeight)
         ) {
@@ -572,7 +559,7 @@ private fun ActiveScheduleCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .padding(SpacingExtraSmall)
+                        .padding(MaterialTheme.spacing.extraSmall)
                 )
             }
 
@@ -635,8 +622,7 @@ private fun PreviewDashboardScreen() {
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
-            navigateToBottomNavDestination = {},
-            appCurrencyPreference = LocaleUtil.defaultCurrency
+            navigateToBottomNavDestination = {}
         )
     }
 }

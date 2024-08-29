@@ -40,8 +40,7 @@ import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.autofill
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.onboarding.domain.model.DataRestoreState
 
@@ -64,13 +63,13 @@ fun DataRestorePage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(SpacingLarge),
+            .padding(MaterialTheme.spacing.large),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         MediumDisplayText(
             title = stringResource(R.string.onboarding_page_restore_data_title),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         )
         Text(
             text = stringResource(R.string.onboarding_page_restore_data_message),
@@ -180,7 +179,7 @@ private fun RestoreStatus(
             style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .padding(horizontal = SpacingLarge),
+                .padding(horizontal = MaterialTheme.spacing.large),
             color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
         )
     }

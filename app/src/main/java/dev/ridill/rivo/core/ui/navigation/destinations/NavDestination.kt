@@ -12,8 +12,17 @@ sealed interface NavDestination {
                 AllTransactionsScreenSpec,
                 SettingsGraphSpec,
                 TransactionFoldersGraph,
-                SchedulesGraphSpec
+                SchedulesGraphSpec,
+                FolderSelectionSheetSpec,
+                AmountTransformationSheetSpec,
+                AddEditTagSheetSpec,
+                TagSelectionSheetSpec,
+                AllTagsScreenSpec,
+                AddEditFolderSheetSpec
             )
+
+        const val DEEP_LINK_URI = "dev.ridill.rivo://app"
+        const val ARG_INVALID_ID_LONG = -1L
     }
 
     val route: String
@@ -21,6 +30,3 @@ sealed interface NavDestination {
     @get:StringRes
     val labelRes: Int
 }
-
-const val DEEP_LINK_URI = "dev.ridill.rivo://app"
-const val ARG_INVALID_ID_LONG = -1L

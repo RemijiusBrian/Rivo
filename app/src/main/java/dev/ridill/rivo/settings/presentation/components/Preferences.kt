@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -19,8 +20,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -30,8 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.HorizontalSpacer
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun SimpleSettingsPreference(
@@ -76,6 +78,7 @@ fun SimplePreference(
     summary: String? = null,
     onClick: (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     contentPadding: PaddingValues = PreferenceContentPadding
 ) = BasicPreference(
     titleContent = { Text(text = stringResource(titleRes)) },
@@ -94,6 +97,37 @@ fun SimplePreference(
             else Modifier
         )
         .then(modifier),
+    trailingContent = trailingIcon,
+    contentPadding = contentPadding
+)
+
+@Composable
+fun SimplePreference(
+    title: String,
+    modifier: Modifier = Modifier,
+    summary: String? = null,
+    onClick: (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    contentPadding: PaddingValues = PreferenceContentPadding
+) = BasicPreference(
+    titleContent = { Text(text = title) },
+    summaryContent = summary?.let {
+        { Text(text = it) }
+    },
+    leadingIcon = leadingIcon,
+    modifier = Modifier
+        .fillMaxWidth()
+        .then(
+            if (onClick != null) Modifier
+                .clickable(
+                    role = Role.Button,
+                    onClick = onClick
+                )
+            else Modifier
+        )
+        .then(modifier),
+    trailingContent = trailingIcon,
     contentPadding = contentPadding
 )
 
@@ -135,6 +169,7 @@ fun SwitchPreference(
 fun BasicPreference(
     titleContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    shape: CornerBasedShape = MaterialTheme.shapes.extraSmall,
     summaryContent: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
@@ -146,10 +181,12 @@ fun BasicPreference(
 ) {
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
-            modifier = modifier
+            modifier = Modifier
+                .clip(shape)
+                .then(modifier)
                 .padding(contentPadding),
             verticalAlignment = verticalAlignment,
-            horizontalArrangement = Arrangement.spacedBy(SpacingMedium)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             leadingIcon?.invoke()
             Column(
@@ -191,7 +228,10 @@ fun PreferenceIcon(
 fun EmptyPreferenceIconSpacer() = HorizontalSpacer(spacing = PreferenceIconSize)
 
 val PreferenceIconSize = 24.dp
-val PreferenceContentPadding = PaddingValues(
-    horizontal = SpacingMedium,
-    vertical = SpacingSmall
-)
+val PreferenceContentPadding
+    @Composable
+    @ReadOnlyComposable
+    get() = PaddingValues(
+        horizontal = MaterialTheme.spacing.medium,
+        vertical = MaterialTheme.spacing.small
+    )

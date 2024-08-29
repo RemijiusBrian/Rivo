@@ -1,8 +1,7 @@
 package dev.ridill.rivo.folders.presentation.folderDetails
 
-import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,12 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
@@ -26,29 +21,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
@@ -58,7 +44,7 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.DismissBackground
-import dev.ridill.rivo.core.ui.components.LabelledSwitch
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.ListSeparator
@@ -68,81 +54,46 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.SwipeToDismissContainer
+import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
-import java.util.Currency
 import kotlin.math.absoluteValue
 
 @Composable
 fun FolderDetailsScreen(
-    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     state: FolderDetailsState,
     transactionPagingItems: LazyPagingItems<TransactionListItemUIModel>,
-    folderName: () -> String,
     actions: FolderDetailsActions,
+    navigateToEditFolder: () -> Unit,
     navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
     val areTransactionsEmpty by remember {
         derivedStateOf { transactionPagingItems.isEmpty() }
     }
-    BackHandler(
-        enabled = state.editModeActive,
-        onBack = actions::onEditDismiss
-    )
 
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     RivoScaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(FolderDetailsScreenSpec.labelRes)) },
-                navigationIcon = {
-                    if (state.editModeActive) {
-                        IconButton(onClick = actions::onEditDismiss) {
-                            Icon(
-                                imageVector = Icons.Rounded.Close,
-                                contentDescription = stringResource(R.string.action_cancel)
-                            )
-                        }
-                    } else {
-                        BackArrowButton(onClick = navigateUp)
-                    }
-                },
+                navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 actions = {
-                    if (!state.isNewFolder) {
-                        IconButton(onClick = actions::onDeleteClick) {
-                            Icon(
-                                imageVector = Icons.Rounded.DeleteForever,
-                                contentDescription = stringResource(R.string.cd_delete_folder)
-                            )
-                        }
-                    }
-                    if (state.editModeActive) {
-                        IconButton(onClick = actions::onEditConfirm) {
-                            Icon(
-                                imageVector = Icons.Rounded.Check,
-                                contentDescription = stringResource(R.string.cd_save_folder)
-                            )
-                        }
-                    } else {
-                        IconButton(onClick = actions::onEditClick) {
-                            Icon(
-                                imageVector = Icons.Rounded.Edit,
-                                contentDescription = stringResource(R.string.cd_edit_folder)
-                            )
-                        }
+                    IconButton(onClick = navigateToEditFolder) {
+                        Icon(
+                            imageVector = Icons.Rounded.Edit,
+                            contentDescription = stringResource(R.string.cd_edit_folder)
+                        )
                     }
                 },
                 scrollBehavior = topAppBarScrollBehavior
@@ -158,111 +109,101 @@ fun FolderDetailsScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                top = SpacingMedium,
-                bottom = SpacingListEnd
+                top = MaterialTheme.spacing.medium,
+                bottom = PaddingScrollEnd
             ),
-            verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             item(
                 key = "FolderDetails",
                 contentType = "FolderDetails"
             ) {
                 FolderDetails(
-                    folderName = folderName,
-                    onNameChange = actions::onNameChange,
-                    editModeActive = state.editModeActive,
+                    folderName = state.folderNname,
                     isExcluded = state.isExcluded,
-                    onExclusionToggle = actions::onExclusionToggle,
-                    currency = appCurrencyPreference,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,
                     createdTimestamp = state.createdTimestampFormatted,
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
 
-            if (!state.isNewFolder) {
-                stickyHeader(
-                    key = "TransactionListHeader",
-                    contentType = "TransactionListHeader"
+            stickyHeader(
+                key = "TransactionListHeader",
+                contentType = "TransactionListHeader"
+            ) {
+                TransactionListHeader(
+                    onNewTransactionClick = { navigateToAddEditTransaction(null) },
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .padding(horizontal = MaterialTheme.spacing.medium)
+                        .animateItem()
+                )
+            }
+
+            if (areTransactionsEmpty) {
+                item(
+                    key = "EmptyListIndicator",
+                    contentType = "EmptyListIndicator"
                 ) {
-                    TransactionListHeader(
-                        onNewTransactionClick = { navigateToAddEditTransaction(null) },
-                        modifier = Modifier
-                            .fillParentMaxWidth()
-                            .padding(horizontal = SpacingMedium)
-                            .animateItemPlacement()
+                    ListEmptyIndicatorItem(
+                        rawResId = R.raw.lottie_empty_list_ghost,
+                        messageRes = R.string.transactions_in_folder_list_empty_message
                     )
                 }
+            }
 
-                if (areTransactionsEmpty) {
-                    item(
-                        key = "EmptyListIndicator",
-                        contentType = "EmptyListIndicator"
-                    ) {
-                        ListEmptyIndicatorItem(
-                            rawResId = R.raw.lottie_empty_list_ghost,
-                            messageRes = R.string.transactions_in_folder_list_empty_message
-                        )
-                    }
-                }
-
-                repeat(transactionPagingItems.itemCount) { index ->
-                    transactionPagingItems[index]?.let { item ->
-                        when (item) {
-                            is TransactionListItemUIModel.DateSeparator -> {
-                                stickyHeader(
-                                    key = item.date.toString(),
-                                    contentType = "TransactionDateSeparator"
-                                ) {
-                                    ListSeparator(
-                                        label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
-                                        modifier = Modifier
-                                            .animateItemPlacement()
-                                    )
-                                }
+            repeat(transactionPagingItems.itemCount) { index ->
+                transactionPagingItems[index]?.let { item ->
+                    when (item) {
+                        is TransactionListItemUIModel.DateSeparator -> {
+                            stickyHeader(
+                                key = item.date.toString(),
+                                contentType = "TransactionDateSeparator"
+                            ) {
+                                ListSeparator(
+                                    label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
+                                    modifier = Modifier
+                                        .animateItem()
+                                )
                             }
+                        }
 
-                            is TransactionListItemUIModel.TransactionItem -> {
-                                item(
-                                    key = item.transaction.id,
-                                    contentType = "TransactionListItem"
+                        is TransactionListItemUIModel.TransactionItem -> {
+                            item(
+                                key = item.transaction.id,
+                                contentType = "TransactionListItem"
+                            ) {
+                                SwipeToDismissContainer(
+                                    item = item.transaction,
+                                    onDismiss = actions::onTransactionSwipeToDismiss,
+                                    backgroundContent = {
+                                        DismissBackground(
+                                            swipeDismissState = it,
+                                            icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
+                                            contentDescription = stringResource(R.string.cd_remove_from_folder),
+                                            enableDismissFromEndToStart = false,
+                                            modifier = Modifier
+                                                .padding(horizontal = MaterialTheme.spacing.large)
+                                        )
+                                    },
+                                    enableDismissFromEndToStart = false,
+                                    modifier = Modifier
+                                        .animateItem()
                                 ) {
-                                    SwipeToDismissContainer(
-                                        item = item.transaction,
-                                        onDismiss = actions::onTransactionSwipeToDismiss,
-                                        backgroundContent = {
-                                            DismissBackground(
-                                                swipeDismissState = it,
-                                                icon = ImageVector.vectorResource(R.drawable.ic_outline_remove_folder),
-                                                contentDescription = stringResource(R.string.cd_remove_from_folder),
-                                                enableDismissFromEndToStart = false,
-                                                modifier = Modifier
-                                                    .padding(horizontal = SpacingLarge)
-                                            )
-                                        },
-                                        enableDismissFromEndToStart = false,
-                                        modifier = Modifier
-                                            .animateItemPlacement()
+                                    Card(
+                                        onClick = { navigateToAddEditTransaction(item.transaction.id) }
                                     ) {
-                                        Card(
-                                            onClick = { navigateToAddEditTransaction(item.transaction.id) }
-                                        ) {
-                                            TransactionListItem(
-                                                showTypeIndicator = true,
-                                                note = item.transaction.note,
-                                                amount = item.transaction
-                                                    .amountFormattedWithCurrency(
-                                                        appCurrencyPreference
-                                                    ),
-                                                date = item.transaction.date,
-                                                type = item.transaction.type,
-                                                excluded = item.transaction.excluded,
-                                                tag = item.transaction.tag
-                                            )
-                                        }
+                                        TransactionListItem(
+                                            note = item.transaction.note,
+                                            amount = item.transaction.amountFormatted,
+                                            date = item.transaction.date,
+                                            type = item.transaction.type,
+                                            tag = item.transaction.tag,
+                                            excluded = item.transaction.excluded
+                                        )
                                     }
                                 }
                             }
@@ -297,12 +238,8 @@ fun FolderDetailsScreen(
 
 @Composable
 private fun FolderDetails(
-    folderName: () -> String,
-    onNameChange: (String) -> Unit,
-    editModeActive: Boolean,
+    folderName: String,
     isExcluded: Boolean,
-    onExclusionToggle: (Boolean) -> Unit,
-    currency: Currency,
     aggregateAmount: Double,
     aggregateType: AggregateType,
     createdTimestamp: String,
@@ -310,34 +247,26 @@ private fun FolderDetails(
 ) {
     Column(
         modifier = modifier
-            .padding(horizontal = SpacingMedium),
-        verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            .padding(horizontal = MaterialTheme.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
-        NameField(
-            name = folderName,
-            onNameChange = onNameChange,
-            editModeActive = editModeActive,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        LabelledSwitch(
-            labelRes = R.string.mark_excluded_question,
-            checked = isExcluded,
-            onCheckedChange = onExclusionToggle,
-            enabled = editModeActive,
-            modifier = Modifier
-                .align(Alignment.End)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+        ) {
+            AnimatedVisibility(isExcluded) {
+                ExcludedIcon()
+            }
+            TitleLargeText(folderName)
+        }
 
         AggregateAmountAndCreatedDate(
-            currency = currency,
             aggregateAmount = aggregateAmount,
             aggregateType = aggregateType,
             date = createdTimestamp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = SpacingMedium)
+                .padding(horizontal = MaterialTheme.spacing.medium)
         )
 
         HorizontalDivider()
@@ -345,52 +274,7 @@ private fun FolderDetails(
 }
 
 @Composable
-private fun NameField(
-    name: () -> String,
-    onNameChange: (String) -> Unit,
-    editModeActive: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val containerColor by animateColorAsState(
-        targetValue = if (editModeActive) MaterialTheme.colorScheme.surfaceVariant
-        else Color.Transparent,
-        label = "NameFieldContainerColor"
-    )
-
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(editModeActive) {
-        if (editModeActive) {
-            focusRequester.requestFocus()
-        }
-    }
-
-    TextField(
-        value = name(),
-        onValueChange = onNameChange,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            capitalization = KeyboardCapitalization.Words,
-            imeAction = ImeAction.Done
-        ),
-        readOnly = !editModeActive,
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier
-            .focusRequester(focusRequester),
-        label = { Text(stringResource(R.string.label_transaction_folder_name)) },
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = containerColor,
-            focusedContainerColor = containerColor
-        ),
-        textStyle = MaterialTheme.typography.headlineMedium,
-        placeholder = { Text(stringResource(R.string.enter_folder_name)) }
-    )
-}
-
-@Composable
 private fun AggregateAmountAndCreatedDate(
-    currency: Currency,
     aggregateAmount: Double,
     aggregateType: AggregateType,
     date: String,
@@ -402,7 +286,6 @@ private fun AggregateAmountAndCreatedDate(
         verticalAlignment = Alignment.Bottom
     ) {
         AggregateAmount(
-            currency = currency,
             amount = aggregateAmount,
             type = aggregateType,
             modifier = Modifier
@@ -467,7 +350,6 @@ private fun TransactionListHeader(
 @Composable
 private fun AggregateAmount(
     amount: Double,
-    currency: Currency,
     type: AggregateType,
     modifier: Modifier = Modifier
 ) {
@@ -475,7 +357,7 @@ private fun AggregateAmount(
         AggregateType.BALANCED -> stringResource(R.string.cd_folder_aggregate_amount_balanced)
         else -> stringResource(
             R.string.cd_folder_aggregate_amount_unbalanced,
-            TextFormat.currency(amount, currency),
+            TextFormat.currencyAmount(amount),
             stringResource(type.labelRes)
         )
     }
@@ -490,7 +372,7 @@ private fun AggregateAmount(
                 .alignBy(LastBaseline)
         ) {
             Text(
-                text = TextFormat.currency(it, currency = currency),
+                text = TextFormat.currencyAmount(it),
                 style = MaterialTheme.typography.headlineLarge
                     .copy(lineBreak = LineBreak.Heading),
                 fontWeight = FontWeight.SemiBold,

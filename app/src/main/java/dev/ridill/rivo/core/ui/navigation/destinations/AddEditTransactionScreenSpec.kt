@@ -27,17 +27,12 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_SCHEDULE_SAVED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_DELETED
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.RESULT_TRANSACTION_SAVED
 import java.time.LocalDateTime
-import java.util.Currency
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String = """
@@ -55,7 +50,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         navArgument(ARG_TRANSACTION_ID) {
             type = NavType.LongType
             nullable = false
-            defaultValue = ARG_INVALID_ID_LONG
+            defaultValue = NavDestination.ARG_INVALID_ID_LONG
         },
         navArgument(ARG_LINK_FOLDER_ID) {
             type = NavType.StringType
@@ -84,6 +79,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
         { slideOutVertically { it } }
 
+    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
+        { slideInVertically { it } }
+
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
+        { slideOutVertically { it } }
+
     fun routeWithArg(
         transactionId: Long? = null,
         transactionFolderId: Long? = null,
@@ -92,7 +93,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     ): String = route
         .replace(
             oldValue = "{$ARG_TRANSACTION_ID}",
-            newValue = (transactionId ?: ARG_INVALID_ID_LONG).toString()
+            newValue = (transactionId ?: NavDestination.ARG_INVALID_ID_LONG).toString()
         )
         .replace(
             oldValue = "{$ARG_LINK_FOLDER_ID}",
@@ -108,7 +109,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
-        savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: ARG_INVALID_ID_LONG
+        savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: NavDestination.ARG_INVALID_ID_LONG
 
     fun getFolderIdToLinkFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long? =
         savedStateHandle.get<String?>(ARG_LINK_FOLDER_ID)?.toLongOrNull()
@@ -118,11 +119,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun getInitialTimestampFromSavedStateHandle(savedStateHandle: SavedStateHandle): LocalDateTime? =
         savedStateHandle.get<String?>(ARG_INITIAL_TIMESTAMP)?.let {
-            DateUtil.parseDateTimeOrNull(it)
+            if (it.isEmpty()) null
+            else DateUtil.parseDateTimeOrNull(it)
         }
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
-        navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != ARG_INVALID_ID_LONG
+        navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != NavDestination.ARG_INVALID_ID_LONG
 
     fun buildAutoDetectTransactionDeeplinkUri(id: Long): Uri =
         AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString())
@@ -132,38 +134,49 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AddEditTransactionViewModel = hiltViewModel(navBackStackEntry)
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val tagInput = viewModel.tagInput.collectAsStateWithLifecycle()
-        val tagsPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
-        val folderSearchQuery = viewModel.folderSearchQuery.collectAsStateWithLifecycle()
-        val folderList = viewModel.foldersList.collectAsLazyPagingItems()
+        val topTagsLazyPagingItems = viewModel.topTagsPagingData.collectAsLazyPagingItems()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
-            key = ACTION_NEW_FOLDER_CREATE,
+        NavigationResultEffect(
+            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
-            onResult = viewModel::onCreateFolderResult
+            viewModel,
+            snackbarController,
+            context,
+            onResult = viewModel::onFolderSelectionResult
         )
+
+        NavigationResultEffect(
+            key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
+            navBackStackEntry = navBackStackEntry,
+            viewModel,
+            snackbarController,
+            context,
+            onResult = viewModel::onAmountTransformationResult
+        )
+
+        NavigationResultEffect<Set<Long>>(
+            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
+            navBackStackEntry = navBackStackEntry,
+            viewModel,
+            snackbarController,
+            context
+        ) { ids ->
+            ids.firstOrNull()?.let(viewModel::onTagSelect)
+        }
 
         CollectFlowEffect(viewModel.events, snackbarController, context) { event ->
             when (event) {
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionDeleted -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
-                        RESULT_TRANSACTION_DELETED
-                    )
-                }
-
                 is AddEditTransactionViewModel.AddEditTransactionEvent.ShowUiMessage -> {
                     snackbarController.showSnackbar(
                         message = event.uiText.asString(context),
@@ -171,26 +184,27 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                     )
                 }
 
-                AddEditTransactionViewModel.AddEditTransactionEvent.NavigateToFolderDetailsForCreation -> {
+                is AddEditTransactionViewModel.AddEditTransactionEvent.LaunchFolderSelection -> {
                     navController.navigate(
-                        FolderDetailsScreenSpec.routeWithArgs(
-                            transactionFolderId = null,
-                            exitAfterClear = true
+                        FolderSelectionSheetSpec.routeWithArgs(event.preselectedId)
+                    )
+                }
+
+                is AddEditTransactionViewModel.AddEditTransactionEvent.LaunchTagSelection -> {
+                    navController.navigate(
+                        TagSelectionSheetSpec.routeWithArgs(
+                            multiSelection = false,
+                            preselectedIds = event.preselectedId
+                                ?.let { setOf(it) }
+                                .orEmpty()
                         )
                     )
                 }
 
-                AddEditTransactionViewModel.AddEditTransactionEvent.TransactionSaved -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
-                        RESULT_TRANSACTION_SAVED
-                    )
-                }
-
-                AddEditTransactionViewModel.AddEditTransactionEvent.ScheduleSaved -> {
-                    navController.navigateUpWithResult(
-                        ACTION_ADD_EDIT_TX_OR_SCHEDULE,
-                        RESULT_SCHEDULE_SAVED
+                is AddEditTransactionViewModel.AddEditTransactionEvent.NavigateUpWithResult -> {
+                    navController.navigateUpWithResult<AddEditTxResult>(
+                        AddEditTxResult::name.name,
+                        event.result
                     )
                 }
             }
@@ -198,21 +212,24 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
         AddEditTransactionScreen(
             isEditMode = isEditMode,
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
-            tagNameInput = { tagInput.value?.name.orEmpty() },
-            tagColorInput = { tagInput.value?.colorCode },
-            tagExclusionInput = { tagInput.value?.excluded },
-            tagsPagingItems = tagsPagingItems,
-            folderSearchQuery = { folderSearchQuery.value },
-            folderList = folderList,
+            topTagsLazyPagingItems = topTagsLazyPagingItems,
             state = state,
             actions = viewModel,
-            navigateUp = navController::navigateUp
+            navigateUp = navController::navigateUp,
+            navigateToAmountTransformationSelection = {
+                navController.navigate(AmountTransformationSheetSpec.route)
+            },
         )
     }
+}
+
+enum class AddEditTxResult {
+    TRANSACTION_DELETED,
+    TRANSACTION_SAVED,
+    SCHEDULE_SAVED
 }
 
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
@@ -221,8 +238,6 @@ private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
 private const val ARG_INITIAL_TIMESTAMP = "ARG_INITIAL_TIMESTAMP"
 
 private const val AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN =
-    "$DEEP_LINK_URI/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
+    "${NavDestination.DEEP_LINK_URI}/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
 private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN =
-    "$DEEP_LINK_URI/add_transaction_shortcut"
-
-const val ACTION_NEW_FOLDER_CREATE = "ACTION_NEW_FOLDER_CREATE"
+    "${NavDestination.DEEP_LINK_URI}/add_transaction_shortcut"

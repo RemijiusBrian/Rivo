@@ -31,7 +31,6 @@ import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionScreen
 import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionViewModel
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
-import java.util.Currency
 
 data object BackupEncryptionScreenSpec : ScreenSpec {
     override val route: String = "backup_encryption"
@@ -48,8 +47,7 @@ data object BackupEncryptionScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: BackupEncryptionViewModel = hiltViewModel(navBackStackEntry)
         val currentPassword = viewModel.currentPassword.collectAsStateWithLifecycle()

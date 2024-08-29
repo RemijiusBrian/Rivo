@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun LabelledRadioButton(
@@ -48,7 +48,7 @@ fun LabelledRadioButton(
                 role = Role.RadioButton,
                 onClick = onClick
             )
-            .padding(SpacingSmall)
+            .padding(MaterialTheme.spacing.small)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -39,10 +39,8 @@ import dev.ridill.rivo.core.ui.components.MultiplePermissionsState
 import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun PermissionsPage(
@@ -57,12 +55,12 @@ fun PermissionsPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(SpacingLarge),
+            .padding(MaterialTheme.spacing.large),
     ) {
         MediumDisplayText(
             title = stringResource(R.string.onboarding_page_permissions_title),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         )
 
         Column(
@@ -70,7 +68,7 @@ fun PermissionsPage(
                 .fillMaxWidth()
                 .weight(Float.One)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             permissionsState.permissions.forEach { permission ->
                 val icon = when (permission) {
@@ -166,7 +164,7 @@ private fun PermissionDetails(
             SpacerMedium()
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(SpacingSmall)
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
                 Text(
                     text = stringResource(titleRes),

@@ -1,4 +1,4 @@
-package dev.ridill.rivo.transactions.data.local.entity
+package dev.ridill.rivo.tags.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

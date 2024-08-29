@@ -22,7 +22,6 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesScreen
 import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesViewModel
-import java.util.Currency
 
 data object AllSchedulesScreenSpec : ScreenSpec {
     override val route: String = "all_schedules"
@@ -38,8 +37,7 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: AllSchedulesViewModel = hiltViewModel(navBackStackEntry)
         val allSchedulesPagingItems = viewModel.schedulesPagingData.collectAsLazyPagingItems()
@@ -70,7 +68,6 @@ data object AllSchedulesScreenSpec : ScreenSpec {
 
         AllSchedulesScreen(
             context = context,
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             notificationPermissionState = notificationPermissionState,
             allSchedulesPagingItems = allSchedulesPagingItems,
@@ -89,4 +86,5 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN = "$DEEP_LINK_URI/view_all_schedules"
+private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/view_all_schedules"

@@ -21,14 +21,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.navDeepLink
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
-import java.util.Currency
 
 data object BackupSettingsScreenSpec : ScreenSpec {
     override val route: String = "backup_settings"
@@ -57,8 +56,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: BackupSettingsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -66,9 +64,12 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
+        NavigationResultEffect<String>(
             key = ACTION_ENCRYPTION_PASSWORD,
             navBackStackEntry = navBackStackEntry,
+            viewModel,
+            snackbarController,
+            context,
             onResult = viewModel::onDestinationResult
         )
 
@@ -115,4 +116,5 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN = "$DEEP_LINK_URI/view_backup_settings"
+private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/view_backup_settings"

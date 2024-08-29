@@ -48,8 +48,7 @@ import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.autofill
 import dev.ridill.rivo.core.ui.navigation.destinations.BackupEncryptionScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun BackupEncryptionScreen(
@@ -74,10 +73,10 @@ fun BackupEncryptionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(SpacingMedium)
+                .padding(MaterialTheme.spacing.medium)
                 .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             Icon(
                 imageVector = Icons.Rounded.CloudDone,
@@ -94,7 +93,7 @@ fun BackupEncryptionScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .padding(horizontal = SpacingLarge)
+                    .padding(horizontal = MaterialTheme.spacing.large)
             )
 
             Spacer(weight = Float.One)
@@ -156,8 +155,8 @@ private fun PasswordUpdateSheet(
     ) {
         Column(
             modifier = Modifier
-                .padding(SpacingMedium),
-            verticalArrangement = Arrangement.spacedBy(SpacingMedium)
+                .padding(MaterialTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             MediumDisplayText(title = stringResource(R.string.update_password))
             AnimatedVisibility(hasExistingPassword) {

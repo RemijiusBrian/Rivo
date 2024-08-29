@@ -25,8 +25,7 @@ import dev.ridill.rivo.core.ui.components.GoogleSignInButton
 import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.Spacer
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun AccountSignInPage(
@@ -38,12 +37,12 @@ fun AccountSignInPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(SpacingLarge)
+            .padding(MaterialTheme.spacing.large)
     ) {
         MediumDisplayText(
             title = stringResource(R.string.onboarding_page_sign_in_title),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         )
         Text(
             text = stringResource(R.string.onboarding_page_sign_in_message),

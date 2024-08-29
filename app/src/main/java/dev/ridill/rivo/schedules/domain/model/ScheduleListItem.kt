@@ -1,5 +1,6 @@
 package dev.ridill.rivo.schedules.domain.model
 
+import androidx.compose.runtime.Composable
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.util.TextFormat
 import java.time.LocalDateTime
@@ -20,6 +21,9 @@ data class ScheduleListItem(
 
     fun amountFormatted(currency: Currency): String =
         TextFormat.currency(amount, currency)
+
+    val amountFormatted: String
+        @Composable get() = TextFormat.currencyAmount(amount)
 
     val nextReminderDateFormatted: String?
         get() = nextReminderDate?.format(DateUtil.Formatters.localizedDateMedium)

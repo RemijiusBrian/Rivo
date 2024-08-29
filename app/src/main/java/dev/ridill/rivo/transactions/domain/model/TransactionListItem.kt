@@ -1,7 +1,9 @@
 package dev.ridill.rivo.transactions.domain.model
 
+import androidx.compose.runtime.Composable
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.folders.domain.model.Folder
+import dev.ridill.rivo.tags.domain.model.Tag
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Currency
@@ -29,4 +31,7 @@ data class TransactionListItem(
         amount = amount,
         currency = currency
     )
+
+    val amountFormatted: String
+        @Composable get() = TextFormat.currencyAmount(amount)
 }

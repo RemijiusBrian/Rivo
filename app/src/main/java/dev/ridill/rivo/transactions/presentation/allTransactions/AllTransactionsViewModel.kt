@@ -1,7 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.state.ToggleableState
 import androidx.lifecycle.SavedStateHandle
@@ -12,24 +10,20 @@ import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
-import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
-import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.addOrRemove
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.util.UiText
-import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.tags.domain.repository.TagsRepository
+import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
-import dev.ridill.rivo.transactions.domain.repository.TagsRepository
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import java.time.Month
 import javax.inject.Inject
@@ -38,7 +32,6 @@ import javax.inject.Inject
 class AllTransactionsViewModel @Inject constructor(
     private val transactionRepo: AllTransactionsRepository,
     private val tagsRepo: TagsRepository,
-    private val foldersListRepo: FoldersListRepository,
     private val savedStateHandle: SavedStateHandle,
     private val eventBus: EventBus<AllTransactionsEvent>
 ) : ViewModel(), AllTransactionsActions {
@@ -52,36 +45,40 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.getCurrencyPreference(it)
     }.distinctUntilChanged()
 
-    val tagsPagingData = tagsRepo.getTagsPagingData()
-        .cachedIn(viewModelScope)
-
-    private val selectedTagId = savedStateHandle.getStateFlow<Long?>(SELECTED_TAG_ID, null)
-    private val selectedTag = selectedTagId.flatMapLatest { tagId ->
-        tagId?.let(tagsRepo::getTagByIdFlow)
-            ?: flowOf(null)
-    }.distinctUntilChanged()
-
-    private val showExcludedOption = transactionRepo.getShowExcludedOption()
+    val tagInfoPagingData = selectedDate.flatMapLatest {
+        tagsRepo.getTopTagInfoPagingData(
+            date = it,
+            limit = 5
+        )
+    }.cachedIn(viewModelScope)
 
     private val transactionTypeFilter = savedStateHandle
         .getStateFlow(TRANSACTION_TYPE_FILTER, TransactionTypeFilter.ALL)
 
+    private val showExcludedTransactions = transactionRepo.getShowExcludedOption()
+
+    private val selectedTagIds = savedStateHandle
+        .getStateFlow<Set<Long>>(SELECTED_TAG_IDS, emptySet())
+    private val selectedTags = selectedTagIds.flatMapLatest { ids ->
+        tagsRepo.getTagsListFlowByIds(ids)
+    }
+
     private val transactionList = combineTuple(
         selectedDate,
-        selectedTag,
+        selectedTagIds,
         transactionTypeFilter,
-        showExcludedOption
+        showExcludedTransactions
     ).flatMapLatest { (
                           date,
-                          selectedTag,
+                          tagIds,
                           typeFilter,
                           showExcluded
                       ) ->
         transactionRepo.getAllTransactionsList(
             date = date,
-            tagId = selectedTag?.id,
+            tagIds = tagIds,
             transactionType = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            showExcluded = selectedTag?.excluded == true || showExcluded
+            showExcluded = showExcluded
         )
     }.asStateFlow(viewModelScope, emptyList())
 
@@ -106,31 +103,27 @@ class AllTransactionsViewModel @Inject constructor(
     private val aggregateAmount = combineTuple(
         selectedDate,
         transactionTypeFilter,
-        selectedTag,
-        showExcludedOption,
+        selectedTagIds,
+        showExcludedTransactions,
         selectedTransactionIds
     ).flatMapLatest { (
                           date,
                           typeFilter,
-                          selectedTag,
+                          selectedTagIds,
                           addExcluded,
                           selectedTxIds
                       ) ->
         transactionRepo.getAmountAggregate(
             date = date,
             type = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            tagId = selectedTag?.id,
-            addExcluded = selectedTag?.excluded == true || addExcluded,
-            selectedTxIds = selectedTxIds.ifEmpty { null }
+            tagIds = selectedTagIds,
+            addExcluded = addExcluded,
+            selectedTxIds = selectedTxIds
         )
     }.distinctUntilChanged()
 
-    private val transactionListLabel = combineTuple(
-        selectedTag,
-        transactionTypeFilter
-    ).map { (tag, type) ->
+    private val transactionListLabel = transactionTypeFilter.mapLatest { type ->
         when {
-            tag != null -> UiText.DynamicString(tag.name)
             type == TransactionTypeFilter.ALL -> UiText.StringResource(R.string.all_transactions)
             else -> UiText.StringResource(type.labelRes)
         }
@@ -140,83 +133,67 @@ class AllTransactionsViewModel @Inject constructor(
     private val showDeleteTransactionConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_TRANSACTION_CONFIRMATION, false)
 
-    private val showDeleteTagConfirmation = savedStateHandle
-        .getStateFlow(SHOW_DELETE_TAG_CONFIRMATION, false)
-
-    private val showTagInput = savedStateHandle
-        .getStateFlow(SHOW_TAG_INPUT, false)
-    val tagInput = savedStateHandle.getStateFlow<Tag?>(TAG_INPUT, null)
-    private val tagInputError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
-
-    private val showFolderSelection = savedStateHandle.getStateFlow(SHOW_FOLDER_SELECTION, false)
-    val folderSearchQuery = savedStateHandle.getStateFlow(FOLDER_SEARCH_QUERY, "")
-    val foldersList = folderSearchQuery
-        .debounce(UtilConstants.DEBOUNCE_TIMEOUT)
-        .flatMapLatest { query ->
-            foldersListRepo.getFoldersList(query)
-        }.cachedIn(viewModelScope)
-
     private val showAggregationConfirmation = savedStateHandle
         .getStateFlow(SHOW_AGGREGATION_CONFIRMATION, false)
+
+    private val showMultiSelectionOptions = savedStateHandle
+        .getStateFlow(SHOW_MULTI_SELECTION_OPTIONS, false)
+
+    private val showFilterOptions = savedStateHandle
+        .getStateFlow(SHOW_FILTER_OPTIONS, false)
 
     val state = combineTuple(
         selectedDate,
         yearsList,
+        transactionTypeFilter,
         currency,
         aggregateAmount,
-        selectedTagId,
-        transactionTypeFilter,
         transactionListLabel,
         transactionList,
         selectedTransactionIds,
         transactionSelectionState,
         transactionMultiSelectionModeActive,
         showDeleteTransactionConfirmation,
-        showDeleteTagConfirmation,
-        showTagInput,
-        tagInputError,
-        showExcludedOption,
-        showFolderSelection,
-        showAggregationConfirmation
+        showExcludedTransactions,
+        showAggregationConfirmation,
+        showMultiSelectionOptions,
+        showFilterOptions,
+        selectedTags
     ).map { (
                 selectedDate,
                 yearsList,
+                transactionTypeFilter,
                 currency,
                 aggregateAmount,
-                selectedTagId,
-                transactionTypeFilter,
                 transactionListLabel,
                 transactionList,
                 selectedTransactionIds,
                 transactionSelectionState,
                 transactionMultiSelectionModeActive,
                 showDeleteTransactionConfirmation,
-                showDeleteTagConfirmation,
-                showTagInput,
-                tagInputError,
-                showExcludedOption,
-                showFolderSelection,
-                showAggregationConfirmation
+                showExcludedTransactions,
+                showAggregationConfirmation,
+                showMultiSelectionOptions,
+                showFilterOptions,
+                selectedTags
             ) ->
         AllTransactionsState(
             selectedDate = selectedDate,
             yearsList = yearsList,
+            selectedTransactionTypeFilter = transactionTypeFilter,
             currency = currency,
             aggregateAmount = aggregateAmount,
-            selectedTagId = selectedTagId,
-            selectedTransactionTypeFilter = transactionTypeFilter,
-            transactionList = transactionList,
             transactionListLabel = transactionListLabel,
+            transactionList = transactionList,
             selectedTransactionIds = selectedTransactionIds,
             transactionSelectionState = transactionSelectionState,
             transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
             showDeleteTransactionConfirmation = showDeleteTransactionConfirmation,
-            showDeleteTagConfirmation = showDeleteTagConfirmation,
-            showTagInput = showTagInput,
-            tagInputError = tagInputError,
-            showExcludedOption = showExcludedOption,
-            showFolderSelection = showFolderSelection,
-            showAggregationConfirmation = showAggregationConfirmation
+            showExcludedTransactions = showExcludedTransactions,
+            showAggregationConfirmation = showAggregationConfirmation,
+            showMultiSelectionOptions = showMultiSelectionOptions,
+            showFilterOptions = showFilterOptions,
+            selectedTagFilters = selectedTags
         )
     }.asStateFlow(viewModelScope, AllTransactionsState())
 
@@ -256,89 +233,13 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
     }
 
-    override fun onTagSelect(tagId: Long) {
-        savedStateHandle[SELECTED_TAG_ID] = tagId
-            .takeIf { it != selectedTagId.value }
+    override fun onTypeFilterSelect(filter: TransactionTypeFilter) {
+        savedStateHandle[TRANSACTION_TYPE_FILTER] = filter
     }
 
-    override fun onNewTagClick() {
-        savedStateHandle[TAG_INPUT] = Tag.NEW
-        savedStateHandle[SHOW_TAG_INPUT] = true
-    }
-
-    override fun onAssignTagToTransactions(tagId: Long) {
+    override fun onShowExcludedToggle(showExcluded: Boolean) {
         viewModelScope.launch {
-            val selectedIds = selectedTransactionIds.value
-            tagsRepo.assignTagToTransactions(tagId, selectedIds.toList())
-            dismissMultiSelectionMode()
-            savedStateHandle[SELECTED_TAG_ID] = tagId
-            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
-        }
-    }
-
-    override fun onTagInputNameChange(value: String) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(name = value)
-        savedStateHandle[NEW_TAG_ERROR] = null
-    }
-
-    override fun onTagInputColorSelect(color: Color) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(colorCode = color.toArgb())
-    }
-
-    override fun onTagInputExclusionChange(excluded: Boolean) {
-        savedStateHandle[TAG_INPUT] = tagInput.value
-            ?.copy(excluded = excluded)
-    }
-
-    override fun onTagInputDismiss() {
-        hideAndClearTagInput()
-    }
-
-    override fun onTagInputConfirm() {
-        val tagInput = tagInput.value ?: return
-        viewModelScope.launch {
-            val name = tagInput.name.trim()
-            if (name.isEmpty()) {
-                savedStateHandle[NEW_TAG_ERROR] = UiText.StringResource(
-                    R.string.error_invalid_tag_name,
-                    isErrorText = true
-                )
-                return@launch
-            }
-
-            val colorCode = tagInput.colorCode
-            tagsRepo.saveTag(
-                name = name,
-                colorCode = colorCode,
-                id = tagInput.id,
-                timestamp = tagInput.createdTimestamp,
-                excluded = tagInput.excluded
-            )
-            hideAndClearTagInput()
-            eventBus.send(
-                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_saved))
-            )
-        }
-    }
-
-    private fun hideAndClearTagInput() {
-        savedStateHandle[SHOW_TAG_INPUT] = false
-        savedStateHandle[TAG_INPUT] = null
-    }
-
-    override fun onTransactionTypeFilterToggle() {
-        savedStateHandle[TRANSACTION_TYPE_FILTER] = when (transactionTypeFilter.value) {
-            TransactionTypeFilter.DEBITS -> TransactionTypeFilter.CREDITS
-            TransactionTypeFilter.CREDITS -> TransactionTypeFilter.ALL
-            TransactionTypeFilter.ALL -> TransactionTypeFilter.DEBITS
-        }
-    }
-
-    override fun onToggleShowExcludedOption(value: Boolean) {
-        viewModelScope.launch {
-            transactionRepo.toggleShowExcludedOption(value)
+            transactionRepo.toggleShowExcludedOption(showExcluded)
         }
     }
 
@@ -378,19 +279,37 @@ class AllTransactionsViewModel @Inject constructor(
         savedStateHandle[SELECTED_TRANSACTION_IDS] = emptySet<Long>()
     }
 
-    override fun onTransactionOptionClick(option: AllTransactionsMultiSelectionOption) {
+    override fun onMultiSelectionOptionsClick() {
+        savedStateHandle[SHOW_MULTI_SELECTION_OPTIONS] = true
+    }
+
+    override fun onMultiSelectionOptionsDismiss() {
+        savedStateHandle[SHOW_MULTI_SELECTION_OPTIONS] = false
+    }
+
+    override fun onMultiSelectionOptionSelect(option: AllTransactionsMultiSelectionOption) {
+        savedStateHandle[SHOW_MULTI_SELECTION_OPTIONS] = false
         val selectedTransactionIds = selectedTransactionIds.value.ifEmpty { return }
         viewModelScope.launch {
             when (option) {
-                AllTransactionsMultiSelectionOption.UNTAG -> {
-                    unTagTransactions(selectedTransactionIds)
+                AllTransactionsMultiSelectionOption.DELETE -> {
+                    savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = true
                 }
 
-                AllTransactionsMultiSelectionOption.MARK_EXCLUDED -> {
+                AllTransactionsMultiSelectionOption.ASSIGN_TAG -> {
+                    savedStateHandle[TAG_RESULT_PURPOSE] = TAG_RESULT_FOR_ASSIGNMENT
+                    eventBus.send(AllTransactionsEvent.NavigateToTagSelection(false, emptySet()))
+                }
+
+                AllTransactionsMultiSelectionOption.REMOVE_TAG -> {
+                    removeTagForTransactions(selectedTransactionIds)
+                }
+
+                AllTransactionsMultiSelectionOption.EXCLUDE_FROM_EXPENDITURE -> {
                     toggleTransactionExclusion(selectedTransactionIds, true)
                 }
 
-                AllTransactionsMultiSelectionOption.UN_MARK_EXCLUDED -> {
+                AllTransactionsMultiSelectionOption.INCLUDE_IN_EXPENDITURE -> {
                     toggleTransactionExclusion(selectedTransactionIds, false)
                 }
 
@@ -402,17 +321,38 @@ class AllTransactionsViewModel @Inject constructor(
                     removeTransactionsFromFolders(selectedTransactionIds)
                 }
 
-                AllTransactionsMultiSelectionOption.AGGREGATE -> {
+                AllTransactionsMultiSelectionOption.AGGREGATE_TOGETHER -> {
                     savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = true
                 }
             }
         }
     }
 
-    private suspend fun unTagTransactions(ids: Set<Long>) {
-        tagsRepo.untagTransactions(ids.toList())
+    fun onTagSelectionResult(ids: Set<Long>) = viewModelScope.launch {
+        when (savedStateHandle.get<String>(TAG_RESULT_PURPOSE)) {
+            TAG_RESULT_FOR_ASSIGNMENT -> {
+                ids.firstOrNull()
+                    ?.let { assignTagToTransactions(it) }
+            }
+
+            TAG_RESULT_FOR_FILTER -> {
+                savedStateHandle[SELECTED_TAG_IDS] = ids
+            }
+
+            else -> error("Invalid tag result purpose")
+        }
+    }
+
+    private suspend fun assignTagToTransactions(selectedId: Long) {
+        transactionRepo.setTagIdToTransactions(selectedId, selectedTransactionIds.value)
         dismissMultiSelectionMode()
-        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_untagged)))
+        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_assigned_to_transactions)))
+    }
+
+    private suspend fun removeTagForTransactions(ids: Set<Long>) {
+        transactionRepo.setTagIdToTransactions(null, ids)
+        dismissMultiSelectionMode()
+        eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_removed_from_transactions)))
     }
 
     private suspend fun toggleTransactionExclusion(ids: Set<Long>, excluded: Boolean) {
@@ -431,9 +371,19 @@ class AllTransactionsViewModel @Inject constructor(
         )
     }
 
-    private fun showFolderSelection() {
-        savedStateHandle[FOLDER_SEARCH_QUERY] = String.Empty
-        savedStateHandle[SHOW_FOLDER_SELECTION] = true
+    override fun onChangeTagFiltersClick() {
+        viewModelScope.launch {
+            savedStateHandle[TAG_RESULT_PURPOSE] = TAG_RESULT_FOR_FILTER
+            eventBus.send(AllTransactionsEvent.NavigateToTagSelection(true, selectedTagIds.value))
+        }
+    }
+
+    override fun onClearTagFilterClick() {
+        savedStateHandle[SELECTED_TAG_IDS] = emptySet<Long>()
+    }
+
+    private suspend fun showFolderSelection() {
+        eventBus.send(AllTransactionsEvent.NavigateToFolderSelection)
     }
 
     private suspend fun removeTransactionsFromFolders(ids: Set<Long>) {
@@ -442,22 +392,14 @@ class AllTransactionsViewModel @Inject constructor(
         eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transactions_removed_from_their_folders)))
     }
 
-    override fun onTransactionFolderQueryChange(query: String) {
-        savedStateHandle[FOLDER_SEARCH_QUERY] = query
-    }
-
-    override fun onTransactionFolderSelectionDismiss() {
-        savedStateHandle[SHOW_FOLDER_SELECTION] = false
-    }
-
-    override fun onTransactionFolderSelect(folder: Folder) {
+    fun onFolderSelect(folderId: Long) {
+        if (folderId == NavDestination.ARG_INVALID_ID_LONG) return
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             transactionRepo.addTransactionsToFolderByIds(
                 ids = selectedIds,
-                folderId = folder.id
+                folderId = folderId
             )
-            savedStateHandle[SHOW_FOLDER_SELECTION] = false
             eventBus.send(
                 AllTransactionsEvent.ShowUiMessage(
                     UiText.PluralResource(
@@ -468,19 +410,6 @@ class AllTransactionsViewModel @Inject constructor(
             )
             dismissMultiSelectionMode()
         }
-    }
-
-    override fun onCreateNewFolderClick() {
-        viewModelScope.launch {
-            val selectedIds = selectedTransactionIds.value
-            savedStateHandle[SHOW_FOLDER_SELECTION] = false
-            eventBus.send(AllTransactionsEvent.NavigateToFolderDetailsWithIds(selectedIds))
-            dismissMultiSelectionMode()
-        }
-    }
-
-    override fun onDeleteSelectedTransactionsClick() {
-        savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = true
     }
 
     override fun onDeleteTransactionDismiss() {
@@ -505,50 +434,6 @@ class AllTransactionsViewModel @Inject constructor(
         transactionRepo.deleteTransactionsByIds(ids)
     }
 
-    override fun onTagLongClick(tagId: Long) {
-        viewModelScope.launch {
-            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
-            savedStateHandle[TAG_INPUT] = tagsRepo.getTagById(tagId)
-            savedStateHandle[SHOW_TAG_INPUT] = tagInput.value != null
-        }
-    }
-
-    override fun onDeleteTagClick() {
-        savedStateHandle[SHOW_TAG_INPUT] = false
-        savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = true
-    }
-
-    override fun onDeleteTagDismiss() {
-        savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-        hideAndClearTagInput()
-    }
-
-    override fun onDeleteTagConfirm() {
-        val tagId = tagInput.value?.id ?: return
-        viewModelScope.launch {
-            tagsRepo.deleteTagById(tagId)
-            savedStateHandle[SELECTED_TAG_ID] = null
-            savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            hideAndClearTagInput()
-            eventBus.send(
-                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted))
-            )
-        }
-    }
-
-    override fun onDeleteTagWithTransactionsClick() {
-        val tagId = tagInput.value?.id ?: return
-        viewModelScope.launch {
-            tagsRepo.deleteTagWithTransactions(tagId)
-            savedStateHandle[SELECTED_TAG_ID] = null
-            savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
-            hideAndClearTagInput()
-            eventBus.send(
-                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.tag_deleted_with_transactions))
-            )
-        }
-    }
-
     override fun onAggregationDismiss() {
         savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = false
     }
@@ -569,23 +454,35 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
+    override fun onFilterOptionsClick() {
+        savedStateHandle[SHOW_FILTER_OPTIONS] = true
+    }
+
+    override fun onFilterOptionsDismiss() {
+        savedStateHandle[SHOW_FILTER_OPTIONS] = false
+    }
+
     sealed interface AllTransactionsEvent {
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent
         data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
-        data class NavigateToFolderDetailsWithIds(val transactionIds: Set<Long>) :
-            AllTransactionsEvent
+        data class NavigateToTagSelection(
+            val multiSelection: Boolean,
+            val preSelectedIds: Set<Long>
+        ) : AllTransactionsEvent
+
+        data object NavigateToFolderSelection : AllTransactionsEvent
     }
 }
 
 private const val SELECTED_DATE = "SELECTED_DATE"
-private const val SELECTED_TAG_ID = "SELECTED_TAG_ID"
-private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
 private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
+private const val SELECTED_TAG_IDS = "SELECTED_TAG_IDS"
+private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"
 private const val SHOW_DELETE_TRANSACTION_CONFIRMATION = "SHOW_DELETE_TRANSACTION_CONFIRMATION"
-private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"
-private const val SHOW_TAG_INPUT = "SHOW_TAG_INPUT"
-private const val TAG_INPUT = "TAG_INPUT"
-private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
-private const val SHOW_FOLDER_SELECTION = "SHOW_FOLDER_SELECTION"
-private const val FOLDER_SEARCH_QUERY = "FOLDER_SEARCH_QUERY"
 private const val SHOW_AGGREGATION_CONFIRMATION = "SHOW_AGGREGATION_CONFIRMATION"
+private const val SHOW_MULTI_SELECTION_OPTIONS = "SHOW_MULTI_SELECTION_OPTIONS"
+private const val SHOW_FILTER_OPTIONS = "SHOW_FILTER_OPTIONS"
+
+private const val TAG_RESULT_PURPOSE = "TAG_RESULT_PURPOSE"
+private const val TAG_RESULT_FOR_ASSIGNMENT = "TAG_RESULT_FOR_ASSIGNMENT"
+private const val TAG_RESULT_FOR_FILTER = "TAG_RESULT_FOR_FILTER"

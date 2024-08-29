@@ -37,5 +37,3 @@ class FoldersListViewModel @Inject constructor(
         }
     }
 }
-
-const val ACTION_FOLDER_DETAILS = "ACTION_FOLDER_DETAILS"

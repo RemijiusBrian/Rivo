@@ -1,13 +1,9 @@
 package dev.ridill.rivo.transactions.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -20,15 +16,12 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -36,7 +29,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -45,14 +37,18 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
+import dev.ridill.rivo.core.ui.components.AmountWithArrow
+import dev.ridill.rivo.core.ui.components.BodyMediumText
+import dev.ridill.rivo.core.ui.components.ExcludedIcon
+import dev.ridill.rivo.core.ui.components.ListItemLeadingContentContainer
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.ElevationLevel0
-import dev.ridill.rivo.core.ui.theme.SpacingExtraSmall
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.IconSizeSmall
+import dev.ridill.rivo.core.ui.theme.elevation
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.folders.domain.model.Folder
-import dev.ridill.rivo.transactions.domain.model.Tag
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDate
 
@@ -63,7 +59,6 @@ fun TransactionListItem(
     date: LocalDate,
     type: TransactionType,
     modifier: Modifier = Modifier,
-    showTypeIndicator: Boolean = false,
     tag: Tag? = null,
     folder: Folder? = null,
     excluded: Boolean = false,
@@ -72,7 +67,11 @@ fun TransactionListItem(
     tonalElevation: Dp = ListItemDefaults.Elevation,
     shadowElevation: Dp = ListItemDefaults.Elevation
 ) {
-    val isNoteEmpty = remember(note) { note.isEmpty() }
+    val dateFormatted = remember(date) {
+        date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
+            .replace(" ", "\n")
+    }
+
     val transactionListItemContentDescription = buildString {
         append(
             stringResource(
@@ -98,71 +97,65 @@ fun TransactionListItem(
     }
     ListItem(
         headlineContent = {
-            Text(
-                text = note
-                    .ifEmpty { stringResource(type.labelRes) },
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                color = LocalContentColor.current.copy(
-                    alpha = if (isNoteEmpty) ContentAlpha.SUB_CONTENT
-                    else Float.One
-                ),
-                style = LocalTextStyle.current.copy(
-                    fontStyle = if (note.isEmpty()) FontStyle.Italic
-                    else null
-                )
-            )
-            // FIXME: note text not visible if amount text is too long
-        },
-        leadingContent = { TransactionDate(date) },
-        trailingContent = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(SpacingSmall, Alignment.End),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+
+
+            if (note.isEmpty() && (tag != null || folder != null)) {
+                TagAndFolderIndicator(tag = tag, folder = folder)
+            } else {
                 Text(
-                    text = amount,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
+                    text = note
+                        .ifEmpty { stringResource(type.labelRes) },
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = Float.One, fill = false)
+                        .fillMaxWidth(),
+                    color = LocalContentColor.current.copy(
+                        alpha = if (note.isEmpty()) ContentAlpha.SUB_CONTENT
+                        else Float.One
+                    ),
+                    style = LocalTextStyle.current.copy(
+                        fontStyle = if (note.isEmpty()) FontStyle.Italic
+                        else null
+                    )
                 )
-                if (showTypeIndicator) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(type.iconRes),
-                        contentDescription = stringResource(type.labelRes),
-                        modifier = Modifier
-                            .size(TypeIndicatorSize)
+            }
+            // FIXME: note text not visible if amount text is too long
+        },
+        leadingContent = {
+            ListItemLeadingContentContainer(
+                modifier = modifier,
+                tonalElevation = MaterialTheme.elevation.level1
+            ) {
+                BodyMediumText(
+                    text = dateFormatted,
+                    textAlign = TextAlign.Center
+                )
+            }
+        },
+        trailingContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                if (excluded) {
+                    ExcludedIcon(
+                        size = IconSizeSmall
                     )
                 }
+                AmountWithArrow(
+                    value = amount,
+                    type = type
+                )
             }
         },
         supportingContent = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingExtraSmall),
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                tag?.let {
-                    TagIndicator(
-                        name = it.name,
-                        color = Color(it.colorCode),
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-                }
-                folder?.let {
-                    FolderIndicator(
-                        name = it.name,
-                        modifier = Modifier
-                            .weight(weight = Float.One, fill = false)
-                    )
-                }
+            if (note.isNotEmpty()) {
+                TagAndFolderIndicator(
+                    tag = tag,
+                    folder = folder,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
         },
         overlineContent = overlineContent,
@@ -179,45 +172,34 @@ fun TransactionListItem(
     )
 }
 
-private val TypeIndicatorSize = 16.dp
-
 @Composable
-fun TransactionDate(
-    date: LocalDate,
-    modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.small,
-    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = ElevationLevel0,
-    contentPadding: PaddingValues = PaddingValues(SpacingSmall)
+private fun TagAndFolderIndicator(
+    tag: Tag?,
+    folder: Folder?,
+    modifier: Modifier = Modifier
 ) {
-    val dateFormatted = remember(date) {
-        date.format(DateUtil.Formatters.ddth_EEE_spaceSep)
-            .replace(" ", "\n")
-    }
-    Surface(
-        shape = shape,
-        color = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+        modifier = modifier
     ) {
-        Box(
-            modifier = Modifier
-                .widthIn(min = DateContainerMinWidth)
-                .padding(contentPadding)
-                .then(modifier),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = dateFormatted,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
+        tag?.let {
+            TagIndicator(
+                name = it.name,
+                color = Color(it.colorCode),
+                modifier = Modifier
+                    .weight(weight = Float.One, fill = false)
+            )
+        }
+        folder?.let {
+            FolderIndicator(
+                name = it.name,
+                modifier = Modifier
+                    .weight(weight = Float.One, fill = false)
             )
         }
     }
 }
-
-private val DateContainerMinWidth: Dp = 56.dp
 
 @Composable
 private fun TagIndicator(
@@ -228,7 +210,7 @@ private fun TagIndicator(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Icon(
             imageVector = Icons.Rounded.Tags,
@@ -253,7 +235,7 @@ private fun FolderIndicator(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_filled_folder),

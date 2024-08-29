@@ -6,25 +6,29 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 
 @Composable
-fun DestinationResultEffect(
+fun <T> NavigationResultEffect(
     key: String,
     navBackStackEntry: NavBackStackEntry,
     vararg keys: Any,
-    onResult: (String) -> Unit
+    onResult: (T) -> Unit
 ) {
     val result = navBackStackEntry
         .savedStateHandle
-        .get<String>(key)
+        .get<T>(key)
 
-    LaunchedEffect(result, *keys) {
+    LaunchedEffect(result, navBackStackEntry, *keys) {
         result?.let(onResult)
         navBackStackEntry.savedStateHandle
-            .remove<String>(key)
+            .remove<T>(key)
     }
 }
 
-fun NavHostController.navigateUpWithResult(key: String, result: String) {
-    previousBackStackEntry
+fun <T> NavHostController.navigateUpWithResult(
+    key: String,
+    result: T?,
+    backStackEntry: NavBackStackEntry? = this.previousBackStackEntry
+) {
+    backStackEntry
         ?.savedStateHandle
         ?.set(key, result)
     navigateUp()

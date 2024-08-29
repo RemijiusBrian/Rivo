@@ -31,13 +31,11 @@ import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.MediumDisplayText
 import dev.ridill.rivo.core.ui.components.SpacerExtraLarge
 import dev.ridill.rivo.core.ui.components.SpacerSmall
-import dev.ridill.rivo.core.ui.theme.SpacingLarge
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import java.util.Currency
+import dev.ridill.rivo.core.ui.theme.spacing
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 
 @Composable
 fun SetBudgetPage(
-    currency: Currency,
     input: () -> String,
     onInputChange: (String) -> Unit,
     onStartBudgetingClick: () -> Unit,
@@ -51,17 +49,16 @@ fun SetBudgetPage(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(SpacingLarge)
+            .padding(MaterialTheme.spacing.large)
             .verticalScroll(rememberScrollState())
     ) {
         MediumDisplayText(
             title = stringResource(R.string.onboarding_page_set_budget_title),
             modifier = Modifier
-                .padding(vertical = SpacingMedium)
+                .padding(vertical = MaterialTheme.spacing.medium)
         )
         SpacerExtraLarge()
         BudgetInput(
-            currency = currency,
             input = input,
             onValueChange = onInputChange
         )
@@ -89,7 +86,6 @@ fun SetBudgetPage(
 
 @Composable
 private fun BudgetInput(
-    currency: Currency,
     input: () -> String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -130,7 +126,7 @@ private fun BudgetInput(
             visualTransformation = remember { AmountVisualTransformation() },
             prefix = {
                 Text(
-                    text = currency.symbol,
+                    text = LocalCurrencyPreference.current.symbol,
                     color = contentColor
                 )
             }

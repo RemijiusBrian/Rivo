@@ -16,6 +16,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -36,8 +37,8 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.PrimaryBrandColor
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
 import dev.ridill.rivo.core.ui.theme.contentColor
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.onboarding.domain.model.DataRestoreState
 import dev.ridill.rivo.onboarding.domain.model.OnboardingPage
 import dev.ridill.rivo.onboarding.presentation.components.AccountSignInPage
@@ -45,7 +46,6 @@ import dev.ridill.rivo.onboarding.presentation.components.DataRestorePage
 import dev.ridill.rivo.onboarding.presentation.components.PermissionsPage
 import dev.ridill.rivo.onboarding.presentation.components.SetBudgetPage
 import dev.ridill.rivo.onboarding.presentation.components.WelcomeMessagePage
-import java.util.Currency
 
 @Composable
 fun OnboardingScreen(
@@ -55,7 +55,6 @@ fun OnboardingScreen(
     authState: AuthState,
     restoreState: DataRestoreState,
     showEncryptionPasswordInput: Boolean,
-    currency: Currency,
     budgetInput: () -> String,
     onSignInClick: () -> Unit,
     actions: OnboardingActions
@@ -128,7 +127,6 @@ fun OnboardingScreen(
 
                         OnboardingPage.SET_BUDGET.ordinal -> {
                             SetBudgetPage(
-                                currency = currency,
                                 input = budgetInput,
                                 onInputChange = actions::onBudgetInputChange,
                                 onStartBudgetingClick = actions::onStartBudgetingClick
@@ -157,7 +155,10 @@ private fun WelcomeFlowProgress(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMedium, Alignment.CenterHorizontally)
+        horizontalArrangement = Arrangement.spacedBy(
+            MaterialTheme.spacing.medium,
+            Alignment.CenterHorizontally
+        )
     ) {
         repeat(pageCount) { page ->
             val isCurrentOrPrevious = remember(currentPage) {

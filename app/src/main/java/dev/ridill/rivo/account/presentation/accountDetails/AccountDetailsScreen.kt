@@ -31,7 +31,7 @@ import dev.ridill.rivo.core.ui.components.SpacerLarge
 import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.icons.Google
 import dev.ridill.rivo.core.ui.navigation.destinations.AccountDetailsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.settings.presentation.components.BasicPreference
 import dev.ridill.rivo.settings.presentation.components.PreferenceIconSize
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
@@ -63,7 +63,7 @@ fun AccountDetailsScreen(
                     displayName = state.displayName,
                     email = state.email,
                     modifier = Modifier
-                        .padding(horizontal = SpacingMedium)
+                        .padding(horizontal = MaterialTheme.spacing.medium)
                 )
             }
 
@@ -73,7 +73,7 @@ fun AccountDetailsScreen(
 
             HorizontalDivider(
                 modifier = Modifier
-                    .padding(vertical = SpacingMedium)
+                    .padding(vertical = MaterialTheme.spacing.medium)
             )
 
             SpacerLarge()

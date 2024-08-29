@@ -14,6 +14,7 @@ import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -31,7 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun RivoDatePickerDialog(
@@ -74,7 +75,7 @@ fun RivoDatePickerDialog(
     },
     dismissButton = {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.action_cancel))
@@ -130,7 +131,7 @@ fun RivoTimePickerDialog(
     },
     dismissButton = {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.action_cancel))

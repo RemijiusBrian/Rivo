@@ -11,12 +11,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.DestinationResultEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
-import dev.ridill.rivo.transactions.presentation.addEditTransaction.ACTION_ADD_EDIT_TX_OR_SCHEDULE
-import java.util.Currency
 
 data object DashboardScreenSpec : ScreenSpec {
     override val route: String = "dashboard"
@@ -27,8 +25,7 @@ data object DashboardScreenSpec : ScreenSpec {
     override fun Content(
         windowSizeClass: WindowSizeClass,
         navController: NavHostController,
-        navBackStackEntry: NavBackStackEntry,
-        appCurrencyPreference: Currency
+        navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -36,11 +33,12 @@ data object DashboardScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        DestinationResultEffect(
-            key = ACTION_ADD_EDIT_TX_OR_SCHEDULE,
+        NavigationResultEffect(
+            key = AddEditTxResult::name.name,
             navBackStackEntry = navBackStackEntry,
-            context,
+            viewModel,
             snackbarController,
+            context,
             onResult = viewModel::onNavResult
         )
 
@@ -69,7 +67,6 @@ data object DashboardScreenSpec : ScreenSpec {
         }
 
         DashboardScreen(
-            appCurrencyPreference = appCurrencyPreference,
             snackbarController = snackbarController,
             state = state,
             navigateToAllTransactions = {

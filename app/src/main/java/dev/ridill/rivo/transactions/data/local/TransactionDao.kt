@@ -49,16 +49,16 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         SELECT * FROM transaction_details_view
         WHERE (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
-            AND (:tagId IS NULL OR tagId = :tagId)
+            AND (COALESCE(:tagIds, 0) = 0 OR tagId IN (:tagIds))
             AND (:folderId IS NULL OR folderId = :folderId)
-            AND (:showExcluded = 1 OR overallExcluded = 0)
-        ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
+            AND (:showExcluded = 1 OR isTagExcluded = 1 OR overallExcluded = 0)
+        ORDER BY datetime(transactionTimestamp) DESC, transactionNote DESC, tagName DESC, folderName DESC
         """
     )
     fun getTransactionsList(
         date: LocalDate? = null,
         transactionTypeName: String? = null,
-        tagId: Long? = null,
+        tagIds: Set<Long>? = null,
         folderId: Long? = null,
         showExcluded: Boolean = true
     ): Flow<List<TransactionDetailsView>>
@@ -71,7 +71,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             FROM transaction_details_view t1
             WHERE (:typeName = 'DEBIT' OR t1.transactionTypeName = 'DEBIT')
             AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
-            AND (:tagId IS NULL OR t1.tagId = :tagId)
+            AND (COALESCE(:tagIds, 0) = 0 OR t1.tagId IN (:tagIds))
             AND (:addExcluded = 1 OR t1.overallExcluded = 0)
             AND (COALESCE(:selectedTxIds, 1) = 1 OR t1.transactionId IN (:selectedTxIds))
             ) - (
@@ -79,7 +79,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             FROM transaction_details_view t2
             WHERE (:typeName = 'CREDIT' OR t2.transactionTypeName = 'CREDIT')
             AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
-            AND (:tagId IS NULL OR t2.tagId = :tagId)
+            AND (COALESCE(:tagIds, 0) = 0 OR t2.tagId IN (:tagIds))
             AND (:addExcluded = 1 OR t2.overallExcluded = 0)
             AND (COALESCE(:selectedTxIds, 1) = 1 OR t2.transactionId IN (:selectedTxIds))
         )
@@ -88,7 +88,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     fun getAmountAggregate(
         date: LocalDate? = null,
         typeName: String? = null,
-        tagId: Long? = null,
+        tagIds: Set<Long>? = null,
         addExcluded: Boolean = false,
         selectedTxIds: Set<Long>? = null
     ): Flow<Double>
@@ -116,7 +116,6 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         SELECT * FROM transaction_details_view
         WHERE (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', transactionTimestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
             AND (:transactionTypeName IS NULL OR transactionTypeName = :transactionTypeName)
-            AND (:tagId IS NULL OR tagId = :tagId)
             AND (:folderId IS NULL OR folderId = :folderId)
             AND (:showExcluded = 1 OR overallExcluded = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionId DESC
@@ -125,13 +124,15 @@ interface TransactionDao : BaseDao<TransactionEntity> {
     fun getTransactionsListPaginated(
         date: LocalDate? = null,
         transactionTypeName: String? = null,
-        tagId: Long? = null,
         folderId: Long? = null,
         showExcluded: Boolean = true
     ): PagingSource<Int, TransactionDetailsView>
 
     @Query("SELECT DISTINCT(strftime('${UtilConstants.DB_YEAR_FORMAT}', timestamp)) AS year FROM transaction_table ORDER BY year DESC")
     fun getYearsFromTransactions(): Flow<List<Int>>
+
+    @Query("UPDATE transaction_table SET tag_id = :tagId WHERE id IN (:ids)")
+    suspend fun setTagIdToTransactionsByIds(tagId: Long?, ids: Set<Long>)
 
     @Query("UPDATE transaction_table SET is_excluded = :exclude WHERE id IN (:ids)")
     suspend fun toggleExclusionByIds(ids: Set<Long>, exclude: Boolean)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -19,7 +20,7 @@ import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.SecuritySettingsScreenSpec
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
@@ -100,7 +101,7 @@ private fun AutoLockIntervalSelection(
                 onClick = { onIntervalSelect(interval) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingMedium)
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
         }
     }

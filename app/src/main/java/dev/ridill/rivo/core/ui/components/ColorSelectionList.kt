@@ -29,9 +29,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.theme.RivoSelectableColorsList
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
 fun HorizontalColorSelectionList(
@@ -40,11 +39,11 @@ fun HorizontalColorSelectionList(
     colorsList: List<Color> = remember { RivoSelectableColorsList },
     selectedColorCode: () -> Int? = { null },
     contentPadding: PaddingValues = PaddingValues(
-        start = SpacingMedium,
-        end = SpacingListEnd
+        start = MaterialTheme.spacing.medium,
+        end = PaddingScrollEnd
     ),
     reverseLayout: Boolean = false,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(SpacingSmall)
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(MaterialTheme.spacing.small)
 ) {
     LazyRow(
         contentPadding = contentPadding,
@@ -61,7 +60,7 @@ fun HorizontalColorSelectionList(
                 selected = selected,
                 onClick = { onColorSelect(color) },
                 modifier = Modifier
-                    .animateItemPlacement()
+                    .animateItem()
             )
         }
     }

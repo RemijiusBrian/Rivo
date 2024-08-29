@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
@@ -19,6 +18,7 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -26,36 +26,25 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import dev.ridill.rivo.BuildConfig
 import dev.ridill.rivo.R
 import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.FeatureInfoDialog
-import dev.ridill.rivo.core.ui.components.LabelledRadioButton
-import dev.ridill.rivo.core.ui.components.ListSearchSheet
-import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoImage
@@ -66,28 +55,26 @@ import dev.ridill.rivo.core.ui.components.TitleMediumText
 import dev.ridill.rivo.core.ui.components.icons.Message
 import dev.ridill.rivo.core.ui.navigation.destinations.SettingsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.RivoTheme
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
+import dev.ridill.rivo.core.ui.theme.spacing
+import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.components.PreferenceIcon
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
-import java.util.Currency
 
 @Composable
 fun SettingsScreen(
-    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     state: SettingsState,
-    currencySearchQuery: () -> String,
-    currenciesPagingData: LazyPagingItems<Currency>,
     actions: SettingsActions,
     navigateUp: () -> Unit,
     navigateToAccountDetails: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
+    navigateToUpdateBudget: () -> Unit,
+    navigateToUpdateCurrency: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToSecuritySettings: () -> Unit,
     launchUriInBrowser: (Uri) -> Unit
@@ -111,7 +98,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = SpacingListEnd)
+                .padding(bottom = PaddingScrollEnd)
         ) {
             AccountInfo(
                 onClick = navigateToAccountDetails,
@@ -152,17 +139,17 @@ fun SettingsScreen(
                     ?.let {
                         stringResource(
                             R.string.preference_current_budget_summary,
-                            TextFormat.currency(it, appCurrencyPreference)
+                            TextFormat.currencyAmount(it)
                         )
                     }
                     ?: stringResource(R.string.preference_set_budget_summary),
-                onClick = actions::onMonthlyBudgetPreferenceClick
+                onClick = navigateToUpdateBudget
             )
 
             SimpleSettingsPreference(
                 titleRes = R.string.preference_currency,
-                summary = appCurrencyPreference.currencyCode,
-                onClick = actions::onCurrencyPreferenceClick
+                summary = LocalCurrencyPreference.current.currencyCode,
+                onClick = navigateToUpdateCurrency
             )
 
             SwitchPreference(
@@ -218,27 +205,6 @@ fun SettingsScreen(
             )
         }
 
-        if (state.showBudgetInput) {
-            BudgetInputSheet(
-                currency = appCurrencyPreference,
-                onConfirm = actions::onMonthlyBudgetInputConfirm,
-                onDismiss = actions::onMonthlyBudgetInputDismiss,
-                placeholder = TextFormat.number(state.currentMonthlyBudget),
-                errorMessage = state.budgetInputError
-            )
-        }
-
-        if (state.showCurrencySelection) {
-            CurrencySelectionSheet(
-                currentCurrency = appCurrencyPreference,
-                onDismiss = actions::onCurrencySelectionDismiss,
-                onConfirm = actions::onCurrencySelectionConfirm,
-                searchQuery = currencySearchQuery,
-                onSearchQueryChange = actions::onCurrencySearchQueryChange,
-                currenciesPagingData = currenciesPagingData
-            )
-        }
-
         if (state.showSmsPermissionRationale) {
             PermissionRationaleDialog(
                 icon = Icons.Rounded.Message,
@@ -277,17 +243,17 @@ private fun AccountInfo(
         derivedStateOf { authState is AuthState.Authenticated }
     }
     val accountInfo = remember(authState) {
-        tryOrNull { (authState as AuthState.Authenticated).account }
+        tryOrNull(tag = "AccountInfo") { (authState as AuthState.Authenticated).account }
     }
     Card(
         onClick = onClick,
         modifier = modifier
-            .padding(horizontal = SpacingMedium)
+            .padding(horizontal = MaterialTheme.spacing.medium)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(SpacingMedium),
+                .padding(MaterialTheme.spacing.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedVisibility(visible = isAccountAuthenticate) {
@@ -319,71 +285,6 @@ private fun AccountInfo(
 }
 
 private val ProfileImageSize = 40.dp
-
-@Composable
-fun BudgetInputSheet(
-    currency: Currency,
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-    errorMessage: UiText? = null,
-    placeholder: String = ""
-) {
-    var input by remember { mutableStateOf("") }
-    OutlinedTextFieldSheet(
-        titleRes = R.string.monthly_budget_input_title,
-        inputValue = { input },
-        onValueChange = { input = it },
-        onDismiss = onDismiss,
-        onConfirm = { onConfirm(input) },
-        placeholder = placeholder,
-        modifier = modifier,
-        text = stringResource(R.string.monthly_budget_input_text),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done
-        ),
-        errorMessage = errorMessage,
-        visualTransformation = remember { AmountVisualTransformation() },
-        prefix = { Text(currency.symbol) }
-    )
-}
-
-@Composable
-private fun CurrencySelectionSheet(
-    currentCurrency: Currency,
-    searchQuery: () -> String,
-    onSearchQueryChange: (String) -> Unit,
-    currenciesPagingData: LazyPagingItems<Currency>,
-    onDismiss: () -> Unit,
-    onConfirm: (Currency) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ListSearchSheet(
-        searchQuery = searchQuery,
-        onSearchQueryChange = onSearchQueryChange,
-        onDismiss = onDismiss,
-        placeholder = stringResource(R.string.search_currency),
-        modifier = modifier
-    ) {
-        items(
-            count = currenciesPagingData.itemCount,
-            key = currenciesPagingData.itemKey { it.currencyCode },
-            contentType = currenciesPagingData.itemContentType { "CurrencySelector" }
-        ) { index ->
-            currenciesPagingData[index]?.let { currency ->
-                LabelledRadioButton(
-                    label = "${currency.displayName} (${currency.currencyCode})",
-                    selected = currency.currencyCode == currentCurrency.currencyCode,
-                    onClick = { onConfirm(currency) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItemPlacement()
-                )
-            }
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

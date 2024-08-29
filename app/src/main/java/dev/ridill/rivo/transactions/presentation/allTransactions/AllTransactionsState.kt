@@ -6,6 +6,7 @@ import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import java.time.LocalDate
@@ -14,20 +15,18 @@ import java.util.Currency
 data class AllTransactionsState(
     val selectedDate: LocalDate = DateUtil.now().toLocalDate(),
     val yearsList: List<Int> = emptyList(),
-    val aggregateAmount: Double = Double.Zero,
-    val currency: Currency = LocaleUtil.defaultCurrency,
-    val selectedTagId: Long? = null,
     val selectedTransactionTypeFilter: TransactionTypeFilter = TransactionTypeFilter.ALL,
+    val currency: Currency = LocaleUtil.defaultCurrency,
+    val aggregateAmount: Double = Double.Zero,
     val transactionListLabel: UiText = UiText.DynamicString(String.Empty),
     val transactionList: List<TransactionListItem> = emptyList(),
     val selectedTransactionIds: Set<Long> = emptySet(),
     val transactionSelectionState: ToggleableState = ToggleableState.Off,
     val transactionMultiSelectionModeActive: Boolean = false,
     val showDeleteTransactionConfirmation: Boolean = false,
-    val showDeleteTagConfirmation: Boolean = false,
-    val showTagInput: Boolean = false,
-    val tagInputError: UiText? = null,
-    val showExcludedOption: Boolean = false,
-    val showFolderSelection: Boolean = false,
-    val showAggregationConfirmation: Boolean = false
+    val showExcludedTransactions: Boolean = false,
+    val selectedTagFilters: List<Tag> = emptyList(),
+    val showAggregationConfirmation: Boolean = false,
+    val showMultiSelectionOptions: Boolean = false,
+    val showFilterOptions: Boolean = false
 )

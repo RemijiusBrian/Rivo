@@ -48,9 +48,8 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.SpacingListEnd
-import dev.ridill.rivo.core.ui.theme.SpacingMedium
-import dev.ridill.rivo.core.ui.theme.SpacingSmall
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
@@ -58,17 +57,16 @@ import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.folders.domain.model.FolderUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
-import java.util.Currency
 import kotlin.math.absoluteValue
 
 @Composable
 fun FoldersListScreen(
-    appCurrencyPreference: Currency,
     snackbarController: SnackbarController,
     foldersPagingItems: LazyPagingItems<FolderUIModel>,
     state: FoldersListState,
     actions: FoldersListActions,
-    navigateToFolderDetails: (Long?) -> Unit,
+    navigateToAddFolder: () -> Unit,
+    navigateToFolderDetails: (Long) -> Unit,
     navigateUp: () -> Unit
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -92,7 +90,7 @@ fun FoldersListScreen(
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         floatingActionButton = {
-            FloatingActionButton(onClick = { navigateToFolderDetails(null) }) {
+            FloatingActionButton(onClick = navigateToAddFolder) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_outline_add_folder),
                     contentDescription = stringResource(R.string.cd_new_folder)
@@ -125,13 +123,13 @@ fun FoldersListScreen(
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
-                        top = SpacingMedium,
-                        bottom = SpacingListEnd,
-                        start = SpacingMedium,
-                        end = SpacingMedium
+                        top = MaterialTheme.spacing.medium,
+                        bottom = PaddingScrollEnd,
+                        start = MaterialTheme.spacing.medium,
+                        end = MaterialTheme.spacing.medium
                     ),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingMedium),
-                    verticalItemSpacing = SpacingMedium
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                    verticalItemSpacing = MaterialTheme.spacing.medium
                 ) {
                     repeat(foldersPagingItems.itemCount) { index ->
                         foldersPagingItems[index]?.let { item ->
@@ -145,7 +143,7 @@ fun FoldersListScreen(
                                         ListSeparator(
                                             label = stringResource(item.type.labelRes),
                                             modifier = Modifier
-                                                .animateItemPlacement()
+                                                .animateItem()
                                         )
                                     }
                                 }
@@ -160,14 +158,13 @@ fun FoldersListScreen(
                                             name = item.folderDetails.name,
                                             created = item.folderDetails.createdDateFormatted,
                                             excluded = item.folderDetails.excluded,
-                                            aggregateAmount = TextFormat.compactNumber(
-                                                value = item.folderDetails.aggregateAmount.absoluteValue,
-                                                currency = appCurrencyPreference
+                                            aggregateAmount = TextFormat.compact(
+                                                item.folderDetails.aggregateAmount.absoluteValue
                                             ),
                                             aggregateType = item.folderDetails.aggregateType,
                                             onClick = { navigateToFolderDetails(item.folderDetails.id) },
                                             modifier = Modifier
-                                                .animateItemPlacement()
+                                                .animateItem()
                                         )
                                     }
                                 }
@@ -255,7 +252,7 @@ private fun FolderCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(SpacingMedium),
+                            .padding(MaterialTheme.spacing.medium),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -290,7 +287,7 @@ private fun FolderCard(
                 ListMode.GRID -> {
                     Column(
                         modifier = Modifier
-                            .padding(SpacingMedium)
+                            .padding(MaterialTheme.spacing.medium)
                     ) {
                         Text(
                             text = name,
@@ -341,7 +338,7 @@ private fun AggregateAmountText(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SpacingSmall)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             aggregateIconRes?.let {
                 Icon(

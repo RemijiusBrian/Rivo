@@ -7,17 +7,29 @@
     <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
     <string name="destination_new_transaction">New Transaction</string>
     <string name="destination_edit_transaction">Edit Transaction</string>
+    <string name="destination_add_edit_tag">Add/Edit Tag</string>
+    <string name="destination_new_tag">New Tag</string>
+    <string name="destination_edit_tag">Edit Tag</string>
     <string name="destination_settings">Settings</string>
+    <string name="destination_update_budget">Monthly Budget</string>
+    <string name="destination_update_currency">Update Currency</string>
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_backup_encryption">Backup Encryption</string>
     <string name="destination_security_settings">Security</string>
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_folders_graph">Folders</string>
     <string name="destination_folders_list">Folders</string>
+    <string name="destination_folder_selection_sheet">Select Folder</string>
     <string name="destination_folder_details">Folder</string>
     <string name="destination_schedules_graph">Schedules</string>
     <string name="destination_all_schedules">All Schedules</string>
     <string name="destination_account_details">Account</string>
+    <string name="destination_amount_transformation_selection">Amount Transformation</string>
+    <string name="destination_tag_selection">Select Tag</string>
+    <string name="destination_all_tags">All Tags</string>
+    <string name="destination_add_edit_folder">Add/Edit Folder</string>
+    <string name="destination_new_folder">New Folder</string>
+    <string name="destination_edit_folder">Edit Folder</string>
 
     <string name="deeplink_uri">https://www.rivo.com</string>
 
@@ -63,6 +75,7 @@
     <string name="cd_folder_list_item_with_aggregate_amount">Folder %1$s created on %2$s</string>
     <string name="cd_folder_list_item_without_aggregate_amount">Folder %1$s created on %2$s with aggregate amount of %3$s %4$s</string>
     <string name="cd_options">Options</string>
+    <string name="cd_filter_options">Filter Options</string>
     <string name="cd_excluded">Excluded</string>
     <string name="cd_new_folder">New Folder</string>
     <string name="cd_edit_folder">Edit Folder Details</string>
@@ -84,7 +97,6 @@
     <string name="cd_tap_tag_to_filter_transactions">Tap tag to filter transactions</string>
     <string name="cd_tap_tag_to_assign_to_transactions">Tap to assign tag to transactions</string>
     <string name="cd_long_press_tag_to_edit">Long press to edit tag</string>
-    <string name="cd_filter_transactions_by_type">Filter transactions by type</string>
     <string name="cd_clear">Clear</string>
     <string name="cd_transform_amount">Transform Amount</string>
     <string name="cd_click_to_change_folder">Click to change folder</string>
@@ -115,7 +127,7 @@
     <string name="error_invalid_encryption_password">Invalid encryption password</string>
     <string name="error_incorrect_encryption_password">Incorrect encryption password</string>
     <string name="error_backup_creation_failed">Failed to create backup</string>
-    <string name="error_invalid_transaction_folder_name">Please enter a valid name</string>
+    <string name="error_invalid_folder_name">Please enter a valid name</string>
     <string name="error_biometric_hw_unavailable">Biometric features are currently unavailable</string>
     <string name="error_biometric_auth_failed">Authentication failed</string>
     <string name="error_passwords_do_not_match">Passwords do not match</string>
@@ -227,7 +239,6 @@
     <string name="backup_interval_weekly">Weekly</string>
     <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>
 
-    <string name="monthly_budget_input_title">Monthly Budget</string>
     <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
 
     <string name="transaction_repeat_mode_one_time">Does not repeat</string>
@@ -236,8 +247,6 @@
     <string name="transaction_repeat_mode_bi_monthly">Bi-monthly</string>
     <string name="transaction_repeat_mode_yearly">Yearly</string>
 
-    <string name="new_tag_input_title">New Tag</string>
-    <string name="edit_tag_input_title">Edit Tag</string>
     <string name="new_tag_input_text">Create a tag to help organize your transactions</string>
 
     <string name="today">Today</string>
@@ -256,10 +265,20 @@
         <item quantity="other">Transactions added to folder</item>
     </plurals>
 
+    <plurals name="select_tag">
+        <item quantity="one">Select Tag</item>
+        <item quantity="other">Select Tags</item>
+    </plurals>
+
     <string name="biometric_prompt_title_app_name">Unlock %s</string>
     <string name="biometric_or_screen_lock_prompt_message" tools:override="true">Use your biometric or screen lock to continue</string>
 
     <string name="app_lock_service_special_use_message">The service runs as a timer to auto update the app to the locked state after the specified time interval</string>
+
+    <string name="filter_section_date">Date</string>
+    <string name="filter_section_transaction_type">Transaction Type</string>
+    <string name="filter_section_tags">Tags</string>
+    <string name="filter_section_more">More</string>
 
     <string name="app_greeting">Good %s,</string>
     <string name="your_balance">Your Balance</string>
@@ -279,9 +298,8 @@
     <string name="new_tag_chip_label">New</string>
     <string name="amount_worth_spent">%s worth spent</string>
     <string name="count_selected">%s Selected</string>
-    <string name="tap_tag_to_assign_to_selected_transactions">Tap on a tag to assign it to the selected transactions</string>
     <string name="tag_assigned_to_transactions">Tag assigned to transactions</string>
-    <string name="transactions_untagged">Transactions Untagged</string>
+    <string name="tag_removed_from_transactions">Tag removed from transactions</string>
     <string name="transactions_deleted">Transactions Deleted</string>
     <string name="tag_saved">Tag saved</string>
     <string name="tag_deleted">Tag deleted</string>
@@ -323,12 +341,13 @@
     <string name="search_currency">Search Currency</string>
     <string name="hide_excluded_transactions">Hide Excluded</string>
     <string name="show_excluded_transactions">Show Excluded</string>
-    <string name="all_transactions_multi_selection_option_untag">Untag</string>
-    <string name="all_transactions_multi_selection_option_mark_excluded">Mark Excluded</string>
-    <string name="all_transactions_multi_selection_option_un_mark_excluded">Un-mark Excluded</string>
+    <string name="all_transactions_multi_selection_option_assign_tag">Assign Tag</string>
+    <string name="all_transactions_multi_selection_option_remove_tag">Remove Tag</string>
+    <string name="all_transactions_multi_selection_option_mark_excluded">Exclude from Expenditure</string>
+    <string name="all_transactions_multi_selection_option_un_mark_excluded">Include in Expenditure</string>
     <string name="all_transactions_multi_selection_option_add_to_folder">Add to Folder</string>
     <string name="all_transactions_multi_selection_option_remove_from_folders">Remove from Folders</string>
-    <string name="all_transactions_multi_selection_option_aggregate">Aggregate</string>
+    <string name="all_transactions_multi_selection_option_aggregate_together">Aggregate Together</string>
     <string name="transactions_excluded_from_expenditure">Transactions excluded from expenditure</string>
     <string name="transactions_included_in_expenditure">Transactions excluded in expenditure</string>
     <string name="excluded">Excluded</string>
@@ -345,8 +364,9 @@
     <string name="created">Created</string>
     <string name="transaction_type_label_credit">Credit</string>
     <string name="transaction_type_label_debit">Debit</string>
+    <string name="transaction_type_label_none">None</string>
     <string name="recent_spends_list_empty_message">Create a new transaction to get started</string>
-    <string name="tags_list_empty_message">Your tags will appear here</string>
+    <string name="top_tags_list_empty_message">Your top tags will appear here</string>
     <string name="all_transactions_list_empty_message">You don\'t have any transactions yet</string>
     <string name="folders_list_empty_message">You don\'t have any Folders yet</string>
     <string name="transactions_in_folder_list_empty_message">There aren\'t any transactions in this folder</string>
@@ -357,7 +377,7 @@
     <string name="delete_folder">Delete Folder</string>
     <string name="delete_folder_and_transactions">Delete Folder and Transactions</string>
     <string name="add_to_folder">Add to a folder</string>
-    <string name="transaction_folder_indicator_label">Folder</string>
+    <string name="transaction_folder_indicator_label">Add to a Folder</string>
     <string name="transaction_removed_from_folder">Transaction removed from folder</string>
     <string name="enter_folder_name">Enter Folder Name</string>
     <string name="folder_sort_criteria_by_name">Name</string>
@@ -401,7 +421,6 @@
     <string name="mark_paid">Mark paid</string>
     <string name="repeat_mode_label_transaction">%s transaction</string>
     <string name="schedule_saved">Schedule Saved</string>
-    <string name="schedule_for_later">Schedule for later</string>
     <string name="scheduled_transactions_can_be_found_in_corresponding_screen">*This transaction will be available in the \'%s\' screen</string>
     <string name="schedule_marked_as_paid">Schedule marked as paid</string>
     <string name="generic_schedule_title">~Schedule</string>
@@ -420,7 +439,6 @@
     <string name="due_on_date">Due on %s</string>
     <string name="schedules_this_month">Schedules this month</string>
     <string name="created_colon_timestamp_value">Created: %s</string>
-    <string name="asterisk_long_press_to_edit">*Long press to edit</string>
     <string name="initializing_app">Initializing %s</string>
     <string name="backup_running_message">Your backup is currently in progress, so please wait till it finishes to continue with your operation.</string>
     <string name="timestamp_label">Timestamp</string>
@@ -431,4 +449,14 @@
     <string name="sign_in_success">Signed in successfully</string>
     <string name="aggregation_successful">Aggregation successful</string>
     <string name="login_to_your_account">Login to your account</string>
+    <string name="date">Date</string>
+    <string name="search_tags">Search Tags</string>
+    <string name="view_all">View All…</string>
+    <string name="your_top_tags">Your top tags</string>
+    <string name="tap_to_select_folder">Tap to select folder</string>
+    <string name="exclude_from_expenditure">Exclude from expenditure</string>
+    <string name="cd_schedule_transaction_for_later">Schedule transaction for later</string>
+    <string name="clear">Clear</string>
+    <string name="select_folder">Select Folder</string>
+    <string name="select_tags">Select Tags</string>
 </resources>
