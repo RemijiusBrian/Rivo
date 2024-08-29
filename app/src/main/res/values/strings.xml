@@ -11,6 +11,7 @@
     <string name="destination_new_tag">New Tag</string>
     <string name="destination_edit_tag">Edit Tag</string>
     <string name="destination_settings">Settings</string>
+    <string name="destination_update_budget">Monthly Budget</string>
     <string name="destination_backup_settings">Backup</string>
     <string name="destination_backup_encryption">Backup Encryption</string>
     <string name="destination_security_settings">Security</string>
@@ -237,7 +238,6 @@
     <string name="backup_interval_weekly">Weekly</string>
     <string name="backup_interval_manual">Only When I tap \"Backup Now\"</string>
 
-    <string name="monthly_budget_input_title">Monthly Budget</string>
     <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
 
     <string name="transaction_repeat_mode_one_time">Does not repeat</string>

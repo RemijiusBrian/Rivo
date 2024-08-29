@@ -16,9 +16,6 @@ class SettingsRepositoryImpl(
         .getBudgetPreferenceForDateOrNext()
         .distinctUntilChanged()
 
-    override suspend fun updateCurrentBudget(value: Long) =
-        budgetPrefRepo.saveBudgetPreference(value)
-
     override fun getCurrenciesListPaged(query: String): Flow<PagingData<Currency>> =
         currencyPrefRepo.getAllCurrenciesPaged(query)
 

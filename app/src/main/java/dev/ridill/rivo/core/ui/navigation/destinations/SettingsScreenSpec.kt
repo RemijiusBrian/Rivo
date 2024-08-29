@@ -15,11 +15,14 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
+import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
+import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.core.ui.util.launchAppSettings
 import dev.ridill.rivo.settings.presentation.settings.SettingsScreen
@@ -75,6 +78,21 @@ data object SettingsScreenSpec : ScreenSpec {
             }
         }
 
+        NavigationResultEffect<String>(
+            key = UpdateBudgetSheetSpec.UPDATE_BUDGET_RESULT,
+            navBackStackEntry = navBackStackEntry,
+            keys = arrayOf(viewModel, snackbarController, context)
+        ) { result ->
+            logD { "Update Budget Result: $result" }
+            when (result) {
+                UpdateBudgetSheetSpec.RESULT_BUDGET_UPDATED -> {
+                    snackbarController.showSnackbar(
+                        UiText.StringResource(R.string.budget_updated).asString(context)
+                    )
+                }
+            }
+        }
+
         SettingsScreen(
             snackbarController = snackbarController,
             state = state,
@@ -86,6 +104,7 @@ data object SettingsScreenSpec : ScreenSpec {
             navigateToNotificationSettings = context::launchAppNotificationSettings,
             navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) },
             navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) },
+            navigateToUpdateBudget = { navController.navigate(UpdateBudgetSheetSpec.route) },
             launchUriInBrowser = {
                 val intent = Intent(Intent.ACTION_VIEW, it)
                 context.startActivity(intent)

@@ -29,14 +29,6 @@ import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 @Module
 @InstallIn(ViewModelComponent::class)
 object SettingsViewModelModule {
-    @Provides
-    fun provideBudgetPreferenceDao(database: RivoDatabase): BudgetPreferenceDao =
-        database.budgetPreferenceDao()
-
-    @Provides
-    fun provideBudgetPreferenceRepository(
-        dao: BudgetPreferenceDao
-    ): BudgetPreferenceRepository = BudgetPreferenceRepositoryImpl(dao)
 
     @Provides
     fun provideSettingsRepository(

@@ -49,11 +49,6 @@ class SettingsViewModel @Inject constructor(
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
 
-    private val showMonthlyBudgetInput = savedStateHandle
-        .getStateFlow(SHOW_MONTHLY_BUDGET_INPUT, false)
-    private val budgetInputError = savedStateHandle
-        .getStateFlow<UiText?>(BUDGET_INPUT_ERROR, null)
-
     private val showCurrencySelection = savedStateHandle
         .getStateFlow(SHOW_CURRENCY_SELECTION, false)
     val currencySearchQuery = savedStateHandle
@@ -77,8 +72,6 @@ class SettingsViewModel @Inject constructor(
         dynamicColorsEnabled,
         showAppThemeSelection,
         monthlyBudget,
-        budgetInputError,
-        showMonthlyBudgetInput,
         showCurrencySelection,
         autoAddTransactionEnabled,
         showSmsPermissionRationale,
@@ -89,8 +82,6 @@ class SettingsViewModel @Inject constructor(
                 dynamicColorsEnabled,
                 showAppThemeSelection,
                 monthlyBudget,
-                budgetInputError,
-                showMonthlyBudgetInput,
                 showCurrencySelection,
                 autoAddTransactionEnabled,
                 showSmsPermissionRationale,
@@ -102,8 +93,6 @@ class SettingsViewModel @Inject constructor(
             dynamicColorsEnabled = dynamicColorsEnabled,
             showAppThemeSelection = showAppThemeSelection,
             currentMonthlyBudget = monthlyBudget,
-            showBudgetInput = showMonthlyBudgetInput,
-            budgetInputError = budgetInputError,
             showCurrencySelection = showCurrencySelection,
             autoAddTransactionEnabled = autoAddTransactionEnabled,
             showSmsPermissionRationale = showSmsPermissionRationale,
@@ -131,34 +120,6 @@ class SettingsViewModel @Inject constructor(
     override fun onDynamicThemeEnabledChange(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.updateDynamicColorsEnabled(enabled)
-        }
-    }
-
-    override fun onMonthlyBudgetPreferenceClick() {
-        savedStateHandle[SHOW_MONTHLY_BUDGET_INPUT] = true
-    }
-
-    override fun onMonthlyBudgetInputDismiss() {
-        savedStateHandle[SHOW_MONTHLY_BUDGET_INPUT] = false
-    }
-
-    override fun onMonthlyBudgetInputConfirm(value: String) {
-        viewModelScope.launch {
-            val longValue = value.toLongOrNull() ?: -1L
-            if (longValue <= -1L) {
-                savedStateHandle[BUDGET_INPUT_ERROR] = UiText.StringResource(
-                    R.string.error_invalid_amount,
-                    true
-                )
-                return@launch
-            }
-            repo.updateCurrentBudget(longValue)
-            savedStateHandle[SHOW_MONTHLY_BUDGET_INPUT] = false
-            eventBus.send(
-                SettingsEvent.ShowUiMessage(
-                    UiText.StringResource(R.string.budget_updated)
-                )
-            )
         }
     }
 
@@ -241,7 +202,6 @@ private const val SHOW_APP_THEME_SELECTION = "SHOW_APP_THEME_SELECTION"
 private const val SHOW_MONTHLY_BUDGET_INPUT = "SHOW_MONTHLY_BUDGET_INPUT"
 private const val SHOW_CURRENCY_SELECTION = "SHOW_CURRENCY_SELECTION"
 private const val CURRENCY_SEARCH_QUERY = "CURRENCY_SEARCH_QUERY"
-private const val BUDGET_INPUT_ERROR = "BUDGET_INPUT_ERROR"
 private const val SHOW_SMS_PERMISSION_RATIONALE = "SHOW_SMS_PERMISSION_RATIONALE"
 private const val TEMP_AUTO_ADD_TRANSACTION_STATE = "TEMP_AUTO_ADD_TRANSACTION_STATE"
 private const val SHOW_AUTO_DETECT_TX_INFO = "SHOW_AUTO_DETECT_TX_INFO"

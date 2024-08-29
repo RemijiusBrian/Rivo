@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
@@ -27,17 +26,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -50,13 +45,11 @@ import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.core.ui.components.AmountVisualTransformation
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.BodyMediumText
 import dev.ridill.rivo.core.ui.components.FeatureInfoDialog
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
-import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RadioOptionListDialog
 import dev.ridill.rivo.core.ui.components.RivoImage
@@ -72,7 +65,6 @@ import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.TextFormat
-import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.presentation.components.PreferenceIcon
 import dev.ridill.rivo.settings.presentation.components.SimpleSettingsPreference
@@ -89,6 +81,7 @@ fun SettingsScreen(
     navigateUp: () -> Unit,
     navigateToAccountDetails: () -> Unit,
     navigateToNotificationSettings: () -> Unit,
+    navigateToUpdateBudget: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToSecuritySettings: () -> Unit,
     launchUriInBrowser: (Uri) -> Unit
@@ -157,7 +150,7 @@ fun SettingsScreen(
                         )
                     }
                     ?: stringResource(R.string.preference_set_budget_summary),
-                onClick = actions::onMonthlyBudgetPreferenceClick
+                onClick = navigateToUpdateBudget
             )
 
             SimpleSettingsPreference(
@@ -219,15 +212,6 @@ fun SettingsScreen(
             )
         }
 
-        if (state.showBudgetInput) {
-            BudgetInputSheet(
-                onConfirm = actions::onMonthlyBudgetInputConfirm,
-                onDismiss = actions::onMonthlyBudgetInputDismiss,
-                placeholder = TextFormat.number(state.currentMonthlyBudget),
-                errorMessage = state.budgetInputError
-            )
-        }
-
         if (state.showCurrencySelection) {
             CurrencySelectionSheet(
                 onDismiss = actions::onCurrencySelectionDismiss,
@@ -276,7 +260,7 @@ private fun AccountInfo(
         derivedStateOf { authState is AuthState.Authenticated }
     }
     val accountInfo = remember(authState) {
-        tryOrNull { (authState as AuthState.Authenticated).account }
+        tryOrNull(tag = "AccountInfo") { (authState as AuthState.Authenticated).account }
     }
     Card(
         onClick = onClick,
@@ -318,34 +302,6 @@ private fun AccountInfo(
 }
 
 private val ProfileImageSize = 40.dp
-
-@Composable
-fun BudgetInputSheet(
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-    errorMessage: UiText? = null,
-    placeholder: String = ""
-) {
-    var input by remember { mutableStateOf("") }
-    OutlinedTextFieldSheet(
-        titleRes = R.string.monthly_budget_input_title,
-        inputValue = { input },
-        onValueChange = { input = it },
-        onDismiss = onDismiss,
-        onConfirm = { onConfirm(input) },
-        placeholder = placeholder,
-        modifier = modifier,
-        text = stringResource(R.string.monthly_budget_input_text),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done
-        ),
-        errorMessage = errorMessage,
-        visualTransformation = remember { AmountVisualTransformation() },
-        prefix = { Text(LocalCurrencyPreference.current.symbol) }
-    )
-}
 
 @Composable
 private fun CurrencySelectionSheet(
