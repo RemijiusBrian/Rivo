@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ridill.rivo.account.domain.repository.AuthRepository
-import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
@@ -21,15 +19,13 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    repo: SettingsRepository,
-    authRepo: AuthRepository,
-    private val preferencesManager: PreferencesManager,
+    private val repo: SettingsRepository,
     private val eventBus: EventBus<SettingsEvent>
 ) : ViewModel(), SettingsActions {
 
-    private val authState = authRepo.getAuthState()
+    private val authState = repo.getAuthState()
 
-    private val preferences = preferencesManager.preferences
+    private val preferences = repo.getPreferences()
     private val appTheme = preferences.map { it.appTheme }
         .distinctUntilChanged()
     private val dynamicColorsEnabled = preferences.map { it.dynamicColorsEnabled }
@@ -94,13 +90,13 @@ class SettingsViewModel @Inject constructor(
     override fun onAppThemeSelectionConfirm(appTheme: AppTheme) {
         viewModelScope.launch {
             savedStateHandle[SHOW_APP_THEME_SELECTION] = false
-            preferencesManager.updateAppThem(appTheme)
+            repo.updateAppTheme(appTheme)
         }
     }
 
     override fun onDynamicThemeEnabledChange(enabled: Boolean) {
         viewModelScope.launch {
-            preferencesManager.updateDynamicColorsEnabled(enabled)
+            repo.toggleDynamicColors(enabled)
         }
     }
 
@@ -121,7 +117,7 @@ class SettingsViewModel @Inject constructor(
 
     override fun onAutoDetectTxFeatureInfoAcknowledge() {
         viewModelScope.launch {
-            preferencesManager.toggleShowAutoDetectTxInfoFalse()
+            repo.toggleShowAutoDetectTxInfoFalse()
             savedStateHandle[SHOW_AUTO_DETECT_TX_INFO] = false
             eventBus.send(SettingsEvent.RequestSMSPermission)
         }
@@ -130,7 +126,7 @@ class SettingsViewModel @Inject constructor(
     fun onSmsPermissionResult(granted: Boolean) = viewModelScope.launch {
         if (granted) {
             val enabled = savedStateHandle.get<Boolean?>(TEMP_AUTO_ADD_TRANSACTION_STATE) == true
-            preferencesManager.updateTransactionAutoDetectEnabled(enabled)
+            repo.toggleAutoDetectTransactions(enabled)
             savedStateHandle[TEMP_AUTO_ADD_TRANSACTION_STATE] = null
         }
         savedStateHandle[SHOW_SMS_PERMISSION_RATIONALE] = !granted

@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.util.EventBus
@@ -29,9 +30,13 @@ object SettingsViewModelModule {
 
     @Provides
     fun provideSettingsRepository(
+        authRepository: AuthRepository,
+        preferencesManager: PreferencesManager,
         budgetPreferenceRepository: BudgetPreferenceRepository,
         currencyPreferenceRepository: CurrencyPreferenceRepository
     ): SettingsRepository = SettingsRepositoryImpl(
+        authRepo = authRepository,
+        preferencesManager = preferencesManager,
         budgetPrefRepo = budgetPreferenceRepository,
         currencyPrefRepo = currencyPreferenceRepository
     )
