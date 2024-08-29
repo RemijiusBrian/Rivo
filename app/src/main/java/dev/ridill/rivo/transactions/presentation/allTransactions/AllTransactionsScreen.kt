@@ -741,7 +741,7 @@ private fun AggregateAmount(
                 else -> typeFilter.labelRes
             }
         ),
-        TextFormat.currencyAmount(amount = sumAmount.absoluteValue)
+        TextFormat.currency(amount = sumAmount.absoluteValue, currency = currency)
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
