@@ -59,15 +59,6 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             onResult = viewModel::onFolderSelect
         )
 
-        NavigationResultEffect<Long>(
-            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
-            navBackStackEntry = navBackStackEntry,
-            viewModel,
-            snackbarController,
-            context,
-            onResult = viewModel::onFolderSelect
-        )
-
         NavigationResultEffect<Set<Long>>(
             key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
