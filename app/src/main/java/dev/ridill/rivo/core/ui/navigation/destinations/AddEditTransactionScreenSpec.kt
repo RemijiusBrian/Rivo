@@ -148,7 +148,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         NavigationResultEffect(
-            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
+            resultKey = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
@@ -157,7 +157,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
 
         NavigationResultEffect(
-            key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
+            resultKey = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
@@ -166,7 +166,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
 
         NavigationResultEffect<Set<Long>>(
-            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
+            resultKey = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

@@ -60,6 +60,7 @@ class RivoViewModel @Inject constructor(
 
     private fun collectTransactionAutoDetectEnabled() = viewModelScope.launch {
         preferences.map { it.transactionAutoDetectEnabled }
+            .distinctUntilChanged()
             .collectLatest { enabled ->
                 receiverService.toggleSmsReceiver(enabled)
             }
@@ -78,6 +79,7 @@ class RivoViewModel @Inject constructor(
     private fun collectIsAppLocked() = viewModelScope.launch {
         preferences
             .map { Pair(it.appLockEnabled, it.isAppLocked) }
+            .distinctUntilChanged()
             .collectLatest { (appLockedEnabled, isLocked) ->
                 if (!appLockedEnabled || isLocked) {
                     appLockServiceManager.stopAppUnlockedIndicator()

@@ -7,19 +7,19 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun <T> NavigationResultEffect(
-    key: String,
+    resultKey: String,
     navBackStackEntry: NavBackStackEntry,
     vararg keys: Any,
     onResult: (T) -> Unit
 ) {
     val result = navBackStackEntry
         .savedStateHandle
-        .get<T>(key)
+        .get<T>(resultKey)
 
     LaunchedEffect(result, navBackStackEntry, *keys) {
         result?.let(onResult)
         navBackStackEntry.savedStateHandle
-            .remove<T>(key)
+            .remove<T>(resultKey)
     }
 }
 

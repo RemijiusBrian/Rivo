@@ -34,7 +34,7 @@ data object DashboardScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         NavigationResultEffect(
-            key = AddEditTxResult::name.name,
+            resultKey = AddEditTxResult::name.name,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

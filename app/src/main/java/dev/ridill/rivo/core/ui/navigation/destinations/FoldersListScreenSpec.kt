@@ -45,7 +45,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         NavigationResultEffect<Long>(
-            key = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
+            resultKey = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
@@ -57,7 +57,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         }
 
         NavigationResultEffect<String>(
-            key = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
+            resultKey = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

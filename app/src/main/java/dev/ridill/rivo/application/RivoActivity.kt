@@ -100,38 +100,38 @@ class RivoActivity : AppCompatActivity() {
             // Temporary workaround from google
             // Issue with lifecycle and compose version incompatibility
             // see [IssueTracker](https://issuetracker.google.com/issues/336842920?pli=1#comment8)
-            /*CompositionLocalProvider(
-                androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current
-            ) {*/
-            val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
-            val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
-            val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
-            val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
-            val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
-            val appCurrencyPreference by viewModel.currencyPreference
-                .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
-            val darkTheme = when (appTheme) {
-                AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
-                AppTheme.LIGHT -> false
-                AppTheme.DARK -> true
-            }
+//            CompositionLocalProvider(
+//                androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current
+//            ) {
+                val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
+                val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
+                val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
+                val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
+                val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
+                val appCurrencyPreference by viewModel.currencyPreference
+                    .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
+                val darkTheme = when (appTheme) {
+                    AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+                    AppTheme.LIGHT -> false
+                    AppTheme.DARK -> true
+                }
 
-            val windowSizeClass = calculateWindowSizeClass(activity = this)
-            CompositionLocalProvider(
-                LocalCurrencyPreference provides appCurrencyPreference
-            ) {
-                ScreenContent(
-                    windowSizeClass = windowSizeClass,
-                    darkTheme = darkTheme,
-                    dynamicTheme = dynamicTheme,
-                    showOnboarding = showOnboarding,
-                    appLockErrorMessage = appLockErrorMessage,
-                    isAppLocked = isAppLocked,
-                    onUnlockClick = ::checkAndLaunchBiometric,
-                    closeApp = ::finish
-                )
+                val windowSizeClass = calculateWindowSizeClass(activity = this)
+                CompositionLocalProvider(
+                    LocalCurrencyPreference provides appCurrencyPreference
+                ) {
+                    ScreenContent(
+                        windowSizeClass = windowSizeClass,
+                        darkTheme = darkTheme,
+                        dynamicTheme = dynamicTheme,
+                        showOnboarding = showOnboarding,
+                        appLockErrorMessage = appLockErrorMessage,
+                        isAppLocked = isAppLocked,
+                        onUnlockClick = ::checkAndLaunchBiometric,
+                        closeApp = ::finish
+                    )
+                }
             }
-        }
 //        }
     }
 

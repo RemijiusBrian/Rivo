@@ -51,7 +51,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         val hapticFeedback = LocalHapticFeedback.current
 
         NavigationResultEffect(
-            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
+            resultKey = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
@@ -60,7 +60,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         )
 
         NavigationResultEffect<Set<Long>>(
-            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
+            resultKey = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

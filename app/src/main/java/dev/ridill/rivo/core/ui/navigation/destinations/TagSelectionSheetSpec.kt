@@ -84,7 +84,7 @@ data object TagSelectionSheetSpec : BottomSheetSpec {
         val tagsLazyPagingItems = viewModel.tagsPagingData.collectAsLazyPagingItems()
 
         NavigationResultEffect<Long>(
-            key = AddEditTagSheetSpec.SAVED_TAG_ID,
+            resultKey = AddEditTagSheetSpec.SAVED_TAG_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             onResult = viewModel::onItemClick
