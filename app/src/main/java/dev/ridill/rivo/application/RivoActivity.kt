@@ -17,7 +17,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
@@ -103,35 +102,35 @@ class RivoActivity : AppCompatActivity() {
 //            CompositionLocalProvider(
 //                androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current
 //            ) {
-                val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
-                val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
-                val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
-                val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
-                val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
-                val appCurrencyPreference by viewModel.currencyPreference
-                    .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
-                val darkTheme = when (appTheme) {
-                    AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
-                    AppTheme.LIGHT -> false
-                    AppTheme.DARK -> true
-                }
-
-                val windowSizeClass = calculateWindowSizeClass(activity = this)
-                CompositionLocalProvider(
-                    LocalCurrencyPreference provides appCurrencyPreference
-                ) {
-                    ScreenContent(
-                        windowSizeClass = windowSizeClass,
-                        darkTheme = darkTheme,
-                        dynamicTheme = dynamicTheme,
-                        showOnboarding = showOnboarding,
-                        appLockErrorMessage = appLockErrorMessage,
-                        isAppLocked = isAppLocked,
-                        onUnlockClick = ::checkAndLaunchBiometric,
-                        closeApp = ::finish
-                    )
-                }
+            val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
+            val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
+            val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
+            val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle(false)
+            val appLockErrorMessage by viewModel.appLockAuthErrorMessage.collectAsStateWithLifecycle()
+            val appCurrencyPreference by viewModel.currencyPreference
+                .collectAsStateWithLifecycle(LocaleUtil.defaultCurrency)
+            val darkTheme = when (appTheme) {
+                AppTheme.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
             }
+
+            val windowSizeClass = calculateWindowSizeClass(activity = this)
+            CompositionLocalProvider(
+                LocalCurrencyPreference provides appCurrencyPreference
+            ) {
+                ScreenContent(
+                    windowSizeClass = windowSizeClass,
+                    darkTheme = darkTheme,
+                    dynamicTheme = dynamicTheme,
+                    showOnboarding = showOnboarding,
+                    appLockErrorMessage = appLockErrorMessage,
+                    isAppLocked = isAppLocked,
+                    onUnlockClick = ::checkAndLaunchBiometric,
+                    closeApp = ::finish
+                )
+            }
+        }
 //        }
     }
 
@@ -248,15 +247,15 @@ private fun ScreenContent(
         darkTheme = darkTheme,
         dynamicColor = dynamicTheme
     ) {
-        val bottomSheetNavigator = rememberBottomSheetNavigator()
-        val navController = rememberNavController(bottomSheetNavigator)
+//        val bottomSheetNavigator = rememberBottomSheetNavigator()
+        val navController = rememberNavController()
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             RivoNavHost(
                 windowSizeClass = windowSizeClass,
-                bottomSheetNavigator = bottomSheetNavigator,
+//                bottomSheetNavigator = bottomSheetNavigator,
                 navController = navController,
                 startOnboarding = showOnboarding
             )

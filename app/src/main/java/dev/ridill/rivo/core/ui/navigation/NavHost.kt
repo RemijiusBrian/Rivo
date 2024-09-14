@@ -1,21 +1,15 @@
 package dev.ridill.rivo.core.ui.navigation
 
-import androidx.compose.material.navigation.BottomSheetNavigator
 import androidx.compose.material.navigation.ModalBottomSheetLayout
-import androidx.compose.material.navigation.bottomSheet
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomSheetSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.DashboardScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
@@ -26,52 +20,52 @@ import dev.ridill.rivo.core.ui.navigation.destinations.ScreenSpec
 @Composable
 fun RivoNavHost(
     windowSizeClass: WindowSizeClass,
-    bottomSheetNavigator: BottomSheetNavigator,
+//    bottomSheetNavigator: BottomSheetNavigator,
     navController: NavHostController,
     startOnboarding: Boolean,
     modifier: Modifier = Modifier
 ) {
     // Without this observation the navigation results break.
     // Hence leaving this in for now
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    LaunchedEffect(key1 = currentBackStackEntry) {
-        logD(NavHost::class.simpleName) { "Current BackStackEntry = ${currentBackStackEntry?.id}, route = ${currentBackStackEntry?.destination?.route}" }
-    }
+//    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+//    LaunchedEffect(key1 = currentBackStackEntry) {
+//        logD("NavHost") { "Current BackStackEntry = ${currentBackStackEntry?.id}, route = ${currentBackStackEntry?.destination?.route}" }
+//    }
 
-    ModalBottomSheetLayout(bottomSheetNavigator) {
-        NavHost(
-            navController = navController,
-            startDestination = if (startOnboarding) OnboardingScreenSpec.route
-            else DashboardScreenSpec.route,
-            modifier = modifier
-        ) {
-            require(NavDestination.allDestinations.isNotEmpty()) {
-                "NavGraph must contain at least 1 child destination"
-            }
+//    ModalBottomSheetLayout(bottomSheetNavigator) {
+    NavHost(
+        navController = navController,
+        startDestination = if (startOnboarding) OnboardingScreenSpec.route
+        else DashboardScreenSpec.route,
+        modifier = modifier
+    ) {
+        require(NavDestination.allDestinations.isNotEmpty()) {
+            "NavGraph must contain at least 1 child destination"
+        }
 
-            NavDestination.allDestinations.forEach { destination ->
-                when (destination) {
-                    is NavGraphSpec -> addGraphSpec(
-                        windowSizeClass = windowSizeClass,
-                        navGraphSpec = destination,
-                        navController = navController
-                    )
+        NavDestination.allDestinations.forEach { destination ->
+            when (destination) {
+                is NavGraphSpec -> addGraphSpec(
+                    windowSizeClass = windowSizeClass,
+                    navGraphSpec = destination,
+                    navController = navController
+                )
 
-                    is ScreenSpec -> addScreenSpec(
-                        windowSizeClass = windowSizeClass,
-                        screenSpec = destination,
-                        navController = navController
-                    )
+                is ScreenSpec -> addScreenSpec(
+                    windowSizeClass = windowSizeClass,
+                    screenSpec = destination,
+                    navController = navController
+                )
 
-                    is BottomSheetSpec -> addBottomSheetSpec(
-                        windowSizeClass = windowSizeClass,
-                        sheetSpec = destination,
-                        navController = navController
-                    )
-                }
+                is BottomSheetSpec -> addBottomSheetSpec(
+                    windowSizeClass = windowSizeClass,
+                    sheetSpec = destination,
+                    navController = navController
+                )
             }
         }
     }
+//    }
 }
 
 private fun NavGraphBuilder.addScreenSpec(
@@ -101,7 +95,7 @@ private fun NavGraphBuilder.addBottomSheetSpec(
     sheetSpec: BottomSheetSpec,
     navController: NavHostController
 ) {
-    bottomSheet(
+    dialog(
         route = sheetSpec.route,
         arguments = sheetSpec.arguments,
         deepLinks = sheetSpec.deepLinks,
