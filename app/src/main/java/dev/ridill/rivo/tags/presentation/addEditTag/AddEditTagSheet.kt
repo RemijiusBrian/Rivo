@@ -46,11 +46,11 @@ fun AddEditTagSheet(
         FocusRequester()
     }
 
-    LaunchedEffect(Unit, isEditMode) {
+    /*LaunchedEffect(Unit, isEditMode) {
         if (!isEditMode) {
             focusRequester.requestFocus()
         }
-    }
+    }*/
 
     OutlinedTextFieldSheet(
         title = {
@@ -98,7 +98,7 @@ fun AddEditTagSheet(
         ),
         label = stringResource(R.string.tag_name),
         errorMessage = errorMessage,
-        focusRequester = focusRequester,
+//        focusRequester = focusRequester,
         contentAfterTextField = {
             HorizontalColorSelectionList(
                 selectedColorCode = selectedColorCode,

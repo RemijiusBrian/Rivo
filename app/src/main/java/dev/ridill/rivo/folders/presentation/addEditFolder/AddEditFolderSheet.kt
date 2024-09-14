@@ -41,11 +41,11 @@ fun AddEditFolderSheet(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit, isEditMode) {
+    /*LaunchedEffect(Unit, isEditMode) {
         if (!isEditMode) {
             focusRequester.requestFocus()
         }
-    }
+    }*/
 
     OutlinedTextFieldSheet(
         title = {

@@ -9,12 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -78,9 +75,9 @@ fun RivoModalBottomSheet(
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
+    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ModalBottomSheet(
@@ -94,15 +91,9 @@ fun RivoModalBottomSheet(
         tonalElevation = tonalElevation,
         scrimColor = scrimColor,
         dragHandle = dragHandle,
-        windowInsets = windowInsets.only(WindowInsetsSides.Start + WindowInsetsSides.Start + WindowInsetsSides.Top),
+        contentWindowInsets = contentWindowInsets,
         properties = properties,
-        content = {
-            Column(
-                modifier = Modifier
-                    .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding()),
-                content = content
-            )
-        }
+        content = content
     )
 }
 
