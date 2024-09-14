@@ -78,7 +78,7 @@ fun RivoModalBottomSheet(
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
     content: @Composable ColumnScope.() -> Unit,
@@ -94,15 +94,15 @@ fun RivoModalBottomSheet(
         tonalElevation = tonalElevation,
         scrimColor = scrimColor,
         dragHandle = dragHandle,
-        windowInsets = windowInsets.only(WindowInsetsSides.Start + WindowInsetsSides.Start + WindowInsetsSides.Top),
+        contentWindowInsets = contentWindowInsets,
         properties = properties,
-        content = {
+        content = content/*{
             Column(
                 modifier = Modifier
                     .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding()),
                 content = content
             )
-        }
+        }*/
     )
 }
 
