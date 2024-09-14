@@ -12,7 +12,7 @@ junit = "4.13.2"
 androidx-junit = "1.2.1"
 espresso-core = "3.6.1"
 
-compose-bom = "2024.09.00"
+compose-bom = "2024.09.01"
 navigation-compose = "2.8.0"
 compose-material = "1.7.0-beta01"
 
@@ -35,7 +35,7 @@ datastore-preferences = "1.1.1"
 androidx-biometric = "1.2.0-alpha05"
 androidx-security-crypto = "1.1.0-alpha06"
 
-firebase-bom = "33.2.0"
+firebase-bom = "33.3.0"
 firebase-crashlytics-gradle = "3.0.2"
 
 play-services-auth = "21.2.0"
@@ -46,7 +46,7 @@ retrofit = "2.11.0"
 logging-interceptor = "4.12.0"
 
 coil-compose = "2.7.0"
-lottie-compose = "6.5.0"
+lottie-compose = "6.5.2"
 flow-combinetuple-kt = "1.2.0"
 timber-logging = "5.0.1"
 keval = "1.1.1"

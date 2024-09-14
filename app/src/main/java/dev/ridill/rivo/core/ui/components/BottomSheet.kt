@@ -93,7 +93,13 @@ fun RivoModalBottomSheet(
         dragHandle = dragHandle,
         contentWindowInsets = contentWindowInsets,
         properties = properties,
-        content = content
+        content = content/*{
+            Column(
+                modifier = Modifier
+                    .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding()),
+                content = content
+            )
+        }*/
     )
 }
 
