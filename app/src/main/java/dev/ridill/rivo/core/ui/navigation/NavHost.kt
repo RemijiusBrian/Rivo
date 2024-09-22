@@ -1,6 +1,8 @@
 package dev.ridill.rivo.core.ui.navigation
 
+import androidx.compose.material.navigation.BottomSheetNavigator
 import androidx.compose.material.navigation.ModalBottomSheetLayout
+import androidx.compose.material.navigation.bottomSheet
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,7 +10,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomSheetSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.DashboardScreenSpec
@@ -20,7 +21,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.ScreenSpec
 @Composable
 fun RivoNavHost(
     windowSizeClass: WindowSizeClass,
-//    bottomSheetNavigator: BottomSheetNavigator,
+    bottomSheetNavigator: BottomSheetNavigator,
     navController: NavHostController,
     startOnboarding: Boolean,
     modifier: Modifier = Modifier
@@ -32,40 +33,40 @@ fun RivoNavHost(
 //        logD("NavHost") { "Current BackStackEntry = ${currentBackStackEntry?.id}, route = ${currentBackStackEntry?.destination?.route}" }
 //    }
 
-//    ModalBottomSheetLayout(bottomSheetNavigator) {
-    NavHost(
-        navController = navController,
-        startDestination = if (startOnboarding) OnboardingScreenSpec.route
-        else DashboardScreenSpec.route,
-        modifier = modifier
-    ) {
-        require(NavDestination.allDestinations.isNotEmpty()) {
-            "NavGraph must contain at least 1 child destination"
-        }
+    ModalBottomSheetLayout(bottomSheetNavigator) {
+        NavHost(
+            navController = navController,
+            startDestination = if (startOnboarding) OnboardingScreenSpec.route
+            else DashboardScreenSpec.route,
+            modifier = modifier
+        ) {
+            require(NavDestination.allDestinations.isNotEmpty()) {
+                "NavGraph must contain at least 1 child destination"
+            }
 
-        NavDestination.allDestinations.forEach { destination ->
-            when (destination) {
-                is NavGraphSpec -> addGraphSpec(
-                    windowSizeClass = windowSizeClass,
-                    navGraphSpec = destination,
-                    navController = navController
-                )
+            NavDestination.allDestinations.forEach { destination ->
+                when (destination) {
+                    is NavGraphSpec -> addGraphSpec(
+                        windowSizeClass = windowSizeClass,
+                        navGraphSpec = destination,
+                        navController = navController
+                    )
 
-                is ScreenSpec -> addScreenSpec(
-                    windowSizeClass = windowSizeClass,
-                    screenSpec = destination,
-                    navController = navController
-                )
+                    is ScreenSpec -> addScreenSpec(
+                        windowSizeClass = windowSizeClass,
+                        screenSpec = destination,
+                        navController = navController
+                    )
 
-                is BottomSheetSpec -> addBottomSheetSpec(
-                    windowSizeClass = windowSizeClass,
-                    sheetSpec = destination,
-                    navController = navController
-                )
+                    is BottomSheetSpec -> addBottomSheetSpec(
+                        windowSizeClass = windowSizeClass,
+                        sheetSpec = destination,
+                        navController = navController
+                    )
+                }
             }
         }
     }
-//    }
 }
 
 private fun NavGraphBuilder.addScreenSpec(
@@ -95,7 +96,7 @@ private fun NavGraphBuilder.addBottomSheetSpec(
     sheetSpec: BottomSheetSpec,
     navController: NavHostController
 ) {
-    dialog(
+    bottomSheet(
         route = sheetSpec.route,
         arguments = sheetSpec.arguments,
         deepLinks = sheetSpec.deepLinks,
