@@ -13,11 +13,15 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.snapshotFlow
 import androidx.navigation.FloatingWindow
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.compose.LocalOwnersProvider
+import androidx.navigation.get
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -134,7 +138,7 @@ class RivoBottomSheetNavigator(
     }
 }
 
-/*fun NavGraphBuilder.bottomSheet(
+fun NavGraphBuilder.bottomSheet(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
@@ -151,7 +155,7 @@ class RivoBottomSheetNavigator(
                 deepLinks.forEach { deepLink -> deepLink(deepLink) }
             }
     )
-}*/
+}
 
 @Composable
 fun SheetContentHost(

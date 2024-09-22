@@ -48,7 +48,7 @@
     <string name="notification_channel_app_init_name">App Init</string>
 
     <!-- Content Description -->
-    <string name="cd_app_greeting_user">Good %s, %s</string>
+    <string name="cd_app_greeting_user">Good %1$s, %2$s</string>
     <string name="cd_balance_and_budget_amounts">You have a balance of %1$s from your budget of %2$s</string>
     <string name="cd_recent_spent_amount">You have spent %s this month</string>
     <string name="cd_transaction_list_item_debit">You have spent %1$s with note %2$s on %3$s</string>

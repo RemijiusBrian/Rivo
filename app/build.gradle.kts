@@ -142,7 +142,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.animation)
 
-    implementation(libs.androidx.compose.material.navigation)
+    implementation(libs.androidx.compose.material)
 
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

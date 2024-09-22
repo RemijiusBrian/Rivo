@@ -14,7 +14,7 @@ espresso-core = "3.6.1"
 
 compose-bom = "2024.09.02"
 navigation-compose = "2.8.1"
-compose-material = "1.8.0-alpha02"
+compose-material = "1.7.0-beta01"
 
 androidx-lifecycle = "2.8.6"
 
@@ -75,7 +75,7 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 
-androidx-compose-material-navigation = { group = "androidx.compose.material", name = "material-navigation", version.ref = "compose-material" }
+androidx-compose-material = { group = "androidx.compose.material", name = "material-navigation", version.ref = "compose-material" }
 
 # Compose Navigation
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
