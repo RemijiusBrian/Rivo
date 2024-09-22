@@ -15,12 +15,12 @@ plugins {
 
 android {
     namespace = "dev.ridill.rivo"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "dev.ridill.rivo"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "0.0.1"
 
