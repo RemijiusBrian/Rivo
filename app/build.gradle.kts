@@ -54,8 +54,8 @@ android {
         create("internal") {
             dimension = "env"
             applicationIdSuffix = ".internal"
-            versionCode = 31
-            versionName = "2024.08.01"
+            versionCode = 32
+            versionName = "2024.09.01"
         }
 
         create("production") {
