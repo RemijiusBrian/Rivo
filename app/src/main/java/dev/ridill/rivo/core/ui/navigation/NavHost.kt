@@ -26,13 +26,6 @@ fun RivoNavHost(
     startOnboarding: Boolean,
     modifier: Modifier = Modifier
 ) {
-    // Without this observation the navigation results break.
-    // Hence leaving this in for now
-//    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-//    LaunchedEffect(key1 = currentBackStackEntry) {
-//        logD("NavHost") { "Current BackStackEntry = ${currentBackStackEntry?.id}, route = ${currentBackStackEntry?.destination?.route}" }
-//    }
-
     ModalBottomSheetLayout(bottomSheetNavigator) {
         NavHost(
             navController = navController,
