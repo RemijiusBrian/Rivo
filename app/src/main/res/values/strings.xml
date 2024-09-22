@@ -173,8 +173,10 @@
     <string name="delete_transaction_confirmation_title">Delete Transaction?</string>
     <string name="delete_schedule_confirmation_title">Delete Schedule?</string>
     <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
-    <string name="delete_tag_confirmation_title">Delete Tag %s?</string>
-    <string name="delete_transaction_folder_confirmation_title">Delete Folder?</string>
+    <string name="delete_tag_confirmation_title">Delete Tag?</string>
+    <string name="delete_tag_confirmation_note">Note: Transactions assigned with this tag will not be deleted</string>
+    <string name="delete_folder_confirmation_title">Delete Folder?</string>
+    <string name="delete_folder_confirmation_note">Note: Deleting folder alone will not delete the transactions associated with this folder</string>
     <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
     <string name="account_logout_confirmation_title">Logout of your account?</string>
     <string name="account_logout_confirmation_message">If you logout of your account you won\'t be able to use features like backup anymore. Do you want to continue?</string>

@@ -16,7 +16,6 @@ import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
-import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn

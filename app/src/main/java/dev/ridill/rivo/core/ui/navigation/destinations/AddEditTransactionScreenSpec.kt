@@ -87,7 +87,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun routeWithArg(
         transactionId: Long? = null,
-        transactionFolderId: Long? = null,
+        folderId: Long? = null,
         isScheduleTxMode: Boolean = false,
         initialDateTime: LocalDateTime? = null
     ): String = route
@@ -97,7 +97,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
         .replace(
             oldValue = "{$ARG_LINK_FOLDER_ID}",
-            newValue = transactionFolderId?.toString().orEmpty()
+            newValue = folderId?.toString().orEmpty()
         )
         .replace(
             oldValue = "{$ARG_IS_SCHEDULE_MODE_ACTIVE}",

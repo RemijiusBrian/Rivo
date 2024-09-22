@@ -53,8 +53,8 @@ data object FolderDetailsScreenSpec : ScreenSpec {
     fun getFolderIdArgFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_FOLDER_ID) ?: NavDestination.ARG_INVALID_ID_LONG
 
-    private fun getFolderIdArg(navBackStackEntry: NavBackStackEntry): Long? =
-        navBackStackEntry.arguments?.getLong(ARG_FOLDER_ID)
+    private fun getFolderIdArg(navBackStackEntry: NavBackStackEntry): Long =
+        navBackStackEntry.arguments?.getLong(ARG_FOLDER_ID)!!
 
     const val ACTION_FOLDER_DETAILS = "ACTION_FOLDER_DETAILS"
     const val RESULT_FOLDER_DELETED = "RESULT_FOLDER_DELETED"
@@ -68,6 +68,7 @@ data object FolderDetailsScreenSpec : ScreenSpec {
         val viewModel: FolderDetailsViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
         val transactionPagingItems = viewModel.transactionPagingData.collectAsLazyPagingItems()
+        val folderIdArg = getFolderIdArg(navBackStackEntry)
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -110,16 +111,15 @@ data object FolderDetailsScreenSpec : ScreenSpec {
             navigateToAddEditTransaction = { transactionId ->
                 navController.navigate(
                     AddEditTransactionScreenSpec.routeWithArg(
-                        transactionId = transactionId
+                        transactionId = transactionId,
+                        folderId = folderIdArg
                     )
                 )
             },
             navigateToEditFolder = {
-                getFolderIdArg(navBackStackEntry)?.let {
-                    navController.navigate(
-                        AddEditFolderSheetSpec.routeWithArg(it)
-                    )
-                }
+                navController.navigate(
+                    AddEditFolderSheetSpec.routeWithArg(folderIdArg)
+                )
             },
             navigateUp = navController::navigateUp
         )

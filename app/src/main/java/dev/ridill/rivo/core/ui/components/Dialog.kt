@@ -46,7 +46,8 @@ fun ConfirmationDialog(
     @StringRes confirmActionRes: Int = R.string.action_confirm,
     @StringRes dismissActionRes: Int = R.string.action_cancel,
     showDismissButton: Boolean = true,
-    properties: DialogProperties = DialogProperties()
+    properties: DialogProperties = DialogProperties(),
+    additionalNote: String? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -63,7 +64,19 @@ fun ConfirmationDialog(
             }
         },
         title = { Text(stringResource(titleRes)) },
-        text = { Text(stringResource(contentRes)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                Text(stringResource(contentRes))
+                additionalNote?.let {
+                    Text(
+                        text = it,
+                        color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+                    )
+                }
+            }
+        },
         modifier = modifier,
         properties = properties
     )
@@ -184,7 +197,8 @@ fun MultiActionConfirmationDialog(
     @StringRes secondaryActionLabelRes: Int,
     onSecondaryActionClick: () -> Unit,
     @StringRes dismissActionLabelRes: Int = R.string.action_cancel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    additionalNote: String? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -218,7 +232,19 @@ fun MultiActionConfirmationDialog(
             }
         },
         title = { Text(title) },
-        text = { Text(text) }
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                Text(text)
+                additionalNote?.let {
+                    Text(
+                        text = it,
+                        color = LocalContentColor.current.copy(alpha = ContentAlpha.SUB_CONTENT)
+                    )
+                }
+            }
+        }
     )
 }
 

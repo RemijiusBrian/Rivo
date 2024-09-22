@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
+import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.HorizontalColorSelectionList
 import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
@@ -37,6 +38,7 @@ fun AddEditTagSheet(
     selectedColorCode: () -> Int?,
     excluded: () -> Boolean?,
     errorMessage: UiText?,
+    showDeleteTagConfirmation: Boolean,
     isEditMode: Boolean,
     actions: AddEditTagActions,
     onDismiss: () -> Unit,
@@ -123,4 +125,14 @@ fun AddEditTagSheet(
             )
         }
     )
+
+    if (showDeleteTagConfirmation) {
+        ConfirmationDialog(
+            titleRes = R.string.delete_tag_confirmation_title,
+            contentRes = R.string.action_irreversible_message,
+            additionalNote = stringResource(R.string.delete_tag_confirmation_note),
+            onConfirm = actions::onDeleteTagConfirm,
+            onDismiss = actions::onDeleteTagDismiss
+        )
+    }
 }
