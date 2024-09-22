@@ -37,8 +37,6 @@ data object DashboardScreenSpec : ScreenSpec {
             resultKey = AddEditTxResult::name.name,
             navBackStackEntry = navBackStackEntry,
             viewModel,
-            snackbarController,
-            context,
             onResult = viewModel::onNavResult
         )
 
