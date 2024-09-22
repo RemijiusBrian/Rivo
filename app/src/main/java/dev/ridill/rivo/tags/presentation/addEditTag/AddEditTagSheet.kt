@@ -26,9 +26,9 @@ import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
 import dev.ridill.rivo.core.ui.components.HorizontalColorSelectionList
 import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
-import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
+import kotlinx.coroutines.delay
 
 @Composable
 fun AddEditTagSheet(
@@ -42,15 +42,13 @@ fun AddEditTagSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focusRequester = remember {
-        FocusRequester()
-    }
-
-    /*LaunchedEffect(Unit, isEditMode) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(isEditMode) {
         if (!isEditMode) {
+            delay(500)
             focusRequester.requestFocus()
         }
-    }*/
+    }
 
     OutlinedTextFieldSheet(
         title = {
@@ -98,7 +96,7 @@ fun AddEditTagSheet(
         ),
         label = stringResource(R.string.tag_name),
         errorMessage = errorMessage,
-//        focusRequester = focusRequester,
+        focusRequester = focusRequester,
         contentAfterTextField = {
             HorizontalColorSelectionList(
                 selectedColorCode = selectedColorCode,
@@ -113,8 +111,7 @@ fun AddEditTagSheet(
                     .align(Alignment.End)
             )
         },
-        modifier = modifier
-            .padding(bottom = PaddingScrollEnd),
+        modifier = modifier,
         actionButton = {
             ButtonWithLoadingIndicator(
                 onClick = actions::onConfirm,

@@ -100,6 +100,7 @@ import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.presentation.components.TopTagsSelectorFlowRow
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -117,12 +118,14 @@ fun AddEditTransactionScreen(
     navigateUp: () -> Unit,
     navigateToAmountTransformationSelection: () -> Unit,
 ) {
-    val amountFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
+    val amountFocusRequester = remember { FocusRequester() }
     LaunchedEffect(isEditMode) {
-        if (!isEditMode)
+        if (!isEditMode) {
+            delay(500)
             amountFocusRequester.requestFocus()
+        }
     }
 
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

@@ -204,9 +204,8 @@ fun AllTransactionsScreen(
                 contentType = "TagsHorizontalList"
             ) {
                 TagsInfoList(
-                    currency = state.currency,
-                    onAllTagsClick = navigateToAllTags,
                     tagsPagingItems = tagsPagingItems,
+                    onAllTagsClick = navigateToAllTags,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = TagsRowMinHeight)
@@ -333,7 +332,6 @@ private val TagsRowMinHeight = 100.dp
 
 @Composable
 private fun TagsInfoList(
-    currency: Currency,
     tagsPagingItems: LazyPagingItems<TagInfo>,
     onAllTagsClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -402,7 +400,6 @@ private fun TagsInfoList(
                             isExcluded = tag.excluded,
                             createdTimestamp = tag.createdTimestampFormatted,
                             aggregateAmount = tag.aggregate,
-                            currency = currency,
                             modifier = Modifier
                                 .animateContentSize()
                                 .fillParentMaxHeight()
@@ -428,7 +425,6 @@ private fun TagInfoCard(
     color: Color,
     isExcluded: Boolean,
     createdTimestamp: String,
-    currency: Currency,
     aggregateAmount: Double,
     modifier: Modifier = Modifier
 ) {
@@ -503,14 +499,6 @@ private fun TransactionListDateFilterAndLabel(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.small)
         ) {
-            /*DateFilter(
-                selectedDate = selectedDate,
-                onMonthSelect = onMonthSelect,
-                yearsList = yearsList,
-                onYearSelect = onYearSelect,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )*/
             AggregateAmount(
                 multiSelectionModeActive = multiSelectionModeActive,
                 sumAmount = totalSumAmount,

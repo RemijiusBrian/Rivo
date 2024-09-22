@@ -25,9 +25,9 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
 import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
-import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
+import kotlinx.coroutines.delay
 
 @Composable
 fun AddEditFolderSheet(
@@ -41,11 +41,12 @@ fun AddEditFolderSheet(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    /*LaunchedEffect(Unit, isEditMode) {
+    LaunchedEffect(isEditMode) {
         if (!isEditMode) {
+            delay(500)
             focusRequester.requestFocus()
         }
-    }*/
+    }
 
     OutlinedTextFieldSheet(
         title = {
@@ -103,8 +104,7 @@ fun AddEditFolderSheet(
                     .align(Alignment.End)
             )
         },
-        modifier = modifier
-            .padding(bottom = PaddingScrollEnd),
+        modifier = modifier,
         actionButton = {
             ButtonWithLoadingIndicator(
                 onClick = actions::onConfirm,

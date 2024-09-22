@@ -27,6 +27,7 @@ fun UpdateCurrencySheet(
         searchQuery = searchQuery,
         onSearchQueryChange = onSearchQueryChange,
         onDismiss = onDismiss,
+        title = stringResource(R.string.update_currency_title),
         placeholder = stringResource(R.string.search_currency),
         modifier = modifier
     ) {

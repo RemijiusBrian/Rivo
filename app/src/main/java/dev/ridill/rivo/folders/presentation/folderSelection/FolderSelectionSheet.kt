@@ -1,40 +1,47 @@
 package dev.ridill.rivo.folders.presentation.folderSelection
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.ExcludedIcon
+import dev.ridill.rivo.core.ui.components.ListItemLeadingContentContainer
 import dev.ridill.rivo.core.ui.components.ListSearchSheet
-import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
-import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.spacing
+import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.folders.domain.model.Folder
 
 @Composable
@@ -57,9 +64,6 @@ fun FolderSelectionSheet(
         onDismiss = onDismiss,
         placeholder = stringResource(R.string.search_folder),
         modifier = modifier,
-        contentPadding = PaddingValues(
-            bottom = PaddingScrollEnd
-        ),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         additionalEndContent = {
             Button(
@@ -75,18 +79,20 @@ fun FolderSelectionSheet(
             key = "ClearSelection",
             contentType = "ClearSelection"
         ) {
-            Surface {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    TextButton(
-                        onClick = onClearSelectionClick,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.clear),
-                            textDecoration = TextDecoration.Underline
-                        )
-                    }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.medium)
+            ) {
+                TextButton(
+                    onClick = onClearSelectionClick,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                ) {
+                    Text(
+                        text = stringResource(R.string.clear_selection),
+                        textDecoration = TextDecoration.Underline
+                    )
                 }
             }
         }
@@ -110,9 +116,9 @@ fun FolderSelectionSheet(
                     name = folder.name,
                     excluded = folder.excluded,
                     onClick = { onFolderSelect(folder.id) },
+                    createdTimestamp = folder.createdTimestamp.format(DateUtil.Formatters.localizedDateMedium),
                     selected = folder.id == selectedId,
                     modifier = Modifier
-                        .padding(horizontal = MaterialTheme.spacing.medium)
                         .animateItem()
                 )
             }
@@ -133,6 +139,10 @@ private fun NewFolderItem(
                 contentDescription = stringResource(R.string.cd_create_new_folder)
             )
         },
+        colors = ListItemDefaults.colors(
+            containerColor = BottomSheetDefaults.ContainerColor
+        ),
+        tonalElevation = BottomSheetDefaults.Elevation,
         modifier = Modifier
             .clickable(
                 onClick = onClick,
@@ -147,34 +157,65 @@ private fun FolderSelectionCard(
     name: String,
     excluded: Boolean,
     selected: Boolean,
+    createdTimestamp: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.outline,
-        label = "FolderCardBorderColor"
+    val containerColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.surface
+        else BottomSheetDefaults.ContainerColor,
+        label = "FolderSelectionItemContainerColor"
     )
-
-    OutlinedCard(
-        onClick = onClick,
-        modifier = modifier,
-        border = BorderStroke(
-            width = BorderWidthStandard,
-            borderColor
-        )
-    ) {
-        ListItem(
-            headlineContent = {
+    val density = LocalDensity.current
+    val cornerRadius = remember(density) {
+        with(density) { 8.dp.toPx() }
+    }
+    ListItem(
+        headlineContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                if (excluded) {
+                    ExcludedIcon(
+                        size = IconSizeSmall
+                    )
+                }
                 Text(
                     text = name,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-            },
-            leadingContent = if (excluded) {
-                { ExcludedIcon() }
-            } else null
-        )
-    }
+            }
+        },
+        supportingContent = { Text(createdTimestamp) },
+        leadingContent = {
+            ListItemLeadingContentContainer(
+                containerColor = BottomSheetDefaults.ContainerColor,
+                tonalElevation = BottomSheetDefaults.Elevation
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_filled_folder),
+                    contentDescription = null
+                )
+            }
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = Color.Transparent
+        ),
+        tonalElevation = BottomSheetDefaults.Elevation,
+        modifier = Modifier
+            .clickable(
+                onClick = onClick,
+                role = Role.Button
+            )
+            .exclusionGraphicsLayer(excluded)
+            .then(modifier)
+            .drawBehind {
+                drawRoundRect(
+                    color = containerColor,
+                    cornerRadius = CornerRadius(cornerRadius, cornerRadius)
+                )
+            }
+    )
 }
