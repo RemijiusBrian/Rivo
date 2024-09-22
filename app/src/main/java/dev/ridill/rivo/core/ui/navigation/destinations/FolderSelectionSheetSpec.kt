@@ -54,7 +54,7 @@ data object FolderSelectionSheetSpec : BottomSheetSpec {
         val selectedId by viewModel.selectedFolderId.collectAsStateWithLifecycle()
 
         NavigationResultEffect(
-            key = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
+            resultKey = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             onResult = viewModel::onFolderSelect

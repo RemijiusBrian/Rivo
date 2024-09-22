@@ -4,10 +4,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DeleteForever
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,9 +21,9 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
 import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
-import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
+import kotlinx.coroutines.delay
 
 @Composable
 fun AddEditFolderSheet(
@@ -41,8 +37,9 @@ fun AddEditFolderSheet(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit, isEditMode) {
+    LaunchedEffect(isEditMode) {
         if (!isEditMode) {
+            delay(500)
             focusRequester.requestFocus()
         }
     }
@@ -62,15 +59,6 @@ fun AddEditFolderSheet(
                     modifier = Modifier
                         .weight(Float.One)
                 )
-
-                if (isEditMode) {
-                    IconButton(onClick = actions::onDeleteClick) {
-                        Icon(
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = stringResource(R.string.cd_delete_tag)
-                        )
-                    }
-                }
             }
         },
         inputValue = name,
@@ -79,7 +67,7 @@ fun AddEditFolderSheet(
         text = {
             if (!isEditMode) {
                 Text(
-                    text = stringResource(R.string.new_tag_input_text),
+                    text = stringResource(R.string.new_folder_input_text),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
@@ -91,7 +79,7 @@ fun AddEditFolderSheet(
             capitalization = KeyboardCapitalization.Words,
             imeAction = ImeAction.Done
         ),
-        label = stringResource(R.string.tag_name),
+        label = stringResource(R.string.folder_name),
         errorMessage = errorMessage,
         focusRequester = focusRequester,
         contentAfterTextField = {
@@ -103,8 +91,7 @@ fun AddEditFolderSheet(
                     .align(Alignment.End)
             )
         },
-        modifier = modifier
-            .padding(bottom = PaddingScrollEnd),
+        modifier = modifier,
         actionButton = {
             ButtonWithLoadingIndicator(
                 onClick = actions::onConfirm,

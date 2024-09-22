@@ -8,4 +8,6 @@ interface AddEditTagActions {
     fun onExclusionChange(excluded: Boolean)
     fun onConfirm()
     fun onDeleteClick()
+    fun onDeleteTagDismiss()
+    fun onDeleteTagConfirm()
 }

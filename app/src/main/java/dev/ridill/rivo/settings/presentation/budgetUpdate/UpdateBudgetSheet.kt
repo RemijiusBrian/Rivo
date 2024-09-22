@@ -25,6 +25,7 @@ fun UpdateBudgetSheet(
     errorMessage: UiText?,
     modifier: Modifier = Modifier
 ) {
+    val localCurrency = LocalCurrencyPreference.current
     OutlinedTextFieldSheet(
         titleRes = UpdateBudgetSheetSpec.labelRes,
         inputValue = budgetInput,
@@ -40,6 +41,6 @@ fun UpdateBudgetSheet(
         ),
         errorMessage = errorMessage,
         visualTransformation = remember { AmountVisualTransformation() },
-        prefix = { Text(LocalCurrencyPreference.current.symbol) }
+        prefix = { Text(localCurrency.symbol) }
     )
 }

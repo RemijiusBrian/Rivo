@@ -155,6 +155,7 @@ class OnboardingViewModel @Inject constructor(
     fun onAccountPageReached() = viewModelScope.launch {
         val isUserUnAuthenticated = authRepo.getAuthState().first() == AuthState.UnAuthenticated
         if (isUserUnAuthenticated) {
+            delay(500L)
             eventBus.send(OnboardingEvent.StartAutoSignInFlow(true))
         }
     }

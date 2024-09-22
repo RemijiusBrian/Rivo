@@ -30,12 +30,12 @@ class AppConfigRestoreWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForegroundService()
         try {
-            logI { "Starting config restore" }
+            logI(AppConfigRestoreWorker::class.simpleName) { "Starting config restore" }
             repo.restoreAppConfig()
-            logI { "Config restore complete" }
+            logI(AppConfigRestoreWorker::class.simpleName) { "Config restore complete" }
             Result.success()
         } catch (t: Throwable) {
-            logE(t) { "Throwable" }
+            logE(t, AppConfigRestoreWorker::class.simpleName) { "Throwable" }
             Result.failure(
                 workDataOf(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_app_data_restore_failed)

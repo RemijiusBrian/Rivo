@@ -53,6 +53,7 @@ data object AddEditTagSheetSpec : BottomSheetSpec {
         val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
         val input = viewModel.tagInput.collectAsStateWithLifecycle()
         val error by viewModel.tagInputError.collectAsStateWithLifecycle()
+        val showDeleteTagConfirmation by viewModel.showTagDeleteConfirmation.collectAsStateWithLifecycle()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
@@ -66,6 +67,10 @@ data object AddEditTagSheetSpec : BottomSheetSpec {
                         event.tagId
                     )
                 }
+
+                AddEditTagViewModel.AddEditTagEvent.TagDeleted -> {
+                    navController.navigateUp()
+                }
             }
         }
 
@@ -77,6 +82,7 @@ data object AddEditTagSheetSpec : BottomSheetSpec {
             errorMessage = error,
             isEditMode = isEditMode,
             onDismiss = navController::navigateUp,
+            showDeleteTagConfirmation = showDeleteTagConfirmation,
             actions = viewModel
         )
     }

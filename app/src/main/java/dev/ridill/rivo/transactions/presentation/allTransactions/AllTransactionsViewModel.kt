@@ -13,6 +13,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.addOrRemove
 import dev.ridill.rivo.core.domain.util.asStateFlow
+import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTxResult
 import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.tags.domain.repository.TagsRepository
@@ -412,6 +413,20 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }
 
+    fun onAddEditTxNavResult(result: AddEditTxResult) = viewModelScope.launch {
+        val event = when (result) {
+            AddEditTxResult.TRANSACTION_DELETED ->
+                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_deleted))
+
+            AddEditTxResult.TRANSACTION_SAVED ->
+                AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.transaction_saved))
+
+            AddEditTxResult.SCHEDULE_SAVED -> AllTransactionsEvent.ScheduleSaved
+        }
+
+        eventBus.send(event)
+    }
+
     override fun onDeleteTransactionDismiss() {
         savedStateHandle[SHOW_DELETE_TRANSACTION_CONFIRMATION] = false
     }
@@ -471,6 +486,7 @@ class AllTransactionsViewModel @Inject constructor(
         ) : AllTransactionsEvent
 
         data object NavigateToFolderSelection : AllTransactionsEvent
+        data object ScheduleSaved : AllTransactionsEvent
     }
 }
 

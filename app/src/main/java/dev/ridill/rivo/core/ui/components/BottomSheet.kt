@@ -9,12 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -59,10 +55,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
@@ -80,7 +76,7 @@ fun RivoModalBottomSheet(
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
+    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ModalBottomSheet(
@@ -96,13 +92,7 @@ fun RivoModalBottomSheet(
         dragHandle = dragHandle,
         contentWindowInsets = contentWindowInsets,
         properties = properties,
-        content = content/*{
-            Column(
-                modifier = Modifier
-                    .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding()),
-                content = content
-            )
-        }*/
+        content = content
     )
 }
 
@@ -206,7 +196,6 @@ fun OutlinedTextFieldSheet(
     RivoModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = modifier
-            .imePadding()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
@@ -290,7 +279,6 @@ fun TextFieldSheet(
     RivoModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = modifier
-            .imePadding()
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
@@ -405,7 +393,10 @@ fun ListSearchSheet(
     title: String? = null,
     placeholder: String? = null,
     listState: LazyListState = rememberLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    contentPadding: PaddingValues = PaddingValues(
+        top = MaterialTheme.spacing.medium,
+        bottom = PaddingScrollEnd
+    ),
     reverseLayout: Boolean = false,
     verticalArrangement: Arrangement.Vertical = if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -421,12 +412,15 @@ fun ListSearchSheet(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .imePadding()
-                .padding(MaterialTheme.spacing.medium),
-            verticalArrangement = ArrangementTopWithFooter(MaterialTheme.spacing.small)
+                .padding(top = MaterialTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             if (title != null) {
-                TitleLargeText(title)
+                TitleLargeText(
+                    title = title,
+                    modifier = Modifier
+                        .padding(horizontal = MaterialTheme.spacing.medium)
+                )
             }
             SearchField(
                 query = searchQuery,
@@ -434,6 +428,7 @@ fun ListSearchSheet(
                 placeholder = placeholder,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
             LazyColumn(
                 state = listState,
@@ -444,6 +439,7 @@ fun ListSearchSheet(
                 flingBehavior = flingBehavior,
                 userScrollEnabled = userScrollEnabled,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .weight(Float.One),
                 content = content
             )

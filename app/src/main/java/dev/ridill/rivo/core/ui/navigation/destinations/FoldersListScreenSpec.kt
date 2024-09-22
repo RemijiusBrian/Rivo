@@ -13,6 +13,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
@@ -44,12 +45,11 @@ data object FoldersListScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        NavigationResultEffect<Long>(
-            key = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
+        FloatingWindowNavigationResultEffect<Long>(
+            resultKey = AddEditFolderSheetSpec.ACTION_FOLDER_SAVED,
             navBackStackEntry = navBackStackEntry,
             viewModel,
-            snackbarController,
-            context
+            navController
         ) { id ->
             navController.navigate(
                 FolderDetailsScreenSpec.routeWithArgs(id)
@@ -57,7 +57,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         }
 
         NavigationResultEffect<String>(
-            key = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
+            resultKey = FolderDetailsScreenSpec.ACTION_FOLDER_DETAILS,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

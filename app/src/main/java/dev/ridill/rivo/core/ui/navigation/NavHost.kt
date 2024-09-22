@@ -5,17 +5,12 @@ import androidx.compose.material.navigation.ModalBottomSheetLayout
 import androidx.compose.material.navigation.bottomSheet
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomSheetSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.DashboardScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
@@ -31,13 +26,6 @@ fun RivoNavHost(
     startOnboarding: Boolean,
     modifier: Modifier = Modifier
 ) {
-    // Without this observation the navigation results break.
-    // Hence leaving this in for now
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    LaunchedEffect(key1 = currentBackStackEntry) {
-        logD(NavHost::class.simpleName) { "Current BackStackEntry = ${currentBackStackEntry?.id}, route = ${currentBackStackEntry?.destination?.route}" }
-    }
-
     ModalBottomSheetLayout(bottomSheetNavigator) {
         NavHost(
             navController = navController,

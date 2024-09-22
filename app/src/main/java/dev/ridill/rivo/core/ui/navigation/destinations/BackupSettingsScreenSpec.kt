@@ -65,7 +65,7 @@ data object BackupSettingsScreenSpec : ScreenSpec {
         val context = LocalContext.current
 
         NavigationResultEffect<String>(
-            key = ACTION_ENCRYPTION_PASSWORD,
+            resultKey = ACTION_ENCRYPTION_PASSWORD,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

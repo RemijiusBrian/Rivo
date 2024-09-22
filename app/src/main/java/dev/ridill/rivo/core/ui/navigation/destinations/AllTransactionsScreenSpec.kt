@@ -3,6 +3,7 @@ package dev.ridill.rivo.core.ui.navigation.destinations
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,6 +17,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
+import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
@@ -50,8 +52,8 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        NavigationResultEffect(
-            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
+        FloatingWindowNavigationResultEffect(
+            resultKey = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
@@ -59,13 +61,20 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             onResult = viewModel::onFolderSelect
         )
 
-        NavigationResultEffect<Set<Long>>(
-            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
+        FloatingWindowNavigationResultEffect(
+            resultKey = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
             context,
             onResult = viewModel::onTagSelectionResult
+        )
+
+        NavigationResultEffect(
+            resultKey = AddEditTxResult::name.name,
+            navBackStackEntry = navBackStackEntry,
+            viewModel,
+            onResult = viewModel::onAddEditTxNavResult
         )
 
         CollectFlowEffect(viewModel.events, context, snackbarController) { event ->
@@ -91,6 +100,18 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                             event.multiSelection,
                             event.preSelectedIds
                         )
+                    )
+                }
+
+                AllTransactionsViewModel.AllTransactionsEvent.ScheduleSaved -> {
+                    snackbarController.showSnackbar(
+                        message = context.getString(R.string.schedule_saved),
+                        actionLabel = context.getString(R.string.action_view),
+                        onSnackbarResult = { result ->
+                            if (result == SnackbarResult.ActionPerformed) {
+                                navController.navigate(SchedulesGraphSpec.route)
+                            }
+                        }
                     )
                 }
             }

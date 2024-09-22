@@ -158,9 +158,9 @@ class BackupWorkManager(
     fun getImmediateDataRestoreWorkInfoFlow(): Flow<WorkInfo?> = workManager
         .getWorkInfoByIdFlow(oneTimeRestoreWorkName.toUUID())
 
-    fun cancelAllWorks() {
-        workManager.cancelAllWork()
-    }
+//    fun cancelAllWorks() {
+//        workManager.cancelAllWork()
+//    }
 
     fun getBackupIntervalFromWorkInfo(info: WorkInfo): BackupInterval? {
         val intervalTag = info.tags.find { it.startsWith(WORK_INTERVAL_TAG_PREFIX) }

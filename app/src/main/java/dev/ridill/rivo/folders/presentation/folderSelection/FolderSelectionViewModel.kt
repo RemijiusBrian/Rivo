@@ -37,6 +37,7 @@ class FolderSelectionViewModel @Inject constructor(
 
     fun onFolderSelect(folderId: Long) {
         savedStateHandle[SELECTED_FOLDER_ID] = folderId
+            .takeIf { it != selectedFolderId.value }
     }
 }
 

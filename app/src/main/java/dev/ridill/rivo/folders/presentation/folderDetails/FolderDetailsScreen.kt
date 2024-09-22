@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilledTonalIconButton
@@ -93,6 +94,13 @@ fun FolderDetailsScreen(
                         Icon(
                             imageVector = Icons.Rounded.Edit,
                             contentDescription = stringResource(R.string.cd_edit_folder)
+                        )
+                    }
+
+                    IconButton(onClick = actions::onDeleteClick) {
+                        Icon(
+                            imageVector = Icons.Rounded.DeleteForever,
+                            contentDescription = stringResource(R.string.cd_delete_folder)
                         )
                     }
                 },
@@ -216,16 +224,17 @@ fun FolderDetailsScreen(
         if (state.showDeleteConfirmation) {
             if (transactionPagingItems.itemCount == 0) {
                 ConfirmationDialog(
-                    titleRes = R.string.delete_transaction_folder_confirmation_title,
+                    titleRes = R.string.delete_folder_confirmation_title,
                     contentRes = R.string.action_irreversible_message,
                     onConfirm = actions::onDeleteFolderOnlyClick,
                     onDismiss = actions::onDeleteDismiss
                 )
             } else {
                 MultiActionConfirmationDialog(
-                    title = stringResource(R.string.delete_transaction_folder_confirmation_title),
+                    title = stringResource(R.string.delete_folder_confirmation_title),
                     text = stringResource(R.string.action_irreversible_message),
                     primaryActionLabelRes = R.string.delete_folder,
+                    additionalNote = stringResource(R.string.delete_folder_confirmation_note),
                     onPrimaryActionClick = actions::onDeleteFolderOnlyClick,
                     secondaryActionLabelRes = R.string.delete_folder_and_transactions,
                     onSecondaryActionClick = actions::onDeleteFolderAndTransactionsClick,

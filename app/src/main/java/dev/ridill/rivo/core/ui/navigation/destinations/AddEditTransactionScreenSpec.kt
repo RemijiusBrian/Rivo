@@ -27,7 +27,7 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.NavigationResultEffect
+import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
@@ -87,7 +87,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun routeWithArg(
         transactionId: Long? = null,
-        transactionFolderId: Long? = null,
+        folderId: Long? = null,
         isScheduleTxMode: Boolean = false,
         initialDateTime: LocalDateTime? = null
     ): String = route
@@ -97,7 +97,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         )
         .replace(
             oldValue = "{$ARG_LINK_FOLDER_ID}",
-            newValue = transactionFolderId?.toString().orEmpty()
+            newValue = folderId?.toString().orEmpty()
         )
         .replace(
             oldValue = "{$ARG_IS_SCHEDULE_MODE_ACTIVE}",
@@ -147,30 +147,24 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
 
-        NavigationResultEffect(
-            key = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
+        FloatingWindowNavigationResultEffect(
+            resultKey = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel,
-            snackbarController,
-            context,
             onResult = viewModel::onFolderSelectionResult
         )
 
-        NavigationResultEffect(
-            key = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
+        FloatingWindowNavigationResultEffect(
+            resultKey = AmountTransformationSheetSpec.TRANSFORMATION_RESULT,
             navBackStackEntry = navBackStackEntry,
             viewModel,
-            snackbarController,
-            context,
             onResult = viewModel::onAmountTransformationResult
         )
 
-        NavigationResultEffect<Set<Long>>(
-            key = TagSelectionSheetSpec.SELECTED_TAG_IDS,
+        FloatingWindowNavigationResultEffect<Set<Long>>(
+            resultKey = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
             viewModel,
-            snackbarController,
-            context
         ) { ids ->
             ids.firstOrNull()?.let(viewModel::onTagSelect)
         }

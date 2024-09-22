@@ -9,7 +9,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Zero
-import dev.ridill.rivo.core.domain.util.logD
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.util.TextFormat
@@ -36,7 +35,6 @@ data object UpdateBudgetSheetSpec : BottomSheetSpec {
         val inputError by viewModel.budgetInputError.collectAsStateWithLifecycle()
 
         CollectFlowEffect(viewModel.events) { event ->
-            logD { "Event - $event" }
             when (event) {
                 UpdateBudgetViewModel.UpdateBudgetEvent.BudgetUpdated -> {
                     navController.navigateUpWithResult(

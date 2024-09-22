@@ -10,7 +10,6 @@ import dev.ridill.rivo.core.ui.navigation.destinations.AddEditFolderSheetSpec
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.repository.AddEditFolderRepository
-import dev.ridill.rivo.tags.domain.model.Tag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,6 +23,7 @@ class AddEditFolderViewModel @Inject constructor(
     private val eventBus: EventBus<AddEditFolderEvent>
 ) : ViewModel(), AddEditFolderActions {
 
+    private val folderId = AddEditFolderSheetSpec.getFolderIdFromSavedStateHandle(savedStateHandle)
     private val _isLoading = MutableStateFlow(false)
     val isLoading get() = _isLoading.asStateFlow()
 
@@ -37,9 +37,8 @@ class AddEditFolderViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        val tagId = AddEditFolderSheetSpec.getFolderIdFromSavedStateHandle(savedStateHandle)
-        val tag = repo.getFolderDetails(tagId) ?: Folder.NEW
-        savedStateHandle[FOLDER_INPUT] = tag
+        val folder = repo.getFolderDetails(folderId) ?: Folder.NEW
+        savedStateHandle[FOLDER_INPUT] = folder
     }
 
     override fun onNameChange(value: String) {
@@ -72,9 +71,6 @@ class AddEditFolderViewModel @Inject constructor(
             _isLoading.update { false }
             eventBus.send(AddEditFolderEvent.FolderSaved(savedId))
         }
-    }
-
-    override fun onDeleteClick() {
     }
 
     sealed interface AddEditFolderEvent {

@@ -36,7 +36,7 @@ class AppLockService : Service() {
     lateinit var preferencesManager: PreferencesManager
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        logI { "App lock service onStartCommand - ${intent?.action}" }
+        logI(AppLockService::class.simpleName) { "App lock service onStartCommand - ${intent?.action}" }
         setForeground()
         when (intent?.action) {
             Action.START_SERVICE.name -> initService()
@@ -52,34 +52,34 @@ class AppLockService : Service() {
     private fun initService() {
         // Some Basic Init
         resetTimerJob()
-        logI { "Service Started" }
+        logI(AppLockService::class.simpleName) { "Service Started" }
     }
 
     private fun startTimer() {
-        logI { "Starting app lock timer" }
+        logI(AppLockService::class.simpleName) { "Starting app lock timer" }
         timerJob?.cancel()
         timerJob = serviceScope.launch {
             val interval = preferencesManager.preferences.first().appAutoLockInterval
             delay(interval.duration)
-            logI { "Locking app after auto lock timer" }
+            logI(AppLockService::class.simpleName) { "Locking app after auto lock timer" }
             preferencesManager.updateAppLocked(true)
             stopSelf()
         }
     }
 
     private fun stopTimer() {
-        logI { "Stopping app lock timer" }
+        logI(AppLockService::class.simpleName) { "Stopping app lock timer" }
         resetTimerJob()
     }
 
     private fun lockAppImmediate() = serviceScope.launch {
-        logI { "Locking app and terminating service" }
+        logI(AppLockService::class.simpleName) { "Locking app and terminating service" }
         preferencesManager.updateAppLocked(true)
         stopSelf()
     }
 
     private fun stopService() {
-        logI { "Stopping service" }
+        logI(AppLockService::class.simpleName) { "Stopping service" }
         stopSelf()
     }
 

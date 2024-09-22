@@ -25,11 +25,15 @@ class AddEditTagViewModel @Inject constructor(
     private val eventBus: EventBus<AddEditTagEvent>
 ) : ViewModel(), AddEditTagActions {
 
+    private val tagIdArg = AddEditTagSheetSpec.getTagIdFromSavedStateHandle(savedStateHandle)
     private val _isLoading = MutableStateFlow(false)
     val isLoading get() = _isLoading.asStateFlow()
 
     val tagInput = savedStateHandle.getStateFlow<Tag>(TAG_INPUT, Tag.NEW)
     val tagInputError = savedStateHandle.getStateFlow<UiText?>(NEW_TAG_ERROR, null)
+
+    val showTagDeleteConfirmation = savedStateHandle
+        .getStateFlow(SHOW_DELETE_TAG_CONFIRMATION, false)
 
     val events = eventBus.eventFlow
 
@@ -38,8 +42,7 @@ class AddEditTagViewModel @Inject constructor(
     }
 
     private fun onInit() = viewModelScope.launch {
-        val tagId = AddEditTagSheetSpec.getTagIdFromSavedStateHandle(savedStateHandle)
-        val tag = repo.getTagById(tagId) ?: Tag.NEW
+        val tag = repo.getTagById(tagIdArg) ?: Tag.NEW
         savedStateHandle[TAG_INPUT] = tag
     }
 
@@ -82,12 +85,27 @@ class AddEditTagViewModel @Inject constructor(
     }
 
     override fun onDeleteClick() {
+        savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = true
+    }
+
+    override fun onDeleteTagDismiss() {
+        savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
+    }
+
+    override fun onDeleteTagConfirm() {
+        viewModelScope.launch {
+            repo.deleteTagById(tagIdArg)
+            savedStateHandle[SHOW_DELETE_TAG_CONFIRMATION] = false
+            eventBus.send(AddEditTagEvent.TagDeleted)
+        }
     }
 
     sealed interface AddEditTagEvent {
         data class TagSaved(val tagId: Long) : AddEditTagEvent
+        data object TagDeleted : AddEditTagEvent
     }
 }
 
 private const val TAG_INPUT = "TAG_INPUT"
 private const val NEW_TAG_ERROR = "NEW_TAG_ERROR"
+private const val SHOW_DELETE_TAG_CONFIRMATION = "SHOW_DELETE_TAG_CONFIRMATION"

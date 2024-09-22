@@ -2,25 +2,48 @@ package dev.ridill.rivo.core.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 
 @Composable
 fun <T> NavigationResultEffect(
-    key: String,
+    resultKey: String,
     navBackStackEntry: NavBackStackEntry,
     vararg keys: Any,
     onResult: (T) -> Unit
 ) {
     val result = navBackStackEntry
         .savedStateHandle
-        .get<T>(key)
+        .get<T>(resultKey)
 
     LaunchedEffect(result, navBackStackEntry, *keys) {
         result?.let(onResult)
         navBackStackEntry.savedStateHandle
-            .remove<T>(key)
+            .remove<T>(resultKey)
     }
+}
+
+@Composable
+fun <T> FloatingWindowNavigationResultEffect(
+    resultKey: String,
+    navBackStackEntry: NavBackStackEntry,
+    vararg keys: Any,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onResult: (T) -> Unit
+) = OnLifecycleResumeEffect(
+    lifecycleOwner = lifecycleOwner,
+    navBackStackEntry,
+    *keys
+) {
+    navBackStackEntry
+        .savedStateHandle
+        .get<T>(resultKey)
+        ?.let(onResult)
+
+    navBackStackEntry.savedStateHandle
+        .remove<T>(resultKey)
 }
 
 fun <T> NavHostController.navigateUpWithResult(

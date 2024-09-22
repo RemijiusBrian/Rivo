@@ -23,12 +23,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.ButtonWithLoadingIndicator
+import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.HorizontalColorSelectionList
 import dev.ridill.rivo.core.ui.components.MarkExcludedSwitch
 import dev.ridill.rivo.core.ui.components.OutlinedTextFieldSheet
-import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
+import kotlinx.coroutines.delay
 
 @Composable
 fun AddEditTagSheet(
@@ -37,17 +38,16 @@ fun AddEditTagSheet(
     selectedColorCode: () -> Int?,
     excluded: () -> Boolean?,
     errorMessage: UiText?,
+    showDeleteTagConfirmation: Boolean,
     isEditMode: Boolean,
     actions: AddEditTagActions,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focusRequester = remember {
-        FocusRequester()
-    }
-
-    LaunchedEffect(Unit, isEditMode) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(isEditMode) {
         if (!isEditMode) {
+            delay(500)
             focusRequester.requestFocus()
         }
     }
@@ -113,8 +113,7 @@ fun AddEditTagSheet(
                     .align(Alignment.End)
             )
         },
-        modifier = modifier
-            .padding(bottom = PaddingScrollEnd),
+        modifier = modifier,
         actionButton = {
             ButtonWithLoadingIndicator(
                 onClick = actions::onConfirm,
@@ -126,4 +125,14 @@ fun AddEditTagSheet(
             )
         }
     )
+
+    if (showDeleteTagConfirmation) {
+        ConfirmationDialog(
+            titleRes = R.string.delete_tag_confirmation_title,
+            contentRes = R.string.action_irreversible_message,
+            additionalNote = stringResource(R.string.delete_tag_confirmation_note),
+            onConfirm = actions::onDeleteTagConfirm,
+            onDismiss = actions::onDeleteTagDismiss
+        )
+    }
 }

@@ -15,7 +15,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.NavigationResultEffect
+import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
@@ -74,12 +74,10 @@ data object SettingsScreenSpec : ScreenSpec {
             }
         }
 
-        NavigationResultEffect<String>(
-            key = UpdateBudgetSheetSpec.UPDATE_BUDGET_RESULT,
+        FloatingWindowNavigationResultEffect<String>(
+            resultKey = UpdateBudgetSheetSpec.UPDATE_BUDGET_RESULT,
             navBackStackEntry = navBackStackEntry,
             viewModel,
-            snackbarController,
-            context
         ) { result ->
             when (result) {
                 UpdateBudgetSheetSpec.RESULT_BUDGET_UPDATED -> {
@@ -90,8 +88,8 @@ data object SettingsScreenSpec : ScreenSpec {
             }
         }
 
-        NavigationResultEffect<String>(
-            key = UpdateCurrencySheetSpec.UPDATE_CURRENCY_RESULT,
+        FloatingWindowNavigationResultEffect<String>(
+            resultKey = UpdateCurrencySheetSpec.UPDATE_CURRENCY_RESULT,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,

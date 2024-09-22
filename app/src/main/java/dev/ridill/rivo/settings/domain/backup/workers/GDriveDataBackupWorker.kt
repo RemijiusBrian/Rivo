@@ -24,6 +24,7 @@ import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltWorker
 class GDriveDataBackupWorker @AssistedInject constructor(
@@ -36,7 +37,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             repo.performAppDataBackup()
-            logI { "Backup Completed" }
+            logI(GDriveDataBackupWorker::class.simpleName) { "Backup Completed" }
             repo.setBackupError(null)
             Result.success(
                 workDataOf(
@@ -44,7 +45,10 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
         } catch (t: InvalidEncryptionPasswordThrowable) {
-            logE(t) { "InvalidEncryptionPasswordThrowable" }
+            logE(
+                t,
+                GDriveDataBackupWorker::class.simpleName
+            ) { "InvalidEncryptionPasswordThrowable" }
             repo.setBackupError(FatalBackupError.PASSWORD_CORRUPTED)
             notificationHelper.postNotification(
                 BackupWorkManager.BACKUP_WORKER_NOTIFICATION_ID.hashCode(),
@@ -57,7 +61,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
         } catch (e: UserRecoverableAuthException) {
-            logE(e) { "UserRecoverableAuthException" }
+            logE(e, GDriveDataBackupWorker::class.simpleName) { "UserRecoverableAuthException" }
             repo.setBackupError(FatalBackupError.GOOGLE_AUTH_FAILURE)
             notificationHelper.postNotification(
                 BackupWorkManager.BACKUP_WORKER_NOTIFICATION_ID.hashCode(),
@@ -70,7 +74,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
         } catch (e: GoogleAuthException) {
-            logE(e) { "GoogleAuthException" }
+            logE(e, GDriveDataBackupWorker::class.simpleName) { "GoogleAuthException" }
             repo.setBackupError(FatalBackupError.GOOGLE_AUTH_FAILURE)
             notificationHelper.postNotification(
                 BackupWorkManager.BACKUP_WORKER_NOTIFICATION_ID.hashCode(),
@@ -83,7 +87,7 @@ class GDriveDataBackupWorker @AssistedInject constructor(
                 )
             )
         } catch (e: HttpException) {
-            logE(e) { "HttpException" }
+            logE(e, GDriveDataBackupWorker::class.simpleName) { "HttpException" }
             val errorBody = e.response()?.errorBody()?.charStream()?.let {
                 Gson().fromJson(it, GDriveErrorDto::class.java)
             }
@@ -97,11 +101,12 @@ class GDriveDataBackupWorker @AssistedInject constructor(
             repo.setBackupError(error)
             resultForHttpCode(e.code())
         } catch (t: BackupCachingFailedThrowable) {
-            logE(t) { "BackupCachingFailedThrowable" }
+            logE(t, GDriveDataBackupWorker::class.simpleName) { "BackupCachingFailedThrowable" }
             repo.setBackupError(null)
             Result.retry()
         } catch (t: Throwable) {
-            logE(t) { "Throwable" }
+            logE(t, GDriveDataBackupWorker::class.simpleName) { "Throwable" }
+            if (t is CancellationException) throw t
             repo.setBackupError(null)
             Result.retry()
         } finally {

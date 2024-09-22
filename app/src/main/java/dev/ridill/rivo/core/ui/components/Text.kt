@@ -31,13 +31,15 @@ fun MediumDisplayText(
     title: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
-    overflow: TextOverflow = TextOverflow.Ellipsis
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = Color.Unspecified
 ) = Text(
     text = title,
     style = MaterialTheme.typography.displayMedium,
     modifier = modifier,
     maxLines = maxLines,
-    overflow = overflow
+    overflow = overflow,
+    color = color
 )
 
 @Composable
@@ -45,13 +47,15 @@ fun SmallDisplayText(
     title: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
-    overflow: TextOverflow = TextOverflow.Ellipsis
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = Color.Unspecified
 ) = Text(
     text = title,
     style = MaterialTheme.typography.displaySmall,
     modifier = modifier,
     maxLines = maxLines,
-    overflow = overflow
+    overflow = overflow,
+    color = color
 )
 
 @Composable
@@ -100,7 +104,7 @@ fun BodyLargeText(
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Ellipsis,
-    color: Color = LocalContentColor.current
+    color: Color = Color.Unspecified
 ) = Text(
     text = text,
     style = MaterialTheme.typography.bodyLarge,
@@ -116,12 +120,32 @@ fun BodyMediumText(
     modifier: Modifier = Modifier,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Ellipsis,
-    color: Color = LocalContentColor.current,
+    color: Color = Color.Unspecified,
     textAlign: TextAlign? = null,
     textDecoration: TextDecoration? = null
 ) = Text(
     text = text,
     style = MaterialTheme.typography.bodyMedium,
+    maxLines = maxLines,
+    overflow = overflow,
+    modifier = modifier,
+    color = color,
+    textAlign = textAlign,
+    textDecoration = textDecoration
+)
+
+@Composable
+fun BodySmallText(
+    text: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis,
+    color: Color = Color.Unspecified,
+    textAlign: TextAlign? = null,
+    textDecoration: TextDecoration? = null
+) = Text(
+    text = text,
+    style = MaterialTheme.typography.bodySmall,
     maxLines = maxLines,
     overflow = overflow,
     modifier = modifier,

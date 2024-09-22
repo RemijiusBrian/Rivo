@@ -21,6 +21,7 @@ import dev.ridill.rivo.settings.domain.backup.BackupWorkManager
 import dev.ridill.rivo.settings.domain.repositoty.BackupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltWorker
 class GDriveDataDownloadWorker @AssistedInject constructor(
@@ -42,7 +43,7 @@ class GDriveDataDownloadWorker @AssistedInject constructor(
             val backupFileId = inputData.getString(BackupWorkManager.KEY_BACKUP_FILE_ID)
                 ?: throw BackupDownloadFailedThrowable()
             repo.downloadAndCacheBackupData(backupFileId, timestamp)
-            logI { "Backup data downloaded and cached" }
+            logI(GDriveDataDownloadWorker::class.simpleName) { "Backup data downloaded and cached" }
             Result.success(
                 workDataOf(
                     BackupWorkManager.KEY_BACKUP_TIMESTAMP to timestamp.toString()
@@ -57,14 +58,15 @@ class GDriveDataDownloadWorker @AssistedInject constructor(
                 )
             )
         }*/ catch (t: BackupDownloadFailedThrowable) {
-            logE(t) { "BackupDownloadFailedThrowable" }
+            logE(t, GDriveDataDownloadWorker::class.simpleName) { "BackupDownloadFailedThrowable" }
             Result.failure(
                 workDataOf(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_download_backup_failed)
                 )
             )
         } catch (t: Throwable) {
-            logE(t) { "Throwable" }
+            logE(t, GDriveDataDownloadWorker::class.simpleName) { "Throwable" }
+            if (t is CancellationException) throw t
             Result.failure(
                 workDataOf(
                     BackupWorkManager.KEY_MESSAGE to appContext.getString(R.string.error_app_data_restore_failed)
