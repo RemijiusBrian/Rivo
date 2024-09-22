@@ -12,10 +12,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
+import dev.ridill.rivo.core.domain.util.logE
+import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.di.AppInitFeature
 import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltWorker
 class AppInitWorker @AssistedInject constructor(
@@ -27,11 +30,19 @@ class AppInitWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         startForeground()
         try {
-            if (!repo.needsInit()) return@withContext Result.success()
+            if (!repo.needsInit()) {
+                logI(AppInitWorker::class.simpleName) { "App init unnecessary" }
+                return@withContext Result.success()
+            }
 
+            logI(AppInitWorker::class.simpleName) { "Running currencyList init" }
             repo.initCurrenciesList()
+
+            logI(AppInitWorker::class.simpleName) { "Initialization complete" }
             Result.success()
         } catch (t: Throwable) {
+            logE(t, AppInitWorker::class.simpleName) { "AppInit failed" }
+            if (t is CancellationException) throw t
             Result.failure()
         }
     }

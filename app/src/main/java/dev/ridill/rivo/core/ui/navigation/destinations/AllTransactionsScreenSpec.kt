@@ -16,7 +16,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
-import dev.ridill.rivo.core.ui.components.NavigationResultEffect
+import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
 import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
@@ -50,7 +50,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
 
         val hapticFeedback = LocalHapticFeedback.current
 
-        NavigationResultEffect(
+        FloatingWindowNavigationResultEffect(
             resultKey = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
             navBackStackEntry = navBackStackEntry,
             viewModel,
@@ -59,7 +59,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             onResult = viewModel::onFolderSelect
         )
 
-        NavigationResultEffect<Set<Long>>(
+        FloatingWindowNavigationResultEffect(
             resultKey = TagSelectionSheetSpec.SELECTED_TAG_IDS,
             navBackStackEntry = navBackStackEntry,
             viewModel,

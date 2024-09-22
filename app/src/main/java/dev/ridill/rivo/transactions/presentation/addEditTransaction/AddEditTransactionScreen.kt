@@ -291,6 +291,15 @@ fun AddEditTransactionScreen(
                 }
                 HorizontalDivider()
 
+                SwitchPreference(
+                    titleRes = R.string.exclude_from_expenditure,
+                    value = state.isTransactionExcluded,
+                    onValueChange = actions::onExclusionToggle,
+                    leadingIcon = { ExcludedIcon() }
+                )
+
+                HorizontalDivider()
+
                 TagSelection(
                     tagsLazyPagingItems = topTagsLazyPagingItems,
                     selectedTagId = state.selectedTagId,
@@ -299,20 +308,6 @@ fun AddEditTransactionScreen(
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                 )
-
-                HorizontalDivider()
-
-                AnimatedVisibility(
-                    visible = !state.isScheduleTxMode,
-                    modifier = Modifier
-                ) {
-                    SwitchPreference(
-                        titleRes = R.string.exclude_from_expenditure,
-                        value = state.isTransactionExcluded,
-                        onValueChange = actions::onExclusionToggle,
-                        leadingIcon = { ExcludedIcon() }
-                    )
-                }
             }
 
             AnimatedVisibility(

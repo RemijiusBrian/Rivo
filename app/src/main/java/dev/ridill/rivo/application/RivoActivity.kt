@@ -65,7 +65,7 @@ class RivoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         this.intent?.let {
             val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
-            logI("Should run ConfigRestore") { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
+            logI(RivoActivity::class.simpleName) { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
             if (runConfigRestore) viewModel.startConfigRestore()
         }
 
@@ -97,12 +97,6 @@ class RivoActivity : AppCompatActivity() {
         }
 
         setContent {
-            // Temporary workaround from google
-            // Issue with lifecycle and compose version incompatibility
-            // see [IssueTracker](https://issuetracker.google.com/issues/336842920?pli=1#comment8)
-//            CompositionLocalProvider(
-//                androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current
-//            ) {
             val appTheme by viewModel.appTheme.collectAsStateWithLifecycle(AppTheme.SYSTEM_DEFAULT)
             val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle(false)
             val dynamicTheme by viewModel.dynamicThemeEnabled.collectAsStateWithLifecycle(false)
@@ -132,7 +126,6 @@ class RivoActivity : AppCompatActivity() {
                 )
             }
         }
-//        }
     }
 
     override fun onResume() {

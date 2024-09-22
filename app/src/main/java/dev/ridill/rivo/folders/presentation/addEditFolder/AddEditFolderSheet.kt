@@ -67,7 +67,7 @@ fun AddEditFolderSheet(
                     IconButton(onClick = actions::onDeleteClick) {
                         Icon(
                             imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = stringResource(R.string.cd_delete_tag)
+                            contentDescription = stringResource(R.string.cd_delete_folder)
                         )
                     }
                 }
@@ -79,7 +79,7 @@ fun AddEditFolderSheet(
         text = {
             if (!isEditMode) {
                 Text(
-                    text = stringResource(R.string.new_tag_input_text),
+                    text = stringResource(R.string.new_folder_input_text),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
@@ -91,7 +91,7 @@ fun AddEditFolderSheet(
             capitalization = KeyboardCapitalization.Words,
             imeAction = ImeAction.Done
         ),
-        label = stringResource(R.string.tag_name),
+        label = stringResource(R.string.folder_name),
         errorMessage = errorMessage,
         focusRequester = focusRequester,
         contentAfterTextField = {
