@@ -54,6 +54,8 @@ class TagSelectionViewModel @Inject constructor(
             else currentIds + id
         } else {
             savedStateHandle[SELECTED_IDS] = setOf(id)
+                .takeIf { selectedIds.value.isEmpty() }
+                .orEmpty()
         }
     }
 }
