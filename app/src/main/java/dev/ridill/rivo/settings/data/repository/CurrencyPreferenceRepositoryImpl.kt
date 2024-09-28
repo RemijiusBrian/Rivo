@@ -7,7 +7,7 @@ import androidx.paging.map
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.settings.data.local.CurrencyDao
+import dev.ridill.rivo.settings.data.local.CurrencyListDao
 import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.local.entity.CurrencyPreferenceEntity
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
@@ -21,7 +21,7 @@ import java.util.Currency
 
 class CurrencyPreferenceRepositoryImpl(
     private val dao: CurrencyPreferenceDao,
-    private val currencyDao: CurrencyDao
+    private val currencyListDao: CurrencyListDao
 ) : CurrencyPreferenceRepository {
     override fun getCurrencyPreferenceForDateOrNext(date: LocalDate): Flow<Currency> = dao
         .getCurrencyCodeForDateOrNext(date)
@@ -31,13 +31,13 @@ class CurrencyPreferenceRepositoryImpl(
             } ?: LocaleUtil.defaultCurrency
         }.distinctUntilChanged()
 
-    override suspend fun saveCurrency(currency: Currency, date: LocalDate) {
+    override suspend fun saveCurrencyPreference(currency: Currency, date: LocalDate) {
         withContext(Dispatchers.IO) {
             val entity = CurrencyPreferenceEntity(
                 currencyCode = currency.currencyCode,
                 date = date.withDayOfMonth(1)
             )
-            dao.insert(entity)
+            dao.upsert(entity)
         }
     }
 
@@ -45,7 +45,7 @@ class CurrencyPreferenceRepositoryImpl(
         Pager(
             config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
         ) {
-            currencyDao.getAllCurrencyCodesPaged(searchQuery)
+            currencyListDao.getAllCurrencyCodesPaged(searchQuery)
         }.flow
             .map { pagingData ->
                 pagingData.map { Currency.getInstance(it) }

@@ -93,11 +93,11 @@ import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepetition
 import dev.ridill.rivo.settings.presentation.components.SimplePreference
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 import dev.ridill.rivo.tags.domain.model.Tag
-import dev.ridill.rivo.tags.presentation.components.TopTagsSelectorFlowRow
+import dev.ridill.rivo.tags.presentation.components.RecentTagsSelectorFlowRow
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.AmountRecommendationsRow
 import kotlinx.coroutines.delay
@@ -112,7 +112,7 @@ fun AddEditTransactionScreen(
     snackbarController: SnackbarController,
     amountInput: () -> String,
     noteInput: () -> String,
-    topTagsLazyPagingItems: LazyPagingItems<Tag>,
+    recentTagsLazyPagingItems: LazyPagingItems<Tag>,
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit,
@@ -286,7 +286,7 @@ fun AddEditTransactionScreen(
                         .align(Alignment.Start)
                 ) {
                     TransactionRepeatModeIndicator(
-                        selectedRepeatMode = state.selectedRepeatMode,
+                        selectedRepeatMode = state.selectedRepetition,
                         onClick = actions::onRepeatModeClick,
                         modifier = Modifier
                             .padding(horizontal = MaterialTheme.spacing.medium)
@@ -304,7 +304,7 @@ fun AddEditTransactionScreen(
                 HorizontalDivider()
 
                 TagSelection(
-                    tagsLazyPagingItems = topTagsLazyPagingItems,
+                    tagsLazyPagingItems = recentTagsLazyPagingItems,
                     selectedTagId = state.selectedTagId,
                     onTagClick = actions::onTagSelect,
                     onViewAllClick = actions::onViewAllTagsClick,
@@ -354,10 +354,10 @@ fun AddEditTransactionScreen(
         }
 
         if (state.showRepeatModeSelection) {
-            RepeatModeSelectionSheet(
+            RepetitionSelectionSheet(
                 onDismiss = actions::onRepeatModeDismiss,
-                selectedRepeatMode = state.selectedRepeatMode,
-                onRepeatModeSelect = actions::onRepeatModeSelect,
+                selectedRepetition = state.selectedRepetition,
+                onRepetitionSelect = actions::onRepetitionSelect,
                 onCancelClick = actions::onCancelSchedulingClick
             )
         }
@@ -567,8 +567,8 @@ private fun TagSelection(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
     ) {
         BodyMediumText(stringResource(R.string.tag_your_transaction))
-        TopTagsSelectorFlowRow(
-            topTagsLazyPagingItems = tagsLazyPagingItems,
+        RecentTagsSelectorFlowRow(
+            recentTagsLazyPagingItems = tagsLazyPagingItems,
             selectedTagId = selectedTagId,
             onTagClick = onTagClick,
             onViewAllClick = onViewAllClick,
@@ -580,7 +580,7 @@ private fun TagSelection(
 
 @Composable
 private fun TransactionRepeatModeIndicator(
-    selectedRepeatMode: ScheduleRepeatMode,
+    selectedRepeatMode: ScheduleRepetition,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -622,10 +622,10 @@ private fun TransactionRepeatModeIndicator(
 }
 
 @Composable
-private fun RepeatModeSelectionSheet(
+private fun RepetitionSelectionSheet(
     onDismiss: () -> Unit,
-    selectedRepeatMode: ScheduleRepeatMode,
-    onRepeatModeSelect: (ScheduleRepeatMode) -> Unit,
+    selectedRepetition: ScheduleRepetition,
+    onRepetitionSelect: (ScheduleRepetition) -> Unit,
     onCancelClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -634,11 +634,11 @@ private fun RepeatModeSelectionSheet(
         modifier = modifier,
         sheetState = rememberModalBottomSheetState(true)
     ) {
-        ScheduleRepeatMode.entries.forEach { repeatMode ->
+        ScheduleRepetition.entries.forEach { repetition ->
             LabelledRadioButton(
-                labelRes = repeatMode.labelRes,
-                selected = selectedRepeatMode == repeatMode,
-                onClick = { onRepeatModeSelect(repeatMode) },
+                labelRes = repetition.labelRes,
+                selected = repetition == selectedRepetition,
+                onClick = { onRepetitionSelect(repetition) },
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -663,10 +663,10 @@ private fun PreviewScreenContent() {
             snackbarController = rememberSnackbarController(),
             amountInput = { "" },
             noteInput = { "" },
-            topTagsLazyPagingItems = flowOf(PagingData.empty<Tag>()).collectAsLazyPagingItems(),
+            recentTagsLazyPagingItems = flowOf(PagingData.empty<Tag>()).collectAsLazyPagingItems(),
             state = AddEditTransactionState(
                 isScheduleTxMode = true,
-                selectedRepeatMode = ScheduleRepeatMode.MONTHLY
+                selectedRepetition = ScheduleRepetition.MONTHLY
             ),
             actions = object : AddEditTransactionActions {
                 override fun onAmountChange(value: String) {}
@@ -692,7 +692,7 @@ private fun PreviewScreenContent() {
                 override fun onCancelSchedulingClick() {}
                 override fun onRepeatModeClick() {}
                 override fun onRepeatModeDismiss() {}
-                override fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode) {}
+                override fun onRepetitionSelect(repetition: ScheduleRepetition) {}
                 override fun onSaveClick() {}
             },
             navigateUp = {},

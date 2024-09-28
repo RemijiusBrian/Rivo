@@ -14,7 +14,7 @@ import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import java.util.Currency
 
 @Composable
-fun UpdateCurrencySheet(
+fun UpdateCurrencyPreferenceSheet(
     searchQuery: () -> String,
     onSearchQueryChange: (String) -> Unit,
     currenciesPagingData: LazyPagingItems<Currency>,

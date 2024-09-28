@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.ridill.rivo.core.data.db.RivoDatabase
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepetition
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 @Entity(tableName = "schedules_table")
@@ -19,7 +21,7 @@ data class ScheduleEntity(
     val note: String?,
 
     @ColumnInfo(name = "type")
-    val typeName: String,
+    val type: TransactionType,
 
     @ColumnInfo(name = "tag_id")
     val tagId: Long?,
@@ -27,8 +29,8 @@ data class ScheduleEntity(
     @ColumnInfo(name = "folder_id")
     val folderId: Long?,
 
-    @ColumnInfo(name = "repeat_mode")
-    val repeatModeName: String,
+    @ColumnInfo(name = "repetition")
+    val repetition: ScheduleRepetition,
 
     @ColumnInfo(name = "next_reminder_date")
     val nextReminderDate: LocalDateTime?,

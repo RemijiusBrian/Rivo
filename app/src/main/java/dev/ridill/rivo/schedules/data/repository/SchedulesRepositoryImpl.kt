@@ -9,7 +9,7 @@ import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.toEntity
 import dev.ridill.rivo.schedules.data.toSchedule
 import dev.ridill.rivo.schedules.domain.model.Schedule
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepetition
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.schedules.domain.scheduleReminder.ScheduleReminder
 import dev.ridill.rivo.transactions.domain.repository.TransactionRepository
@@ -31,29 +31,29 @@ class SchedulesRepositoryImpl(
 
     override fun getNextReminderFromDate(
         dateTime: LocalDateTime,
-        repeatMode: ScheduleRepeatMode
-    ): LocalDateTime? = when (repeatMode) {
-        ScheduleRepeatMode.NO_REPEAT -> null
-        ScheduleRepeatMode.WEEKLY -> dateTime.plusWeeks(1)
-        ScheduleRepeatMode.MONTHLY -> dateTime.plusMonths(1)
-        ScheduleRepeatMode.BI_MONTHLY -> dateTime.plusMonths(2)
-        ScheduleRepeatMode.YEARLY -> dateTime.plusYears(1)
+        repetition: ScheduleRepetition
+    ): LocalDateTime? = when (repetition) {
+        ScheduleRepetition.NO_REPEAT -> null
+        ScheduleRepetition.WEEKLY -> dateTime.plusWeeks(1)
+        ScheduleRepetition.MONTHLY -> dateTime.plusMonths(1)
+        ScheduleRepetition.BI_MONTHLY -> dateTime.plusMonths(2)
+        ScheduleRepetition.YEARLY -> dateTime.plusYears(1)
     }
 
     override fun getPrevReminderFromDate(
         dateTime: LocalDateTime,
-        repeatMode: ScheduleRepeatMode
-    ): LocalDateTime? = when (repeatMode) {
-        ScheduleRepeatMode.NO_REPEAT -> null
-        ScheduleRepeatMode.WEEKLY -> dateTime.minusWeeks(1)
-        ScheduleRepeatMode.MONTHLY -> dateTime.minusMonths(1)
-        ScheduleRepeatMode.BI_MONTHLY -> dateTime.minusMonths(2)
-        ScheduleRepeatMode.YEARLY -> dateTime.minusYears(1)
+        repetition: ScheduleRepetition
+    ): LocalDateTime? = when (repetition) {
+        ScheduleRepetition.NO_REPEAT -> null
+        ScheduleRepetition.WEEKLY -> dateTime.minusWeeks(1)
+        ScheduleRepetition.MONTHLY -> dateTime.minusMonths(1)
+        ScheduleRepetition.BI_MONTHLY -> dateTime.minusMonths(2)
+        ScheduleRepetition.YEARLY -> dateTime.minusYears(1)
     }
 
     override suspend fun saveScheduleAndSetReminder(schedule: Schedule) {
         withContext(Dispatchers.IO) {
-            val insertedId = dao.insert(schedule.toEntity()).first()
+            val insertedId = dao.upsert(schedule.toEntity()).first()
                 .takeIf { it > RivoDatabase.DEFAULT_ID_LONG }
                 ?: schedule.id
             scheduler.setReminder(
@@ -79,7 +79,7 @@ class SchedulesRepositoryImpl(
                 excluded = false
             )
             val nextReminderDate = schedule.nextReminderDate
-                ?.let { getNextReminderFromDate(it, schedule.repeatMode) }
+                ?.let { getNextReminderFromDate(it, schedule.repetition) }
             saveScheduleAndSetReminder(
                 schedule = schedule.copy(
                     nextReminderDate = nextReminderDate,

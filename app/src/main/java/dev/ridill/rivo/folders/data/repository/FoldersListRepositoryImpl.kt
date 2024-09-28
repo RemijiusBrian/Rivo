@@ -56,7 +56,7 @@ class FoldersListRepositoryImpl(
 
     override suspend fun updateFoldersListMode(listMode: ListMode) {
         withContext(Dispatchers.IO) {
-            configDao.insert(
+            configDao.upsert(
                 ConfigEntity(
                     configKey = ConfigKeys.FOLDERS_LIST_MODE,
                     configValue = listMode.name

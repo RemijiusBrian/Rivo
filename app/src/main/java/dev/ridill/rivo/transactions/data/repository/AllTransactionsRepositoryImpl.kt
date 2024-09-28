@@ -110,13 +110,13 @@ class AllTransactionsRepositoryImpl(
                     note = String.Empty,
                     amount = aggregatedAmount.absoluteValue,
                     timestamp = dateTime,
-                    typeName = type.name,
+                    type = type,
                     isExcluded = false,
                     tagId = null,
                     folderId = null,
                     scheduleId = null
                 )
-                insertedId = dao.insert(entity).first()
+                insertedId = dao.upsert(entity).first()
             }
             dao.deleteMultipleTransactionsById(ids)
             insertedId

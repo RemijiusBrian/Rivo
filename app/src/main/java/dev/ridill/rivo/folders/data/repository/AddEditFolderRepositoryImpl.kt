@@ -28,6 +28,6 @@ class AddEditFolderRepositoryImpl(
             createdTimestamp = timestamp,
             isExcluded = excluded
         )
-        dao.insert(entity).first()
+        dao.upsert(entity).first()
     }
 }
