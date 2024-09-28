@@ -417,7 +417,7 @@ fun ListSearchSheet(
         ) {
             if (title != null) {
                 TitleLargeText(
-                    title = title,
+                    text = title,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                 )

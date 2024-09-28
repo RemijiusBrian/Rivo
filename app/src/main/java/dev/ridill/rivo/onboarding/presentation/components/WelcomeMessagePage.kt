@@ -27,7 +27,7 @@ fun WelcomeMessagePage(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         MediumDisplayText(
-            title = stringResource(
+            text = stringResource(
                 R.string.onboarding_page_welcome_title,
                 stringResource(R.string.app_name)
             ),

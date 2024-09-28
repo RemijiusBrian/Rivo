@@ -268,7 +268,7 @@ private fun AccountInfo(
             SpacerMedium()
             Column {
                 TitleMediumText(
-                    title = when (authState) {
+                    text = when (authState) {
                         is AuthState.Authenticated -> authState.account.displayName
                         AuthState.UnAuthenticated -> stringResource(R.string.login_to_your_account)
                     }

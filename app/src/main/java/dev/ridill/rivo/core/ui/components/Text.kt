@@ -28,13 +28,13 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 @Composable
 fun MediumDisplayText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     color: Color = Color.Unspecified
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.displayMedium,
     modifier = modifier,
     maxLines = maxLines,
@@ -44,13 +44,13 @@ fun MediumDisplayText(
 
 @Composable
 fun SmallDisplayText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     color: Color = Color.Unspecified
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.displaySmall,
     modifier = modifier,
     maxLines = maxLines,
@@ -60,7 +60,7 @@ fun SmallDisplayText(
 
 @Composable
 fun TitleLargeText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
@@ -68,7 +68,7 @@ fun TitleLargeText(
     textDecoration: TextDecoration? = null,
     color: Color = Color.Unspecified,
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.titleLarge,
     modifier = modifier,
     maxLines = maxLines,
@@ -80,7 +80,7 @@ fun TitleLargeText(
 
 @Composable
 fun TitleMediumText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
@@ -88,7 +88,7 @@ fun TitleMediumText(
     textDecoration: TextDecoration? = null,
     color: Color = Color.Unspecified,
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.titleMedium,
     modifier = modifier,
     maxLines = maxLines,

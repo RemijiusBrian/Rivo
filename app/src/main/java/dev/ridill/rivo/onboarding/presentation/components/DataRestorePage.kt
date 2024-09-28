@@ -67,7 +67,7 @@ fun DataRestorePage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         MediumDisplayText(
-            title = stringResource(R.string.onboarding_page_restore_data_title),
+            text = stringResource(R.string.onboarding_page_restore_data_title),
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.medium)
         )

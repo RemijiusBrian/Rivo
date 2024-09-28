@@ -158,7 +158,7 @@ fun FoldersListScreen(
                                             name = item.folderDetails.name,
                                             created = item.folderDetails.createdDateFormatted,
                                             excluded = item.folderDetails.excluded,
-                                            aggregateAmount = TextFormat.compact(
+                                            aggregateAmount = TextFormat.compactAmount(
                                                 item.folderDetails.aggregateAmount.absoluteValue
                                             ),
                                             aggregateType = item.folderDetails.aggregateType,
