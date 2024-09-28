@@ -20,7 +20,7 @@ class BudgetPreferenceRepositoryImpl(
                 amount = amount,
                 date = date.withDayOfMonth(1) // Set day to 1 on all dates to limit date comparison to year and month
             )
-            dao.insert(entity)
+            dao.upsert(entity)
         }
     }
 }

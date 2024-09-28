@@ -4,14 +4,14 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import dev.ridill.rivo.core.data.db.BaseDao
-import dev.ridill.rivo.settings.data.local.entity.CurrencyEntity
+import dev.ridill.rivo.settings.data.local.entity.CurrencyListEntity
 
 @Dao
-interface CurrencyDao : BaseDao<CurrencyEntity> {
+interface CurrencyListDao : BaseDao<CurrencyListEntity> {
     @Query(
         """
         SELECT currency_code
-        FROM currency_table
+        FROM currency_list_table
         WHERE (currency_code LIKE :query || '%')
         OR (display_name LIKE '%' || :query || '%')
     """
@@ -21,7 +21,7 @@ interface CurrencyDao : BaseDao<CurrencyEntity> {
     @Query(
         """
         SELECT NOT EXISTS(
-            SELECT currency_code FROM currency_table LIMIT 1
+            SELECT currency_code FROM currency_list_table LIMIT 1
         )
     """
     )

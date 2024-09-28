@@ -1,6 +1,7 @@
 package dev.ridill.rivo.tags.domain.repository
 
 import androidx.paging.PagingData
+import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.domain.model.TagInfo
 import kotlinx.coroutines.flow.Flow
@@ -9,10 +10,11 @@ import java.time.LocalDateTime
 
 interface TagsRepository {
     fun getAllTagsPagingData(
-        searchQuery: String = ""
+        searchQuery: String = String.Empty,
+        ids: Set<Long>? = null
     ): Flow<PagingData<Tag>>
 
-    fun getTopTagsPagingData(
+    fun getRecentTagsPagingData(
         date: LocalDate?,
         limit: Int = DEFAULT_TOP_TAG_LIMIT
     ): Flow<PagingData<Tag>>

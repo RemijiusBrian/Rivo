@@ -16,7 +16,7 @@ import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.settings.data.local.ConfigDao
-import dev.ridill.rivo.settings.data.local.CurrencyDao
+import dev.ridill.rivo.settings.data.local.CurrencyListDao
 import dev.ridill.rivo.settings.data.remote.GDriveApi
 import dev.ridill.rivo.settings.data.remote.interceptors.GoogleAccessTokenInterceptor
 import dev.ridill.rivo.settings.data.repository.AppInitRepositoryImpl
@@ -134,8 +134,8 @@ object SettingsSingletonModule {
 
     @Provides
     fun provideAppInitRepository(
-        currencyDao: CurrencyDao
-    ): AppInitRepository = AppInitRepositoryImpl(currencyDao)
+        currencyListDao: CurrencyListDao
+    ): AppInitRepository = AppInitRepositoryImpl(currencyListDao)
 
     @AppInitFeature
     @Provides

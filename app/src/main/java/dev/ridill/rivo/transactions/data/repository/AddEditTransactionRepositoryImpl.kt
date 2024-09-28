@@ -7,7 +7,7 @@ import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.schedules.domain.model.Schedule
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepetition
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.toEntity
@@ -52,7 +52,7 @@ class AddEditTransactionRepositoryImpl(
 
     override suspend fun saveTransaction(transaction: Transaction): Long =
         withContext(Dispatchers.IO) {
-            dao.insert(transaction.toEntity()).first()
+            dao.upsert(transaction.toEntity()).first()
         }
 
     override suspend fun deleteTransaction(id: Long) = withContext(Dispatchers.IO) {
@@ -82,7 +82,7 @@ class AddEditTransactionRepositoryImpl(
                 // calculate next reminder from last payment date
                 val prevReminderDate = schedule.nextReminderDate
                     ?.let {
-                        schedulesRepo.getPrevReminderFromDate(it, schedule.repeatMode)
+                        schedulesRepo.getPrevReminderFromDate(it, schedule.repetition)
                     } ?: schedule.lastPaidDate
 
                 logI { "New prev reminder date for schedule - $prevReminderDate" }
@@ -110,18 +110,18 @@ class AddEditTransactionRepositoryImpl(
 
     override suspend fun saveSchedule(
         transaction: Transaction,
-        repeatMode: ScheduleRepeatMode
+        repetition: ScheduleRepetition
     ) {
         val schedule = schedulesRepo.getScheduleById(transaction.id)
             ?.copy(
                 amount = transaction.amount.toDoubleOrNull().orZero(),
                 note = transaction.note.ifEmpty { null },
                 type = transaction.type,
-                repeatMode = repeatMode,
+                repetition = repetition,
                 tagId = transaction.tagId,
                 folderId = transaction.folderId,
                 nextReminderDate = transaction.timestamp
-            ) ?: Schedule.fromTransaction(transaction, repeatMode)
+            ) ?: Schedule.fromTransaction(transaction, repetition)
 
         schedulesRepo.saveScheduleAndSetReminder(schedule)
     }

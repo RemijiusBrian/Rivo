@@ -13,10 +13,22 @@ import java.time.LocalDate
 
 @Dao
 interface TagsDao : BaseDao<TagEntity> {
-    @Query("SELECT * FROM tag_table WHERE name LIKE '%' || :query || '%' ORDER BY DATETIME(created_timestamp) DESC, name ASC")
-    fun getAllTagsPaged(
-        query: String
+    @Query(
+        """
+        SELECT *
+        FROM tag_table
+        WHERE (:ids IS NULL OR id in (:ids))
+        AND (name LIKE '%' || :query || '%')
+        ORDER BY DATETIME(created_timestamp) DESC, name ASC
+    """
+    )
+    fun getAllTagsOrderedByTimestampDescPaged(
+        query: String,
+        ids: Set<Long>? = null
     ): PagingSource<Int, TagEntity>
+
+    @Query("SELECT * FROM tag_table ORDER BY DATETIME(created_timestamp) DESC, name ASC LIMIT :limit")
+    fun getRecentTagsPaged(limit: Int): PagingSource<Int, TagEntity>
 
     @Query(
         """
@@ -47,9 +59,6 @@ interface TagsDao : BaseDao<TagEntity> {
 
     @Query("SELECT * FROM tag_table WHERE id = :id")
     suspend fun getTagById(id: Long): TagEntity?
-
-    @Query("SELECT * FROM tag_table WHERE id = :id")
-    fun getTagByIdFlow(id: Long): Flow<TagEntity?>
 
     @Query("SELECT * FROM tag_table WHERE id IN (:ids)")
     fun getTagsByIdFlow(ids: Set<Long>): Flow<List<TagEntity>>

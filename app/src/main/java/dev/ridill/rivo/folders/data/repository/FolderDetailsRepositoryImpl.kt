@@ -80,7 +80,7 @@ class FolderDetailsRepositoryImpl(
 
     override suspend fun addTransactionToFolder(transaction: TransactionListItem) {
         withContext(Dispatchers.IO) {
-            transactionDao.insert(transaction.toEntity())
+            transactionDao.upsert(transaction.toEntity())
         }
     }
 }

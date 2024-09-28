@@ -23,19 +23,20 @@ import java.time.LocalDateTime
 class TagsRepositoryImpl(
     private val dao: TagsDao
 ) : TagsRepository {
-    override fun getAllTagsPagingData(searchQuery: String): Flow<PagingData<Tag>> =
-        Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-            dao.getAllTagsPaged(searchQuery)
-        }.flow
-            .map { pagingData -> pagingData.map(TagEntity::toTag) }
+    override fun getAllTagsPagingData(
+        searchQuery: String, ids: Set<Long>?
+    ): Flow<PagingData<Tag>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
+        dao.getAllTagsOrderedByTimestampDescPaged(searchQuery)
+    }.flow
+        .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
-    override fun getTopTagsPagingData(
+    override fun getRecentTagsPagingData(
         date: LocalDate?,
         limit: Int
     ): Flow<PagingData<Tag>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-        dao.getTagAndAggForDateSortedByAggPaged(date = date, limit = limit)
+        dao.getRecentTagsPaged(limit)
     }.flow
-        .map { pagingData -> pagingData.map(TagAndAggregateRelation::toTag) }
+        .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
     override fun getTopTagInfoPagingData(
         date: LocalDate?,
@@ -53,8 +54,7 @@ class TagsRepositoryImpl(
     }
 
     override fun getTagsListFlowByIds(ids: Set<Long>): Flow<List<Tag>> =
-        dao.getTagsByIdFlow(ids)
-            .map { entities -> entities.map(TagEntity::toTag) }
+        dao.getTagsByIdFlow(ids).map { entities -> entities.map(TagEntity::toTag) }
 
     override suspend fun saveTag(
         id: Long,
@@ -71,7 +71,7 @@ class TagsRepositoryImpl(
             isExcluded = excluded
         )
 
-        dao.insert(entity).first()
+        dao.upsert(entity).first()
     }
 
     override suspend fun deleteTagById(id: Long) = withContext(Dispatchers.IO) {

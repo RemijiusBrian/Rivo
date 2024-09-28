@@ -243,11 +243,11 @@
 
     <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
 
-    <string name="transaction_repeat_mode_one_time">Does not repeat</string>
-    <string name="transaction_repeat_mode_weekly">Weekly</string>
-    <string name="transaction_repeat_mode_monthly">Monthly</string>
-    <string name="transaction_repeat_mode_bi_monthly">Bi-monthly</string>
-    <string name="transaction_repeat_mode_yearly">Yearly</string>
+    <string name="schedule_repetition_no_repeat">Does not repeat</string>
+    <string name="schedule_repetition_weekly">Weekly</string>
+    <string name="schedule_repetition_monthly">Monthly</string>
+    <string name="schedule_repetition_bi_monthly">Bi-monthly</string>
+    <string name="schedule_repetition_yearly">Yearly</string>
 
     <string name="new_tag_input_text">Create a tag to help organize your transactions</string>
 

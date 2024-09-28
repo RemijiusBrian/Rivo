@@ -29,13 +29,13 @@ class TransactionRepositoryImpl(
             note = note.orEmpty(),
             amount = amount,
             timestamp = timestamp,
-            typeName = type.name,
+            type = type,
             isExcluded = excluded,
             tagId = tagId,
             folderId = folderId,
             scheduleId = scheduleId
         )
-        val insertedId = dao.insert(entity).first()
+        val insertedId = dao.upsert(entity).first()
         entity.copy(id = insertedId)
             .toTransaction()
     }

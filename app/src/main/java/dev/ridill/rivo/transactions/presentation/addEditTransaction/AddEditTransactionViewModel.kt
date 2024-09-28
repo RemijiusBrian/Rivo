@@ -23,7 +23,7 @@ import dev.ridill.rivo.core.ui.navigation.destinations.TransformationResult
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.schedules.data.toTransaction
-import dev.ridill.rivo.schedules.domain.model.ScheduleRepeatMode
+import dev.ridill.rivo.schedules.domain.model.ScheduleRepetition
 import dev.ridill.rivo.tags.domain.repository.TagsRepository
 import dev.ridill.rivo.transactions.domain.model.AmountTransformation
 import dev.ridill.rivo.transactions.domain.model.Transaction
@@ -82,7 +82,7 @@ class AddEditTransactionViewModel @Inject constructor(
     private val isTransactionExcluded = txInput.map { it.excluded }
         .distinctUntilChanged()
 
-    val topTagsPagingData = tagsRepo.getTopTagsPagingData(null)
+    val recentTagsPagingData = tagsRepo.getRecentTagsPagingData(null)
         .cachedIn(viewModelScope)
 
     private val showDeleteConfirmation = savedStateHandle
@@ -97,10 +97,10 @@ class AddEditTransactionViewModel @Inject constructor(
         transactionRepo.getFolderNameForId(selectedId)
     }.distinctUntilChanged()
 
-    private val showRepeatModeSelection = savedStateHandle
-        .getStateFlow(SHOW_REPEAT_MODE_SELECTION, false)
-    private val selectedRepeatMode = savedStateHandle
-        .getStateFlow(SELECTED_REPEAT_MODE, ScheduleRepeatMode.NO_REPEAT)
+    private val showRepetitionSelection = savedStateHandle
+        .getStateFlow(SHOW_REPETITION_SELECTION, false)
+    private val selectedRepetition = savedStateHandle
+        .getStateFlow(SELECTED_REPETITION, ScheduleRepetition.NO_REPEAT)
 
     val state = combineTuple(
         isLoading,
@@ -114,8 +114,8 @@ class AddEditTransactionViewModel @Inject constructor(
         showDeleteConfirmation,
         linkedFolderName,
         isScheduleTxMode,
-        selectedRepeatMode,
-        showRepeatModeSelection
+        selectedRepetition,
+        showRepetitionSelection
     ).map { (
                 isLoading,
                 transactionType,
@@ -128,8 +128,8 @@ class AddEditTransactionViewModel @Inject constructor(
                 showDeleteConfirmation,
                 linkedFolderName,
                 isScheduleTxMode,
-                selectedRepeatMode,
-                showRepeatModeSelection
+                                selectedRepetition,
+                                showRepetitionSelection
             ) ->
         AddEditTransactionState(
             isLoading = isLoading,
@@ -143,8 +143,8 @@ class AddEditTransactionViewModel @Inject constructor(
             showDeleteConfirmation = showDeleteConfirmation,
             linkedFolderName = linkedFolderName,
             isScheduleTxMode = isScheduleTxMode,
-            selectedRepeatMode = selectedRepeatMode,
-            showRepeatModeSelection = showRepeatModeSelection
+            selectedRepetition = selectedRepetition,
+            showRepeatModeSelection = showRepetitionSelection
         )
     }.asStateFlow(viewModelScope, AddEditTransactionState())
 
@@ -157,8 +157,8 @@ class AddEditTransactionViewModel @Inject constructor(
     private fun onInit() = viewModelScope.launch {
         val transaction: Transaction = if (scheduleModeArg) {
             val schedule = transactionRepo.getScheduleById(transactionIdArg)
-            savedStateHandle[SELECTED_REPEAT_MODE] = schedule?.repeatMode
-                ?: ScheduleRepeatMode.NO_REPEAT
+            savedStateHandle[SELECTED_REPETITION] = schedule?.repetition
+                ?: ScheduleRepetition.NO_REPEAT
 
             schedule?.toTransaction(
                 dateTime = schedule.nextReminderDate
@@ -336,7 +336,7 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onCancelSchedulingClick() {
-        savedStateHandle[SHOW_REPEAT_MODE_SELECTION] = false
+        savedStateHandle[SHOW_REPETITION_SELECTION] = false
         toggleScheduling(false)
     }
 
@@ -354,16 +354,16 @@ class AddEditTransactionViewModel @Inject constructor(
     }
 
     override fun onRepeatModeClick() {
-        savedStateHandle[SHOW_REPEAT_MODE_SELECTION] = true
+        savedStateHandle[SHOW_REPETITION_SELECTION] = true
     }
 
     override fun onRepeatModeDismiss() {
-        savedStateHandle[SHOW_REPEAT_MODE_SELECTION] = false
+        savedStateHandle[SHOW_REPETITION_SELECTION] = false
     }
 
-    override fun onRepeatModeSelect(repeatMode: ScheduleRepeatMode) {
-        savedStateHandle[SELECTED_REPEAT_MODE] = repeatMode
-        savedStateHandle[SHOW_REPEAT_MODE_SELECTION] = false
+    override fun onRepetitionSelect(repetition: ScheduleRepetition) {
+        savedStateHandle[SELECTED_REPETITION] = repetition
+        savedStateHandle[SHOW_REPETITION_SELECTION] = false
     }
 
     override fun onSaveClick() {
@@ -409,7 +409,7 @@ class AddEditTransactionViewModel @Inject constructor(
                         id = scheduleOrTxIdForInsertion,
                         amount = evaluatedAmount.toString()
                     ),
-                    repeatMode = selectedRepeatMode.value
+                    repetition = selectedRepetition.value
                 )
                 isLoading.update { false }
                 eventBus.send(AddEditTransactionEvent.NavigateUpWithResult(AddEditTxResult.SCHEDULE_SAVED))
@@ -451,5 +451,5 @@ private const val TX_INPUT = "TX_INPUT"
 private const val SHOW_DELETE_CONFIRMATION = "SHOW_DELETE_CONFIRMATION"
 private const val SHOW_DATE_PICKER = "SHOW_DATE_PICKER"
 private const val SHOW_TIME_PICKER = "SHOW_TIME_PICKER"
-private const val SHOW_REPEAT_MODE_SELECTION = "SHOW_REPEAT_MODE_SELECTION"
-private const val SELECTED_REPEAT_MODE = "SELECTED_TX_REPEAT_MODE"
+private const val SHOW_REPETITION_SELECTION = "SHOW_REPETITION_SELECTION"
+private const val SELECTED_REPETITION = "SELECTED_REPETITION"

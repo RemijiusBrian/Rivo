@@ -3,9 +3,9 @@ package dev.ridill.rivo.transactions.data
 import dev.ridill.rivo.core.domain.util.orZero
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.folders.domain.model.Folder
+import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
-import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
@@ -19,7 +19,7 @@ fun TransactionEntity.toTransaction(): Transaction = Transaction(
     ),
     note = note,
     timestamp = timestamp,
-    type = TransactionType.valueOf(typeName),
+    type = type,
     folderId = folderId,
     tagId = tagId,
     excluded = isExcluded,
@@ -31,7 +31,7 @@ fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
     note = note,
     amount = TextFormat.parseNumber(amount).orZero(),
     timestamp = timestamp,
-    typeName = type.name,
+    type = type,
     isExcluded = excluded,
     tagId = tagId,
     folderId = folderId,
@@ -80,7 +80,7 @@ fun TransactionListItem.toEntity(): TransactionEntity = TransactionEntity(
     note = note,
     amount = amount,
     timestamp = timestamp,
-    typeName = type.name,
+    type = type,
     isExcluded = isTransactionExcluded,
     tagId = tag?.id,
     folderId = folder?.id,

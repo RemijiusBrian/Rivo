@@ -25,8 +25,8 @@ import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.tags.domain.model.Tag
 
 @Composable
-fun TopTagsSelectorFlowRow(
-    topTagsLazyPagingItems: LazyPagingItems<Tag>,
+fun RecentTagsSelectorFlowRow(
+    recentTagsLazyPagingItems: LazyPagingItems<Tag>,
     selectedTagId: Long?,
     onTagClick: (Long) -> Unit,
     onViewAllClick: () -> Unit,
@@ -37,8 +37,8 @@ fun TopTagsSelectorFlowRow(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)
     ) {
-        repeat(topTagsLazyPagingItems.itemCount) { index ->
-            topTagsLazyPagingItems[index]?.let { tag ->
+        repeat(recentTagsLazyPagingItems.itemCount) { index ->
+            recentTagsLazyPagingItems[index]?.let { tag ->
                 TagChip(
                     name = tag.name,
                     color = tag.color,
