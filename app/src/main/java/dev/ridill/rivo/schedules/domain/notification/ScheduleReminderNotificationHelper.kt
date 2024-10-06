@@ -99,7 +99,7 @@ class ScheduleReminderNotificationHelper(
     private fun buildContentIntent(): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            AllSchedulesScreenSpec.getViewDeeplinkUri(),
+            AllSchedulesScreenSpec.buildDeeplink(),
             context,
             RivoActivity::class.java
         )

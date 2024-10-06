@@ -73,8 +73,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     override val deepLinks: List<NavDeepLink>
         get() = listOf(
-            navDeepLink { uriPattern = AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN },
-            navDeepLink { uriPattern = ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN }
+            navDeepLink { uriPattern = DEEPLINK_URI_PATTERN },
         )
 
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
@@ -124,9 +123,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != NavDestination.ARG_INVALID_ID_LONG
 
-    fun buildAutoDetectTransactionDeeplinkUri(id: Long): Uri =
-        AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString())
-            .toUri()
+    fun buildDeeplink(id: Long?): Uri = DEEPLINK_URI_PATTERN
+        .replace(
+            oldValue = "{$ARG_TRANSACTION_ID}",
+            newValue = (id ?: NavDestination.ARG_INVALID_ID_LONG).toString()
+        )
+        .toUri()
 
     @Composable
     override fun Content(
@@ -229,7 +231,5 @@ private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
 private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
 private const val ARG_INITIAL_TIMESTAMP = "ARG_INITIAL_TIMESTAMP"
 
-private const val AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
-private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/add_transaction_shortcut"
+private const val DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/add_edit_transaction?{$ARG_TRANSACTION_ID}={$ARG_LINK_FOLDER_ID}"

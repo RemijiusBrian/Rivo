@@ -37,7 +37,6 @@
 
     <!-- App Shortcuts -->
     <string name="shortcut_add_new_transaction_label">Add New Transaction</string>
-    <string name="shortcut_add_new_folder_label">Add New Folder</string>
 
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>

@@ -33,10 +33,10 @@ data object BackupSettingsScreenSpec : ScreenSpec {
 
     override val deepLinks: List<NavDeepLink>
         get() = listOf(
-            navDeepLink { uriPattern = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN }
+            navDeepLink { uriPattern = DEEPLINK_URI_PATTERN }
         )
 
-    fun buildBackupSettingsDeeplinkUri(): Uri = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN.toUri()
+    fun buildDeeplink(): Uri = DEEPLINK_URI_PATTERN.toUri()
 
     @Composable
     override fun Content(
@@ -102,5 +102,5 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/view_backup_settings"
+private const val DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/backup_settings"

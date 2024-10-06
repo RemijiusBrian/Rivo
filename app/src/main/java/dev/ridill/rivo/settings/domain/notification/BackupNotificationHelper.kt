@@ -69,7 +69,7 @@ class BackupNotificationHelper(
     private fun buildContentIntent(): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            BackupSettingsScreenSpec.buildBackupSettingsDeeplinkUri(),
+            BackupSettingsScreenSpec.buildDeeplink(),
             context,
             RivoActivity::class.java
         )

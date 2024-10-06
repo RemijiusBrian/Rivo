@@ -32,10 +32,13 @@ data object AllSchedulesScreenSpec : ScreenSpec {
 
     override val deepLinks: List<NavDeepLink>
         get() = listOf(
-            navDeepLink { uriPattern = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN }
+            navDeepLink {
+                uriPattern =
+                    DEEPLINK_URI_PATTERN
+            }
         )
 
-    fun getViewDeeplinkUri(): Uri = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN.toUri()
+    fun buildDeeplink(): Uri = DEEPLINK_URI_PATTERN.toUri()
 
     @Composable
     override fun Content(
@@ -90,5 +93,5 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/view_all_schedules"
+private const val DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/schedules_list"
