@@ -11,9 +11,6 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.auth.AuthPromptCallback
 import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,23 +26,17 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.findActivity
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
 
 data object SecuritySettingsScreenSpec : ScreenSpec {
-    override val route: String = "security_settings"
+    override val route: String
+        get() = "security_settings"
 
-    override val labelRes: Int = R.string.destination_security_settings
-
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { it } }
-
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { it } }
+    override val labelRes: Int
+        get() = R.string.destination_security_settings
 
     @Composable
     override fun Content(

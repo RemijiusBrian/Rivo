@@ -9,6 +9,7 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.tags.data.local.entity.TagEntity
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 @Entity(
@@ -47,8 +48,8 @@ data class TransactionEntity(
     @ColumnInfo(name = "timestamp")
     val timestamp: LocalDateTime,
 
-    @ColumnInfo(name = "type", defaultValue = "DEBIT")
-    val typeName: String,
+    @ColumnInfo(name = "type")
+    val type: TransactionType,
 
     @ColumnInfo(name = "is_excluded")
     val isExcluded: Boolean,

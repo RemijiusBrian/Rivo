@@ -1,8 +1,5 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -21,28 +18,24 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
 
 data object FolderDetailsScreenSpec : ScreenSpec {
-    override val route: String = "folder_details/{$ARG_FOLDER_ID}"
-    override val labelRes: Int = R.string.destination_folder_details
+    override val route: String
+        get() = "folder_details/{$ARG_FOLDER_ID}"
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_FOLDER_ID) {
-            type = NavType.LongType
-            nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
-        }
-    )
+    override val labelRes: Int
+        get() = R.string.destination_folder_details
 
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { it } }
-
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { it } }
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_FOLDER_ID) {
+                type = NavType.LongType
+                nullable = false
+                defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            }
+        )
 
     fun routeWithArgs(folderId: Long): String = route
         .replace(

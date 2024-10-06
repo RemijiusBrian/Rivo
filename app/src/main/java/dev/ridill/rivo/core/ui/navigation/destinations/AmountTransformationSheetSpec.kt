@@ -19,9 +19,11 @@ data object AmountTransformationSheetSpec : BottomSheetSpec {
 
     const val TRANSFORMATION_RESULT = "TRANSFORMATION_RESULT"
 
-    override val route: String = "amount_transformation_sheet"
+    override val route: String
+        get() = "amount_transformation_sheet"
 
-    override val labelRes: Int = R.string.destination_amount_transformation_selection
+    override val labelRes: Int
+        get() = R.string.destination_amount_transformation_selection
 
     @Composable
     override fun Content(

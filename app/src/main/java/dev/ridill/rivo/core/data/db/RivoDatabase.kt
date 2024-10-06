@@ -1,14 +1,8 @@
 package dev.ridill.rivo.core.data.db
 
-import androidx.room.AutoMigration
 import androidx.room.Database
-import androidx.room.RenameColumn
-import androidx.room.RenameTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.AutoMigrationSpec
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
 import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
@@ -16,15 +10,15 @@ import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.settings.data.local.BudgetPreferenceDao
 import dev.ridill.rivo.settings.data.local.ConfigDao
-import dev.ridill.rivo.settings.data.local.CurrencyDao
+import dev.ridill.rivo.settings.data.local.CurrencyListDao
 import dev.ridill.rivo.settings.data.local.CurrencyPreferenceDao
 import dev.ridill.rivo.settings.data.local.entity.BudgetPreferenceEntity
 import dev.ridill.rivo.settings.data.local.entity.ConfigEntity
-import dev.ridill.rivo.settings.data.local.entity.CurrencyEntity
+import dev.ridill.rivo.settings.data.local.entity.CurrencyListEntity
 import dev.ridill.rivo.settings.data.local.entity.CurrencyPreferenceEntity
 import dev.ridill.rivo.tags.data.local.TagsDao
-import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.tags.data.local.entity.TagEntity
+import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 
@@ -35,7 +29,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TagEntity::class,
         FolderEntity::class,
         ScheduleEntity::class,
-        CurrencyEntity::class,
+        CurrencyListEntity::class,
         CurrencyPreferenceEntity::class,
         ConfigEntity::class
     ],
@@ -43,22 +37,12 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
         TransactionDetailsView::class,
         FolderAndAggregateAmountView::class
     ],
-    version = 14,
-    autoMigrations = [
-        AutoMigration(from = 5, to = 6),
-        AutoMigration(from = 6, to = 7, spec = RivoDatabase.AutoMigrationSpec6To7::class),
-        AutoMigration(from = 7, to = 8, spec = RivoDatabase.AutoMigrationSpec7To8::class),
-        AutoMigration(from = 8, to = 9),
-        AutoMigration(from = 9, to = 10),
-        AutoMigration(from = 10, to = 11),
-        AutoMigration(from = 12, to = 13, spec = RivoDatabase.AutoMigrationSpec12To13::class),
-        AutoMigration(from = 13, to = 14)
-    ]
+    version = 1
 )
 @TypeConverters(DateTimeConverter::class)
 abstract class RivoDatabase : RoomDatabase() {
     companion object {
-        const val NAME = "MYM.db" // FIXME: Change db name
+        const val NAME = "Rivo.db"
         const val DEFAULT_ID_LONG = 0L
     }
 
@@ -68,29 +52,7 @@ abstract class RivoDatabase : RoomDatabase() {
     abstract fun tagsDao(): TagsDao
     abstract fun folderDao(): FolderDao
     abstract fun schedulesDao(): SchedulesDao
-    abstract fun currencyDao(): CurrencyDao
+    abstract fun currencyListDao(): CurrencyListDao
     abstract fun currencyPreferenceDao(): CurrencyPreferenceDao
     abstract fun configDao(): ConfigDao
-
-    @RenameTable(fromTableName = "transaction_folder_table", toTableName = "folder_table")
-    class AutoMigrationSpec6To7 : AutoMigrationSpec
-
-    @RenameColumn(
-        tableName = "transaction_table",
-        fromColumnName = "transaction_type_name",
-        toColumnName = "type"
-    )
-    class AutoMigrationSpec7To8 : AutoMigrationSpec
-
-    @RenameTable.Entries(
-        RenameTable(fromTableName = "currency_table", toTableName = "currency_preference_table"),
-        RenameTable(fromTableName = "budget_table", toTableName = "budget_preference_table")
-    )
-    class AutoMigrationSpec12To13 : AutoMigrationSpec
-}
-
-val MIGRATION_11_12 = object : Migration(startVersion = 11, endVersion = 12) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE schedules_table ADD COLUMN last_paid_date TEXT NULL DEFAULT NULL")
-    }
 }

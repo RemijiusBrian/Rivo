@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "currency_table")
-data class CurrencyEntity(
+@Entity(tableName = "currency_list_table")
+data class CurrencyListEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "currency_code")
     val currencyCode: String,

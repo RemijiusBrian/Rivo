@@ -21,5 +21,7 @@ inline fun <T> tryOrNull(
 fun <T> Flow<T>.asStateFlow(
     scope: CoroutineScope,
     initialValue: T,
-    sharingStarted: SharingStarted = SharingStarted.WhileSubscribed(5_000L)
+    sharingStarted: SharingStarted = SharingStarted.WhileSubscribed(DEFAULT_SHARING_STOP_TIMEOUT)
 ): StateFlow<T> = this.stateIn(scope, sharingStarted, initialValue)
+
+private const val DEFAULT_SHARING_STOP_TIMEOUT = 5_000L

@@ -35,55 +35,52 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTrans
 import java.time.LocalDateTime
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
-    override val route: String = """
+    override val route: String
+        get() = """
         add_edit_transaction/
         {$ARG_TRANSACTION_ID}
         ?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}
         &$ARG_IS_SCHEDULE_MODE_ACTIVE={$ARG_IS_SCHEDULE_MODE_ACTIVE}
         &$ARG_INITIAL_TIMESTAMP={$ARG_INITIAL_TIMESTAMP}
     """.trimIndent()
-        .replace(String.NewLine, String.Empty)
+            .replace(String.NewLine, String.Empty)
 
-    override val labelRes: Int = R.string.destination_add_edit_transaction
+    override val labelRes: Int
+        get() = R.string.destination_add_edit_transaction
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_TRANSACTION_ID) {
-            type = NavType.LongType
-            nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
-        },
-        navArgument(ARG_LINK_FOLDER_ID) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_IS_SCHEDULE_MODE_ACTIVE) {
-            type = NavType.BoolType
-            nullable = false
-            defaultValue = false
-        },
-        navArgument(ARG_INITIAL_TIMESTAMP) {
-            type = NavType.StringType
-            nullable = true
-            defaultValue = null
-        }
-    )
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_TRANSACTION_ID) {
+                type = NavType.LongType
+                nullable = false
+                defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            },
+            navArgument(ARG_LINK_FOLDER_ID) {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument(ARG_IS_SCHEDULE_MODE_ACTIVE) {
+                type = NavType.BoolType
+                nullable = false
+                defaultValue = false
+            },
+            navArgument(ARG_INITIAL_TIMESTAMP) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
 
-    override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN },
-        navDeepLink { uriPattern = ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN }
-    )
+    override val deepLinks: List<NavDeepLink>
+        get() = listOf(
+            navDeepLink { uriPattern = DEEPLINK_URI_PATTERN },
+        )
 
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInVertically { it } }
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+        get() = { slideInVertically { it } }
 
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutVertically { it } }
-
-    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInVertically { it } }
-
-    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutVertically { it } }
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+        get() = { slideOutVertically { it } }
 
     fun routeWithArg(
         transactionId: Long? = null,
@@ -126,9 +123,12 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != NavDestination.ARG_INVALID_ID_LONG
 
-    fun buildAutoDetectTransactionDeeplinkUri(id: Long): Uri =
-        AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN.replace("{$ARG_TRANSACTION_ID}", id.toString())
-            .toUri()
+    fun buildDeeplink(id: Long?): Uri = DEEPLINK_URI_PATTERN
+        .replace(
+            oldValue = "{$ARG_TRANSACTION_ID}",
+            newValue = (id ?: NavDestination.ARG_INVALID_ID_LONG).toString()
+        )
+        .toUri()
 
     @Composable
     override fun Content(
@@ -140,7 +140,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         val amount = viewModel.amountInput.collectAsStateWithLifecycle(initialValue = "")
         val note = viewModel.noteInput.collectAsStateWithLifecycle(initialValue = "")
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val topTagsLazyPagingItems = viewModel.topTagsPagingData.collectAsLazyPagingItems()
+        val recentTagsLazyPagingItems = viewModel.recentTagsPagingData.collectAsLazyPagingItems()
 
         val isEditMode = isArgEditMode(navBackStackEntry)
 
@@ -209,7 +209,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             snackbarController = snackbarController,
             amountInput = { amount.value },
             noteInput = { note.value },
-            topTagsLazyPagingItems = topTagsLazyPagingItems,
+            recentTagsLazyPagingItems = recentTagsLazyPagingItems,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
@@ -231,7 +231,5 @@ private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
 private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
 private const val ARG_INITIAL_TIMESTAMP = "ARG_INITIAL_TIMESTAMP"
 
-private const val AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/auto_detect_transaction/{$ARG_TRANSACTION_ID}"
-private const val ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/add_transaction_shortcut"
+private const val DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/add_edit_transaction?{$ARG_TRANSACTION_ID}={$ARG_LINK_FOLDER_ID}"

@@ -17,9 +17,11 @@ import dev.ridill.rivo.dashboard.presentation.DashboardScreen
 import dev.ridill.rivo.dashboard.presentation.DashboardViewModel
 
 data object DashboardScreenSpec : ScreenSpec {
-    override val route: String = "dashboard"
+    override val route: String
+        get() = "dashboard"
 
-    override val labelRes: Int = R.string.destination_dashboard
+    override val labelRes: Int
+        get() = R.string.destination_dashboard
 
     @Composable
     override fun Content(

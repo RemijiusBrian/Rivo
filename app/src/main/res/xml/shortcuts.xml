@@ -8,21 +8,21 @@
         android:shortcutShortLabel="@string/shortcut_add_new_transaction_label">
         <intent
             android:action="android.intent.action.VIEW"
-            android:data="dev.ridill.rivo://app/add_transaction_shortcut"
+            android:data="dev.ridill.rivo://app/add_edit_transaction"
             android:targetClass="dev.ridill.rivo.application.RivoActivity"
             android:targetPackage="dev.ridill.rivo.internal" />
     </shortcut>
 
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/ic_outline_add_folder"
-        android:shortcutId="add_new_folder_static_shortcut"
-        android:shortcutLongLabel="@string/shortcut_add_new_folder_label"
-        android:shortcutShortLabel="@string/shortcut_add_new_folder_label">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="dev.ridill.rivo://app/add_folder_shortcut"
-            android:targetClass="dev.ridill.rivo.application.RivoActivity"
-            android:targetPackage="dev.ridill.rivo.internal" />
-    </shortcut>
+    <!--    <shortcut-->
+    <!--        android:enabled="true"-->
+    <!--        android:icon="@drawable/ic_outline_add_folder"-->
+    <!--        android:shortcutId="add_new_folder_static_shortcut"-->
+    <!--        android:shortcutLongLabel="@string/shortcut_add_new_folder_label"-->
+    <!--        android:shortcutShortLabel="@string/shortcut_add_new_folder_label">-->
+    <!--        <intent-->
+    <!--            android:action="android.intent.action.VIEW"-->
+    <!--            android:data="dev.ridill.rivo://app/add_folder_shortcut"-->
+    <!--            android:targetClass="dev.ridill.rivo.application.RivoActivity"-->
+    <!--            android:targetPackage="dev.ridill.rivo.internal" />-->
+    <!--    </shortcut>-->
 </shortcuts>

@@ -8,17 +8,15 @@ sealed interface NavDestination {
             get() = listOf(
                 OnboardingScreenSpec,
                 DashboardScreenSpec,
-                AddEditTransactionScreenSpec,
+                AddEditTransactionGraphSpec,
                 AllTransactionsScreenSpec,
-                SettingsGraphSpec,
-                TransactionFoldersGraph,
+                FoldersGraph,
+                TagsGraph,
                 SchedulesGraphSpec,
+                SettingsGraphSpec,
                 FolderSelectionSheetSpec,
-                AmountTransformationSheetSpec,
                 AddEditTagSheetSpec,
                 TagSelectionSheetSpec,
-                AllTagsScreenSpec,
-                AddEditFolderSheetSpec
             )
 
         const val DEEP_LINK_URI = "dev.ridill.rivo://app"

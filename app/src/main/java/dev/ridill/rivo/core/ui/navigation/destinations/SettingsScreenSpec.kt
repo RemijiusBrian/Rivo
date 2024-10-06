@@ -2,9 +2,6 @@ package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
 import android.content.Intent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,8 +15,6 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.core.ui.util.launchAppSettings
@@ -28,15 +23,11 @@ import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 
 data object SettingsScreenSpec : ScreenSpec {
 
-    override val route: String = "settings"
+    override val route: String
+        get() = "settings"
 
-    override val labelRes: Int = R.string.destination_settings
-
-    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { -it } }
-
-    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { -it } }
+    override val labelRes: Int
+        get() = R.string.destination_settings
 
     @Composable
     override fun Content(
@@ -89,14 +80,14 @@ data object SettingsScreenSpec : ScreenSpec {
         }
 
         FloatingWindowNavigationResultEffect<String>(
-            resultKey = UpdateCurrencySheetSpec.UPDATE_CURRENCY_RESULT,
+            resultKey = UpdateCurrencyPreferenceSheetSpec.UPDATE_CURRENCY_RESULT,
             navBackStackEntry = navBackStackEntry,
             viewModel,
             snackbarController,
             context
         ) { result ->
             when (result) {
-                UpdateCurrencySheetSpec.RESULT_CURRENCY_UPDATED -> {
+                UpdateCurrencyPreferenceSheetSpec.RESULT_CURRENCY_UPDATED -> {
                     snackbarController.showSnackbar(
                         UiText.StringResource(R.string.currency_updated).asString(context)
                     )
@@ -114,7 +105,7 @@ data object SettingsScreenSpec : ScreenSpec {
             navigateToBackupSettings = { navController.navigate(BackupSettingsScreenSpec.route) },
             navigateToSecuritySettings = { navController.navigate(SecuritySettingsScreenSpec.route) },
             navigateToUpdateBudget = { navController.navigate(UpdateBudgetSheetSpec.route) },
-            navigateToUpdateCurrency = { navController.navigate(UpdateCurrencySheetSpec.route) },
+            navigateToUpdateCurrency = { navController.navigate(UpdateCurrencyPreferenceSheetSpec.route) },
             launchUriInBrowser = {
                 val intent = Intent(Intent.ACTION_VIEW, it)
                 context.startActivity(intent)

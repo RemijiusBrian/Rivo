@@ -58,7 +58,7 @@ class BackupSettingsRepositoryImpl(
                 configKey = ConfigKeys.BACKUP_INTERVAL,
                 configValue = interval.name
             )
-            dao.insert(entity)
+            dao.upsert(entity)
 
             /*if (signInService.getSignedInAccount() == null) {
                 backupWorkManager.cancelAllWorks()

@@ -98,7 +98,7 @@ class TransactionAutoDetectNotificationHelper(
     private fun buildContentIntent(id: Long): PendingIntent? {
         val intent = Intent(
             Intent.ACTION_VIEW,
-            AddEditTransactionScreenSpec.buildAutoDetectTransactionDeeplinkUri(id),
+            AddEditTransactionScreenSpec.buildDeeplink(id),
             context,
             RivoActivity::class.java
         )

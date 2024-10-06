@@ -18,16 +18,20 @@ import dev.ridill.rivo.tags.presentation.addEditTag.AddEditTagSheet
 import dev.ridill.rivo.tags.presentation.addEditTag.AddEditTagViewModel
 
 data object AddEditTagSheetSpec : BottomSheetSpec {
-    override val labelRes: Int = R.string.destination_add_edit_transaction
-    override val route: String = "add_edit_tag/{$ARG_TAG_ID}"
+    override val labelRes: Int
+        get() = R.string.destination_add_edit_transaction
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_TAG_ID) {
-            type = NavType.LongType
-            nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
-        },
-    )
+    override val route: String
+        get() = "add_edit_tag/{$ARG_TAG_ID}"
+
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_TAG_ID) {
+                type = NavType.LongType
+                nullable = false
+                defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            },
+        )
 
     fun routeWithArg(tagId: Long? = null): String = route
         .replace(

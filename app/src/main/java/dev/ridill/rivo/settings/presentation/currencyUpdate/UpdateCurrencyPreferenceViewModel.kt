@@ -14,7 +14,7 @@ import java.util.Currency
 import javax.inject.Inject
 
 @HiltViewModel
-class UpdateCurrencyViewModel @Inject constructor(
+class UpdateCurrencyPreferenceViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repo: CurrencyPreferenceRepository,
     private val eventBus: EventBus<UpdateCurrencyEvent>
@@ -33,7 +33,7 @@ class UpdateCurrencyViewModel @Inject constructor(
     }
 
     fun onConfirm(currency: Currency) = viewModelScope.launch {
-        repo.saveCurrency(currency)
+        repo.saveCurrencyPreference(currency)
         eventBus.send(UpdateCurrencyEvent.CurrencyUpdated)
     }
 

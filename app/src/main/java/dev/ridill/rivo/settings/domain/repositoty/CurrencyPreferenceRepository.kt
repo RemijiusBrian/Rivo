@@ -12,7 +12,7 @@ interface CurrencyPreferenceRepository {
         date: LocalDate = DateUtil.dateNow()
     ): Flow<Currency>
 
-    suspend fun saveCurrency(
+    suspend fun saveCurrencyPreference(
         currency: Currency,
         date: LocalDate = DateUtil.dateNow()
     )

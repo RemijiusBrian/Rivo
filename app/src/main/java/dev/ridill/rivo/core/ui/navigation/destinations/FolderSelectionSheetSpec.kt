@@ -19,16 +19,20 @@ import dev.ridill.rivo.folders.presentation.folderSelection.FolderSelectionSheet
 import dev.ridill.rivo.folders.presentation.folderSelection.FolderSelectionViewModel
 
 data object FolderSelectionSheetSpec : BottomSheetSpec {
-    override val route: String = "folder_selection_sheet/{$ARG_PRE_SELECTED_ID}"
-    override val labelRes: Int = R.string.destination_folder_selection_sheet
+    override val route: String
+        get() = "folder_selection_sheet/{$ARG_PRE_SELECTED_ID}"
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_PRE_SELECTED_ID) {
-            type = NavType.LongType
-            nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
-        }
-    )
+    override val labelRes: Int
+        get() = R.string.destination_folder_selection_sheet
+
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_PRE_SELECTED_ID) {
+                type = NavType.LongType
+                nullable = false
+                defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            }
+        )
 
     fun routeWithArgs(preselectedId: Long?): String = route
         .replace(

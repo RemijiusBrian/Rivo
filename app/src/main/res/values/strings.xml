@@ -4,6 +4,7 @@
     <!-- Destination Labels -->
     <string name="destination_onboarding">Onboarding</string>
     <string name="destination_dashboard">Dashboard</string>
+    <string name="destination_add_edit_transaction_graph">Add/Edit Transaction Graph</string>
     <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
     <string name="destination_new_transaction">New Transaction</string>
     <string name="destination_edit_transaction">Edit Transaction</string>
@@ -26,6 +27,7 @@
     <string name="destination_account_details">Account</string>
     <string name="destination_amount_transformation_selection">Amount Transformation</string>
     <string name="destination_tag_selection">Select Tag</string>
+    <string name="destination_tags_graph">Tags Graph</string>
     <string name="destination_all_tags">All Tags</string>
     <string name="destination_add_edit_folder">Add/Edit Folder</string>
     <string name="destination_new_folder">New Folder</string>
@@ -35,7 +37,6 @@
 
     <!-- App Shortcuts -->
     <string name="shortcut_add_new_transaction_label">Add New Transaction</string>
-    <string name="shortcut_add_new_folder_label">Add New Folder</string>
 
     <!-- Notifications -->
     <string name="notification_channel_group_transactions_name">Transactions</string>
@@ -243,11 +244,11 @@
 
     <string name="monthly_budget_input_text">Set a monthly budget to keep your transactions within</string>
 
-    <string name="transaction_repeat_mode_one_time">Does not repeat</string>
-    <string name="transaction_repeat_mode_weekly">Weekly</string>
-    <string name="transaction_repeat_mode_monthly">Monthly</string>
-    <string name="transaction_repeat_mode_bi_monthly">Bi-monthly</string>
-    <string name="transaction_repeat_mode_yearly">Yearly</string>
+    <string name="schedule_repetition_no_repeat">Does not repeat</string>
+    <string name="schedule_repetition_weekly">Weekly</string>
+    <string name="schedule_repetition_monthly">Monthly</string>
+    <string name="schedule_repetition_bi_monthly">Bi-monthly</string>
+    <string name="schedule_repetition_yearly">Yearly</string>
 
     <string name="new_tag_input_text">Create a tag to help organize your transactions</string>
 

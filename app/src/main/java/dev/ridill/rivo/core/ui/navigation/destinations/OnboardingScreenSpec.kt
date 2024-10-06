@@ -36,8 +36,11 @@ import dev.ridill.rivo.onboarding.presentation.OnboardingViewModel
 import kotlinx.coroutines.launch
 
 data object OnboardingScreenSpec : ScreenSpec {
-    override val route: String = "onboarding"
-    override val labelRes: Int = R.string.destination_onboarding
+    override val route: String
+        get() = "onboarding"
+
+    override val labelRes: Int
+        get() = R.string.destination_onboarding
 
     @Composable
     override fun Content(

@@ -24,14 +24,21 @@ import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesScreen
 import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesViewModel
 
 data object AllSchedulesScreenSpec : ScreenSpec {
-    override val route: String = "all_schedules"
-    override val labelRes: Int = R.string.destination_all_schedules
+    override val route: String
+        get() = "all_schedules"
 
-    override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN }
-    )
+    override val labelRes: Int
+        get() = R.string.destination_all_schedules
 
-    fun getViewDeeplinkUri(): Uri = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN.toUri()
+    override val deepLinks: List<NavDeepLink>
+        get() = listOf(
+            navDeepLink {
+                uriPattern =
+                    DEEPLINK_URI_PATTERN
+            }
+        )
+
+    fun buildDeeplink(): Uri = DEEPLINK_URI_PATTERN.toUri()
 
     @Composable
     override fun Content(
@@ -86,5 +93,5 @@ data object AllSchedulesScreenSpec : ScreenSpec {
     }
 }
 
-private const val VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/view_all_schedules"
+private const val DEEPLINK_URI_PATTERN =
+    "${NavDestination.DEEP_LINK_URI}/schedules_list"

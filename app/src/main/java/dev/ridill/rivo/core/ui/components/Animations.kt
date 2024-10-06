@@ -11,6 +11,8 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -113,3 +115,25 @@ fun slideOutVerticallyWithFadeOut(
 ) + simpleFadeOut(
     animationSpec = tween(durationMillis = duration)
 )
+
+fun scaleInWithFadeIn(
+    duration: Int = AnimationConstants.DefaultDurationMillis,
+    initialScale: Float = DEFAULT_SCALE_FACTOR
+): EnterTransition = scaleIn(
+    animationSpec = tween(durationMillis = duration),
+    initialScale = initialScale
+) + simpleFadeIn(
+    animationSpec = tween(durationMillis = duration)
+)
+
+fun scaleOutWithFadeOut(
+    duration: Int = AnimationConstants.DefaultDurationMillis,
+    targetScale: Float = DEFAULT_SCALE_FACTOR
+): ExitTransition = scaleOut(
+    animationSpec = tween(durationMillis = duration),
+    targetScale = targetScale
+) + simpleFadeOut(
+    animationSpec = tween(durationMillis = duration)
+)
+
+private const val DEFAULT_SCALE_FACTOR = 0.9f

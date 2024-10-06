@@ -2,7 +2,7 @@ package dev.ridill.rivo.settings.data.repository
 
 import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.tryOrNull
-import dev.ridill.rivo.settings.data.local.CurrencyDao
+import dev.ridill.rivo.settings.data.local.CurrencyListDao
 import dev.ridill.rivo.settings.data.toEntity
 import dev.ridill.rivo.settings.domain.repositoty.AppInitRepository
 import kotlinx.coroutines.Dispatchers
@@ -10,10 +10,10 @@ import kotlinx.coroutines.withContext
 import java.util.Currency
 
 class AppInitRepositoryImpl(
-    private val currencyDao: CurrencyDao
+    private val currencyListDao: CurrencyListDao
 ) : AppInitRepository {
     override suspend fun needsInit(): Boolean = withContext(Dispatchers.IO) {
-        currencyDao.isTableEmpty()
+        currencyListDao.isTableEmpty()
     }
 
     override suspend fun initCurrenciesList() {
@@ -24,6 +24,6 @@ class AppInitRepositoryImpl(
             .distinctBy { it.currencyCode }
             .map(Currency::toEntity)
             .toTypedArray()
-        currencyDao.insert(*entities)
+        currencyListDao.upsert(*entities)
     }
 }

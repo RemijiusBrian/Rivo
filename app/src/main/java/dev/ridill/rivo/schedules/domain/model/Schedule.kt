@@ -12,20 +12,20 @@ data class Schedule(
     val type: TransactionType,
     val tagId: Long?,
     val folderId: Long?,
-    val repeatMode: ScheduleRepeatMode,
+    val repetition: ScheduleRepetition,
     val nextReminderDate: LocalDateTime?,
     val lastPaidDate: LocalDateTime?
 ) {
     companion object {
         fun fromTransaction(
             transaction: Transaction,
-            repeatMode: ScheduleRepeatMode
+            repeatMode: ScheduleRepetition
         ): Schedule = Schedule(
             id = transaction.id,
             amount = transaction.amount.toDoubleOrNull().orZero(),
             note = transaction.note.ifEmpty { null },
             type = transaction.type,
-            repeatMode = repeatMode,
+            repetition = repeatMode,
             tagId = transaction.tagId,
             folderId = transaction.folderId,
             nextReminderDate = transaction.timestamp,
