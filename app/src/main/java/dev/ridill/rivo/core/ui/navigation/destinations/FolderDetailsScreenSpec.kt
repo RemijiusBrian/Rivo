@@ -1,8 +1,5 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -21,8 +18,6 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
 
@@ -37,12 +32,6 @@ data object FolderDetailsScreenSpec : ScreenSpec {
             defaultValue = NavDestination.ARG_INVALID_ID_LONG
         }
     )
-
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { it } }
-
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { it } }
 
     fun routeWithArgs(folderId: Long): String = route
         .replace(

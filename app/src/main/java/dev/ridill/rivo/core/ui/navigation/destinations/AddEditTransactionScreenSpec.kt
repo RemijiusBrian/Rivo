@@ -73,17 +73,11 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         navDeepLink { uriPattern = ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN }
     )
 
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInVertically { it } }
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+        get() = { slideInVertically { it } }
 
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutVertically { it } }
-
-    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInVertically { it } }
-
-    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutVertically { it } }
+    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+        get() = { slideOutVertically { it } }
 
     fun routeWithArg(
         transactionId: Long? = null,

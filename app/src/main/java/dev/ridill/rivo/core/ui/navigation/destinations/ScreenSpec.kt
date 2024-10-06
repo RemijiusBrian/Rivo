@@ -3,14 +3,16 @@ package dev.ridill.rivo.core.ui.navigation.destinations
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavHostController
+import dev.ridill.rivo.core.ui.components.scaleInWithFadeIn
+import dev.ridill.rivo.core.ui.components.scaleOutWithFadeOut
+import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
+import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 
 sealed interface ScreenSpec : NavDestination {
     val arguments: List<NamedNavArgument>
@@ -20,16 +22,16 @@ sealed interface ScreenSpec : NavDestination {
         get() = emptyList()
 
     val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-        get() = { fadeIn() }
+        get() = { slideInHorizontallyWithFadeIn { it / 2 } }
 
     val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-        get() = { fadeOut() }
+        get() = { scaleOutWithFadeOut() }
 
     val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
-        get() = { fadeIn() }
+        get() = { scaleInWithFadeIn() }
 
     val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
-        get() = { fadeOut() }
+        get() = { slideOutHorizontallyWithFadeOut { it / 2 } }
 
     @Composable
     fun Content(

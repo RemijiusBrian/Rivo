@@ -2,9 +2,6 @@ package dev.ridill.rivo.core.ui.navigation.destinations
 
 import android.Manifest
 import android.content.Intent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,8 +15,6 @@ import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberPermissionState
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.core.ui.util.launchAppSettings
@@ -31,12 +26,6 @@ data object SettingsScreenSpec : ScreenSpec {
     override val route: String = "settings"
 
     override val labelRes: Int = R.string.destination_settings
-
-    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { -it } }
-
-    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { -it } }
 
     @Composable
     override fun Content(

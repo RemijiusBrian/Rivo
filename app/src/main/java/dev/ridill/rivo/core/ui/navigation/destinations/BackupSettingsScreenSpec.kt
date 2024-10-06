@@ -5,9 +5,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,8 +20,6 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.settings.presentation.backupEncryption.ACTION_ENCRYPTION_PASSWORD
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
@@ -37,18 +32,6 @@ data object BackupSettingsScreenSpec : ScreenSpec {
     override val deepLinks: List<NavDeepLink> = listOf(
         navDeepLink { uriPattern = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN }
     )
-
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { it } }
-
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { it } }
-
-    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { -it } }
-
-    override val popEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { -it } }
 
     fun buildBackupSettingsDeeplinkUri(): Uri = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN.toUri()
 

@@ -1,8 +1,5 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,20 +14,12 @@ import dev.ridill.rivo.account.presentation.accountDetails.AccountDetailsViewMod
 import dev.ridill.rivo.account.presentation.util.rememberCredentialService
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.components.slideInHorizontallyWithFadeIn
-import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.util.findActivity
 
 data object AccountDetailsScreenSpec : ScreenSpec {
     override val route: String = "account_details"
 
     override val labelRes: Int = R.string.destination_account_details
-
-    override val popExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? =
-        { slideOutHorizontallyWithFadeOut { it } }
-
-    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? =
-        { slideInHorizontallyWithFadeIn { it } }
 
     @Composable
     override fun Content(
