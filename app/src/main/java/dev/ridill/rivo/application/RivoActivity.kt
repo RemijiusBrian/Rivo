@@ -17,6 +17,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.navigation.BottomSheetNavigator
 import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -36,6 +37,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.ridill.rivo.R
@@ -45,6 +47,8 @@ import dev.ridill.rivo.core.domain.util.LocaleUtil
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.ui.components.circularReveal
 import dev.ridill.rivo.core.ui.navigation.RivoNavHost
+import dev.ridill.rivo.core.ui.navigation.destinations.DashboardScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.OnboardingScreenSpec
 import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.UiText
@@ -110,15 +114,27 @@ class RivoActivity : AppCompatActivity() {
                 AppTheme.DARK -> true
             }
 
+            val bottomSheetNavigator = rememberBottomSheetNavigator()
+            val navController = rememberNavController(bottomSheetNavigator)
+
+            LaunchedEffect(showOnboarding) {
+                if (showOnboarding) navController.navigate(OnboardingScreenSpec.route) {
+                    popUpTo(DashboardScreenSpec.route) {
+                        inclusive = true
+                    }
+                }
+            }
+
             val windowSizeClass = calculateWindowSizeClass(activity = this)
             CompositionLocalProvider(
                 LocalCurrencyPreference provides appCurrencyPreference
             ) {
                 ScreenContent(
+                    navController = navController,
+                    bottomSheetNavigator = bottomSheetNavigator,
                     windowSizeClass = windowSizeClass,
                     darkTheme = darkTheme,
                     dynamicTheme = dynamicTheme,
-                    showOnboarding = showOnboarding,
                     appLockErrorMessage = appLockErrorMessage,
                     isAppLocked = isAppLocked,
                     onUnlockClick = ::checkAndLaunchBiometric,
@@ -131,12 +147,11 @@ class RivoActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkAppPermissions()
-        viewModel.runAppUnlockAppProcess()
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.runAppLockProcess()
+    override fun onStop() {
+        super.onStop()
+        viewModel.startAppAutoLockTimer()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -203,10 +218,11 @@ const val EXTRA_RUN_CONFIG_RESTORE = "EXTRA_RUN_CONFIG_RESTORE"
 
 @Composable
 private fun ScreenContent(
+    navController: NavHostController,
+    bottomSheetNavigator: BottomSheetNavigator,
     windowSizeClass: WindowSizeClass,
     darkTheme: Boolean,
     dynamicTheme: Boolean,
-    showOnboarding: Boolean,
     appLockErrorMessage: UiText?,
     isAppLocked: Boolean,
     onUnlockClick: () -> Unit,
@@ -241,8 +257,6 @@ private fun ScreenContent(
         darkTheme = darkTheme,
         dynamicColor = dynamicTheme
     ) {
-        val bottomSheetNavigator = rememberBottomSheetNavigator()
-        val navController = rememberNavController(bottomSheetNavigator)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -250,8 +264,7 @@ private fun ScreenContent(
             RivoNavHost(
                 windowSizeClass = windowSizeClass,
                 bottomSheetNavigator = bottomSheetNavigator,
-                navController = navController,
-                startOnboarding = showOnboarding
+                navController = navController
             )
 
             if (showAppLock) {

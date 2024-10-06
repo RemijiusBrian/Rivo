@@ -15,7 +15,6 @@ import dev.ridill.rivo.core.ui.navigation.destinations.BottomSheetSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.DashboardScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.NavDestination
 import dev.ridill.rivo.core.ui.navigation.destinations.NavGraphSpec
-import dev.ridill.rivo.core.ui.navigation.destinations.OnboardingScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.ScreenSpec
 
 @Composable
@@ -23,14 +22,12 @@ fun RivoNavHost(
     windowSizeClass: WindowSizeClass,
     bottomSheetNavigator: BottomSheetNavigator,
     navController: NavHostController,
-    startOnboarding: Boolean,
     modifier: Modifier = Modifier
 ) {
     ModalBottomSheetLayout(bottomSheetNavigator) {
         NavHost(
             navController = navController,
-            startDestination = if (startOnboarding) OnboardingScreenSpec.route
-            else DashboardScreenSpec.route,
+            startDestination = DashboardScreenSpec.route,
             modifier = modifier
         ) {
             require(NavDestination.allDestinations.isNotEmpty()) {

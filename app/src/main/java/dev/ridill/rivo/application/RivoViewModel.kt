@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,15 +33,24 @@ class RivoViewModel @Inject constructor(
     private val eventBus: EventBus<RivoEvent>
 ) : ViewModel() {
     private val preferences = preferencesManager.preferences
-    val showOnboarding = preferences.map { it.showOnboarding }
+
+    val showOnboarding = preferences
+        .map { it.showOnboarding }
         .distinctUntilChanged()
-        .asStateFlow(viewModelScope, true)
+        .asStateFlow(viewModelScope, false)
+
     val appTheme = preferences.map { it.appTheme }
         .distinctUntilChanged()
+
     val dynamicThemeEnabled = preferences.map { it.dynamicColorsEnabled }
         .distinctUntilChanged()
-    val isAppLocked = preferences.map { it.isAppLocked }
+
+    val isAppLocked = preferences
+        .map { it.isAppLocked }
         .distinctUntilChanged()
+        .onStart { startAppUnlockOrServiceStop() }
+        .asStateFlow(viewModelScope, false)
+
     val appLockAuthErrorMessage = MutableStateFlow<UiText?>(null)
 
     val screenSecurityEnabled = preferences.map { it.screenSecurityEnabled }
@@ -89,14 +99,11 @@ class RivoViewModel @Inject constructor(
             }
     }
 
-    fun runAppLockProcess() = viewModelScope.launch {
+    fun startAppAutoLockTimer() = viewModelScope.launch {
         val preferences = preferences.first()
         if (!preferences.appLockEnabled || preferences.isAppLocked) return@launch
-        appLockServiceManager.startAppAutoLockTimer()
-    }
 
-    fun runAppUnlockAppProcess() = viewModelScope.launch {
-        startAppUnlockOrServiceStop()
+        appLockServiceManager.startAppAutoLockTimer()
     }
 
     private suspend fun startAppUnlockOrServiceStop() {
