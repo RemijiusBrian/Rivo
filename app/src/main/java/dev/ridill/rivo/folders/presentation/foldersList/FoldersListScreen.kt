@@ -1,23 +1,17 @@
 package dev.ridill.rivo.folders.presentation.foldersList
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ViewList
-import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -39,8 +33,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.model.ListMode
-import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
 import dev.ridill.rivo.core.ui.components.ListSeparator
@@ -63,8 +55,6 @@ import kotlin.math.absoluteValue
 fun FoldersListScreen(
     snackbarController: SnackbarController,
     foldersPagingItems: LazyPagingItems<FolderUIModel>,
-    state: FoldersListState,
-    actions: FoldersListActions,
     navigateToAddFolder: () -> Unit,
     navigateToFolderDetails: (Long) -> Unit,
     navigateUp: () -> Unit
@@ -78,13 +68,7 @@ fun FoldersListScreen(
             TopAppBar(
                 title = { Text(stringResource(FoldersListScreenSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
-                scrollBehavior = topAppBarScrollBehavior,
-                actions = {
-                    FolderListOptions(
-                        selectedListMode = state.listMode,
-                        onListModeToggle = actions::onListModeToggle
-                    )
-                }
+                scrollBehavior = topAppBarScrollBehavior
             )
         },
         modifier = Modifier
@@ -114,12 +98,7 @@ fun FoldersListScreen(
                     )
                 }
                 LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(
-                        when (state.listMode) {
-                            ListMode.LIST -> 1
-                            ListMode.GRID -> 2
-                        }
-                    ),
+                    columns = StaggeredGridCells.Fixed(2),
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
@@ -154,7 +133,6 @@ fun FoldersListScreen(
                                         contentType = "FolderCard"
                                     ) {
                                         FolderCard(
-                                            listMode = state.listMode,
                                             name = item.folderDetails.name,
                                             created = item.folderDetails.createdDateFormatted,
                                             excluded = item.folderDetails.excluded,
@@ -178,35 +156,7 @@ fun FoldersListScreen(
 }
 
 @Composable
-private fun FolderListOptions(
-    selectedListMode: ListMode,
-    onListModeToggle: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onListModeToggle) {
-            Crossfade(
-                targetState = selectedListMode,
-                label = "ListModeIcon"
-            ) { listMode ->
-                Icon(
-                    imageVector = when (listMode) {
-                        ListMode.LIST -> Icons.AutoMirrored.Rounded.ViewList
-                        ListMode.GRID -> Icons.Rounded.GridView
-                    },
-                    contentDescription = stringResource(R.string.cd_toggle_list_mode)
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun FolderCard(
-    listMode: ListMode,
     name: String,
     created: String,
     excluded: Boolean,
@@ -243,79 +193,32 @@ private fun FolderCard(
             .mergedContentDescription(folderContentDescription)
             .exclusionGraphicsLayer(excluded)
     ) {
-        Crossfade(
-            targetState = listMode,
-            label = "FolderCardContent"
-        ) { mode ->
-            when (mode) {
-                ListMode.LIST -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(MaterialTheme.spacing.medium),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(Float.One)
-                        ) {
-                            Text(
-                                text = name,
-                                style = nameStyle,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
+        Column(
+            modifier = Modifier
+                .padding(MaterialTheme.spacing.medium)
+        ) {
+            Text(
+                text = name,
+                style = nameStyle,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
 
-                            Text(
-                                text = created,
-                                style = createdDateStyle,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+            Text(
+                text = created,
+                style = createdDateStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
 
-                        AggregateAmountText(
-                            amount = aggregateAmount,
-                            type = aggregateType,
-                            horizontalAlignment = Alignment.End,
-                            modifier = Modifier
-                                .fillMaxWidth(AMOUNT_TEXT_WIDTH_FRACTION)
-                        )
-                    }
-                }
-
-                ListMode.GRID -> {
-                    Column(
-                        modifier = Modifier
-                            .padding(MaterialTheme.spacing.medium)
-                    ) {
-                        Text(
-                            text = name,
-                            style = nameStyle,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        Text(
-                            text = created,
-                            style = createdDateStyle,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        AggregateAmountText(
-                            amount = aggregateAmount,
-                            type = aggregateType,
-                            horizontalAlignment = Alignment.Start
-                        )
-                    }
-                }
-            }
+            AggregateAmountText(
+                amount = aggregateAmount,
+                type = aggregateType,
+                horizontalAlignment = Alignment.Start
+            )
         }
     }
 }
-
-private const val AMOUNT_TEXT_WIDTH_FRACTION = 0.50f
 
 @Composable
 private fun AggregateAmountText(

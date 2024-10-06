@@ -15,7 +15,6 @@ import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
 import dev.ridill.rivo.folders.presentation.addEditFolder.AddEditFolderViewModel
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
-import dev.ridill.rivo.settings.data.local.ConfigDao
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 
 @Module
@@ -27,11 +26,9 @@ object FolderModule {
 
     @Provides
     fun provideFoldersListRepository(
-        txFolderDao: FolderDao,
-        configDao: ConfigDao
+        folderDao: FolderDao
     ): FoldersListRepository = FoldersListRepositoryImpl(
-        folderDao = txFolderDao,
-        configDao = configDao
+        folderDao = folderDao
     )
 
     @Provides

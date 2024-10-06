@@ -5,10 +5,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -39,7 +37,6 @@ data object FoldersListScreenSpec : ScreenSpec {
         navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: FoldersListViewModel = hiltViewModel(navBackStackEntry)
-        val state by viewModel.state.collectAsStateWithLifecycle()
         val foldersPagingItems = viewModel.folderListPagingData.collectAsLazyPagingItems()
 
         val snackbarController = rememberSnackbarController()
@@ -74,8 +71,6 @@ data object FoldersListScreenSpec : ScreenSpec {
         FoldersListScreen(
             snackbarController = snackbarController,
             foldersPagingItems = foldersPagingItems,
-            state = state,
-            actions = viewModel,
             navigateToFolderDetails = {
                 navController.navigate(
                     FolderDetailsScreenSpec.routeWithArgs(it)
