@@ -24,12 +24,16 @@ import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesScreen
 import dev.ridill.rivo.schedules.presentation.allSchedules.AllSchedulesViewModel
 
 data object AllSchedulesScreenSpec : ScreenSpec {
-    override val route: String = "all_schedules"
-    override val labelRes: Int = R.string.destination_all_schedules
+    override val route: String
+        get() = "all_schedules"
 
-    override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN }
-    )
+    override val labelRes: Int
+        get() = R.string.destination_all_schedules
+
+    override val deepLinks: List<NavDeepLink>
+        get() = listOf(
+            navDeepLink { uriPattern = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN }
+        )
 
     fun getViewDeeplinkUri(): Uri = VIEW_ALL_SCHEDULES_DEEPLINK_URI_PATTERN.toUri()
 

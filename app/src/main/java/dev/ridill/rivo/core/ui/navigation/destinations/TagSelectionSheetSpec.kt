@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.domain.util.orFalse
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.navigateUpWithResult
@@ -22,22 +23,30 @@ import dev.ridill.rivo.tags.presentation.tagSelection.TagSelectionViewModel
 
 data object TagSelectionSheetSpec : BottomSheetSpec {
 
-    override val route: String =
-        "tag_selection/{$ARG_MULTI_SELECTION}?$ARG_PRE_SELECTED_IDS={$ARG_PRE_SELECTED_IDS}"
-    override val labelRes: Int = R.string.destination_tag_selection
+    override val route: String
+        get() = """
+            tag_selection
+            /{$ARG_MULTI_SELECTION}
+            ?$ARG_PRE_SELECTED_IDS={$ARG_PRE_SELECTED_IDS}
+        """.trimIndent()
+            .replace(String.NewLine, String.Empty)
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_MULTI_SELECTION) {
-            type = NavType.BoolType
-            nullable = false
-            defaultValue = false
-        },
-        navArgument(ARG_PRE_SELECTED_IDS) {
-            type = NavType.LongArrayType
-            nullable = false
-            defaultValue = longArrayOf()
-        }
-    )
+    override val labelRes: Int
+        get() = R.string.destination_tag_selection
+
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_MULTI_SELECTION) {
+                type = NavType.BoolType
+                nullable = false
+                defaultValue = false
+            },
+            navArgument(ARG_PRE_SELECTED_IDS) {
+                type = NavType.LongArrayType
+                nullable = false
+                defaultValue = longArrayOf()
+            }
+        )
 
     fun routeWithArgs(
         multiSelection: Boolean,

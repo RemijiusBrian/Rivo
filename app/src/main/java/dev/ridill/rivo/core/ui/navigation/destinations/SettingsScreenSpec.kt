@@ -23,9 +23,11 @@ import dev.ridill.rivo.settings.presentation.settings.SettingsViewModel
 
 data object SettingsScreenSpec : ScreenSpec {
 
-    override val route: String = "settings"
+    override val route: String
+        get() = "settings"
 
-    override val labelRes: Int = R.string.destination_settings
+    override val labelRes: Int
+        get() = R.string.destination_settings
 
     @Composable
     override fun Content(

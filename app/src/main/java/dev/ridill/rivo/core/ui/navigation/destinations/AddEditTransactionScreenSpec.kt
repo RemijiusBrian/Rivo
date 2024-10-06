@@ -35,43 +35,47 @@ import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTrans
 import java.time.LocalDateTime
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
-    override val route: String = """
+    override val route: String
+        get() = """
         add_edit_transaction/
         {$ARG_TRANSACTION_ID}
         ?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}
         &$ARG_IS_SCHEDULE_MODE_ACTIVE={$ARG_IS_SCHEDULE_MODE_ACTIVE}
         &$ARG_INITIAL_TIMESTAMP={$ARG_INITIAL_TIMESTAMP}
     """.trimIndent()
-        .replace(String.NewLine, String.Empty)
+            .replace(String.NewLine, String.Empty)
 
-    override val labelRes: Int = R.string.destination_add_edit_transaction
+    override val labelRes: Int
+        get() = R.string.destination_add_edit_transaction
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_TRANSACTION_ID) {
-            type = NavType.LongType
-            nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
-        },
-        navArgument(ARG_LINK_FOLDER_ID) {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument(ARG_IS_SCHEDULE_MODE_ACTIVE) {
-            type = NavType.BoolType
-            nullable = false
-            defaultValue = false
-        },
-        navArgument(ARG_INITIAL_TIMESTAMP) {
-            type = NavType.StringType
-            nullable = true
-            defaultValue = null
-        }
-    )
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_TRANSACTION_ID) {
+                type = NavType.LongType
+                nullable = false
+                defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            },
+            navArgument(ARG_LINK_FOLDER_ID) {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument(ARG_IS_SCHEDULE_MODE_ACTIVE) {
+                type = NavType.BoolType
+                nullable = false
+                defaultValue = false
+            },
+            navArgument(ARG_INITIAL_TIMESTAMP) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
 
-    override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN },
-        navDeepLink { uriPattern = ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN }
-    )
+    override val deepLinks: List<NavDeepLink>
+        get() = listOf(
+            navDeepLink { uriPattern = AUTO_DETECT_TRANSACTION_DEEPLINK_URI_PATTERN },
+            navDeepLink { uriPattern = ADD_TRANSACTION_SHORTCUT_DEEPLINK_URI_PATTERN }
+        )
 
     override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
         get() = { slideInVertically { it } }

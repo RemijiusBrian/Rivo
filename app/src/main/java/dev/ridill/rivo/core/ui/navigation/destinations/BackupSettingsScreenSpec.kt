@@ -25,13 +25,16 @@ import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsScreen
 import dev.ridill.rivo.settings.presentation.backupSettings.BackupSettingsViewModel
 
 data object BackupSettingsScreenSpec : ScreenSpec {
-    override val route: String = "backup_settings"
+    override val route: String
+        get() = "backup_settings"
 
-    override val labelRes: Int = R.string.destination_backup_settings
+    override val labelRes: Int
+        get() = R.string.destination_backup_settings
 
-    override val deepLinks: List<NavDeepLink> = listOf(
-        navDeepLink { uriPattern = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN }
-    )
+    override val deepLinks: List<NavDeepLink>
+        get() = listOf(
+            navDeepLink { uriPattern = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN }
+        )
 
     fun buildBackupSettingsDeeplinkUri(): Uri = VIEW_BACKUP_SETTINGS_DEEPLINK_URI_PATTERN.toUri()
 

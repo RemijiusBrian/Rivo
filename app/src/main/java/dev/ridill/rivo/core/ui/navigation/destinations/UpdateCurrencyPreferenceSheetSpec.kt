@@ -14,9 +14,11 @@ import dev.ridill.rivo.settings.presentation.currencyUpdate.UpdateCurrencyPrefer
 import dev.ridill.rivo.settings.presentation.currencyUpdate.UpdateCurrencyPreferenceViewModel
 
 data object UpdateCurrencyPreferenceSheetSpec : BottomSheetSpec {
-    override val route: String = "update_currency"
+    override val route: String
+        get() = "update_currency"
 
-    override val labelRes: Int = R.string.destination_update_currency
+    override val labelRes: Int
+        get() = R.string.destination_update_currency
 
     const val UPDATE_CURRENCY_RESULT = "UPDATE_CURRENCY_RESULT"
     const val RESULT_CURRENCY_UPDATED = "RESULT_CURRENCY_UPDATED"

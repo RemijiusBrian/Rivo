@@ -15,9 +15,11 @@ import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
 import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
 
 data object FoldersListScreenSpec : ScreenSpec {
-    override val route: String = "folders_list"
+    override val route: String
+        get() = "folders_list"
 
-    override val labelRes: Int = R.string.destination_folders_list
+    override val labelRes: Int
+        get() = R.string.destination_folders_list
 
     @Composable
     override fun Content(

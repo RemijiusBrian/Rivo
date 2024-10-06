@@ -28,9 +28,11 @@ import dev.ridill.rivo.settings.presentation.backupEncryption.BackupEncryptionVi
 import dev.ridill.rivo.settings.presentation.backupEncryption.ENCRYPTION_PASSWORD_UPDATED
 
 data object BackupEncryptionScreenSpec : ScreenSpec {
-    override val route: String = "backup_encryption"
+    override val route: String
+        get() = "backup_encryption"
 
-    override val labelRes: Int = R.string.destination_backup_encryption
+    override val labelRes: Int
+        get() = R.string.destination_backup_encryption
 
     @Composable
     override fun Content(

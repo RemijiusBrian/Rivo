@@ -22,9 +22,11 @@ import dev.ridill.rivo.transactions.presentation.allTransactions.AllTransactions
 
 data object AllTransactionsScreenSpec : ScreenSpec {
 
-    override val route: String = "all_transactions"
+    override val route: String
+        get() = "all_transactions"
 
-    override val labelRes: Int = R.string.destination_all_transactions
+    override val labelRes: Int
+        get() = R.string.destination_all_transactions
 
     @Composable
     override fun Content(

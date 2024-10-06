@@ -22,16 +22,20 @@ import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsScreen
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
 
 data object FolderDetailsScreenSpec : ScreenSpec {
-    override val route: String = "folder_details/{$ARG_FOLDER_ID}"
-    override val labelRes: Int = R.string.destination_folder_details
+    override val route: String
+        get() = "folder_details/{$ARG_FOLDER_ID}"
 
-    override val arguments: List<NamedNavArgument> = listOf(
-        navArgument(ARG_FOLDER_ID) {
-            type = NavType.LongType
-            nullable = false
-            defaultValue = NavDestination.ARG_INVALID_ID_LONG
-        }
-    )
+    override val labelRes: Int
+        get() = R.string.destination_folder_details
+
+    override val arguments: List<NamedNavArgument>
+        get() = listOf(
+            navArgument(ARG_FOLDER_ID) {
+                type = NavType.LongType
+                nullable = false
+                defaultValue = NavDestination.ARG_INVALID_ID_LONG
+            }
+        )
 
     fun routeWithArgs(folderId: Long): String = route
         .replace(

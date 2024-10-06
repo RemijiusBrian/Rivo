@@ -17,9 +17,11 @@ import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.util.findActivity
 
 data object AccountDetailsScreenSpec : ScreenSpec {
-    override val route: String = "account_details"
+    override val route: String
+        get() = "account_details"
 
-    override val labelRes: Int = R.string.destination_account_details
+    override val labelRes: Int
+        get() = R.string.destination_account_details
 
     @Composable
     override fun Content(

@@ -17,8 +17,11 @@ import dev.ridill.rivo.settings.presentation.budgetUpdate.UpdateBudgetViewModel
 
 data object UpdateBudgetSheetSpec : BottomSheetSpec {
 
-    override val route: String = "update_budget"
-    override val labelRes: Int = R.string.destination_update_budget
+    override val route: String
+        get() = "update_budget"
+
+    override val labelRes: Int
+        get() = R.string.destination_update_budget
 
     const val UPDATE_BUDGET_RESULT = "UPDATE_BUDGET_RESULT"
     const val RESULT_BUDGET_UPDATED = "RESULT_BUDGET_UPDATED"

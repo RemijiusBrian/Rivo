@@ -4,6 +4,7 @@
     <!-- Destination Labels -->
     <string name="destination_onboarding">Onboarding</string>
     <string name="destination_dashboard">Dashboard</string>
+    <string name="destination_add_edit_transaction_graph">Add/Edit Transaction Graph</string>
     <string name="destination_add_edit_transaction">Add/Edit Transaction</string>
     <string name="destination_new_transaction">New Transaction</string>
     <string name="destination_edit_transaction">Edit Transaction</string>
@@ -26,6 +27,7 @@
     <string name="destination_account_details">Account</string>
     <string name="destination_amount_transformation_selection">Amount Transformation</string>
     <string name="destination_tag_selection">Select Tag</string>
+    <string name="destination_tags_graph">Tags Graph</string>
     <string name="destination_all_tags">All Tags</string>
     <string name="destination_add_edit_folder">Add/Edit Folder</string>
     <string name="destination_new_folder">New Folder</string>

@@ -32,9 +32,11 @@ import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsSc
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
 
 data object SecuritySettingsScreenSpec : ScreenSpec {
-    override val route: String = "security_settings"
+    override val route: String
+        get() = "security_settings"
 
-    override val labelRes: Int = R.string.destination_security_settings
+    override val labelRes: Int
+        get() = R.string.destination_security_settings
 
     @Composable
     override fun Content(

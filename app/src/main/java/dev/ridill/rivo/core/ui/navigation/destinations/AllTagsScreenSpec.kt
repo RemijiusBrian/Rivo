@@ -13,9 +13,11 @@ import dev.ridill.rivo.tags.presentation.allTags.AllTagsScreen
 import dev.ridill.rivo.tags.presentation.allTags.AllTagsViewModel
 
 data object AllTagsScreenSpec : ScreenSpec {
-    override val route: String = "all_tags"
+    override val route: String
+        get() = "all_tags"
 
-    override val labelRes: Int = R.string.destination_all_tags
+    override val labelRes: Int
+        get() = R.string.destination_all_tags
 
     @Composable
     override fun Content(
