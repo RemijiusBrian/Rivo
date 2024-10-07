@@ -55,6 +55,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
@@ -79,19 +84,23 @@ import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
 import dev.ridill.rivo.core.ui.util.UiText
+import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.schedules.domain.model.ActiveSchedule
 import dev.ridill.rivo.tags.domain.model.Tag
+import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
 
 @Composable
 fun DashboardScreen(
-    state: DashboardState,
     snackbarController: SnackbarController,
+    recentSpends: LazyPagingItems<TransactionListItem>,
+    state: DashboardState,
     navigateToAllTransactions: () -> Unit,
     navigateToAddEditTransaction: (Long?) -> Unit,
     navigateToBottomNavDestination: (BottomNavDestination) -> Unit
@@ -101,8 +110,8 @@ fun DashboardScreen(
     val areActiveSchedulesEmpty by remember(state.activeSchedules) {
         derivedStateOf { state.activeSchedules.isEmpty() }
     }
-    val areRecentSpendsEmpty by remember(state.recentSpends) {
-        derivedStateOf { state.recentSpends.isEmpty() }
+    val areRecentSpendsEmpty by remember {
+        derivedStateOf { recentSpends.isEmpty() }
     }
 
     RivoScaffold(
@@ -253,22 +262,24 @@ fun DashboardScreen(
             }
 
             items(
-                items = state.recentSpends,
-                key = { it.id },
-                contentType = { "RecentSpendCard" }
-            ) { transaction ->
-                RecentSpendCard(
-                    note = transaction.note,
-                    amount = transaction.amountFormatted,
-                    date = transaction.date,
-                    type = transaction.type,
-                    tag = transaction.tag,
-                    folder = transaction.folder,
-                    onClick = { navigateToAddEditTransaction(transaction.id) },
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .animateItem()
-                )
+                count = recentSpends.itemCount,
+                key = recentSpends.itemKey { it.id },
+                contentType = recentSpends.itemContentType { "RecentSpendCard" }
+            ) { index ->
+                recentSpends[index]?.let { transaction ->
+                    RecentSpendCard(
+                        note = transaction.note,
+                        amount = transaction.amountFormatted,
+                        date = transaction.date,
+                        type = transaction.type,
+                        tag = transaction.tag,
+                        folder = transaction.folder,
+                        onClick = { navigateToAddEditTransaction(transaction.id) },
+                        modifier = Modifier
+                            .fillParentMaxWidth()
+                            .animateItem()
+                    )
+                }
             }
         }
     }
@@ -622,7 +633,8 @@ private fun PreviewDashboardScreen() {
             navigateToAllTransactions = {},
             navigateToAddEditTransaction = {},
             snackbarController = rememberSnackbarController(),
-            navigateToBottomNavDestination = {}
+            navigateToBottomNavDestination = {},
+            recentSpends = flowOf(PagingData.empty<TransactionListItem>()).collectAsLazyPagingItems()
         )
     }
 }

@@ -1,7 +1,5 @@
 package dev.ridill.rivo.transactions.presentation.allTransactions
 
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.state.ToggleableState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +24,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import java.time.Month
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,18 +35,13 @@ class AllTransactionsViewModel @Inject constructor(
     private val eventBus: EventBus<AllTransactionsEvent>
 ) : ViewModel(), AllTransactionsActions {
 
-    private val selectedDate = savedStateHandle
-        .getStateFlow(SELECTED_DATE, DateUtil.dateNow())
+    private val dateLimits = transactionRepo.getDateLimits()
+    private val selectedDateRange = savedStateHandle
+        .getStateFlow(SELECTED_DATE_RANGE, DateUtil.dateNow() to DateUtil.dateNow())
 
-    private val yearsList = transactionRepo.getTransactionYearsList()
-
-    private val currency = selectedDate.flatMapLatest {
-        transactionRepo.getCurrencyPreference(it)
-    }.distinctUntilChanged()
-
-    val tagInfoPagingData = selectedDate.flatMapLatest {
+    val tagInfoPagingData = selectedDateRange.flatMapLatest {
         tagsRepo.getTopTagInfoPagingData(
-            date = it,
+            dateRange = it,
             limit = 5
         )
     }.cachedIn(viewModelScope)
@@ -64,58 +57,46 @@ class AllTransactionsViewModel @Inject constructor(
         tagsRepo.getTagsListFlowByIds(ids)
     }
 
-    private val transactionList = combineTuple(
-        selectedDate,
-        selectedTagIds,
-        transactionTypeFilter,
-        showExcludedTransactions
-    ).flatMapLatest { (
-                          date,
-                          tagIds,
-                          typeFilter,
-                          showExcluded
-                      ) ->
-        transactionRepo.getAllTransactionsList(
-            date = date,
-            tagIds = tagIds,
-            transactionType = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            showExcluded = showExcluded
-        )
-    }.asStateFlow(viewModelScope, emptyList())
-
     private val selectedTransactionIds = savedStateHandle
         .getStateFlow<Set<Long>>(SELECTED_TRANSACTION_IDS, emptySet())
     private val transactionMultiSelectionModeActive = selectedTransactionIds
         .map { it.isNotEmpty() }
         .distinctUntilChanged()
 
-    private val transactionSelectionState = combineTuple(
-        transactionList,
-        selectedTransactionIds
-    ).map { (transactions, selectedIds) ->
-        when {
-            selectedIds.isEmpty() -> ToggleableState.Off
-            transactions.all { it.id in selectedIds } -> ToggleableState.On
-            else -> ToggleableState.Indeterminate
-        }
-    }.distinctUntilChanged()
-        .asStateFlow(viewModelScope, ToggleableState.Off)
+    val transactionsPagingData = combineTuple(
+        selectedDateRange,
+        transactionTypeFilter,
+        showExcludedTransactions,
+        selectedTagIds
+    ).flatMapLatest { (
+                          dateRange,
+                          typeFilter,
+                          showExcluded,
+                          tagIds
+                      ) ->
+        transactionRepo.getAllTransactionsPaged(
+            dateRange = dateRange,
+            transactionType = TransactionTypeFilter.mapToTransactionType(typeFilter),
+            showExcluded = showExcluded,
+            tagIds = tagIds
+        )
+    }.cachedIn(viewModelScope)
 
     private val aggregateAmount = combineTuple(
-        selectedDate,
+        selectedDateRange,
         transactionTypeFilter,
         selectedTagIds,
         showExcludedTransactions,
         selectedTransactionIds
     ).flatMapLatest { (
-                          date,
+                          dateRange,
                           typeFilter,
                           selectedTagIds,
                           addExcluded,
                           selectedTxIds
                       ) ->
         transactionRepo.getAmountAggregate(
-            date = date,
+            dateRange = dateRange,
             type = TransactionTypeFilter.mapToTransactionType(typeFilter),
             tagIds = selectedTagIds,
             addExcluded = addExcluded,
@@ -130,7 +111,6 @@ class AllTransactionsViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-
     private val showDeleteTransactionConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_TRANSACTION_CONFIRMATION, false)
 
@@ -144,15 +124,10 @@ class AllTransactionsViewModel @Inject constructor(
         .getStateFlow(SHOW_FILTER_OPTIONS, false)
 
     val state = combineTuple(
-        selectedDate,
-        yearsList,
         transactionTypeFilter,
-        currency,
         aggregateAmount,
         transactionListLabel,
-        transactionList,
         selectedTransactionIds,
-        transactionSelectionState,
         transactionMultiSelectionModeActive,
         showDeleteTransactionConfirmation,
         showExcludedTransactions,
@@ -161,15 +136,10 @@ class AllTransactionsViewModel @Inject constructor(
         showFilterOptions,
         selectedTags
     ).map { (
-                selectedDate,
-                yearsList,
                 transactionTypeFilter,
-                currency,
                 aggregateAmount,
                 transactionListLabel,
-                transactionList,
                 selectedTransactionIds,
-                transactionSelectionState,
                 transactionMultiSelectionModeActive,
                 showDeleteTransactionConfirmation,
                 showExcludedTransactions,
@@ -179,15 +149,10 @@ class AllTransactionsViewModel @Inject constructor(
                 selectedTags
             ) ->
         AllTransactionsState(
-            selectedDate = selectedDate,
-            yearsList = yearsList,
             selectedTransactionTypeFilter = transactionTypeFilter,
-            currency = currency,
             aggregateAmount = aggregateAmount,
             transactionListLabel = transactionListLabel,
-            transactionList = transactionList,
             selectedTransactionIds = selectedTransactionIds,
-            transactionSelectionState = transactionSelectionState,
             transactionMultiSelectionModeActive = transactionMultiSelectionModeActive,
             showDeleteTransactionConfirmation = showDeleteTransactionConfirmation,
             showExcludedTransactions = showExcludedTransactions,
@@ -201,37 +166,23 @@ class AllTransactionsViewModel @Inject constructor(
     val events = eventBus.eventFlow
 
     init {
-        refreshSelectedIdsListOnTransactionListChange()
-        keepSelectedDateUpdated()
+        keepSelectedDateRangeUpdated()
     }
 
-    private fun refreshSelectedIdsListOnTransactionListChange() = viewModelScope.launch {
-        transactionList.collectLatest { list ->
-            val ids = list.map { it.id }
-            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value
-                .filter { it in ids }
-                .toSet()
+    private fun keepSelectedDateRangeUpdated() = viewModelScope.launch {
+        dateLimits.collectLatest { (minDate, maxDate) ->
+            val (currentMin, currentMax) = selectedDateRange.value
+            savedStateHandle[SELECTED_DATE_RANGE] =
+                currentMin.coerceAtLeast(minDate) to currentMax.coerceAtMost(maxDate)
         }
     }
 
-    private fun keepSelectedDateUpdated() = viewModelScope.launch {
-        yearsList.collectLatest { yearsList ->
-            val selectedDate = selectedDate.value
-            if (selectedDate.year !in yearsList) {
-                savedStateHandle[SELECTED_DATE] = DateUtil.dateNow()
-                    .withMonth(selectedDate.monthValue)
-            }
-        }
+    override fun onStartDateSelect(date: LocalDate) {
+        savedStateHandle[SELECTED_DATE_RANGE] = selectedDateRange.value.copy(first = date)
     }
 
-    override fun onMonthSelect(month: Month) {
-        dismissMultiSelectionMode()
-        savedStateHandle[SELECTED_DATE] = selectedDate.value.withMonth(month.value)
-    }
-
-    override fun onYearSelect(year: Int) {
-        dismissMultiSelectionMode()
-        savedStateHandle[SELECTED_DATE] = selectedDate.value.withYear(year)
+    override fun onEndDateSelect(date: LocalDate) {
+        savedStateHandle[SELECTED_DATE_RANGE] = selectedDateRange.value.copy(second = date)
     }
 
     override fun onTypeFilterSelect(filter: TransactionTypeFilter) {
@@ -245,35 +196,15 @@ class AllTransactionsViewModel @Inject constructor(
     }
 
     override fun onTransactionLongPress(id: Long) {
-        viewModelScope.launch {
-            savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value + id
-            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
-        }
+        savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value + id
     }
 
     override fun onTransactionSelectionChange(id: Long) {
         savedStateHandle[SELECTED_TRANSACTION_IDS] = selectedTransactionIds.value.addOrRemove(id)
     }
 
-    override fun onSelectionStateChange() {
-        when (transactionSelectionState.value) {
-            ToggleableState.On -> {
-                savedStateHandle[SELECTED_TRANSACTION_IDS] = emptySet<Long>()
-            }
-
-            else -> {
-                savedStateHandle[SELECTED_TRANSACTION_IDS] = transactionList.value
-                    .map { it.id }
-                    .toSet()
-            }
-        }
-    }
-
     override fun onDismissMultiSelectionMode() {
-        viewModelScope.launch {
-            dismissMultiSelectionMode()
-            eventBus.send(AllTransactionsEvent.ProvideHapticFeedback(HapticFeedbackType.LongPress))
-        }
+        dismissMultiSelectionMode()
     }
 
     private fun dismissMultiSelectionMode() {
@@ -456,13 +387,10 @@ class AllTransactionsViewModel @Inject constructor(
     override fun onAggregationConfirm() {
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
-            val selectedDate = selectedDate.value
             val dateTimeNow = DateUtil.now()
             transactionRepo.aggregateIntoSingleNewTransactions(
                 ids = selectedIds,
                 dateTime = dateTimeNow
-                    .withMonth(selectedDate.monthValue)
-                    .withYear(selectedDate.year)
             )
             savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = false
             eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.aggregation_successful)))
@@ -479,7 +407,6 @@ class AllTransactionsViewModel @Inject constructor(
 
     sealed interface AllTransactionsEvent {
         data class ShowUiMessage(val uiText: UiText) : AllTransactionsEvent
-        data class ProvideHapticFeedback(val type: HapticFeedbackType) : AllTransactionsEvent
         data class NavigateToTagSelection(
             val multiSelection: Boolean,
             val preSelectedIds: Set<Long>
@@ -490,7 +417,7 @@ class AllTransactionsViewModel @Inject constructor(
     }
 }
 
-private const val SELECTED_DATE = "SELECTED_DATE"
+private const val SELECTED_DATE_RANGE = "SELECTED_DATE_RANGE"
 private const val TRANSACTION_TYPE_FILTER = "TRANSACTION_TYPE_FILTER"
 private const val SELECTED_TAG_IDS = "SELECTED_TAG_IDS"
 private const val SELECTED_TRANSACTION_IDS = "SELECTED_TRANSACTION_IDS"

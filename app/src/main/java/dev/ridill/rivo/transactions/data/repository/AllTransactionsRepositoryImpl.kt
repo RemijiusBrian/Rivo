@@ -1,17 +1,22 @@
 package dev.ridill.rivo.transactions.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import androidx.room.withTransaction
 import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
-import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.settings.domain.repositoty.CurrencyPreferenceRepository
 import dev.ridill.rivo.transactions.data.local.TransactionDao
 import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.data.toTransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.Dispatchers
@@ -37,35 +42,65 @@ class AllTransactionsRepositoryImpl(
         dao.deleteMultipleTransactionsById(ids)
     }
 
-    override fun getTransactionYearsList(): Flow<List<Int>> =
-        dao.getYearsFromTransactions()
-            .map { it.ifEmpty { listOf(DateUtil.now().year) } }
-
     override fun getAmountAggregate(
-        date: LocalDate?,
+        dateRange: Pair<LocalDate, LocalDate>?,
         type: TransactionType?,
-        tagIds: Set<Long>,
         addExcluded: Boolean,
+        tagIds: Set<Long>,
         selectedTxIds: Set<Long>
     ): Flow<Double> = dao.getAmountAggregate(
-        date = date,
-        typeName = type?.name,
+        startDate = dateRange?.first,
+        endDate = dateRange?.second,
+        type = type,
         tagIds = tagIds.takeIf { it.isNotEmpty() },
         addExcluded = addExcluded,
         selectedTxIds = selectedTxIds.takeIf { it.isNotEmpty() }
     ).distinctUntilChanged()
 
-    override fun getAllTransactionsList(
-        date: LocalDate,
-        tagIds: Set<Long>,
+    override fun getDateLimits(): Flow<Pair<LocalDate, LocalDate>> = dao.getDateLimits()
+        .map { limits -> limits.minDate to limits.maxDate }
+        .distinctUntilChanged()
+
+    override fun getAllTransactionsPaged(
+        dateRange: Pair<LocalDate, LocalDate>?,
         transactionType: TransactionType?,
-        showExcluded: Boolean
-    ): Flow<List<TransactionListItem>> = dao.getTransactionsList(
-        date = date,
-        transactionTypeName = transactionType?.name,
-        tagIds = tagIds.takeIf { it.isNotEmpty() },
-        showExcluded = showExcluded
-    ).map { it.map(TransactionDetailsView::toTransactionListItem) }
+        showExcluded: Boolean,
+        tagIds: Set<Long>?,
+        folderId: Long?
+    ): Flow<PagingData<TransactionListItemUIModel>> = Pager(
+        config = PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)
+    ) {
+        dao.getTransactionsPaged(
+            startDate = dateRange?.first,
+            endDate = dateRange?.second,
+            type = transactionType,
+            showExcluded = showExcluded,
+            tagIds = tagIds?.takeIf { it.isNotEmpty() },
+            folderId = folderId
+        )
+    }.flow
+        .map { it.map(TransactionDetailsView::toTransactionListItem) }
+        .map { pagingData ->
+            pagingData.map { TransactionListItemUIModel.TransactionItem(it) }
+        }
+        .map { pagingData ->
+            pagingData
+                .insertSeparators<TransactionListItemUIModel.TransactionItem, TransactionListItemUIModel>
+                { before, after ->
+                    if (before?.transaction?.timestamp
+                            ?.withDayOfMonth(1)
+                            ?.toLocalDate()
+                        != after?.transaction?.timestamp
+                            ?.withDayOfMonth(1)
+                            ?.toLocalDate()
+                    ) after?.transaction?.timestamp
+                        ?.withDayOfMonth(1)
+                        ?.toLocalDate()
+                        ?.let { localDate ->
+                            TransactionListItemUIModel.DateSeparator(localDate)
+                        } else null
+                }
+        }
 
     override suspend fun setTagIdToTransactions(
         tagId: Long?,
@@ -74,9 +109,9 @@ class AllTransactionsRepositoryImpl(
         dao.setTagIdToTransactionsByIds(tagId = tagId, ids = transactionIds)
     }
 
-    override fun getShowExcludedOption(): Flow<Boolean> =
-        preferencesManager.preferences.map { it.allTransactionsShowExcludedOption }
-            .distinctUntilChanged()
+    override fun getShowExcludedOption(): Flow<Boolean> = preferencesManager.preferences
+        .map { it.allTransactionsShowExcludedOption }
+        .distinctUntilChanged()
 
     override suspend fun toggleShowExcludedOption(show: Boolean) =
         preferencesManager.updateAllTransactionsShowExcludedOption(show)

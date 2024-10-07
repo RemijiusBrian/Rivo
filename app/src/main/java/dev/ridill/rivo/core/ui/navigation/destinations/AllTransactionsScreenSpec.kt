@@ -5,7 +5,6 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -37,11 +36,11 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         val viewModel: AllTransactionsViewModel = hiltViewModel(navBackStackEntry)
         val tagInfoLazyPagingItems = viewModel.tagInfoPagingData.collectAsLazyPagingItems()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val transactionsLazyPagingItems =
+            viewModel.transactionsPagingData.collectAsLazyPagingItems()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
-
-        val hapticFeedback = LocalHapticFeedback.current
 
         FloatingWindowNavigationResultEffect(
             resultKey = FolderSelectionSheetSpec.SELECTED_FOLDER_ID,
@@ -77,10 +76,6 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                     )
                 }
 
-                is AllTransactionsViewModel.AllTransactionsEvent.ProvideHapticFeedback -> {
-                    hapticFeedback.performHapticFeedback(event.type)
-                }
-
                 AllTransactionsViewModel.AllTransactionsEvent.NavigateToFolderSelection -> {
                     navController.navigate(FolderSelectionSheetSpec.routeWithArgs(null))
                 }
@@ -111,6 +106,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
         AllTransactionsScreen(
             snackbarController = snackbarController,
             tagsPagingItems = tagInfoLazyPagingItems,
+            transactionsLazyPagingItems = transactionsLazyPagingItems,
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,

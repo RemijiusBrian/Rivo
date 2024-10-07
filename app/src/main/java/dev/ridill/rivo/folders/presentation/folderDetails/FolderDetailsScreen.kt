@@ -127,7 +127,7 @@ fun FolderDetailsScreen(
                 contentType = "FolderDetails"
             ) {
                 FolderDetails(
-                    folderName = state.folderNname,
+                    folderName = state.folderName,
                     isExcluded = state.isExcluded,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,

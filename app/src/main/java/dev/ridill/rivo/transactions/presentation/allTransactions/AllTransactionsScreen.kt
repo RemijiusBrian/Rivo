@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +49,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -60,12 +58,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
@@ -74,12 +73,13 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.ExcludedIcon
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
+import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
@@ -104,28 +104,27 @@ import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.domain.model.TagInfo
 import dev.ridill.rivo.tags.presentation.components.ElevatedTagChip
 import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
-import java.time.Month
-import java.time.format.TextStyle
-import java.util.Currency
-import java.util.Locale
 import kotlin.math.absoluteValue
 
 @Composable
 fun AllTransactionsScreen(
     snackbarController: SnackbarController,
     tagsPagingItems: LazyPagingItems<TagInfo>,
+    transactionsLazyPagingItems: LazyPagingItems<TransactionListItemUIModel>,
     state: AllTransactionsState,
     actions: AllTransactionsActions,
     navigateToAllTags: () -> Unit,
     navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
     navigateUp: () -> Unit
 ) {
-    val isTransactionListEmpty by remember(state.transactionList) {
-        derivedStateOf { state.transactionList.isEmpty() }
+    val hapticFeedback = LocalHapticFeedback.current
+    val areTransactionsEmpty by remember {
+        derivedStateOf { transactionsLazyPagingItems.isEmpty() }
     }
 
     BackHandler(
@@ -217,24 +216,17 @@ fun AllTransactionsScreen(
                 key = "TransactionListHeader",
                 contentType = "TransactionListHeader"
             ) {
-                TransactionListDateFilterAndLabel(
-                    selectedDate = state.selectedDate,
-                    onMonthSelect = actions::onMonthSelect,
-                    yearsList = state.yearsList,
-                    onYearSelect = actions::onYearSelect,
+                TransactionListLabel(
                     multiSelectionModeActive = state.transactionMultiSelectionModeActive,
                     totalSumAmount = state.aggregateAmount,
-                    currency = state.currency,
                     selectedTxTypeFilter = state.selectedTransactionTypeFilter,
                     listLabel = state.transactionListLabel,
-                    multiSelectionState = state.transactionSelectionState,
-                    onSelectionStateChange = actions::onSelectionStateChange,
                     modifier = Modifier
                         .animateItem()
                 )
             }
 
-            if (isTransactionListEmpty) {
+            if (areTransactionsEmpty) {
                 item(
                     key = "ListEmptyIndicator",
                     contentType = "ListEmptyIndicator"
@@ -246,41 +238,67 @@ fun AllTransactionsScreen(
                     )
                 }
             }
-            items(
-                items = state.transactionList,
-                key = { it.id },
-                contentType = { "TransactionCard" }
-            ) { transaction ->
-                val clickableModifier = if (state.transactionMultiSelectionModeActive) Modifier
-                    .toggleable(
-                        value = transaction.id in state.selectedTransactionIds,
-                        onValueChange = { actions.onTransactionSelectionChange(transaction.id) }
-                    )
-                else Modifier.combinedClickable(
-                    role = Role.Button,
-                    onClick = { navigateToAddEditTransaction(transaction.id, null) },
-                    onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
-                    onLongClick = { actions.onTransactionLongPress(transaction.id) },
-                    onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
-                )
+            repeat(transactionsLazyPagingItems.itemCount) { index ->
+                transactionsLazyPagingItems[index]?.let { item ->
+                    when (item) {
+                        is TransactionListItemUIModel.DateSeparator -> {
+                            stickyHeader(
+                                key = item.date.toString(),
+                                contentType = "TransactionDateSeparator"
+                            ) {
+                                ListSeparator(
+                                    label = item.date.format(DateUtil.Formatters.MMMM_yyyy_spaceSep),
+                                    modifier = Modifier
+                                        .animateItem()
+                                )
+                            }
+                        }
 
-                val selected = remember(state.selectedTransactionIds) {
-                    transaction.id in state.selectedTransactionIds
+                        is TransactionListItemUIModel.TransactionItem -> {
+                            item(
+                                key = item.transaction.id,
+                                contentType = "TransactionListItem"
+                            ) {
+                                val selected = remember(state.selectedTransactionIds) {
+                                    item.transaction.id in state.selectedTransactionIds
+                                }
+                                val clickableModifier =
+                                    if (state.transactionMultiSelectionModeActive) Modifier
+                                        .toggleable(
+                                            value = selected,
+                                            onValueChange = {
+                                                actions.onTransactionSelectionChange(item.transaction.id)
+                                            }
+                                        )
+                                    else Modifier.combinedClickable(
+                                        role = Role.Button,
+                                        onClick = {
+                                            navigateToAddEditTransaction(item.transaction.id, null)
+                                        },
+                                        onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
+                                        onLongClick = {
+                                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            actions.onTransactionLongPress(item.transaction.id)
+                                        },
+                                        onLongClickLabel = stringResource(R.string.cd_long_press_to_toggle_selection)
+                                    )
+
+                                TransactionListItem(
+                                    note = item.transaction.note,
+                                    amount = item.transaction.amountFormatted,
+                                    date = item.transaction.date,
+                                    type = item.transaction.type,
+                                    tag = item.transaction.tag,
+                                    excluded = item.transaction.excluded,
+                                    tonalElevation = if (selected) MaterialTheme.elevation.level1 else MaterialTheme.elevation.level0,
+                                    modifier = Modifier
+                                        .then(clickableModifier)
+                                        .animateItem(),
+                                )
+                            }
+                        }
+                    }
                 }
-
-                TransactionListItem(
-                    note = transaction.note,
-                    amount = transaction.amountFormattedWithCurrency(state.currency),
-                    date = transaction.date,
-                    type = transaction.type,
-                    modifier = Modifier
-                        .then(clickableModifier)
-                        .animateItem(),
-                    tag = transaction.tag,
-                    folder = transaction.folder,
-                    excluded = transaction.excluded,
-                    tonalElevation = if (selected) MaterialTheme.elevation.level1 else MaterialTheme.elevation.level0
-                )
             }
         }
     }
@@ -313,10 +331,11 @@ fun AllTransactionsScreen(
     if (state.showFilterOptions) {
         FilterOptionsSheet(
             onDismissRequest = actions::onFilterOptionsDismiss,
-            selectedDate = state.selectedDate,
-            yearsList = state.yearsList,
-            onMonthSelect = actions::onMonthSelect,
-            onYearSelect = actions::onYearSelect,
+            dateRangeLimits = DateUtil.dateNow().withMonth(1) to DateUtil.dateNow().withMonth(12),
+            selectedStartDate = DateUtil.dateNow(),
+            onStartDateSelect = {},
+            selectedEndDate = DateUtil.dateNow(),
+            onEndDateSelect = {},
             selectedTypeFilter = state.selectedTransactionTypeFilter,
             onTypeFilterSelect = actions::onTypeFilterSelect,
             showExcluded = state.showExcludedTransactions,
@@ -476,18 +495,11 @@ private fun TagInfoCard(
 }
 
 @Composable
-private fun TransactionListDateFilterAndLabel(
-    selectedDate: LocalDate,
-    onMonthSelect: (Month) -> Unit,
-    yearsList: List<Int>,
-    onYearSelect: (Int) -> Unit,
+private fun TransactionListLabel(
     multiSelectionModeActive: Boolean,
     totalSumAmount: Double,
-    currency: Currency,
     selectedTxTypeFilter: TransactionTypeFilter,
     listLabel: UiText,
-    multiSelectionState: ToggleableState,
-    onSelectionStateChange: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -502,7 +514,6 @@ private fun TransactionListDateFilterAndLabel(
             AggregateAmount(
                 multiSelectionModeActive = multiSelectionModeActive,
                 sumAmount = totalSumAmount,
-                currency = currency,
                 typeFilter = selectedTxTypeFilter,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -516,199 +527,14 @@ private fun TransactionListDateFilterAndLabel(
                     )
             )
 
-            TransactionLabelHeader(
-                listLabel = listLabel,
-                multiSelectionModeActive = multiSelectionModeActive,
-                multiSelectionState = multiSelectionState,
-                onSelectionStateChange = onSelectionStateChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
-    }
-}
-
-/*@Composable
-private fun DateFilter(
-    selectedDate: LocalDate,
-    onMonthSelect: (Month) -> Unit,
-    yearsList: List<Int>,
-    onYearSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val monthsList = remember { Month.entries.toTypedArray() }
-
-    val monthsListState = rememberLazyListState()
-
-    var showYearsList by remember { mutableStateOf(false) }
-
-    // Scroll to initial selected month
-    LaunchedEffect(monthsListState) {
-        monthsListState.scrollToItem(selectedDate.monthValue - 1)
-    }
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            DateIndicator(
-                date = selectedDate,
-                isExpanded = showYearsList,
-                onClick = { showYearsList = !showYearsList },
+            Crossfade(
+                targetState = listLabel.asString(),
+                label = "SelectedTagNameAnimatedLabel",
                 modifier = Modifier
                     .padding(horizontal = MaterialTheme.spacing.medium)
-            )
-            AnimatedVisibility(
-                visible = showYearsList,
-                enter = slideInHorizontally { it / 2 } + fadeIn(),
-                exit = slideOutHorizontally { it / 2 } + fadeOut()
             ) {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                    contentPadding = PaddingValues(
-                        start = MaterialTheme.spacing.medium,
-                        end = PaddingScrollEnd
-                    )
-                ) {
-                    items(
-                        items = yearsList,
-                        key = { it },
-                        contentType = { "YearChip" }
-                    ) { year ->
-                        ElevatedFilterChip(
-                            selected = year == selectedDate.year,
-                            onClick = { onYearSelect(year) },
-                            label = { Text(year.toString()) },
-                            modifier = Modifier
-                                .animateItem()
-                        )
-                    }
-                }
+                ListLabel(text = it)
             }
-        }
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            contentPadding = PaddingValues(
-                start = MaterialTheme.spacing.medium,
-                end = PaddingScrollEnd
-            ),
-            state = monthsListState
-        ) {
-            items(
-                items = monthsList,
-                key = { it.value },
-                contentType = { "MonthChip" }
-            ) { month ->
-                ElevatedFilterChip(
-                    selected = month == selectedDate.month,
-                    onClick = { onMonthSelect(month) },
-                    label = {
-                        Text(
-                            text = month.getDisplayName(
-                                TextStyle.FULL_STANDALONE,
-                                Locale.getDefault()
-                            ),
-                            modifier = Modifier
-                                .animateItem()
-                        )
-                    }
-                )
-            }
-        }
-    }
-}*/
-
-/*@Composable
-private fun DateIndicator(
-    date: LocalDate,
-    isExpanded: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val selectedIndicatorRotation by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = tween(AnimationConstants.DefaultDurationMillis),
-        label = "SelectedIndicatorRotation"
-    )
-
-    Surface(
-        tonalElevation = 2.dp,
-        shape = MaterialTheme.shapes.small,
-        modifier = modifier
-            .clickable(
-                onClick = onClick,
-                role = Role.Button
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(MaterialTheme.spacing.small),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.CalendarClock,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(FloatingActionButtonDefaults.LargeIconSize)
-            )
-            AnimatedContent(
-                targetState = date,
-                label = "AnimatedDateText"
-            ) { date ->
-                Column {
-                    Text(
-                        text = date.month.getDisplayName(
-                            TextStyle.FULL_STANDALONE,
-                            Locale.getDefault()
-                        ),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    Text(
-                        text = date.year.toString(),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowLeft,
-                contentDescription = stringResource(R.string.cd_show_years_list),
-                modifier = Modifier
-                    .rotate(selectedIndicatorRotation)
-            )
-        }
-    }
-}*/
-
-@Composable
-private fun TransactionLabelHeader(
-    listLabel: UiText,
-    multiSelectionModeActive: Boolean,
-    multiSelectionState: ToggleableState,
-    onSelectionStateChange: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Crossfade(
-            targetState = listLabel.asString(),
-            label = "SelectedTagNameAnimatedLabel",
-            modifier = Modifier
-                .padding(horizontal = MaterialTheme.spacing.medium)
-                .weight(Float.One)
-        ) { ListLabel(text = it) }
-
-        AnimatedVisibility(visible = multiSelectionModeActive) {
-            TriStateCheckbox(
-                state = multiSelectionState,
-                onClick = onSelectionStateChange
-            )
         }
     }
 }
@@ -716,7 +542,6 @@ private fun TransactionLabelHeader(
 @Composable
 private fun AggregateAmount(
     multiSelectionModeActive: Boolean,
-    currency: Currency,
     sumAmount: Double,
     typeFilter: TransactionTypeFilter,
     modifier: Modifier = Modifier
@@ -729,7 +554,7 @@ private fun AggregateAmount(
                 else -> typeFilter.labelRes
             }
         ),
-        TextFormat.currency(amount = sumAmount.absoluteValue, currency = currency)
+        TextFormat.currencyAmount(sumAmount.absoluteValue)
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -817,10 +642,11 @@ private fun MultiSelectionOptionsSheet(
 @Composable
 private fun FilterOptionsSheet(
     onDismissRequest: () -> Unit,
-    selectedDate: LocalDate,
-    yearsList: List<Int>,
-    onMonthSelect: (Month) -> Unit,
-    onYearSelect: (Int) -> Unit,
+    dateRangeLimits: Pair<LocalDate, LocalDate>,
+    selectedStartDate: LocalDate?,
+    onStartDateSelect: (LocalDate) -> Unit,
+    selectedEndDate: LocalDate?,
+    onEndDateSelect: (LocalDate) -> Unit,
     selectedTypeFilter: TransactionTypeFilter,
     onTypeFilterSelect: (TransactionTypeFilter) -> Unit,
     selectedTags: List<Tag>,
@@ -845,11 +671,15 @@ private fun FilterOptionsSheet(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
             FilterSectionTitle(R.string.date)
-            DateFilterList(
-                selectedDate = selectedDate,
-                onMonthSelect = onMonthSelect,
-                yearsList = yearsList,
-                onYearSelect = onYearSelect
+            DateRangeFilter(
+                limits = dateRangeLimits,
+                selectedStartDate = selectedStartDate,
+                onStartDateSelect = onStartDateSelect,
+                selectedEndDate = selectedEndDate,
+                onEndDateSelect = onEndDateSelect,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.medium)
             )
             SpacerMedium()
 
@@ -953,77 +783,30 @@ private fun FilterSectionTitle(
 }
 
 @Composable
-private fun DateFilterList(
-    selectedDate: LocalDate,
-    onMonthSelect: (Month) -> Unit,
-    yearsList: List<Int>,
-    onYearSelect: (Int) -> Unit,
+private fun DateRangeFilter(
+    limits: Pair<LocalDate, LocalDate>,
+    selectedStartDate: LocalDate?,
+    onStartDateSelect: (LocalDate) -> Unit,
+    selectedEndDate: LocalDate?,
+    onEndDateSelect: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val monthsList = remember { Month.entries.toTypedArray() }
-
-    val monthsListState = rememberLazyListState()
-
-    // Scroll to initial selected month
-    LaunchedEffect(monthsListState) {
-        monthsListState.scrollToItem(selectedDate.monthValue - 1)
-    }
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-    ) {
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            contentPadding = PaddingValues(
-                start = MaterialTheme.spacing.medium,
-                end = PaddingScrollEnd
-            )
-        ) {
-            items(
-                items = yearsList,
-                key = { it },
-                contentType = { "YearChip" }
-            ) { year ->
-                ElevatedFilterChip(
-                    selected = year == selectedDate.year,
-                    onClick = { onYearSelect(year) },
-                    label = { Text(year.toString()) },
-                    modifier = Modifier
-                        .animateItem()
-                )
-            }
-        }
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            contentPadding = PaddingValues(
-                start = MaterialTheme.spacing.medium,
-                end = PaddingScrollEnd
-            ),
-            state = monthsListState
-        ) {
-            items(
-                items = monthsList,
-                key = { it.value },
-                contentType = { "MonthChip" }
-            ) { month ->
-                ElevatedFilterChip(
-                    selected = month == selectedDate.month,
-                    onClick = { onMonthSelect(month) },
-                    label = {
-                        Text(
-                            text = month.getDisplayName(
-                                TextStyle.FULL_STANDALONE,
-                                Locale.getDefault()
-                            ),
-                            modifier = Modifier
-                                .animateItem()
-                        )
-                    }
-                )
-            }
-        }
-    }
+//    val totalMonths = remember(limits) {
+//        val (min, max) = limits
+//        ChronoUnit.MONTHS.between(min, max)
+//    }
+//    val rangeSliderState = remember {
+//        RangeSliderState(
+//            (selectedStartDate ?: DateUtil.dateNow()),
+//            100f,
+//            valueRange = 0f..100f,
+//            onValueChangeFinished = {},
+//            steps = totalMonths.toInt()
+//        )
+//    }
+//
+//    RangeSlider(
+//        state = rangeSliderState,
+//        modifier = modifier
+//    )
 }

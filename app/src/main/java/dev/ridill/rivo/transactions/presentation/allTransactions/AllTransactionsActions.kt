@@ -2,18 +2,17 @@ package dev.ridill.rivo.transactions.presentation.allTransactions
 
 import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
-import java.time.Month
+import java.time.LocalDate
 
 interface AllTransactionsActions {
-    fun onMonthSelect(month: Month)
-    fun onYearSelect(year: Int)
+    fun onStartDateSelect(date: LocalDate)
+    fun onEndDateSelect(date: LocalDate)
     fun onTypeFilterSelect(filter: TransactionTypeFilter)
     fun onShowExcludedToggle(showExcluded: Boolean)
     fun onChangeTagFiltersClick()
     fun onClearTagFilterClick()
     fun onTransactionLongPress(id: Long)
     fun onTransactionSelectionChange(id: Long)
-    fun onSelectionStateChange()
     fun onDismissMultiSelectionMode()
     fun onMultiSelectionOptionsClick()
     fun onMultiSelectionOptionsDismiss()

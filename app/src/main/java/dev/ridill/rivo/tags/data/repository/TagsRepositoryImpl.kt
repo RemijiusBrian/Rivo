@@ -39,11 +39,12 @@ class TagsRepositoryImpl(
         .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
     override fun getTopTagInfoPagingData(
-        date: LocalDate?,
+        dateRange: Pair<LocalDate, LocalDate>?,
         limit: Int
     ): Flow<PagingData<TagInfo>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-        dao.getTagAndAggForDateSortedByAggPaged(
-            date = date,
+        dao.getTagAndAggSortedByAggPaged(
+            startDate = dateRange?.first,
+            endDate = dateRange?.second,
             limit = limit
         )
     }.flow

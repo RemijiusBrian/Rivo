@@ -7,7 +7,7 @@ import dev.ridill.rivo.folders.domain.model.AggregateType
 import java.time.LocalDateTime
 
 data class FolderDetailsState(
-    val folderNname: String = String.Empty,
+    val folderName: String = String.Empty,
     val createdTimestamp: LocalDateTime = DateUtil.now(),
     val isExcluded: Boolean = false,
     val aggregateAmount: Double = Double.Zero,

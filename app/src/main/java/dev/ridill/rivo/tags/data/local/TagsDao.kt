@@ -38,13 +38,13 @@ interface TagsDao : BaseDao<TagEntity> {
                 FROM transaction_table t1
                 WHERE t1.type = 'DEBIT'
                 AND t1.tag_id = tg.id
-                AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t1.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
+                AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t1.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
                 ) - (
                 SELECT IFNULL(SUM(t2.amount), 0.0)
                 FROM transaction_table t2
                 WHERE t2.type = 'CREDIT'
                 AND t2.tag_id = tg.id
-                AND (:date IS NULL OR strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', t2.timestamp) = strftime('${UtilConstants.DB_MONTH_AND_YEAR_FORMAT}', :date))
+                AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t2.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
             )
         ) AS aggregate
         FROM tag_table tg
@@ -52,8 +52,9 @@ interface TagsDao : BaseDao<TagEntity> {
         LIMIT :limit
     """
     )
-    fun getTagAndAggForDateSortedByAggPaged(
-        date: LocalDate?,
+    fun getTagAndAggSortedByAggPaged(
+        startDate: LocalDate?,
+        endDate: LocalDate?,
         limit: Int
     ): PagingSource<Int, TagAndAggregateRelation>
 

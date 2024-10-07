@@ -73,7 +73,7 @@ class FolderDetailsViewModel @Inject constructor(
                 showDeleteConfirmation
             ) ->
         FolderDetailsState(
-            folderNname = name,
+            folderName = name,
             createdTimestamp = createdTimestamp,
             isExcluded = excluded,
             aggregateAmount = aggregateAmount,

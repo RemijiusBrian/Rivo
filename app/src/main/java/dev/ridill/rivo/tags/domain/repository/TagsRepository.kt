@@ -16,12 +16,12 @@ interface TagsRepository {
 
     fun getRecentTagsPagingData(
         date: LocalDate?,
-        limit: Int = DEFAULT_TOP_TAG_LIMIT
+        limit: Int = DEFAULT_TAG_LIST_LIMIT
     ): Flow<PagingData<Tag>>
 
     fun getTopTagInfoPagingData(
-        date: LocalDate?,
-        limit: Int = DEFAULT_TOP_TAG_LIMIT
+        dateRange: Pair<LocalDate, LocalDate>?,
+        limit: Int = DEFAULT_TAG_LIST_LIMIT
     ): Flow<PagingData<TagInfo>>
 
     suspend fun saveTag(
@@ -38,4 +38,4 @@ interface TagsRepository {
     fun getTagsListFlowByIds(ids: Set<Long>): Flow<List<Tag>>
 }
 
-private const val DEFAULT_TOP_TAG_LIMIT = 10
+private const val DEFAULT_TAG_LIST_LIMIT = 10
