@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.RangeSliderState
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -56,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -110,6 +114,7 @@ import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @Composable
 fun AllTransactionsScreen(
@@ -119,7 +124,7 @@ fun AllTransactionsScreen(
     state: AllTransactionsState,
     actions: AllTransactionsActions,
     navigateToAllTags: () -> Unit,
-    navigateToAddEditTransaction: (Long?, LocalDate?) -> Unit,
+    navigateToAddEditTransaction: (Long?) -> Unit,
     navigateUp: () -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -179,7 +184,7 @@ fun AllTransactionsScreen(
             )
         },
         floatingActionButton = {
-            NewTransactionFab(onClick = { navigateToAddEditTransaction(null, state.selectedDate) })
+            NewTransactionFab(onClick = { navigateToAddEditTransaction(null) })
         },
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -273,7 +278,7 @@ fun AllTransactionsScreen(
                                     else Modifier.combinedClickable(
                                         role = Role.Button,
                                         onClick = {
-                                            navigateToAddEditTransaction(item.transaction.id, null)
+                                            navigateToAddEditTransaction(item.transaction.id)
                                         },
                                         onClickLabel = stringResource(R.string.cd_tap_to_edit_transaction),
                                         onLongClick = {
@@ -331,11 +336,12 @@ fun AllTransactionsScreen(
     if (state.showFilterOptions) {
         FilterOptionsSheet(
             onDismissRequest = actions::onFilterOptionsDismiss,
-            dateRangeLimits = DateUtil.dateNow().withMonth(1) to DateUtil.dateNow().withMonth(12),
-            selectedStartDate = DateUtil.dateNow(),
-            onStartDateSelect = {},
-            selectedEndDate = DateUtil.dateNow(),
-            onEndDateSelect = {},
+            dateRangeLimits = state.dateLimits,
+            selectedStartDate = state.selectedDateRange?.first,
+            onStartDateSelect = actions::onStartDateSelect,
+            selectedEndDate = state.selectedDateRange?.second,
+            onEndDateSelect = actions::onEndDateSelect,
+            onDateRangeClear = actions::onDateRangeClear,
             selectedTypeFilter = state.selectedTransactionTypeFilter,
             onTypeFilterSelect = actions::onTypeFilterSelect,
             showExcluded = state.showExcludedTransactions,
@@ -647,6 +653,7 @@ private fun FilterOptionsSheet(
     onStartDateSelect: (LocalDate) -> Unit,
     selectedEndDate: LocalDate?,
     onEndDateSelect: (LocalDate) -> Unit,
+    onDateRangeClear: () -> Unit,
     selectedTypeFilter: TransactionTypeFilter,
     onTypeFilterSelect: (TransactionTypeFilter) -> Unit,
     selectedTags: List<Tag>,
@@ -791,6 +798,45 @@ private fun DateRangeFilter(
     onEndDateSelect: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val rangeSliderState = remember {
+        RangeSliderState(
+            activeRangeStart = 10f,
+            activeRangeEnd = 90f,
+            valueRange = 0f..100f,
+            onValueChangeFinished = {},
+            steps = 10
+        )
+    }
+    RangeSlider(
+        state = rangeSliderState,
+        modifier = modifier,
+        startThumb = {
+            Box(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(MaterialTheme.spacing.small)
+            ) {
+                Text(
+                    text = it.activeRangeStart.roundToInt().toString(),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        },
+        endThumb = {
+            Box(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(MaterialTheme.spacing.small)
+            ) {
+                Text(
+                    text = it.activeRangeEnd.roundToInt().toString(),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+    )
 //    val totalMonths = remember(limits) {
 //        val (min, max) = limits
 //        ChronoUnit.MONTHS.between(min, max)

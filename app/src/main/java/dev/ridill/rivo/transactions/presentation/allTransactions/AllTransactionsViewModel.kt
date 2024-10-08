@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.addOrRemove
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.navigation.destinations.AddEditTxResult
@@ -20,9 +21,11 @@ import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -37,7 +40,7 @@ class AllTransactionsViewModel @Inject constructor(
 
     private val dateLimits = transactionRepo.getDateLimits()
     private val selectedDateRange = savedStateHandle
-        .getStateFlow(SELECTED_DATE_RANGE, DateUtil.dateNow() to DateUtil.dateNow())
+        .getStateFlow<Pair<LocalDate, LocalDate>?>(SELECTED_DATE_RANGE, null)
 
     val tagInfoPagingData = selectedDateRange.flatMapLatest {
         tagsRepo.getTopTagInfoPagingData(
@@ -88,21 +91,27 @@ class AllTransactionsViewModel @Inject constructor(
         selectedTagIds,
         showExcludedTransactions,
         selectedTransactionIds
-    ).flatMapLatest { (
-                          dateRange,
-                          typeFilter,
-                          selectedTagIds,
-                          addExcluded,
-                          selectedTxIds
-                      ) ->
-        transactionRepo.getAmountAggregate(
-            dateRange = dateRange,
-            type = TransactionTypeFilter.mapToTransactionType(typeFilter),
-            tagIds = selectedTagIds,
-            addExcluded = addExcluded,
-            selectedTxIds = selectedTxIds
-        )
-    }.distinctUntilChanged()
+    )
+        /*.filter { (dateRange, _, _, _, _) ->
+            dateRange != null
+        }*/
+        .flatMapLatest { (
+                             dateRange,
+                             typeFilter,
+                             selectedTagIds,
+                             addExcluded,
+                             selectedTxIds
+                         ) ->
+            transactionRepo.getAmountAggregate(
+                dateRange = dateRange,
+                type = TransactionTypeFilter.mapToTransactionType(typeFilter),
+                tagIds = selectedTagIds,
+                addExcluded = addExcluded,
+                selectedTxIds = selectedTxIds
+            )
+        }
+        .onEmpty { emit(Double.Zero) }
+        .distinctUntilChanged()
 
     private val transactionListLabel = transactionTypeFilter.mapLatest { type ->
         when {
@@ -124,6 +133,8 @@ class AllTransactionsViewModel @Inject constructor(
         .getStateFlow(SHOW_FILTER_OPTIONS, false)
 
     val state = combineTuple(
+        dateLimits,
+        selectedDateRange,
         transactionTypeFilter,
         aggregateAmount,
         transactionListLabel,
@@ -136,6 +147,8 @@ class AllTransactionsViewModel @Inject constructor(
         showFilterOptions,
         selectedTags
     ).map { (
+                dateLimits,
+                selectedDateRange,
                 transactionTypeFilter,
                 aggregateAmount,
                 transactionListLabel,
@@ -149,6 +162,8 @@ class AllTransactionsViewModel @Inject constructor(
                 selectedTags
             ) ->
         AllTransactionsState(
+            dateLimits = dateLimits,
+            selectedDateRange = selectedDateRange,
             selectedTransactionTypeFilter = transactionTypeFilter,
             aggregateAmount = aggregateAmount,
             transactionListLabel = transactionListLabel,
@@ -171,18 +186,25 @@ class AllTransactionsViewModel @Inject constructor(
 
     private fun keepSelectedDateRangeUpdated() = viewModelScope.launch {
         dateLimits.collectLatest { (minDate, maxDate) ->
-            val (currentMin, currentMax) = selectedDateRange.value
-            savedStateHandle[SELECTED_DATE_RANGE] =
-                currentMin.coerceAtLeast(minDate) to currentMax.coerceAtMost(maxDate)
+            val selectedRange = selectedDateRange.value
+            val selectedMin = selectedRange?.first
+            val selectedMax = selectedRange?.second
+
+            savedStateHandle[SELECTED_DATE_RANGE] = selectedMin?.coerceAtLeast(minDate)
+                ?.to(selectedMax?.coerceAtLeast(maxDate))
         }
     }
 
     override fun onStartDateSelect(date: LocalDate) {
-        savedStateHandle[SELECTED_DATE_RANGE] = selectedDateRange.value.copy(first = date)
+        savedStateHandle[SELECTED_DATE_RANGE] = selectedDateRange.value?.copy(first = date)
     }
 
     override fun onEndDateSelect(date: LocalDate) {
-        savedStateHandle[SELECTED_DATE_RANGE] = selectedDateRange.value.copy(second = date)
+        savedStateHandle[SELECTED_DATE_RANGE] = selectedDateRange.value?.copy(second = date)
+    }
+
+    override fun onDateRangeClear() {
+        savedStateHandle[SELECTED_DATE_RANGE] = null
     }
 
     override fun onTypeFilterSelect(filter: TransactionTypeFilter) {

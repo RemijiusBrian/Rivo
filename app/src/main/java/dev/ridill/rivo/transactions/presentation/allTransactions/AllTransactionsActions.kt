@@ -7,6 +7,7 @@ import java.time.LocalDate
 interface AllTransactionsActions {
     fun onStartDateSelect(date: LocalDate)
     fun onEndDateSelect(date: LocalDate)
+    fun onDateRangeClear()
     fun onTypeFilterSelect(filter: TransactionTypeFilter)
     fun onShowExcludedToggle(showExcluded: Boolean)
     fun onChangeTagFiltersClick()

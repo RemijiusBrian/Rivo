@@ -9,8 +9,8 @@ import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import java.time.LocalDate
 
 data class AllTransactionsState(
-    val selectedDate: LocalDate = DateUtil.now().toLocalDate(),
-    val yearsList: List<Int> = emptyList(),
+    val dateLimits: Pair<LocalDate, LocalDate> = DateUtil.dateNow() to DateUtil.dateNow(),
+    val selectedDateRange: Pair<LocalDate, LocalDate>? = null,
     val selectedTransactionTypeFilter: TransactionTypeFilter = TransactionTypeFilter.ALL,
     val aggregateAmount: Double = Double.Zero,
     val transactionListLabel: UiText = UiText.DynamicString(String.Empty),

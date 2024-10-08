@@ -111,12 +111,9 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             actions = viewModel,
             navigateUp = navController::navigateUp,
             navigateToAllTags = { navController.navigate(AllTagsScreenSpec.route) },
-            navigateToAddEditTransaction = { txId, selectedDate ->
+            navigateToAddEditTransaction = {
                 navController.navigate(
-                    AddEditTransactionScreenSpec.routeWithArg(
-                        transactionId = txId,
-                        initialDateTime = selectedDate?.atTime(DateUtil.now().toLocalTime())
-                    )
+                    AddEditTransactionScreenSpec.routeWithArg(transactionId = it,)
                 )
             }
         )
