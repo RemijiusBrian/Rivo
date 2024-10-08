@@ -74,7 +74,11 @@ fun TagSelectionSheet(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-            TextButton(onClick = navigateToAddEditTag) {
+            TextButton(
+                onClick = navigateToAddEditTag,
+                modifier = Modifier
+                    .align(Alignment.End)
+            ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = null,
