@@ -155,46 +155,11 @@
     <string name="action_acknowledge">I understand</string>
     <string name="action_dismiss">Dismiss</string>
 
-    <!-- Texts -->
-    <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
-    <string name="onboarding_page_permissions_title">Permissions</string>
-    <string name="onboarding_page_sign_in_title">Sign in to your account</string>
-    <string name="onboarding_page_sign_in_message">Sign in to your account to be able to backup and restore your app data</string>
-    <string name="onboarding_page_restore_data_title">Restore Your App Data</string>
-    <string name="onboarding_page_restore_data_message">Check to see if you have some data backed up and restore it if you do</string>
-    <string name="onboarding_page_set_budget_title">Set your monthly Budget</string>
-    <string name="onboarding_page_set_budget_message">Enter your budget for each month</string>
-    <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
-
-    <string name="part_of_day_morning">Morning</string>
-    <string name="part_of_day_noon">Noon</string>
-    <string name="part_of_day_afternoon">Afternoon</string>
-    <string name="part_of_day_evening">Evening</string>
-
-    <string name="delete_transaction_confirmation_title">Delete Transaction?</string>
-    <string name="delete_schedule_confirmation_title">Delete Schedule?</string>
-    <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
-    <string name="delete_tag_confirmation_title">Delete Tag?</string>
-    <string name="delete_tag_confirmation_note">Note: Transactions assigned with this tag will not be deleted</string>
-    <string name="delete_folder_confirmation_title">Delete Folder?</string>
-    <string name="delete_folder_confirmation_note">Note: Deleting folder alone will not delete the transactions associated with this folder</string>
-    <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
-    <string name="account_logout_confirmation_title">Logout of your account?</string>
-    <string name="account_logout_confirmation_message">If you logout of your account you won\'t be able to use features like backup anymore. Do you want to continue?</string>
-    <string name="account_delete_confirmation_title">Delete account data?</string>
-    <string name="account_delete_confirmation_message">This action will delete all your account data, and cannot be reversed. Are you sure you want to continue?</string>
-    <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
-    <string name="transaction_aggregation_confirmation_title">Aggregate transactions?</string>
-    <string name="transaction_aggregation_confirmation_message">This action will delete the selected transactions and instead create a new entry in their place, that is the aggregate of the selected transactions. If the aggregation cancels out, no new transaction will be created. Do you want to continue?</string>
-
+    <!-- Permission Rationales -->
     <string name="permission_notification">Notifications</string>
-    <string name="permission_rationale_notification">%s needs permission to post notifications to provide updates regarding various activities like Data Backup, auto-added Transactions, and schedules.</string>
+    <string name="permission_rationale_notification"><b>%s</b> requires notification permissions to ensures you\'re kept up-to-date on important activity, such as schedules, auto-detected transactions, app lock and backups, etc. Tap Settings > Notifications, and turn it on.</string>
     <string name="permission_sms">Receive SMS Messages</string>
-    <string name="permission_rationale_read_sms"><b>%s</b> needs to receive your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
-
-    <string name="feature_info_auto_detect_transaction_title">Auto-Detect Transactions</string>
-    <string name="feature_info_auto_detect_transaction_message">%s tries to read SMS data to automatically detect and add transactions.</string>
-    <string name="feature_experimental_message">Note: This feature is still experimental and may not function properly.</string>
+    <string name="permission_rationale_read_sms"><b>%s</b> needs to read your SMS messages to try and add transactions automatically. Tap Settings > Permissions, and turn <b>SMS</b> on.</string>
 
     <!-- Preferences -->
     <string name="preference_app_theme">App Theme</string>
@@ -234,6 +199,42 @@
     <string name="preference_title_google_sign_in">Google Sign In</string>
     <string name="preference_google_sign_in_message">%s uses Google sign in for authentication. Signing in to your google account also enables functionality like data backup.</string>
 
+    <!-- Texts -->
+    <string name="onboarding_page_welcome_title">Welcome to\n%s</string>
+    <string name="onboarding_page_permissions_title">Permissions</string>
+    <string name="onboarding_page_sign_in_title">Sign in to your account</string>
+    <string name="onboarding_page_sign_in_message">Sign in to your account to be able to backup and restore your app data</string>
+    <string name="onboarding_page_restore_data_title">Restore Your App Data</string>
+    <string name="onboarding_page_restore_data_message">Check to see if you have some data backed up and restore it if you do</string>
+    <string name="onboarding_page_set_budget_title">Set your monthly Budget</string>
+    <string name="onboarding_page_set_budget_message">Enter your budget for each month</string>
+    <string name="you_can_change_budget_later_in_settings">You can always change this later in the app settings</string>
+
+    <string name="part_of_day_morning">Morning</string>
+    <string name="part_of_day_noon">Noon</string>
+    <string name="part_of_day_afternoon">Afternoon</string>
+    <string name="part_of_day_evening">Evening</string>
+
+    <string name="delete_transaction_confirmation_title">Delete Transaction?</string>
+    <string name="delete_schedule_confirmation_title">Delete Schedule?</string>
+    <string name="delete_multiple_transaction_confirmation_title">Delete Transactions?</string>
+    <string name="delete_tag_confirmation_title">Delete Tag?</string>
+    <string name="delete_tag_confirmation_note">Note: Transactions assigned with this tag will not be deleted</string>
+    <string name="delete_folder_confirmation_title">Delete Folder?</string>
+    <string name="delete_folder_confirmation_note">Note: Deleting folder alone will not delete the transactions associated with this folder</string>
+    <string name="delete_selected_schedules_confirmation_title">Delete Selected Schedules?</string>
+    <string name="account_logout_confirmation_title">Logout of your account?</string>
+    <string name="account_logout_confirmation_message">If you logout of your account you won\'t be able to use features like backup anymore. Do you want to continue?</string>
+    <string name="account_delete_confirmation_title">Delete account data?</string>
+    <string name="account_delete_confirmation_message">This action will delete all your account data, and cannot be reversed. Are you sure you want to continue?</string>
+    <string name="action_irreversible_message">This action is irreversible and cannot be undone. Do you want to continue?</string>
+    <string name="transaction_aggregation_confirmation_title">Aggregate transactions?</string>
+    <string name="transaction_aggregation_confirmation_message">This action will delete the selected transactions and instead create a new entry in their place, that is the aggregate of the selected transactions. If the aggregation cancels out, no new transaction will be created. Do you want to continue?</string>
+
+    <string name="feature_info_auto_detect_transaction_title">Auto-Detect Transactions</string>
+    <string name="feature_info_auto_detect_transaction_message">%s tries to read SMS data to automatically detect and add transactions.</string>
+    <string name="feature_experimental_message">Note: This feature is still experimental and may not function properly.</string>
+
     <string name="app_theme_system_default">System Default</string>
     <string name="app_theme_light">Light</string>
     <string name="app_theme_dark">Dark</string>
@@ -272,6 +273,7 @@
         <item quantity="one">Select Tag</item>
         <item quantity="other">Select Tags</item>
     </plurals>
+
 
     <string name="biometric_prompt_title_app_name">Unlock %s</string>
     <string name="biometric_or_screen_lock_prompt_message" tools:override="true">Use your biometric or screen lock to continue</string>
