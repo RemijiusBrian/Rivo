@@ -55,6 +55,8 @@
         <receiver android:name=".transactions.domain.notification.MarkTransactionExcludedActionReceiver" />
         <receiver android:name=".settings.domain.notification.LockAppImmediateReceiver" />
         <receiver android:name=".schedules.domain.scheduleReminder.ScheduleReminderReceiver" />
+        <receiver android:name=".schedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver" />
+
         <receiver
             android:name=".schedules.domain.scheduleReminder.ScheduleRemindersOnBootReceiver"
             android:enabled="false"
@@ -71,7 +73,6 @@
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".schedules.domain.scheduleReminder.MarkScheduleAsPaidActionReceiver" />
         <!-- /Receivers -->
 
         <!-- Services -->

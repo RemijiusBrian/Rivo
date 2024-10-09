@@ -54,7 +54,7 @@ import dev.ridill.rivo.core.ui.util.LocalCurrencyPreference
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.isPermissionGranted
 import dev.ridill.rivo.settings.domain.modal.AppTheme
-import dev.ridill.rivo.settings.presentation.securitySettings.AppLockScreen
+import dev.ridill.rivo.settings.presentation.securitySettings.AppLockedOverlay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -268,7 +268,7 @@ private fun ScreenContent(
             )
 
             if (showAppLock) {
-                AppLockScreen(
+                AppLockedOverlay(
                     onBack = closeApp,
                     unlockAnimProgress = unlockIconAnimProgress.asState(),
                     onUnlockClick = onUnlockClick,

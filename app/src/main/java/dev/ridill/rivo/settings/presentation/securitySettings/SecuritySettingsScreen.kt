@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.LabelledRadioButton
+import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.SecuritySettingsScreenSpec
@@ -28,12 +31,8 @@ import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 @Composable
 fun SecuritySettingsScreen(
     snackbarController: SnackbarController,
-    appLockEnabled: Boolean,
-    onAppLockToggle: (Boolean) -> Unit,
-    autoLockInterval: AppAutoLockInterval,
-    onIntervalSelect: (AppAutoLockInterval) -> Unit,
-    screenSecurityEnabled: Boolean,
-    onScreenSecurityToggle: (Boolean) -> Unit,
+    state: SecuritySettingsState,
+    actions: SecuritySettingsActions,
     navigateUp: () -> Unit
 ) {
     RivoScaffold(
@@ -57,17 +56,17 @@ fun SecuritySettingsScreen(
                     R.string.preference_app_lock_summary,
                     stringResource(R.string.app_name)
                 ),
-                value = appLockEnabled,
-                onValueChange = onAppLockToggle
+                value = state.appLockEnabled,
+                onValueChange = actions::onAppLockToggle
             )
 
             HorizontalDivider()
 
-            AnimatedVisibility(visible = appLockEnabled) {
+            AnimatedVisibility(visible = state.appLockEnabled) {
                 Column {
                     AutoLockIntervalSelection(
-                        selectedInterval = autoLockInterval,
-                        onIntervalSelect = onIntervalSelect
+                        selectedInterval = state.autoLockInterval,
+                        onIntervalSelect = actions::onAutoLockIntervalSelect
                     )
 
                     HorizontalDivider()
@@ -77,10 +76,22 @@ fun SecuritySettingsScreen(
             SwitchPreference(
                 titleRes = R.string.preference_screen_security,
                 summary = stringResource(R.string.preference_screen_security_summary),
-                value = screenSecurityEnabled,
-                onValueChange = onScreenSecurityToggle
+                value = state.screenSecurityEnabled,
+                onValueChange = actions::onScreenSecurityToggle
             )
         }
+    }
+
+    if (state.showNotificationPermissionRationale) {
+        PermissionRationaleDialog(
+            icon = Icons.Rounded.Notifications,
+            rationaleText = stringResource(
+                R.string.permission_rationale_notification,
+                stringResource(R.string.app_name)
+            ),
+            onDismiss = actions::onNotificationPermissionRationaleDismiss,
+            onSettingsClick = actions::onNotificationPermissionRationaleConfirm,
+        )
     }
 }
 
