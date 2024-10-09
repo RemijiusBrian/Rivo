@@ -128,8 +128,8 @@ class AddEditTransactionViewModel @Inject constructor(
                 showDeleteConfirmation,
                 linkedFolderName,
                 isScheduleTxMode,
-                                selectedRepetition,
-                                showRepetitionSelection
+                selectedRepetition,
+                showRepetitionSelection
             ) ->
         AddEditTransactionState(
             isLoading = isLoading,
@@ -171,12 +171,8 @@ class AddEditTransactionViewModel @Inject constructor(
         } ?: Transaction.DEFAULT
         savedStateHandle[IS_SCHEDULE_MODE] = scheduleModeArg
         val dateNow = DateUtil.now()
-        val initialTimestampArg = AddEditTransactionScreenSpec
-            .getInitialTimestampFromSavedStateHandle(savedStateHandle)
         val timestamp = if (isScheduleTxMode.value && transaction.timestamp <= dateNow)
             dateNow.plusDays(1)
-        else if (transactionIdArg == NavDestination.ARG_INVALID_ID_LONG) initialTimestampArg
-            ?: DateUtil.now()
         else transaction.timestamp
 
         savedStateHandle[TX_INPUT] = transaction.copy(
