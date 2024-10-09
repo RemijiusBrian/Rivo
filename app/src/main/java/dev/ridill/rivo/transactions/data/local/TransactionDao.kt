@@ -43,7 +43,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND (:type IS NULL OR transactionType = :type)
             AND (COALESCE(:tagIds, 0) = 0 OR tagId IN (:tagIds))
             AND (:folderId IS NULL OR folderId = :folderId)
-            AND (:showExcluded = 1 OR isTagExcluded = 1 OR overallExcluded = 0)
+            AND (:showExcluded = 1 OR overallExcluded = 0)
         ORDER BY datetime(transactionTimestamp) DESC, transactionNote DESC, tagName DESC, folderName DESC
         """
     )

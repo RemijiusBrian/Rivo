@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DashboardRepository {
     fun getCurrentBudget(): Flow<Long>
-    fun getExpenditureForCurrentMonth(): Flow<Double>
+    fun getTotalDebitsForCurrentMonth(): Flow<Double>
     fun getTotalCreditsForCurrentMonth(): Flow<Double>
     fun getSchedulesActiveThisMonth(): Flow<List<ActiveSchedule>>
     fun getRecentSpends(): Flow<PagingData<TransactionListItem>>

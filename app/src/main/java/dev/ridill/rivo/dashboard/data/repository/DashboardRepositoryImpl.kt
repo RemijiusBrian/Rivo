@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import kotlin.math.absoluteValue
 
 class DashboardRepositoryImpl(
     private val budgetPrefRepo: BudgetPreferenceRepository,
@@ -32,7 +33,7 @@ class DashboardRepositoryImpl(
         .getBudgetPreferenceForDateOrNext()
         .distinctUntilChanged()
 
-    override fun getExpenditureForCurrentMonth(): Flow<Double> = transactionDao.getAmountAggregate(
+    override fun getTotalDebitsForCurrentMonth(): Flow<Double> = transactionDao.getAmountAggregate(
         startDate = LocalDate.now().withDayOfMonth(1),
         endDate = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()),
         type = TransactionType.DEBIT,
@@ -48,7 +49,8 @@ class DashboardRepositoryImpl(
         tagIds = null,
         addExcluded = false,
         selectedTxIds = null
-    ).distinctUntilChanged()
+    ).map { it.absoluteValue }
+        .distinctUntilChanged()
 
     override fun getSchedulesActiveThisMonth(): Flow<List<ActiveSchedule>> = schedulesDao
         .getSchedulesForMonth(DateUtil.dateNow())
@@ -57,15 +59,14 @@ class DashboardRepositoryImpl(
     override fun getRecentSpends(): Flow<PagingData<TransactionListItem>> = Pager(
         config = PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)
     ) {
-        transactionDao
-            .getTransactionsPaged(
-                startDate = LocalDate.now().withDayOfMonth(1),
-                endDate = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()),
-                type = TransactionType.DEBIT,
-                showExcluded = false,
-                tagIds = null,
-                folderId = null
-            )
+        transactionDao.getTransactionsPaged(
+            startDate = LocalDate.now().withDayOfMonth(1),
+            endDate = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()),
+            type = TransactionType.DEBIT,
+            showExcluded = false,
+            tagIds = null,
+            folderId = null
+        )
     }.flow
         .map { it.map(TransactionDetailsView::toTransactionListItem) }
 }
