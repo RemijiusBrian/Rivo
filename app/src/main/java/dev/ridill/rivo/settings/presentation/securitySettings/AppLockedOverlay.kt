@@ -29,7 +29,7 @@ import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 
 @Composable
-fun AppLockScreen(
+fun AppLockedOverlay(
     unlockAnimProgress: State<Float>,
     onUnlockClick: () -> Unit,
     onBack: () -> Unit,

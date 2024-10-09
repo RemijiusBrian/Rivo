@@ -1,23 +1,18 @@
 package dev.ridill.rivo.core.ui.navigation.destinations
 
+import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
-import androidx.biometric.auth.AuthPromptCallback
-import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -26,8 +21,7 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.BiometricUtil
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.core.ui.util.findActivity
-import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
+import dev.ridill.rivo.core.ui.util.launchAppNotificationSettings
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsScreen
 import dev.ridill.rivo.settings.presentation.securitySettings.SecuritySettingsViewModel
 
@@ -45,11 +39,7 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
         navBackStackEntry: NavBackStackEntry
     ) {
         val viewModel: SecuritySettingsViewModel = hiltViewModel(navBackStackEntry)
-        val appLockEnabled by viewModel.appLockEnabled.collectAsStateWithLifecycle(false)
-        val selectedInterval by viewModel.appAutoLockInterval
-            .collectAsStateWithLifecycle(AppAutoLockInterval.ONE_MINUTE)
-        val screenSecurityEnabled by viewModel.screenSecurityEnabled
-            .collectAsStateWithLifecycle(false)
+        val state by viewModel.state.collectAsStateWithLifecycle()
 
         val context = LocalContext.current
         val snackbarController = rememberSnackbarController()
@@ -60,7 +50,7 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
             onResult = {
                 if (it.resultCode == Activity.RESULT_OK) {
                     if (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators) == BiometricManager.BIOMETRIC_SUCCESS) {
-                        startBiometricAuthentication(
+                        BiometricUtil.startBiometricAuthentication(
                             context = context,
                             onAuthSuccess = viewModel::onAuthenticationSuccess
                         )
@@ -69,13 +59,19 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
             }
         )
 
+        val notificationPermissionLauncher = if (BuildUtil.isNotificationRuntimePermissionNeeded())
+            rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = viewModel::onNotificationPermissionResult
+            ) else null
+
         LaunchedEffect(snackbarController, context) {
             viewModel.events.collect { event ->
                 when (event) {
                     SecuritySettingsViewModel.SecuritySettingsEvent.LaunchBiometricAuthentication -> {
                         when (biometricManager.canAuthenticate(BiometricUtil.DefaultBiometricAuthenticators)) {
                             BiometricManager.BIOMETRIC_SUCCESS -> {
-                                startBiometricAuthentication(
+                                BiometricUtil.startBiometricAuthentication(
                                     context = context,
                                     onAuthSuccess = viewModel::onAuthenticationSuccess
                                 )
@@ -104,46 +100,25 @@ data object SecuritySettingsScreenSpec : ScreenSpec {
                             else -> Unit
                         }
                     }
+
+                    SecuritySettingsViewModel.SecuritySettingsEvent.CheckNotificationPermission -> {
+                        if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
+                            notificationPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+
+                    SecuritySettingsViewModel.SecuritySettingsEvent.NavigateToNotificationSettings -> {
+                        context.launchAppNotificationSettings()
+                    }
                 }
             }
         }
 
         SecuritySettingsScreen(
             snackbarController = snackbarController,
-            appLockEnabled = appLockEnabled,
-            onAppLockToggle = viewModel::onAppLockToggle,
-            autoLockInterval = selectedInterval,
-            onIntervalSelect = viewModel::onAutoLockIntervalSelect,
-            screenSecurityEnabled = screenSecurityEnabled,
-            onScreenSecurityToggle = viewModel::onScreenSecurityToggle,
-            navigateUp = navController::navigateUp
+            state = state,
+            actions = viewModel,
+            navigateUp = navController::navigateUp,
         )
     }
-}
-
-private inline fun startBiometricAuthentication(
-    context: Context,
-    crossinline onAuthSuccess: () -> Unit
-) {
-    val activity = context.findActivity() as AppCompatActivity
-    val title = context.getString(
-        R.string.biometric_prompt_title_app_name,
-        context.getString(R.string.app_name)
-    )
-    val subtitle = context.getString(R.string.biometric_or_screen_lock_prompt_message)
-    val authPromptCallback = object : AuthPromptCallback() {
-        override fun onAuthenticationSucceeded(
-            activity: FragmentActivity?,
-            result: BiometricPrompt.AuthenticationResult
-        ) {
-            super.onAuthenticationSucceeded(activity, result)
-            onAuthSuccess()
-        }
-    }
-
-    activity.startClass2BiometricOrCredentialAuthentication(
-        title = title,
-        subtitle = subtitle,
-        callback = authPromptCallback
-    )
 }

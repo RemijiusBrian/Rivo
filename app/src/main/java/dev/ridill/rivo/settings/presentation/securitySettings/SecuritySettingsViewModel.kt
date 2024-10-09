@@ -1,43 +1,84 @@
 package dev.ridill.rivo.settings.presentation.securitySettings
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
+import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.settings.domain.appLock.AppAutoLockInterval
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SecuritySettingsViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val preferencesManager: PreferencesManager,
     private val eventBus: EventBus<SecuritySettingsEvent>
-) : ViewModel() {
+) : ViewModel(), SecuritySettingsActions {
 
     private val preferences = preferencesManager.preferences
-    val appLockEnabled = preferences
+    private val appLockEnabled = preferences
         .map { it.appLockEnabled }
         .distinctUntilChanged()
-    val appAutoLockInterval = preferences
+
+    private val autoLockInterval = preferences
         .map { it.appAutoLockInterval }
         .distinctUntilChanged()
 
-    val screenSecurityEnabled = preferences
+    private val screenSecurityEnabled = preferences
         .map { it.screenSecurityEnabled }
         .distinctUntilChanged()
 
+    private val showNotificationPermissionRationale = savedStateHandle
+        .getStateFlow(SHOW_NOTIFICATION_PERMISSION_RATIONALE, false)
+
+    val state = combineTuple(
+        appLockEnabled,
+        autoLockInterval,
+        screenSecurityEnabled,
+        showNotificationPermissionRationale
+    ).mapLatest { (
+                      appLockEnabled,
+                      autoLockInterval,
+                      screenSecurityEnabled,
+                      showNotificationPermissionRationale
+                  ) ->
+        SecuritySettingsState(
+            appLockEnabled = appLockEnabled,
+            autoLockInterval = autoLockInterval,
+            screenSecurityEnabled = screenSecurityEnabled,
+            showNotificationPermissionRationale = showNotificationPermissionRationale
+        )
+    }.asStateFlow(viewModelScope, SecuritySettingsState())
+
     val events = eventBus.eventFlow
 
-    fun onAppLockToggle(enabled: Boolean) {
+    override fun onAppLockToggle(enabled: Boolean) {
         viewModelScope.launch {
             if (!enabled) {
                 preferencesManager.updateAppLockEnabled(false)
                 return@launch
             }
+            if (BuildUtil.isNotificationRuntimePermissionNeeded()) {
+                eventBus.send(SecuritySettingsEvent.CheckNotificationPermission)
+            } else {
+                eventBus.send(SecuritySettingsEvent.LaunchBiometricAuthentication)
+            }
+        }
+    }
+
+    fun onNotificationPermissionResult(granted: Boolean) = viewModelScope.launch {
+        if (granted) {
             eventBus.send(SecuritySettingsEvent.LaunchBiometricAuthentication)
+        } else {
+            savedStateHandle[SHOW_NOTIFICATION_PERMISSION_RATIONALE] = true
         }
     }
 
@@ -47,19 +88,34 @@ class SecuritySettingsViewModel @Inject constructor(
         }
     }
 
-    fun onAutoLockIntervalSelect(interval: AppAutoLockInterval) {
+    override fun onAutoLockIntervalSelect(interval: AppAutoLockInterval) {
         viewModelScope.launch {
             preferencesManager.updateAppAutoLockInterval(interval)
         }
     }
 
-    fun onScreenSecurityToggle(enabled: Boolean) {
+    override fun onScreenSecurityToggle(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.updateScreenSecurityEnabled(enabled)
         }
     }
 
+    override fun onNotificationPermissionRationaleDismiss() {
+        savedStateHandle[SHOW_NOTIFICATION_PERMISSION_RATIONALE] = false
+    }
+
+    override fun onNotificationPermissionRationaleConfirm() {
+        viewModelScope.launch {
+            savedStateHandle[SHOW_NOTIFICATION_PERMISSION_RATIONALE] = false
+            eventBus.send(SecuritySettingsEvent.NavigateToNotificationSettings)
+        }
+    }
+
     sealed interface SecuritySettingsEvent {
+        data object CheckNotificationPermission : SecuritySettingsEvent
         data object LaunchBiometricAuthentication : SecuritySettingsEvent
+        data object NavigateToNotificationSettings : SecuritySettingsEvent
     }
 }
+
+private const val SHOW_NOTIFICATION_PERMISSION_RATIONALE = "SHOW_NOTIFICATION_PERMISSION_RATIONALE"
