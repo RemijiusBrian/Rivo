@@ -185,7 +185,7 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[TX_INPUT] = txInput.value.copy(amount = value)
     }
 
-    override fun onNoteInputFocused() {
+    override fun onAmountFocusLost() {
         val amountInput = amountInput.value
             .trim()
             .ifEmpty { return }
