@@ -21,7 +21,6 @@ import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
@@ -91,25 +90,21 @@ class AllTransactionsViewModel @Inject constructor(
         selectedTagIds,
         showExcludedTransactions,
         selectedTransactionIds
-    )
-        /*.filter { (dateRange, _, _, _, _) ->
-            dateRange != null
-        }*/
-        .flatMapLatest { (
-                             dateRange,
-                             typeFilter,
-                             selectedTagIds,
-                             addExcluded,
-                             selectedTxIds
-                         ) ->
-            transactionRepo.getAmountAggregate(
-                dateRange = dateRange,
-                type = TransactionTypeFilter.mapToTransactionType(typeFilter),
-                tagIds = selectedTagIds,
-                addExcluded = addExcluded,
-                selectedTxIds = selectedTxIds
-            )
-        }
+    ).flatMapLatest { (
+                          dateRange,
+                          typeFilter,
+                          selectedTagIds,
+                          addExcluded,
+                          selectedTxIds
+                      ) ->
+        transactionRepo.getAmountAggregate(
+            dateRange = dateRange,
+            type = TransactionTypeFilter.mapToTransactionType(typeFilter),
+            tagIds = selectedTagIds,
+            addExcluded = addExcluded,
+            selectedTxIds = selectedTxIds
+        )
+    }
         .onEmpty { emit(Double.Zero) }
         .distinctUntilChanged()
 

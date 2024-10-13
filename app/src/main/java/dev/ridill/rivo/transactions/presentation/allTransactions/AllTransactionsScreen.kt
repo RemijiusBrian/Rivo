@@ -802,7 +802,7 @@ private fun DateRangeFilter(
         RangeSliderState(
             activeRangeStart = 10f,
             activeRangeEnd = 90f,
-            valueRange = 0f..100f,
+            valueRange = 0f.rangeTo(100f),
             onValueChangeFinished = {},
             steps = 10
         )
