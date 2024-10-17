@@ -2,12 +2,11 @@ package dev.ridill.rivo.transactions.presentation.allTransactions
 
 import dev.ridill.rivo.transactions.domain.model.AllTransactionsMultiSelectionOption
 import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
-import java.time.LocalDate
 
 interface AllTransactionsActions {
-    fun onStartDateSelect(date: LocalDate)
-    fun onEndDateSelect(date: LocalDate)
-    fun onDateRangeClear()
+    fun onClearAllFiltersClick()
+    fun onDateFilterRangeChange(range: ClosedFloatingPointRange<Float>)
+    fun onDateFilterClear()
     fun onTypeFilterSelect(filter: TransactionTypeFilter)
     fun onShowExcludedToggle(showExcluded: Boolean)
     fun onChangeTagFiltersClick()
