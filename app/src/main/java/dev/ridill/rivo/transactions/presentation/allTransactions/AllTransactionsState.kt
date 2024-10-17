@@ -14,7 +14,7 @@ data class AllTransactionsState(
     val selectedDateRange: ClosedFloatingPointRange<Float> = Float.Zero.rangeTo(Float.Zero),
     val selectedDates: Pair<LocalDate, LocalDate> = DateUtil.dateNow() to DateUtil.dateNow(),
     val selectedTransactionTypeFilter: TransactionTypeFilter = TransactionTypeFilter.ALL,
-    val aggregateAmount: Double = Double.Zero,
+    val aggregateAmount: Double? = null,
     val transactionListLabel: UiText = UiText.DynamicString(String.Empty),
     val selectedTransactionIds: Set<Long> = emptySet(),
     val transactionMultiSelectionModeActive: Boolean = false,

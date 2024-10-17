@@ -22,6 +22,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionTypeFilter
 import dev.ridill.rivo.transactions.domain.repository.AllTransactionsRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEmpty
@@ -125,20 +126,51 @@ class AllTransactionsViewModel @Inject constructor(
         )
     }.cachedIn(viewModelScope)
 
+    private val isDateFilterActive = combineTuple(
+        dateLimitsAsClosedFloatRange,
+        selectedDateRangeAsClosedFloatRange
+    ).mapLatest { (limits, selected) -> limits != selected }
+        .distinctUntilChanged()
+    private val isTagFilterActive = selectedTagIds.mapLatest { it.isNotEmpty() }
+        .distinctUntilChanged()
+    private val isTransactionTypeFilterActive = transactionTypeFilter
+        .mapLatest { it != TransactionTypeFilter.ALL }
+        .distinctUntilChanged()
+
+    private val areAnyFiltersActive = combineTuple(
+        isDateFilterActive,
+        isTagFilterActive,
+        isTransactionTypeFilterActive,
+        transactionMultiSelectionModeActive
+    ).map { (
+                dateFilterActive,
+                tagFilterActive,
+                transactionTypeFilterActive,
+                multiSelectionModeActive
+            ) ->
+        dateFilterActive
+                || tagFilterActive
+                || transactionTypeFilterActive
+                || multiSelectionModeActive
+    }.distinctUntilChanged()
+
     private val aggregateAmount = combineTuple(
+        areAnyFiltersActive,
         selectedDates,
         transactionTypeFilter,
         selectedTagIds,
         showExcludedTransactions,
         selectedTransactionIds
     ).flatMapLatest { (
+                          filtersActive,
                           dateRange,
                           typeFilter,
                           selectedTagIds,
                           addExcluded,
                           selectedTxIds
                       ) ->
-        transactionRepo.getAmountAggregate(
+        if (!filtersActive) flowOf(null)
+        else transactionRepo.getAmountAggregate(
             dateRange = dateRange,
             type = TransactionTypeFilter.mapToTransactionType(typeFilter),
             tagIds = selectedTagIds,
@@ -149,10 +181,14 @@ class AllTransactionsViewModel @Inject constructor(
         .onEmpty { emit(Double.Zero) }
         .distinctUntilChanged()
 
-    private val transactionListLabel = transactionTypeFilter.mapLatest { type ->
+    private val transactionListLabel = combineTuple(
+        transactionTypeFilter,
+        transactionMultiSelectionModeActive
+    ).mapLatest { (type, multiSelectionActive) ->
         when {
-            type == TransactionTypeFilter.ALL -> UiText.StringResource(R.string.all_transactions)
-            else -> UiText.StringResource(type.labelRes)
+            multiSelectionActive -> UiText.StringResource(R.string.selected_aggregate)
+            type != TransactionTypeFilter.ALL -> UiText.StringResource(type.labelRes)
+            else -> UiText.StringResource(R.string.all_transactions)
         }
     }.distinctUntilChanged()
 
