@@ -39,6 +39,8 @@ import dev.ridill.rivo.core.ui.components.ExcludedIndicatorSmall
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerSmall
+import dev.ridill.rivo.core.ui.components.TitleMediumText
 import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
@@ -220,12 +222,18 @@ private fun FolderCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            AmountWithArrow(
-                value = aggregateAmount,
-                type = aggregateType,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.End)
-            )
+            ) {
+                TitleMediumText(stringResource(R.string.aggregate_abr))
+                SpacerSmall()
+                AmountWithArrow(
+                    value = aggregateAmount,
+                    type = aggregateType
+                )
+            }
         }
     }
 }

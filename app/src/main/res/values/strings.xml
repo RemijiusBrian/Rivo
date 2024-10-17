@@ -337,6 +337,7 @@
     <string name="all">All</string>
     <string name="selected_aggregate">Selected Agg</string>
     <string name="aggregate">Aggregate</string>
+    <string name="aggregate_abr">Agg.</string>
     <string name="generic_debit_receiver">Merchant</string>
     <string name="generic_credit_sender">Generic Sender</string>
     <string name="all_transactions">All Transactions</string>
