@@ -66,7 +66,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t1.transactionTimestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
             AND (COALESCE(:tagIds, 0) = 0 OR t1.tagId IN (:tagIds))
             AND (:addExcluded = 1 OR t1.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, 1) = 1 OR t1.transactionId IN (:selectedTxIds))
+            AND (COALESCE(:selectedTxIds, 0) = 0 OR t1.transactionId IN (:selectedTxIds))
             ) - (
             SELECT IFNULL(SUM(t2.transactionAmount), 0.0)
             FROM transaction_details_view t2
@@ -74,7 +74,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
             AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t2.transactionTimestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
             AND (COALESCE(:tagIds, 0) = 0 OR t2.tagId IN (:tagIds))
             AND (:addExcluded = 1 OR t2.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, 1) = 1 OR t2.transactionId IN (:selectedTxIds))
+            AND (COALESCE(:selectedTxIds, 0) = 0 OR t2.transactionId IN (:selectedTxIds))
         )
     """
     )
