@@ -39,11 +39,10 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.WhiteSpace
 import dev.ridill.rivo.core.ui.components.AmountWithArrow
 import dev.ridill.rivo.core.ui.components.BodyMediumText
-import dev.ridill.rivo.core.ui.components.ExcludedIcon
+import dev.ridill.rivo.core.ui.components.ExcludedIndicatorSmall
 import dev.ridill.rivo.core.ui.components.ListItemLeadingContentContainer
 import dev.ridill.rivo.core.ui.components.icons.Tags
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
@@ -138,9 +137,7 @@ fun TransactionListItem(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
             ) {
                 if (excluded) {
-                    ExcludedIcon(
-                        size = IconSizeSmall
-                    )
+                    ExcludedIndicatorSmall()
                 }
                 AmountWithArrow(
                     value = amount,

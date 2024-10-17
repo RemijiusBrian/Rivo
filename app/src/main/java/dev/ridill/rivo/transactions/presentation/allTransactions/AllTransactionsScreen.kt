@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,12 +13,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -70,6 +70,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -77,9 +78,10 @@ import androidx.paging.compose.itemKey
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.orZero
+import dev.ridill.rivo.core.ui.components.AmountWithArrow
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
-import dev.ridill.rivo.core.ui.components.ExcludedIcon
+import dev.ridill.rivo.core.ui.components.ExcludedIndicatorSmall
 import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.ListSeparator
@@ -95,8 +97,8 @@ import dev.ridill.rivo.core.ui.components.slideOutHorizontallyWithFadeOut
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
-import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
+import dev.ridill.rivo.core.ui.theme.RivoTheme
 import dev.ridill.rivo.core.ui.theme.contentColor
 import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -105,6 +107,7 @@ import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.core.ui.util.exclusionGraphicsLayer
 import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
+import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.settings.presentation.components.SwitchPreference
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.domain.model.TagInfo
@@ -116,6 +119,7 @@ import dev.ridill.rivo.transactions.presentation.components.NewTransactionFab
 import dev.ridill.rivo.transactions.presentation.components.TransactionListItem
 import java.time.LocalDate
 import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @Composable
 fun AllTransactionsScreen(
@@ -427,13 +431,10 @@ private fun TagsInfoList(
                             isExcluded = tag.excluded,
                             createdTimestamp = tag.createdTimestampFormatted,
                             aggregateAmount = tag.aggregate,
+                            aggregateType = tag.aggregateType,
                             modifier = Modifier
-                                .animateContentSize()
                                 .fillParentMaxHeight()
-                                .widthIn(
-                                    min = TagInfoCardMinWidth,
-                                    max = TagInfoCardMaxWidth
-                                )
+                                .fillParentMaxWidth(TAG_INFO_CARD_WIDTH_FRACTION)
                                 .animateItem()
                         )
                     }
@@ -443,8 +444,7 @@ private fun TagsInfoList(
     }
 }
 
-private val TagInfoCardMinWidth = 100.dp
-private val TagInfoCardMaxWidth = 200.dp
+private const val TAG_INFO_CARD_WIDTH_FRACTION = 0.80f
 
 @Composable
 private fun TagInfoCard(
@@ -453,6 +453,7 @@ private fun TagInfoCard(
     isExcluded: Boolean,
     createdTimestamp: String,
     aggregateAmount: Double,
+    aggregateType: AggregateType,
     modifier: Modifier = Modifier
 ) {
     val contentColor = remember(color) { color.contentColor() }
@@ -462,41 +463,56 @@ private fun TagInfoCard(
             containerColor = color,
             contentColor = contentColor
         ),
-        modifier = modifier
+        modifier = Modifier
             .exclusionGraphicsLayer(isExcluded)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(MaterialTheme.spacing.medium),
-            verticalArrangement = Arrangement.Center
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.spacing.medium)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
             ) {
-                if (isExcluded) {
-                    ExcludedIcon(size = IconSizeSmall)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                ) {
+                    if (isExcluded) {
+                        ExcludedIndicatorSmall()
+                    }
+
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            lineBreak = LineBreak.Heading
+                        ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                    )
                 }
 
                 Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        lineBreak = LineBreak.Heading
-                    ),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
+                    text = stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = contentColor
+                        .copy(alpha = ContentAlpha.SUB_CONTENT),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Text(
-                text = createdTimestamp,
-//                stringResource(R.string.created_colon_timestamp_value, createdTimestamp),
-                style = MaterialTheme.typography.labelMedium,
-                color = contentColor
-                    .copy(alpha = ContentAlpha.SUB_CONTENT)
+            SpacerSmall()
+
+            AmountWithArrow(
+                value = TextFormat.currencyAmount(aggregateAmount.absoluteValue),
+                type = aggregateType
             )
         }
     }
@@ -519,7 +535,7 @@ private fun TransactionListLabel(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.small)
         ) {
-            AggregateAmountAndLabel(
+            ListLabelAndAggAmount(
                 listLabel = listLabel,
                 multiSelectionModeActive = multiSelectionModeActive,
                 aggregateAmount = aggAmount,
@@ -540,7 +556,7 @@ private fun TransactionListLabel(
 }
 
 @Composable
-private fun AggregateAmountAndLabel(
+private fun ListLabelAndAggAmount(
     listLabel: UiText,
     multiSelectionModeActive: Boolean,
     aggregateAmount: Double?,
@@ -549,6 +565,9 @@ private fun AggregateAmountAndLabel(
 ) {
     val isAggValid by remember(aggregateAmount) {
         derivedStateOf { aggregateAmount != null }
+    }
+    val aggType = remember(aggregateAmount) {
+        aggregateAmount?.let(AggregateType::fromAmount)
     }
     val aggContentDescription = stringResource(
         R.string.cd_total_transaction_sum,
@@ -576,15 +595,11 @@ private fun AggregateAmountAndLabel(
         }
         SpacerSmall()
 
-        androidx.compose.animation.AnimatedVisibility(visible = isAggValid) {
+        AnimatedVisibility(visible = isAggValid) {
             VerticalNumberSpinnerContent(aggregateAmount.orZero()) { amount ->
-                Text(
-                    text = TextFormat.currencyAmount(amount.absoluteValue),
-                    style = MaterialTheme.typography.headlineMedium
-                        .copy(lineBreak = LineBreak.Heading),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.SemiBold
+                AmountWithArrow(
+                    value = TextFormat.currencyAmount(amount.absoluteValue),
+                    type = aggType ?: AggregateType.BALANCED
                 )
             }
         }
@@ -855,3 +870,20 @@ private fun TagFilterSection(
 }
 
 private val TagFilterFlowRowMinHeight = 80.dp
+
+@Preview
+@Composable
+private fun PreviewTagInfoCard() {
+    RivoTheme {
+        TagInfoCard(
+            name = "Test Tag",
+            color = Color.Red,
+            isExcluded = false,
+            createdTimestamp = DateUtil.dateNow().toString(),
+            aggregateAmount = Random.nextDouble(),
+            modifier = Modifier
+                .height(TagsRowMinHeight),
+            aggregateType = AggregateType.BALANCED
+        )
+    }
+}

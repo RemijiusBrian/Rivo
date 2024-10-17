@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.theme.IconSizeSmall
 import dev.ridill.rivo.core.ui.theme.spacing
 
 @Composable
@@ -49,6 +50,19 @@ fun ExcludedIcon(
     contentDescription = stringResource(R.string.cd_excluded),
     modifier = Modifier
         .size(size)
+        .then(modifier),
+    tint = tint
+)
+
+@Composable
+fun ExcludedIndicatorSmall(
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current
+) = Icon(
+    imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_exclude),
+    contentDescription = stringResource(R.string.cd_excluded),
+    modifier = Modifier
+        .size(IconSizeSmall)
         .then(modifier),
     tint = tint
 )
