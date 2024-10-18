@@ -638,7 +638,7 @@ private fun RepetitionSelectionSheet(
         sheetState = rememberModalBottomSheetState(true)
     ) {
         TitleLargeText(
-            title = stringResource(R.string.select_schedule_repetition),
+            text = stringResource(R.string.select_schedule_repetition),
             modifier = Modifier
                 .padding(horizontal = MaterialTheme.spacing.medium)
         )
