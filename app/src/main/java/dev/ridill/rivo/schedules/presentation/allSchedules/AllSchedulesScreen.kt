@@ -54,12 +54,12 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.CancelButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
-import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.PermissionRationaleDialog
 import dev.ridill.rivo.core.ui.components.PermissionState
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.listEmptyIndicator
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
 import dev.ridill.rivo.core.ui.theme.BorderWidthStandard
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
@@ -149,17 +149,11 @@ fun AllSchedulesScreen(
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
-            if (areSchedulesEmpty) {
-                item(
-                    key = "EmptyListIndicator",
-                    contentType = "EmptyListIndicator"
-                ) {
-                    ListEmptyIndicatorItem(
-                        rawResId = R.raw.lottie_empty_list_ghost,
-                        messageRes = R.string.schedules_empty_message
-                    )
-                }
-            }
+            listEmptyIndicator(
+                isListEmpty = areSchedulesEmpty,
+                messageRes = R.string.schedules_empty_message
+            )
+
             repeat(allSchedulesPagingItems.itemCount) { index ->
                 allSchedulesPagingItems[index]?.let { item ->
                     when (item) {

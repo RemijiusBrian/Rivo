@@ -78,7 +78,6 @@ import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.ExcludedIcon
-import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.RivoModalBottomSheet
 import dev.ridill.rivo.core.ui.components.RivoScaffold
@@ -86,6 +85,7 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerMedium
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.rivo.core.ui.components.listEmptyIndicator
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTagsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
@@ -234,18 +234,11 @@ fun AllTransactionsScreen(
                 )
             }
 
-            if (isTransactionListEmpty) {
-                item(
-                    key = "ListEmptyIndicator",
-                    contentType = "ListEmptyIndicator"
-                ) {
-                    ListEmptyIndicatorItem(
-                        rawResId = R.raw.lottie_empty_list_ghost,
-                        messageRes = R.string.all_transactions_list_empty_message,
-                        heightFraction = 0.25f
-                    )
-                }
-            }
+            listEmptyIndicator(
+                isListEmpty = isTransactionListEmpty,
+                messageRes = R.string.all_transactions_list_empty_message
+            )
+
             items(
                 items = state.transactionList,
                 key = { it.id },

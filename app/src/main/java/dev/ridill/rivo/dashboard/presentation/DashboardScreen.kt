@@ -60,7 +60,6 @@ import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.domain.util.PartOfDay
 import dev.ridill.rivo.core.domain.util.WhiteSpace
-import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.OnLifecycleStartEffect
 import dev.ridill.rivo.core.ui.components.RivoPlainTooltip
@@ -70,6 +69,7 @@ import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
+import dev.ridill.rivo.core.ui.components.listEmptyIndicator
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllTransactionsScreenSpec
 import dev.ridill.rivo.core.ui.navigation.destinations.BottomNavDestination
@@ -240,17 +240,10 @@ fun DashboardScreen(
                 }
             }
 
-            if (areRecentSpendsEmpty) {
-                item(
-                    key = "EmptyListIndicator",
-                    contentType = "EmptyListIndicator"
-                ) {
-                    ListEmptyIndicatorItem(
-                        rawResId = R.raw.lottie_empty_list_ghost,
-                        messageRes = R.string.recent_spends_list_empty_message
-                    )
-                }
-            }
+            listEmptyIndicator(
+                isListEmpty = areRecentSpendsEmpty,
+                messageRes = R.string.recent_spends_list_empty_message
+            )
 
             items(
                 items = state.recentSpends,
