@@ -17,7 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.FilledTonalIconButton
@@ -86,6 +85,8 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.RivoTimePickerDialog
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerExtraSmall
+import dev.ridill.rivo.core.ui.components.SpacerMedium
+import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.core.ui.navigation.destinations.AllSchedulesScreenSpec
@@ -116,7 +117,7 @@ fun AddEditTransactionScreen(
     state: AddEditTransactionState,
     actions: AddEditTransactionActions,
     navigateUp: () -> Unit,
-    navigateToAmountTransformationSelection: () -> Unit,
+    navigateToAmountTransformation: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -176,13 +177,17 @@ fun AddEditTransactionScreen(
                 },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 actions = {
-                    AnimatedVisibility(!state.isScheduleTxMode) {
-                        IconButton(onClick = actions::onScheduleForLaterClick) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_rounded_time_forward),
-                                contentDescription = stringResource(R.string.cd_schedule_transaction_for_later)
+                    IconButton(onClick = actions::onScheduleModeToggleClick) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(
+                                if (state.isScheduleTxMode) R.drawable.ic_rounded_time_delete
+                                else R.drawable.ic_rounded_time_forward
+                            ),
+                            contentDescription = stringResource(
+                                if (state.isScheduleTxMode) R.string.cd_convert_to_normal_transaction
+                                else R.string.cd_convert_to_schedule
                             )
-                        }
+                        )
                     }
 
                     if (isEditMode) {
@@ -237,8 +242,8 @@ fun AddEditTransactionScreen(
                 AmountInput(
                     amount = amountInput,
                     onAmountChange = actions::onAmountChange,
+                    onTransformClick = navigateToAmountTransformation,
                     onFocusLost = actions::onAmountFocusLost,
-                    onTransformClick = navigateToAmountTransformationSelection,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                         .focusRequester(amountFocusRequester)
@@ -358,7 +363,6 @@ fun AddEditTransactionScreen(
                 onDismiss = actions::onRepeatModeDismiss,
                 selectedRepetition = state.selectedRepetition,
                 onRepetitionSelect = actions::onRepetitionSelect,
-                onCancelClick = actions::onCancelSchedulingClick
             )
         }
     }
@@ -626,7 +630,6 @@ private fun RepetitionSelectionSheet(
     onDismiss: () -> Unit,
     selectedRepetition: ScheduleRepetition,
     onRepetitionSelect: (ScheduleRepetition) -> Unit,
-    onCancelClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ModalBottomSheet(
@@ -634,6 +637,12 @@ private fun RepetitionSelectionSheet(
         modifier = modifier,
         sheetState = rememberModalBottomSheetState(true)
     ) {
+        TitleLargeText(
+            title = stringResource(R.string.select_schedule_repetition),
+            modifier = Modifier
+                .padding(horizontal = MaterialTheme.spacing.medium)
+        )
+        SpacerMedium()
         ScheduleRepetition.entries.forEach { repetition ->
             LabelledRadioButton(
                 labelRes = repetition.labelRes,
@@ -642,14 +651,6 @@ private fun RepetitionSelectionSheet(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-        }
-        Button(
-            onClick = onCancelClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.spacing.small)
-        ) {
-            Text(text = stringResource(R.string.cancel_scheduling))
         }
     }
 }
@@ -688,15 +689,14 @@ private fun PreviewScreenContent() {
                 override fun onDeleteDismiss() {}
                 override fun onDeleteConfirm() {}
                 override fun onSelectFolderClick() {}
-                override fun onScheduleForLaterClick() {}
-                override fun onCancelSchedulingClick() {}
+                override fun onScheduleModeToggleClick() {}
                 override fun onRepeatModeClick() {}
                 override fun onRepeatModeDismiss() {}
                 override fun onRepetitionSelect(repetition: ScheduleRepetition) {}
                 override fun onSaveClick() {}
             },
             navigateUp = {},
-            navigateToAmountTransformationSelection = {}
+            navigateToAmountTransformation = {}
         )
     }
 }

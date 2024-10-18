@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.spacing
 
@@ -49,10 +51,39 @@ fun EmptyListIndicator(
 
 private val DefaultSize = 80.dp
 
+fun LazyListScope.listEmptyIndicator(
+    isListEmpty: Boolean,
+    modifier: Modifier = Modifier,
+    key: String = DEFAULT_KEY,
+    contentType: String = DEFAULT_CONTENT_TYPE,
+    @RawRes animResId: Int = R.raw.lottie_empty_list_ghost,
+    @StringRes messageRes: Int? = null,
+    heightFraction: Float = LIST_EMPTY_INDICATOR_CONTAINER_HEIGHT_FRACTION,
+    size: Dp = DefaultSize
+) {
+    if (isListEmpty) {
+        item(
+            key = key,
+            contentType = contentType
+        ) {
+            ListEmptyIndicatorItem(
+                modifier = modifier,
+                animResId = animResId,
+                messageRes = messageRes,
+                heightFraction = heightFraction,
+                size = size
+            )
+        }
+    }
+}
+
+private const val DEFAULT_KEY = "ListEmptyIndicator"
+private const val DEFAULT_CONTENT_TYPE = "ListEmptyIndicator"
+
 @Composable
 fun LazyItemScope.ListEmptyIndicatorItem(
-    @RawRes rawResId: Int,
     modifier: Modifier = Modifier,
+    @RawRes animResId: Int = R.raw.lottie_empty_list_ghost,
     @StringRes messageRes: Int? = null,
     heightFraction: Float = LIST_EMPTY_INDICATOR_CONTAINER_HEIGHT_FRACTION,
     size: Dp = DefaultSize
@@ -66,7 +97,7 @@ fun LazyItemScope.ListEmptyIndicatorItem(
         contentAlignment = Alignment.Center
     ) {
         EmptyListIndicator(
-            rawResId = rawResId,
+            rawResId = animResId,
             messageRes = messageRes,
             size = size
         )

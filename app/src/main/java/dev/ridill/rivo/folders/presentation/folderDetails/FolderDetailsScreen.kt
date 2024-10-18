@@ -44,7 +44,6 @@ import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.DismissBackground
 import dev.ridill.rivo.core.ui.components.ExcludedIcon
-import dev.ridill.rivo.core.ui.components.ListEmptyIndicatorItem
 import dev.ridill.rivo.core.ui.components.ListLabel
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.MultiActionConfirmationDialog
@@ -56,6 +55,7 @@ import dev.ridill.rivo.core.ui.components.SwipeToDismissContainer
 import dev.ridill.rivo.core.ui.components.TitleLargeText
 import dev.ridill.rivo.core.ui.components.VerticalNumberSpinnerContent
 import dev.ridill.rivo.core.ui.components.icons.CalendarClock
+import dev.ridill.rivo.core.ui.components.listEmptyIndicator
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderDetailsScreenSpec
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -149,17 +149,10 @@ fun FolderDetailsScreen(
                 )
             }
 
-            if (areTransactionsEmpty) {
-                item(
-                    key = "EmptyListIndicator",
-                    contentType = "EmptyListIndicator"
-                ) {
-                    ListEmptyIndicatorItem(
-                        rawResId = R.raw.lottie_empty_list_ghost,
-                        messageRes = R.string.transactions_in_folder_list_empty_message
-                    )
-                }
-            }
+            listEmptyIndicator(
+                isListEmpty = areTransactionsEmpty,
+                messageRes = R.string.transactions_in_folder_list_empty_message
+            )
 
             repeat(transactionPagingItems.itemCount) { index ->
                 transactionPagingItems[index]?.let { item ->

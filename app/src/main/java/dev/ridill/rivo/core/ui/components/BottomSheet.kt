@@ -13,16 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -33,7 +30,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -59,7 +55,6 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
-import dev.ridill.rivo.core.ui.theme.elevation
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.UiText
 
@@ -329,56 +324,6 @@ fun TextFieldSheet(
                     .padding(horizontal = MaterialTheme.spacing.medium)
             ) {
                 actionButton()
-            }
-        }
-    }
-}
-
-@Composable
-fun <T> ListSearchSheet(
-    searchQuery: () -> String,
-    onSearchQueryChange: (String) -> Unit,
-    itemsList: List<T>,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-    placeholder: String? = null,
-    onSearch: (String) -> Unit = {},
-    active: Boolean = true,
-    onActiveChange: (Boolean) -> Unit = {},
-    itemKey: ((T) -> Any)? = null,
-    itemContent: @Composable LazyItemScope.(T) -> Unit
-) {
-    val isSearchQueryEmpty by remember {
-        derivedStateOf { searchQuery().isEmpty() }
-    }
-
-    RivoModalBottomSheet(
-        onDismissRequest = onDismiss,
-        modifier = modifier
-    ) {
-        SearchBar(
-            query = searchQuery(),
-            onQueryChange = onSearchQueryChange,
-            onSearch = onSearch,
-            active = active,
-            onActiveChange = onActiveChange,
-            trailingIcon = {
-                if (!isSearchQueryEmpty) {
-                    IconButton(onClick = { onSearchQueryChange(String.Empty) }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Clear,
-                            contentDescription = stringResource(R.string.cd_clear)
-                        )
-                    }
-                }
-            },
-            placeholder = { placeholder?.let { Text(it) } },
-            tonalElevation = MaterialTheme.elevation.level0
-        ) {
-            LazyColumn {
-                items(items = itemsList, key = itemKey) { item ->
-                    itemContent(item)
-                }
             }
         }
     }

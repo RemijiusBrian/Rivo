@@ -194,7 +194,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             state = state,
             actions = viewModel,
             navigateUp = navController::navigateUp,
-            navigateToAmountTransformationSelection = {
+            navigateToAmountTransformation = {
                 navController.navigate(AmountTransformationSheetSpec.route)
             },
         )
