@@ -109,6 +109,8 @@
     <string name="cd_notification_off_warning">Warning! Notifications permission is required but is currently off</string>
     <string name="cd_profile_picture">Profile picture</string>
     <string name="cd_create_new_tag">Create New Tag</string>
+    <string name="cd_convert_to_schedule">Convert to schedule</string>
+    <string name="cd_convert_to_normal_transaction">Convert to normal transaction</string>
 
     <!-- Error Messages -->
     <string name="error_no_internet_connection">No internet connection</string>
@@ -432,7 +434,6 @@
     <string name="schedule_marked_as_paid">Schedule marked as paid</string>
     <string name="generic_schedule_title">~Schedule</string>
     <string name="retired">Retired</string>
-    <string name="cancel_scheduling">Cancel scheduling</string>
     <string name="last_paid_date">Last paid: %s</string>
     <string name="this_month">This Month</string>
     <string name="upcoming">Upcoming</string>
@@ -462,7 +463,6 @@
     <string name="your_top_tags">Your top tags</string>
     <string name="tap_to_select_folder">Tap to select folder</string>
     <string name="exclude_from_expenditure">Exclude from expenditure</string>
-    <string name="cd_schedule_transaction_for_later">Schedule transaction for later</string>
     <string name="clear">Clear</string>
     <string name="select_folder">Select Folder</string>
     <string name="select_tags">Select Tags</string>
@@ -470,4 +470,5 @@
     <string name="new_folder_input_text">Create a folder to group your transactions</string>
     <string name="update_currency_title">Update Currency</string>
     <string name="clear_selection">Clear Selection</string>
+    <string name="select_schedule_repetition">Select Schedule Repetition</string>
 </resources>

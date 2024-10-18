@@ -128,8 +128,8 @@ class AddEditTransactionViewModel @Inject constructor(
                 showDeleteConfirmation,
                 linkedFolderName,
                 isScheduleTxMode,
-                                selectedRepetition,
-                                showRepetitionSelection
+                selectedRepetition,
+                showRepetitionSelection
             ) ->
         AddEditTransactionState(
             isLoading = isLoading,
@@ -331,13 +331,8 @@ class AddEditTransactionViewModel @Inject constructor(
         )
     }
 
-    override fun onScheduleForLaterClick() {
-        toggleScheduling(true)
-    }
-
-    override fun onCancelSchedulingClick() {
-        savedStateHandle[SHOW_REPETITION_SELECTION] = false
-        toggleScheduling(false)
+    override fun onScheduleModeToggleClick() {
+        toggleScheduling(isScheduleTxMode.value.not())
     }
 
     private fun toggleScheduling(enable: Boolean) {
