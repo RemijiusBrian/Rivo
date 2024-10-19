@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.data.local.views
 
 import androidx.room.DatabaseView
+import dev.ridill.rivo.transactions.domain.model.TransactionType
 import java.time.LocalDateTime
 
 @DatabaseView(
@@ -8,7 +9,7 @@ import java.time.LocalDateTime
         tx.note AS transactionNote,
         tx.amount AS transactionAmount,
         tx.timestamp AS transactionTimestamp,
-        tx.type AS transactionTypeName,
+        tx.type AS transactionType,
         tx.is_excluded AS isTransactionExcluded,
         tag.id AS tagId,
         tag.name AS tagName,
@@ -31,7 +32,7 @@ data class TransactionDetailsView(
     val transactionNote: String,
     val transactionAmount: Double,
     val transactionTimestamp: LocalDateTime,
-    val transactionTypeName: String,
+    val transactionType: TransactionType,
     val isTransactionExcluded: Boolean,
     val tagId: Long?,
     val tagName: String?,

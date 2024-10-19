@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -28,16 +29,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
+import dev.ridill.rivo.core.ui.components.AmountWithArrow
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.EmptyListIndicator
+import dev.ridill.rivo.core.ui.components.ExcludedIndicatorSmall
 import dev.ridill.rivo.core.ui.components.ListSeparator
 import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
+import dev.ridill.rivo.core.ui.components.SpacerSmall
+import dev.ridill.rivo.core.ui.components.TitleMediumText
 import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
@@ -48,7 +51,6 @@ import dev.ridill.rivo.core.ui.util.isEmpty
 import dev.ridill.rivo.core.ui.util.mergedContentDescription
 import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.folders.domain.model.FolderUIModel
-import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlin.math.absoluteValue
 
 @Composable
@@ -136,7 +138,7 @@ fun FoldersListScreen(
                                             name = item.folderDetails.name,
                                             created = item.folderDetails.createdDateFormatted,
                                             excluded = item.folderDetails.excluded,
-                                            aggregateAmount = TextFormat.compact(
+                                            aggregateAmount = TextFormat.compactAmount(
                                                 item.folderDetails.aggregateAmount.absoluteValue
                                             ),
                                             aggregateType = item.folderDetails.aggregateType,
@@ -195,14 +197,23 @@ private fun FolderCard(
     ) {
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(MaterialTheme.spacing.medium)
         ) {
-            Text(
-                text = name,
-                style = nameStyle,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+                if (excluded) {
+                    ExcludedIndicatorSmall()
+                }
+                Text(
+                    text = name,
+                    style = nameStyle,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
             Text(
                 text = created,
@@ -211,55 +222,18 @@ private fun FolderCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            AggregateAmountText(
-                amount = aggregateAmount,
-                type = aggregateType,
-                horizontalAlignment = Alignment.Start
-            )
-        }
-    }
-}
-
-@Composable
-private fun AggregateAmountText(
-    amount: String,
-    type: AggregateType,
-    horizontalAlignment: Alignment.Horizontal,
-    modifier: Modifier = Modifier
-) {
-    val aggregateIconRes = remember(type) {
-        when (type) {
-            AggregateType.BALANCED -> null
-            AggregateType.AGG_DEBIT -> TransactionType.DEBIT.iconRes
-            AggregateType.AGG_CREDIT -> TransactionType.CREDIT.iconRes
-        }
-    }
-
-    Column(
-        modifier = modifier,
-        horizontalAlignment = horizontalAlignment
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-        ) {
-            aggregateIconRes?.let {
-                Icon(
-                    imageVector = ImageVector.vectorResource(it),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .align(Alignment.End)
+            ) {
+                TitleMediumText(stringResource(R.string.aggregate_abr))
+                SpacerSmall()
+                AmountWithArrow(
+                    value = aggregateAmount,
+                    type = aggregateType
                 )
             }
-            Text(
-                text = amount,
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textDecoration = if (type == AggregateType.BALANCED) TextDecoration.Underline
-                else null
-            )
         }
     }
 }

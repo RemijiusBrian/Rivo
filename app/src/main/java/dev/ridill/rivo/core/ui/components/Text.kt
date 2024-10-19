@@ -24,17 +24,18 @@ import androidx.compose.ui.unit.dp
 import dev.ridill.rivo.core.domain.util.One
 import dev.ridill.rivo.core.ui.theme.spacing
 import dev.ridill.rivo.core.ui.util.TextFormat
+import dev.ridill.rivo.folders.domain.model.AggregateType
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 @Composable
 fun MediumDisplayText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     color: Color = Color.Unspecified
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.displayMedium,
     modifier = modifier,
     maxLines = maxLines,
@@ -44,13 +45,13 @@ fun MediumDisplayText(
 
 @Composable
 fun SmallDisplayText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     color: Color = Color.Unspecified
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.displaySmall,
     modifier = modifier,
     maxLines = maxLines,
@@ -60,7 +61,7 @@ fun SmallDisplayText(
 
 @Composable
 fun TitleLargeText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
@@ -68,7 +69,7 @@ fun TitleLargeText(
     textDecoration: TextDecoration? = null,
     color: Color = Color.Unspecified,
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.titleLarge,
     modifier = modifier,
     maxLines = maxLines,
@@ -80,7 +81,7 @@ fun TitleLargeText(
 
 @Composable
 fun TitleMediumText(
-    title: String,
+    text: String,
     modifier: Modifier = Modifier,
     maxLines: Int = 2,
     overflow: TextOverflow = TextOverflow.Ellipsis,
@@ -88,7 +89,7 @@ fun TitleMediumText(
     textDecoration: TextDecoration? = null,
     color: Color = Color.Unspecified,
 ) = Text(
-    text = title,
+    text = text,
     style = MaterialTheme.typography.titleMedium,
     modifier = modifier,
     maxLines = maxLines,
@@ -257,6 +258,39 @@ fun AmountWithArrow(
                 .weight(weight = Float.One, fill = false)
         )
         if (showTypeIndicator && type != null) {
+            Icon(
+                imageVector = ImageVector.vectorResource(type.iconRes),
+                contentDescription = stringResource(type.labelRes),
+                modifier = Modifier
+                    .size(TypeIndicatorSize)
+            )
+        }
+    }
+}
+
+@Composable
+fun AmountWithArrow(
+    value: String,
+    type: AggregateType,
+    modifier: Modifier = Modifier,
+    showTypeIndicator: Boolean = true,
+    textStyle: TextStyle = MaterialTheme.typography.headlineMedium
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Text(
+            text = value,
+            style = textStyle,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = Float.One, fill = false)
+        )
+        if (showTypeIndicator) {
             Icon(
                 imageVector = ImageVector.vectorResource(type.iconRes),
                 contentDescription = stringResource(type.labelRes),

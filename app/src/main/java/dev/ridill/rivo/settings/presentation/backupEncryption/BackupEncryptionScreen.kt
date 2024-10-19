@@ -158,7 +158,7 @@ private fun PasswordUpdateSheet(
                 .padding(MaterialTheme.spacing.medium),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
-            MediumDisplayText(title = stringResource(R.string.update_password))
+            MediumDisplayText(text = stringResource(R.string.update_password))
             AnimatedVisibility(hasExistingPassword) {
                 Column {
                     PasswordField(

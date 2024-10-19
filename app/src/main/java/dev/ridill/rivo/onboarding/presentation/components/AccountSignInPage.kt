@@ -40,7 +40,7 @@ fun AccountSignInPage(
             .padding(MaterialTheme.spacing.large)
     ) {
         MediumDisplayText(
-            title = stringResource(R.string.onboarding_page_sign_in_title),
+            text = stringResource(R.string.onboarding_page_sign_in_title),
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.medium)
         )

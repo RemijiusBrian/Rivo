@@ -28,7 +28,7 @@ class DashboardViewModel @Inject constructor(
 ) : ViewModel() {
     private val monthlyBudget = repo.getCurrentBudget()
 
-    private val spentAmount = repo.getExpenditureForCurrentMonth()
+    private val debitAmount = repo.getTotalDebitsForCurrentMonth()
     private val creditAmount = repo.getTotalCreditsForCurrentMonth()
     private val budgetInclCredits = combineTuple(
         monthlyBudget,
@@ -39,14 +39,14 @@ class DashboardViewModel @Inject constructor(
 
     private val balance = combineTuple(
         budgetInclCredits,
-        spentAmount
+        debitAmount
     ).map { (budgetInclCredits, debits) ->
         budgetInclCredits - debits
     }.distinctUntilChanged()
 
     private val activeSchedules = repo.getSchedulesActiveThisMonth()
 
-    private val recentSpends = repo.getRecentSpends()
+    val recentSpendsPagingData = repo.getRecentSpends()
 
     private val signedInUsername = authRepo.getAuthState().map { state ->
         when (state) {
@@ -57,11 +57,10 @@ class DashboardViewModel @Inject constructor(
 
     val state = combineTuple(
         budgetInclCredits,
-        spentAmount,
+        debitAmount,
         creditAmount,
         balance,
         activeSchedules,
-        recentSpends,
         signedInUsername
     ).map { (
                 budgetInclCredits,
@@ -69,7 +68,6 @@ class DashboardViewModel @Inject constructor(
                 creditAmount,
                 balance,
                 activeSchedules,
-                recentSpends,
                 signedInUsername
             ) ->
         DashboardState(
@@ -78,7 +76,6 @@ class DashboardViewModel @Inject constructor(
             creditAmount = creditAmount,
             monthlyBudgetInclCredits = budgetInclCredits,
             activeSchedules = activeSchedules,
-            recentSpends = recentSpends,
             signedInUsername = signedInUsername
         )
     }.asStateFlow(viewModelScope, DashboardState())

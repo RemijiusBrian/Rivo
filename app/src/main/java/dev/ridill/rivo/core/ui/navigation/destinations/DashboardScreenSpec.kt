@@ -9,6 +9,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
@@ -31,6 +32,8 @@ data object DashboardScreenSpec : ScreenSpec {
     ) {
         val viewModel: DashboardViewModel = hiltViewModel(navBackStackEntry)
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val recentSpendsLazyPagingItems =
+            viewModel.recentSpendsPagingData.collectAsLazyPagingItems()
 
         val snackbarController = rememberSnackbarController()
         val context = LocalContext.current
@@ -68,6 +71,7 @@ data object DashboardScreenSpec : ScreenSpec {
 
         DashboardScreen(
             snackbarController = snackbarController,
+            recentSpends = recentSpendsLazyPagingItems,
             state = state,
             navigateToAllTransactions = {
                 navController.navigate(AllTransactionsScreenSpec.route)

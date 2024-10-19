@@ -243,6 +243,7 @@ fun AddEditTransactionScreen(
                     amount = amountInput,
                     onAmountChange = actions::onAmountChange,
                     onTransformClick = navigateToAmountTransformation,
+                    onFocusLost = actions::onAmountFocusLost,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                         .focusRequester(amountFocusRequester)
@@ -251,7 +252,6 @@ fun AddEditTransactionScreen(
                 NoteInput(
                     input = noteInput,
                     onValueChange = actions::onNoteChange,
-                    onFocused = actions::onNoteInputFocused,
                     modifier = Modifier
                         .padding(horizontal = MaterialTheme.spacing.medium)
                 )
@@ -372,6 +372,7 @@ fun AddEditTransactionScreen(
 private fun AmountInput(
     amount: () -> String,
     onAmountChange: (String) -> Unit,
+    onFocusLost: () -> Unit,
     onTransformClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -384,6 +385,9 @@ private fun AmountInput(
         value = amount,
         onValueChange = onAmountChange,
         modifier = modifier
+            .onFocusChanged { focusState ->
+                if (!focusState.isFocused) onFocusLost()
+            }
             .semantics {
                 contentDescription = amountContentDescription
             },
@@ -427,16 +431,12 @@ private fun AmountInput(
 fun NoteInput(
     input: () -> String,
     onValueChange: (String) -> Unit,
-    onFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TextField(
         value = input(),
         onValueChange = onValueChange,
-        modifier = modifier
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) onFocused()
-            },
+        modifier = modifier,
         placeholder = { Text(stringResource(R.string.add_a_note)) },
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(
@@ -638,7 +638,7 @@ private fun RepetitionSelectionSheet(
         sheetState = rememberModalBottomSheetState(true)
     ) {
         TitleLargeText(
-            title = stringResource(R.string.select_schedule_repetition),
+            text = stringResource(R.string.select_schedule_repetition),
             modifier = Modifier
                 .padding(horizontal = MaterialTheme.spacing.medium)
         )
@@ -671,7 +671,7 @@ private fun PreviewScreenContent() {
             ),
             actions = object : AddEditTransactionActions {
                 override fun onAmountChange(value: String) {}
-                override fun onNoteInputFocused() {}
+                override fun onAmountFocusLost() {}
                 override fun onNoteChange(value: String) {}
                 override fun onRecommendedAmountClick(amount: Long) {}
                 override fun onTagSelect(tagId: Long) {}

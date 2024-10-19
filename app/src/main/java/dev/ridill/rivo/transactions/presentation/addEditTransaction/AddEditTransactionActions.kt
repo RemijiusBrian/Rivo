@@ -5,7 +5,7 @@ import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 interface AddEditTransactionActions {
     fun onAmountChange(value: String)
-    fun onNoteInputFocused()
+    fun onAmountFocusLost()
     fun onNoteChange(value: String)
     fun onRecommendedAmountClick(amount: Long)
     fun onTagSelect(tagId: Long)

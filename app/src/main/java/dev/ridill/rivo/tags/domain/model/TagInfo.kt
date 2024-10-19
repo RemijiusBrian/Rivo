@@ -2,6 +2,7 @@ package dev.ridill.rivo.tags.domain.model
 
 import androidx.compose.ui.graphics.Color
 import dev.ridill.rivo.core.domain.util.DateUtil
+import dev.ridill.rivo.folders.domain.model.AggregateType
 import java.time.LocalDateTime
 
 data class TagInfo(
@@ -14,4 +15,7 @@ data class TagInfo(
 ) {
     val createdTimestampFormatted: String
         get() = createdTimestamp.format(DateUtil.Formatters.localizedDateMedium)
+
+    val aggregateType: AggregateType
+        get() = AggregateType.fromAmount(aggregate)
 }

@@ -2,7 +2,6 @@ package dev.ridill.rivo.dashboard.presentation
 
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.schedules.domain.model.ActiveSchedule
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 
 data class DashboardState(
     val balance: Double = Double.Zero,
@@ -10,6 +9,5 @@ data class DashboardState(
     val creditAmount: Double = Double.Zero,
     val monthlyBudgetInclCredits: Double = Double.Zero,
     val activeSchedules: List<ActiveSchedule> = emptyList(),
-    val recentSpends: List<TransactionListItem> = emptyList(),
     val signedInUsername: String? = null
 )

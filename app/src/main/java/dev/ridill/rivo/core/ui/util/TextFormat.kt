@@ -83,7 +83,7 @@ object TextFormat {
         .format(value)
 
     @Composable
-    fun compact(
+    fun compactAmount(
         value: Double,
         locale: Locale = LocaleUtil.defaultLocale,
         currency: Currency = LocalCurrencyPreference.current,

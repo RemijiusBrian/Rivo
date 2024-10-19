@@ -8,7 +8,6 @@ import dev.ridill.rivo.transactions.data.local.entity.TransactionEntity
 import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import dev.ridill.rivo.transactions.domain.model.TransactionListItem
-import dev.ridill.rivo.transactions.domain.model.TransactionType
 
 fun TransactionEntity.toTransaction(): Transaction = Transaction(
     id = id,
@@ -67,7 +66,7 @@ fun TransactionDetailsView.toTransactionListItem(): TransactionListItem {
         note = transactionNote,
         amount = transactionAmount,
         timestamp = transactionTimestamp,
-        type = TransactionType.valueOf(transactionTypeName),
+        type = transactionType,
         isTransactionExcluded = isTransactionExcluded,
         tag = tag,
         folder = folder,

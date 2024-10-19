@@ -23,7 +23,6 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.NewLine
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
@@ -32,7 +31,6 @@ import dev.ridill.rivo.core.ui.components.navigateUpWithResult
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionScreen
 import dev.ridill.rivo.transactions.presentation.addEditTransaction.AddEditTransactionViewModel
-import java.time.LocalDateTime
 
 data object AddEditTransactionScreenSpec : ScreenSpec {
     override val route: String
@@ -41,7 +39,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
         {$ARG_TRANSACTION_ID}
         ?$ARG_LINK_FOLDER_ID={$ARG_LINK_FOLDER_ID}
         &$ARG_IS_SCHEDULE_MODE_ACTIVE={$ARG_IS_SCHEDULE_MODE_ACTIVE}
-        &$ARG_INITIAL_TIMESTAMP={$ARG_INITIAL_TIMESTAMP}
     """.trimIndent()
             .replace(String.NewLine, String.Empty)
 
@@ -63,11 +60,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
                 type = NavType.BoolType
                 nullable = false
                 defaultValue = false
-            },
-            navArgument(ARG_INITIAL_TIMESTAMP) {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
             }
         )
 
@@ -85,8 +77,7 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
     fun routeWithArg(
         transactionId: Long? = null,
         folderId: Long? = null,
-        isScheduleTxMode: Boolean = false,
-        initialDateTime: LocalDateTime? = null
+        isScheduleTxMode: Boolean = false
     ): String = route
         .replace(
             oldValue = "{$ARG_TRANSACTION_ID}",
@@ -100,10 +91,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
             oldValue = "{$ARG_IS_SCHEDULE_MODE_ACTIVE}",
             newValue = isScheduleTxMode.toString()
         )
-        .replace(
-            oldValue = "{$ARG_INITIAL_TIMESTAMP}",
-            newValue = initialDateTime?.toString().orEmpty()
-        )
 
     fun getTransactionIdFromSavedStateHandle(savedStateHandle: SavedStateHandle): Long =
         savedStateHandle.get<Long>(ARG_TRANSACTION_ID) ?: NavDestination.ARG_INVALID_ID_LONG
@@ -113,12 +100,6 @@ data object AddEditTransactionScreenSpec : ScreenSpec {
 
     fun getIsScheduleModeFromSavedStateHandle(savedStateHandle: SavedStateHandle): Boolean =
         savedStateHandle.get<Boolean>(ARG_IS_SCHEDULE_MODE_ACTIVE) == true
-
-    fun getInitialTimestampFromSavedStateHandle(savedStateHandle: SavedStateHandle): LocalDateTime? =
-        savedStateHandle.get<String?>(ARG_INITIAL_TIMESTAMP)?.let {
-            if (it.isEmpty()) null
-            else DateUtil.parseDateTimeOrNull(it)
-        }
 
     private fun isArgEditMode(navBackStackEntry: NavBackStackEntry): Boolean =
         navBackStackEntry.arguments?.getLong(ARG_TRANSACTION_ID) != NavDestination.ARG_INVALID_ID_LONG
@@ -229,7 +210,6 @@ enum class AddEditTxResult {
 const val ARG_TRANSACTION_ID = "ARG_TRANSACTION_ID"
 private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
 private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
-private const val ARG_INITIAL_TIMESTAMP = "ARG_INITIAL_TIMESTAMP"
 
 private const val DEEPLINK_URI_PATTERN =
     "${NavDestination.DEEP_LINK_URI}/add_edit_transaction?{$ARG_TRANSACTION_ID}={$ARG_LINK_FOLDER_ID}"

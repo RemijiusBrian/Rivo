@@ -22,11 +22,3 @@ fun TagAndAggregateRelation.toTagInfo(): TagInfo = TagInfo(
     excluded = excluded,
     aggregate = aggregate
 )
-
-fun TagAndAggregateRelation.toTag(): Tag = Tag(
-    id = id,
-    name = name,
-    colorCode = colorCode,
-    createdTimestamp = createdTimestamp,
-    excluded = excluded
-)

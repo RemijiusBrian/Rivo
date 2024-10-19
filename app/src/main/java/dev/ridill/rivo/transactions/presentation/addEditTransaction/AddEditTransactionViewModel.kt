@@ -171,12 +171,8 @@ class AddEditTransactionViewModel @Inject constructor(
         } ?: Transaction.DEFAULT
         savedStateHandle[IS_SCHEDULE_MODE] = scheduleModeArg
         val dateNow = DateUtil.now()
-        val initialTimestampArg = AddEditTransactionScreenSpec
-            .getInitialTimestampFromSavedStateHandle(savedStateHandle)
         val timestamp = if (isScheduleTxMode.value && transaction.timestamp <= dateNow)
             dateNow.plusDays(1)
-        else if (transactionIdArg == NavDestination.ARG_INVALID_ID_LONG) initialTimestampArg
-            ?: DateUtil.now()
         else transaction.timestamp
 
         savedStateHandle[TX_INPUT] = transaction.copy(
@@ -189,7 +185,7 @@ class AddEditTransactionViewModel @Inject constructor(
         savedStateHandle[TX_INPUT] = txInput.value.copy(amount = value)
     }
 
-    override fun onNoteInputFocused() {
+    override fun onAmountFocusLost() {
         val amountInput = amountInput.value
             .trim()
             .ifEmpty { return }

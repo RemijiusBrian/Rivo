@@ -53,7 +53,7 @@ fun SetBudgetPage(
             .verticalScroll(rememberScrollState())
     ) {
         MediumDisplayText(
-            title = stringResource(R.string.onboarding_page_set_budget_title),
+            text = stringResource(R.string.onboarding_page_set_budget_title),
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.medium)
         )

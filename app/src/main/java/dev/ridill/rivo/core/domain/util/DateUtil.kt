@@ -97,6 +97,9 @@ object DateUtil {
         val MMMM_yyyy_spaceSep: DateTimeFormatter
             get() = DateTimeFormatter.ofPattern("MMMM yyyy")
 
+        val MMM_yy_spaceSep: DateTimeFormatter
+            get() = DateTimeFormatter.ofPattern("MMM yy")
+
         val ddth_EEE_spaceSep: DateTimeFormatter
             get() = DateTimeFormatterBuilder()
                 .appendText(ChronoField.DAY_OF_MONTH, ordinalsMap)

@@ -62,7 +62,7 @@ fun TagSelectionSheet(
             verticalArrangement = ArrangementTopWithFooter(MaterialTheme.spacing.small)
         ) {
             TitleLargeText(
-                title = pluralStringResource(
+                text = pluralStringResource(
                     id = R.plurals.select_tag,
                     count = if (multiSelection) 2 else 1
                 )

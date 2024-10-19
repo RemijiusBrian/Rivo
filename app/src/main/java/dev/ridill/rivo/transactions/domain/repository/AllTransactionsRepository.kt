@@ -1,6 +1,7 @@
 package dev.ridill.rivo.transactions.domain.repository
 
-import dev.ridill.rivo.transactions.domain.model.TransactionListItem
+import androidx.paging.PagingData
+import dev.ridill.rivo.transactions.domain.model.TransactionListItemUIModel
 import dev.ridill.rivo.transactions.domain.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -10,21 +11,22 @@ import java.util.Currency
 interface AllTransactionsRepository {
     fun getCurrencyPreference(date: LocalDate): Flow<Currency>
     suspend fun deleteTransactionsByIds(ids: Set<Long>)
-    fun getTransactionYearsList(): Flow<List<Int>>
+    fun getDateLimits(): Flow<Pair<LocalDate, LocalDate>>
     fun getAmountAggregate(
-        date: LocalDate?,
+        dateRange: Pair<LocalDate, LocalDate>? = null,
         type: TransactionType?,
-        tagIds: Set<Long>,
         addExcluded: Boolean,
+        tagIds: Set<Long>,
         selectedTxIds: Set<Long>
     ): Flow<Double>
 
-    fun getAllTransactionsList(
-        date: LocalDate,
-        tagIds: Set<Long>,
-        transactionType: TransactionType?,
-        showExcluded: Boolean
-    ): Flow<List<TransactionListItem>>
+    fun getAllTransactionsPaged(
+        dateRange: Pair<LocalDate, LocalDate>? = null,
+        transactionType: TransactionType? = null,
+        showExcluded: Boolean = true,
+        tagIds: Set<Long>? = null,
+        folderId: Long? = null
+    ): Flow<PagingData<TransactionListItemUIModel>>
 
     suspend fun setTagIdToTransactions(tagId: Long?, transactionIds: Set<Long>)
     fun getShowExcludedOption(): Flow<Boolean>

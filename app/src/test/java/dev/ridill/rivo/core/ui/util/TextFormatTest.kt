@@ -14,7 +14,7 @@ class TextFormatTest {
 
     @Before
     fun setUp() {
-        amountString = TextFormat.currency(2000, LocaleUtil.currencyForCode("INR"))
+        amountString = TextFormat.currency(2000.0, LocaleUtil.currencyForCode("INR"))
     }
 
     @After

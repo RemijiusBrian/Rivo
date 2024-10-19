@@ -32,7 +32,16 @@ class FolderDetailsRepositoryImpl(
         folderId: Long
     ): Flow<PagingData<TransactionListItemUIModel>> = Pager(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
-    ) { transactionDao.getTransactionsListPaginated(folderId = folderId) }
+    ) {
+        transactionDao.getTransactionsPaged(
+            startDate = null,
+            endDate = null,
+            type = null,
+            showExcluded = false,
+            tagIds = null,
+            folderId = folderId
+        )
+    }
         .flow
         .map { it.map(TransactionDetailsView::toTransactionListItem) }
         .map { pagingData ->

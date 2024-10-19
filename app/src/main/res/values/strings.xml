@@ -340,6 +340,7 @@
     <string name="all">All</string>
     <string name="selected_aggregate">Selected Agg</string>
     <string name="aggregate">Aggregate</string>
+    <string name="aggregate_abr">Agg.</string>
     <string name="generic_debit_receiver">Merchant</string>
     <string name="generic_credit_sender">Generic Sender</string>
     <string name="all_transactions">All Transactions</string>
@@ -471,4 +472,5 @@
     <string name="update_currency_title">Update Currency</string>
     <string name="clear_selection">Clear Selection</string>
     <string name="select_schedule_repetition">Select Schedule Repetition</string>
+    <string name="clear_all">Clear All</string>
 </resources>

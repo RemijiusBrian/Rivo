@@ -58,7 +58,7 @@ fun PermissionsPage(
             .padding(MaterialTheme.spacing.large),
     ) {
         MediumDisplayText(
-            title = stringResource(R.string.onboarding_page_permissions_title),
+            text = stringResource(R.string.onboarding_page_permissions_title),
             modifier = Modifier
                 .padding(vertical = MaterialTheme.spacing.medium)
         )

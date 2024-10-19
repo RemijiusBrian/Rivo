@@ -35,13 +35,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineBreak
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.compose.LazyPagingItems
 import dev.ridill.rivo.R
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.One
+import dev.ridill.rivo.core.ui.components.AmountWithArrow
 import dev.ridill.rivo.core.ui.components.BackArrowButton
 import dev.ridill.rivo.core.ui.components.ConfirmationDialog
 import dev.ridill.rivo.core.ui.components.DismissBackground
@@ -127,7 +125,7 @@ fun FolderDetailsScreen(
                 contentType = "FolderDetails"
             ) {
                 FolderDetails(
-                    folderName = state.folderNname,
+                    folderName = state.folderName,
                     isExcluded = state.isExcluded,
                     aggregateAmount = state.aggregateAmount,
                     aggregateType = state.aggregateType,
@@ -368,18 +366,14 @@ private fun AggregateAmount(
             .mergedContentDescription(aggregateAmountContentDescription)
     ) {
         VerticalNumberSpinnerContent(
-            number = amount.absoluteValue,
+            number = amount,
             modifier = Modifier
                 .weight(weight = Float.One, fill = false)
                 .alignBy(LastBaseline)
         ) {
-            Text(
-                text = TextFormat.currencyAmount(it),
-                style = MaterialTheme.typography.headlineLarge
-                    .copy(lineBreak = LineBreak.Heading),
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+            AmountWithArrow(
+                value = TextFormat.currencyAmount(it.absoluteValue),
+                type = type
             )
         }
 
