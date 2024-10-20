@@ -19,7 +19,8 @@ data class ScheduleListItem(
         }
 
     val amountFormatted: String
-        @Composable get() = TextFormat.currencyAmount(amount)
+        @Composable
+        get() = TextFormat.currencyAmount(amount)
 
     val nextReminderDateFormatted: String?
         get() = nextReminderDate?.format(DateUtil.Formatters.localizedDateMedium)

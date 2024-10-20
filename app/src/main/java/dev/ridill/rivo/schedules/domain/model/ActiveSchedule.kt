@@ -13,7 +13,8 @@ data class ActiveSchedule(
     val dueDate: LocalDateTime
 ) {
     val amountFormatted: String
-        @Composable get() = TextFormat.currencyAmount(amount)
+        @Composable
+        get() = TextFormat.currencyAmount(amount)
 
     val dueDateFormatted: String
         get() = "${dueDate.format(DateUtil.Formatters.EEE_ddth_commaSep)} at ${
