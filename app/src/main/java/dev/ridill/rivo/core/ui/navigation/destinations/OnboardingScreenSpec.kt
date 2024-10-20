@@ -22,7 +22,7 @@ import androidx.navigation.NavHostController
 import dev.ridill.rivo.R
 import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.account.presentation.util.rememberCredentialService
-import dev.ridill.rivo.application.EXTRA_RUN_CONFIG_RESTORE
+import dev.ridill.rivo.application.RUN_CONFIG_RESTORE_EXTRA
 import dev.ridill.rivo.core.domain.util.BuildUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.rememberMultiplePermissionsLauncher
@@ -114,11 +114,9 @@ data object OnboardingScreenSpec : ScreenSpec {
                 }
 
                 OnboardingViewModel.OnboardingEvent.RestartApplication -> {
-                    context.restartApplication(
-                        editIntent = {
-                            putExtra(EXTRA_RUN_CONFIG_RESTORE, true)
-                        }
-                    )
+                    context.restartApplication {
+                        putExtra(RUN_CONFIG_RESTORE_EXTRA, true)
+                    }
                 }
 
                 is OnboardingViewModel.OnboardingEvent.StartAutoSignInFlow -> {

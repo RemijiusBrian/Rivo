@@ -68,8 +68,8 @@ class RivoActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         this.intent?.let {
-            val runConfigRestore = it.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
-            logI(RivoActivity::class.simpleName) { "$EXTRA_RUN_CONFIG_RESTORE = $runConfigRestore" }
+            val runConfigRestore = it.getBooleanExtra(RUN_CONFIG_RESTORE_EXTRA, false)
+            logI(RivoActivity::class.simpleName) { "$RUN_CONFIG_RESTORE_EXTRA = $runConfigRestore" }
             if (runConfigRestore) viewModel.startConfigRestore()
         }
 
@@ -156,7 +156,7 @@ class RivoActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val runConfigRestore = intent.getBooleanExtra(EXTRA_RUN_CONFIG_RESTORE, false)
+        val runConfigRestore = intent.getBooleanExtra(RUN_CONFIG_RESTORE_EXTRA, false)
         if (runConfigRestore) viewModel.startConfigRestore()
     }
 
@@ -214,7 +214,7 @@ class RivoActivity : AppCompatActivity() {
     }
 }
 
-const val EXTRA_RUN_CONFIG_RESTORE = "EXTRA_RUN_CONFIG_RESTORE"
+const val RUN_CONFIG_RESTORE_EXTRA = "RUN_CONFIG_RESTORE_EXTRA"
 
 @Composable
 private fun ScreenContent(
