@@ -2,11 +2,10 @@ package dev.ridill.rivo.dashboard.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.zhuinden.flowcombinetuplekt.combineTuple
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.R
-import dev.ridill.rivo.account.domain.model.AuthState
-import dev.ridill.rivo.account.domain.repository.AuthRepository
 import dev.ridill.rivo.core.domain.notification.NotificationHelper
 import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.core.domain.util.asStateFlow
@@ -16,30 +15,32 @@ import dev.ridill.rivo.dashboard.domain.repository.DashboardRepository
 import dev.ridill.rivo.transactions.domain.model.Transaction
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     repo: DashboardRepository,
-    authRepo: AuthRepository,
     private val notificationHelper: NotificationHelper<Transaction>,
     private val eventBus: EventBus<DashboardEvent>
 ) : ViewModel() {
-    private val monthlyBudget = repo.getCurrentBudget()
+    private val signedInUsername = repo.getUsername()
 
-    private val debitAmount = repo.getTotalDebitsForCurrentMonth()
-    private val creditAmount = repo.getTotalCreditsForCurrentMonth()
+    private val budget = repo.getCurrentBudget()
+    private val totalDebit = repo.getTotalDebitsForCurrentMonth()
+    private val totalCredit = repo.getTotalCreditsForCurrentMonth()
+
     private val budgetInclCredits = combineTuple(
-        monthlyBudget,
-        creditAmount
+        budget,
+        totalCredit
     ).map { (budget, credit) ->
         budget + credit
     }.distinctUntilChanged()
 
     private val balance = combineTuple(
         budgetInclCredits,
-        debitAmount
+        totalDebit
     ).map { (budgetInclCredits, debits) ->
         budgetInclCredits - debits
     }.distinctUntilChanged()
@@ -47,18 +48,12 @@ class DashboardViewModel @Inject constructor(
     private val activeSchedules = repo.getSchedulesActiveThisMonth()
 
     val recentSpendsPagingData = repo.getRecentSpends()
-
-    private val signedInUsername = authRepo.getAuthState().map { state ->
-        when (state) {
-            is AuthState.Authenticated -> state.account.displayName
-            AuthState.UnAuthenticated -> null
-        }
-    }.distinctUntilChanged()
+        .cachedIn(viewModelScope)
 
     val state = combineTuple(
         budgetInclCredits,
-        debitAmount,
-        creditAmount,
+        totalDebit,
+        totalCredit,
         balance,
         activeSchedules,
         signedInUsername
@@ -78,7 +73,9 @@ class DashboardViewModel @Inject constructor(
             activeSchedules = activeSchedules,
             signedInUsername = signedInUsername
         )
-    }.asStateFlow(viewModelScope, DashboardState())
+    }
+        .onStart { repo.refreshCurrentDate() }
+        .asStateFlow(viewModelScope, DashboardState())
 
     val events = eventBus.eventFlow
 

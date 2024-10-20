@@ -6,6 +6,8 @@ import dev.ridill.rivo.transactions.domain.model.TransactionListItem
 import kotlinx.coroutines.flow.Flow
 
 interface DashboardRepository {
+    fun refreshCurrentDate()
+    fun getUsername(): Flow<String?>
     fun getCurrentBudget(): Flow<Long>
     fun getTotalDebitsForCurrentMonth(): Flow<Double>
     fun getTotalCreditsForCurrentMonth(): Flow<Double>
