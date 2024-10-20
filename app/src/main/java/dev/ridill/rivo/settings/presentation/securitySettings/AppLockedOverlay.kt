@@ -41,7 +41,7 @@ fun AppLockedOverlay(
         onBack = onBack
     )
 
-    val showError by remember {
+    val showError by remember(errorMessage) {
         derivedStateOf { errorMessage != null }
     }
 
