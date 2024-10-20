@@ -13,7 +13,7 @@ interface CurrencyListDao : BaseDao<CurrencyListEntity> {
         SELECT currency_code
         FROM currency_list_table
         WHERE (currency_code LIKE :query || '%')
-        OR (display_name LIKE '%' || :query || '%')
+            OR (display_name LIKE '%' || :query || '%')
     """
     )
     fun getAllCurrencyCodesPaged(query: String): PagingSource<Int, String>
