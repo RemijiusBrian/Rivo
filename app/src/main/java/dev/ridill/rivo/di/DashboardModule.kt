@@ -24,7 +24,7 @@ object DashboardModule {
         schedulesDao: SchedulesDao
     ): DashboardRepository = DashboardRepositoryImpl(
         authRepo = authRepo,
-        budgetPrefRepo = budgetRepo,
+        budgetRepo = budgetRepo,
         transactionDao = transactionDao,
         schedulesDao = schedulesDao
     )

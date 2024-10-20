@@ -32,7 +32,7 @@ import kotlin.math.absoluteValue
 
 class DashboardRepositoryImpl(
     private val authRepo: AuthRepository,
-    private val budgetPrefRepo: BudgetPreferenceRepository,
+    private val budgetRepo: BudgetPreferenceRepository,
     private val transactionDao: TransactionDao,
     private val schedulesDao: SchedulesDao
 ) : DashboardRepository {
@@ -51,7 +51,7 @@ class DashboardRepositoryImpl(
     }.distinctUntilChanged()
 
     override fun getCurrentBudget(): Flow<Long> = currentDate.asStateFlow().flatMapLatest {
-        budgetPrefRepo.getBudgetPreferenceForMonth(it)
+        budgetRepo.getBudgetPreferenceForMonth(it)
     }.distinctUntilChanged()
 
     override fun getTotalDebitsForCurrentMonth(): Flow<Double> = currentDate.asStateFlow()
