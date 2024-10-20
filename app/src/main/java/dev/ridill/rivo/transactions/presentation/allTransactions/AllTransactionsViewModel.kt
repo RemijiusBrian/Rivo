@@ -84,7 +84,7 @@ class AllTransactionsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     val tagInfoPagingData = selectedDates.flatMapLatest {
-        tagsRepo.getTopTagInfoPagingData(
+        tagsRepo.getTagInfoPagingData(
             dateRange = it,
             limit = 5
         )

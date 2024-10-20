@@ -1,7 +1,9 @@
 package dev.ridill.rivo.tags.domain.repository
 
 import androidx.paging.PagingData
+import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Empty
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.tags.domain.model.Tag
 import dev.ridill.rivo.tags.domain.model.TagInfo
 import kotlinx.coroutines.flow.Flow
@@ -11,17 +13,12 @@ import java.time.LocalDateTime
 interface TagsRepository {
     fun getAllTagsPagingData(
         searchQuery: String = String.Empty,
-        ids: Set<Long>? = null
+        limit: Int = RivoDatabase.INVALID_LIMIT
     ): Flow<PagingData<Tag>>
 
-    fun getRecentTagsPagingData(
-        date: LocalDate?,
-        limit: Int = DEFAULT_TAG_LIST_LIMIT
-    ): Flow<PagingData<Tag>>
-
-    fun getTopTagInfoPagingData(
+    fun getTagInfoPagingData(
         dateRange: Pair<LocalDate, LocalDate>?,
-        limit: Int = DEFAULT_TAG_LIST_LIMIT
+        limit: Int = UtilConstants.DEFAULT_TAG_LIST_LIMIT
     ): Flow<PagingData<TagInfo>>
 
     suspend fun saveTag(
@@ -37,5 +34,3 @@ interface TagsRepository {
     suspend fun getTagById(id: Long): Tag?
     fun getTagsListFlowByIds(ids: Set<Long>): Flow<List<Tag>>
 }
-
-private const val DEFAULT_TAG_LIST_LIMIT = 10

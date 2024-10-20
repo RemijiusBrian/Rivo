@@ -12,6 +12,7 @@ import dev.ridill.rivo.core.domain.service.ExpEvalService
 import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.domain.util.EventBus
+import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.domain.util.ifInfinite
@@ -82,8 +83,10 @@ class AddEditTransactionViewModel @Inject constructor(
     private val isTransactionExcluded = txInput.map { it.excluded }
         .distinctUntilChanged()
 
-    val recentTagsPagingData = tagsRepo.getRecentTagsPagingData(null)
-        .cachedIn(viewModelScope)
+    val recentTagsPagingData = tagsRepo.getAllTagsPagingData(
+        searchQuery = String.Empty,
+        limit = UtilConstants.DEFAULT_TAG_LIST_LIMIT
+    ).cachedIn(viewModelScope)
 
     private val showDeleteConfirmation = savedStateHandle
         .getStateFlow(SHOW_DELETE_CONFIRMATION, false)

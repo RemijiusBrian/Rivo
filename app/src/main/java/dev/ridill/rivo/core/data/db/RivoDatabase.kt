@@ -44,6 +44,7 @@ abstract class RivoDatabase : RoomDatabase() {
     companion object {
         const val NAME = "Rivo.db"
         const val DEFAULT_ID_LONG = 0L
+        const val INVALID_LIMIT = -1
     }
 
     // Dao Methods

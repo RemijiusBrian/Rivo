@@ -24,25 +24,21 @@ class TagsRepositoryImpl(
     private val dao: TagsDao
 ) : TagsRepository {
     override fun getAllTagsPagingData(
-        searchQuery: String, ids: Set<Long>?
-    ): Flow<PagingData<Tag>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-        dao.getAllTagsOrderedByTimestampDescPaged(searchQuery)
-    }.flow
-        .map { pagingData -> pagingData.map(TagEntity::toTag) }
-
-    override fun getRecentTagsPagingData(
-        date: LocalDate?,
+        searchQuery: String,
         limit: Int
     ): Flow<PagingData<Tag>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-        dao.getRecentTagsPaged(limit)
+        dao.getAllTagsPaged(
+            query = searchQuery,
+            limit = limit
+        )
     }.flow
         .map { pagingData -> pagingData.map(TagEntity::toTag) }
 
-    override fun getTopTagInfoPagingData(
+    override fun getTagInfoPagingData(
         dateRange: Pair<LocalDate, LocalDate>?,
         limit: Int
     ): Flow<PagingData<TagInfo>> = Pager(PagingConfig(UtilConstants.DEFAULT_PAGE_SIZE)) {
-        dao.getTagAndAggSortedByAggPaged(
+        dao.getTagAndAggregatePaged(
             startDate = dateRange?.first,
             endDate = dateRange?.second,
             limit = limit

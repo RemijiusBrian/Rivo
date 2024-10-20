@@ -5,7 +5,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
-import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.tags.data.local.entity.TagEntity
 import dev.ridill.rivo.transactions.data.local.relation.TagAndAggregateRelation
 import kotlinx.coroutines.flow.Flow
@@ -17,42 +16,39 @@ interface TagsDao : BaseDao<TagEntity> {
         """
         SELECT *
         FROM tag_table
-        WHERE (:ids IS NULL OR id in (:ids))
-        AND (name LIKE '%' || :query || '%')
+        WHERE (name LIKE '%' || :query || '%')
         ORDER BY DATETIME(created_timestamp) DESC, name ASC
-    """
-    )
-    fun getAllTagsOrderedByTimestampDescPaged(
-        query: String,
-        ids: Set<Long>? = null
-    ): PagingSource<Int, TagEntity>
-
-    @Query("SELECT * FROM tag_table ORDER BY DATETIME(created_timestamp) DESC, name ASC LIMIT :limit")
-    fun getRecentTagsPaged(limit: Int): PagingSource<Int, TagEntity>
-
-    @Query(
-        """
-        SELECT tg.id as id, tg.name as name, tg.color_code as colorCode, tg.is_excluded as excluded, tg.created_timestamp as createdTimestamp, (
-            SELECT (
-                SELECT IFNULL(SUM(t1.amount), 0.0)
-                FROM transaction_table t1
-                WHERE t1.type = 'DEBIT'
-                AND t1.tag_id = tg.id
-                AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t1.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
-                ) - (
-                SELECT IFNULL(SUM(t2.amount), 0.0)
-                FROM transaction_table t2
-                WHERE t2.type = 'CREDIT'
-                AND t2.tag_id = tg.id
-                AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t2.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
-            )
-        ) AS aggregate
-        FROM tag_table tg
-        ORDER BY aggregate DESC, dateTime(tg.created_timestamp) DESC
         LIMIT :limit
     """
     )
-    fun getTagAndAggSortedByAggPaged(
+    fun getAllTagsPaged(
+        query: String,
+        limit: Int
+    ): PagingSource<Int, TagEntity>
+
+    @Transaction
+    @Query(
+        """
+        SELECT tg.id as id, tg.name as name,
+            tg.color_code as colorCode,
+            tg.is_excluded as excluded,
+            tg.created_timestamp as createdTimestamp,
+            IFNULL(SUM(
+                CASE
+                    WHEN tx.type = 'DEBIT' THEN tx.amount
+                    WHEN tx.type = 'CREDIT' THEN -tx.amount
+                END
+                ), 0) as aggregate
+        FROM tag_table tg
+        JOIN transaction_table tx ON tg.id = tx.tag_id
+        WHERE tx.is_excluded = 0
+        GROUP BY tg.id
+        HAVING ((:startDate IS NULL OR :endDate IS NULL) OR DATE(tx.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
+        ORDER BY aggregate DESC, DATETIME(tg.created_timestamp) DESC, tg.name ASC
+        LIMIT :limit
+    """
+    )
+    fun getTagAndAggregatePaged(
         startDate: LocalDate?,
         endDate: LocalDate?,
         limit: Int
