@@ -9,10 +9,10 @@ import dev.ridill.rivo.core.domain.util.EventBus
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.repository.AddEditFolderRepositoryImpl
 import dev.ridill.rivo.folders.data.repository.FolderDetailsRepositoryImpl
-import dev.ridill.rivo.folders.data.repository.AllFoldersRepositoryImpl
+import dev.ridill.rivo.folders.data.repository.FolderListRepositoryImpl
 import dev.ridill.rivo.folders.domain.repository.AddEditFolderRepository
 import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
-import dev.ridill.rivo.folders.domain.repository.AllFoldersRepository
+import dev.ridill.rivo.folders.domain.repository.FolderListRepository
 import dev.ridill.rivo.folders.presentation.addEditFolder.AddEditFolderViewModel
 import dev.ridill.rivo.folders.presentation.folderDetails.FolderDetailsViewModel
 import dev.ridill.rivo.transactions.data.local.TransactionDao
@@ -25,9 +25,9 @@ object FolderModule {
     fun provideFolderDao(db: RivoDatabase): FolderDao = db.folderDao()
 
     @Provides
-    fun provideAllFoldersRepository(
+    fun provideFolderListsRepository(
         folderDao: FolderDao
-    ): AllFoldersRepository = AllFoldersRepositoryImpl(
+    ): FolderListRepository = FolderListRepositoryImpl(
         folderDao = folderDao
     )
 

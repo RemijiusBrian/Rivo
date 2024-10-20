@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bb13d8ce5b292ee379fa3a4a077e1a7b",
+    "identityHash": "31478c53b690aa7842c41da765877d69",
     "entities": [
       {
         "tableName": "budget_preference_table",
@@ -404,13 +404,13 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT tx.id AS transactionId,\n        tx.note AS transactionNote,\n        tx.amount AS transactionAmount,\n        tx.timestamp AS transactionTimestamp,\n        tx.type AS transactionType,\n        tx.is_excluded AS isTransactionExcluded,\n        tag.id AS tagId,\n        tag.name AS tagName,\n        tag.color_code AS tagColorCode,\n        tag.created_timestamp AS tagCreatedTimestamp,\n        tag.is_excluded AS isTagExcluded,\n        folder.id AS folderId,\n        folder.name AS folderName,\n        folder.created_timestamp AS folderCreatedTimestamp,\n        tx.schedule_id as scheduleId,\n        folder.is_excluded AS isFolderExcluded,\n        (CASE WHEN 1 IN (tx.is_excluded, tag.is_excluded, folder.is_excluded) THEN 1 ELSE 0 END) AS overallExcluded\n        FROM transaction_table tx\n        LEFT OUTER JOIN tag_table tag ON tx.tag_id = tag.id\n        LEFT OUTER JOIN folder_table folder ON tx.folder_id = folder.id"
       },
       {
-        "viewName": "folder_and_aggregate_amount_view",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT folder.id AS id,\n        folder.name AS name,\n        folder.created_timestamp AS createdTimestamp,\n        folder.is_excluded as excluded,\n        ((SELECT IFNULL(SUM(tx1.amount), 0.0) FROM transaction_table tx1 WHERE tx1.folder_id = folder.id AND tx1.type = 'DEBIT')\n        - (SELECT IFNULL(SUM(tx2.amount), 0.0) FROM transaction_table tx2 WHERE tx2.folder_id = folder.id AND tx2.type = 'CREDIT')\n        ) AS aggregateAmount\n        FROM folder_table folder"
+        "viewName": "folder_and_aggregate_view",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT fld.id AS id,\n        fld.name AS name,\n        fld.created_timestamp AS createdTimestamp,\n        fld.is_excluded as excluded,\n        IFNULL(SUM(\n                CASE\n                    WHEN tx.type = 'DEBIT' THEN tx.amount\n                    WHEN tx.type = 'CREDIT' THEN -tx.amount\n                END\n        ), 0) as aggregate\n        FROM folder_table fld\n        LEFT OUTER JOIN transaction_table tx ON (tx.folder_id = fld.id AND tx.is_excluded = 0)\n        GROUP BY fld.id"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bb13d8ce5b292ee379fa3a4a077e1a7b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '31478c53b690aa7842c41da765877d69')"
     ]
   }
 }

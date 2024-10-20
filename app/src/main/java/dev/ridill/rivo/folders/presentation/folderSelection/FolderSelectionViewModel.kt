@@ -7,14 +7,14 @@ import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ridill.rivo.core.domain.util.Empty
 import dev.ridill.rivo.core.ui.navigation.destinations.FolderSelectionSheetSpec
-import dev.ridill.rivo.folders.domain.repository.AllFoldersRepository
+import dev.ridill.rivo.folders.domain.repository.FolderListRepository
 import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 
 @HiltViewModel
 class FolderSelectionViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repo: AllFoldersRepository
+    private val repo: FolderListRepository
 ) : ViewModel() {
 
     val searchQuery = savedStateHandle.getStateFlow(SEARCH_QUERY, String.Empty)

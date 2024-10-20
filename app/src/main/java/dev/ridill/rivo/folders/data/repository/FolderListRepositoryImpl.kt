@@ -13,14 +13,14 @@ import dev.ridill.rivo.folders.data.toFolder
 import dev.ridill.rivo.folders.data.toFolderDetails
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.model.FolderUIModel
-import dev.ridill.rivo.folders.domain.repository.AllFoldersRepository
+import dev.ridill.rivo.folders.domain.repository.FolderListRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class AllFoldersRepositoryImpl(
+class FolderListRepositoryImpl(
     private val folderDao: FolderDao
-) : AllFoldersRepository {
-    override fun getFolderAndAggregatePaged(): Flow<PagingData<FolderUIModel>> = Pager(
+) : FolderListRepository {
+    override fun getFolderAndAggregatesPaged(): Flow<PagingData<FolderUIModel>> = Pager(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
     ) {
         folderDao.getFolderAndAggregatesPaged()

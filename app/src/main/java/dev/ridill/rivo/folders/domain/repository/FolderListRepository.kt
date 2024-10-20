@@ -6,7 +6,7 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.model.FolderUIModel
 import kotlinx.coroutines.flow.Flow
 
-interface AllFoldersRepository {
-    fun getFolderAndAggregatePaged(): Flow<PagingData<FolderUIModel>>
+interface FolderListRepository {
+    fun getFolderAndAggregatesPaged(): Flow<PagingData<FolderUIModel>>
     fun getFoldersListPaged(searchQuery: String = String.Empty): Flow<PagingData<Folder>>
 }

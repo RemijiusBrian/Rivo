@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ridill.rivo.folders.domain.repository.AllFoldersRepository
+import dev.ridill.rivo.folders.domain.repository.FolderListRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class AllFoldersListViewModel @Inject constructor(
-    repo: AllFoldersRepository,
+class AllFoldersViewModel @Inject constructor(
+    repo: FolderListRepository,
 ) : ViewModel() {
-    val folderListPagingData = repo.getFolderAndAggregatePaged()
+    val folderListPagingData = repo.getFolderAndAggregatesPaged()
         .cachedIn(viewModelScope)
 }
