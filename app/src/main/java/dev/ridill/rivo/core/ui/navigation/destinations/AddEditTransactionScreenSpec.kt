@@ -212,4 +212,4 @@ private const val ARG_LINK_FOLDER_ID = "ARG_LINK_FOLDER_ID"
 private const val ARG_IS_SCHEDULE_MODE_ACTIVE = "ARG_IS_SCHEDULE_MODE_ACTIVE"
 
 private const val DEEPLINK_URI_PATTERN =
-    "${NavDestination.DEEP_LINK_URI}/add_edit_transaction?{$ARG_TRANSACTION_ID}={$ARG_LINK_FOLDER_ID}"
+    "${NavDestination.DEEP_LINK_URI}/add_edit_transaction?$ARG_TRANSACTION_ID={$ARG_TRANSACTION_ID}"
