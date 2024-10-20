@@ -30,15 +30,15 @@ object SettingsViewModelModule {
 
     @Provides
     fun provideSettingsRepository(
-        authRepository: AuthRepository,
+        authRepo: AuthRepository,
         preferencesManager: PreferencesManager,
-        budgetPreferenceRepository: BudgetPreferenceRepository,
-        currencyPreferenceRepository: CurrencyPreferenceRepository
+        budgetRepo: BudgetPreferenceRepository,
+        currencyRepo: CurrencyPreferenceRepository
     ): SettingsRepository = SettingsRepositoryImpl(
-        authRepo = authRepository,
+        authRepo = authRepo,
         preferencesManager = preferencesManager,
-        budgetPrefRepo = budgetPreferenceRepository,
-        currencyPrefRepo = currencyPreferenceRepository
+        budgetRepo = budgetRepo,
+        currencyRepo = currencyRepo
     )
 
     @Provides

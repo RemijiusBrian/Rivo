@@ -10,9 +10,8 @@ import dev.ridill.rivo.core.domain.util.asStateFlow
 import dev.ridill.rivo.core.ui.util.UiText
 import dev.ridill.rivo.settings.domain.modal.AppTheme
 import dev.ridill.rivo.settings.domain.repositoty.SettingsRepository
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,17 +24,12 @@ class SettingsViewModel @Inject constructor(
 
     private val authState = repo.getAuthState()
 
-    private val preferences = repo.getPreferences()
-    private val appTheme = preferences.map { it.appTheme }
-        .distinctUntilChanged()
-    private val dynamicColorsEnabled = preferences.map { it.dynamicColorsEnabled }
-        .distinctUntilChanged()
+    private val appTheme = repo.getCurrentAppTheme()
+    private val dynamicColorsEnabled = repo.getDynamicColorsEnabled()
 
-    private val monthlyBudget = repo.getCurrentBudget()
-        .distinctUntilChanged()
+    private val currentBudget = repo.getCurrentBudget()
 
-    private val autoAddTransactionEnabled = preferences.map { it.transactionAutoDetectEnabled }
-        .distinctUntilChanged()
+    private val transactionAutoDetectEnabled = repo.getTransactionAutoDetectEnabled()
 
     private val showAppThemeSelection = savedStateHandle
         .getStateFlow(SHOW_APP_THEME_SELECTION, false)
@@ -51,8 +45,8 @@ class SettingsViewModel @Inject constructor(
         appTheme,
         dynamicColorsEnabled,
         showAppThemeSelection,
-        monthlyBudget,
-        autoAddTransactionEnabled,
+        currentBudget,
+        transactionAutoDetectEnabled,
         showSmsPermissionRationale,
         showTransactionAutoDetectInfo
     ).map { (
@@ -75,7 +69,9 @@ class SettingsViewModel @Inject constructor(
             showSmsPermissionRationale = showSmsPermissionRationale,
             showAutoDetectTransactionFeatureInfo = showTransactionAutoDetectInfo
         )
-    }.asStateFlow(viewModelScope, SettingsState())
+    }
+        .onStart { repo.refreshCurrentDate() }
+        .asStateFlow(viewModelScope, SettingsState())
 
     val events = eventBus.eventFlow
 
@@ -103,7 +99,7 @@ class SettingsViewModel @Inject constructor(
     override fun onToggleAutoAddTransactions(enabled: Boolean) {
         viewModelScope.launch {
             savedStateHandle[TEMP_AUTO_ADD_TRANSACTION_STATE] = enabled
-            if (preferences.first().showAutoDetectTxInfo && enabled) {
+            if (repo.getShowTransactionAutoDetectInfoValue() && enabled) {
                 savedStateHandle[SHOW_AUTO_DETECT_TX_INFO] = true
             } else {
                 eventBus.send(SettingsEvent.RequestSMSPermission)
