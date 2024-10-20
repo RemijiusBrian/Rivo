@@ -25,11 +25,11 @@ class AuthRepositoryImpl(
     private val authorizationService: AuthorizationService,
     private val accessTokenService: AccessTokenService
 ) : AuthRepository {
-    override fun getSignedInAccount(): UserAccount? =
-        authService.getSignedInAccount()
+    override fun getSignedInAccount(): UserAccount? = authService
+        .getSignedInAccount()
 
-    override fun getAuthState(): Flow<AuthState> =
-        authService.getAuthStateFlow()
+    override fun getAuthState(): Flow<AuthState> = authService
+        .getAuthStateFlow()
 
     override suspend fun signUserInWithToken(
         idToken: String
