@@ -40,10 +40,10 @@ interface TagsDao : BaseDao<TagEntity> {
                 END
                 ), 0) as aggregate
         FROM tag_table tg
-        JOIN transaction_table tx ON tg.id = tx.tag_id
-        WHERE tx.is_excluded = 0
+        JOIN transaction_table tx ON (tg.id = tx.tag_id
+            AND tx.is_excluded = 0
+            AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(tx.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate)))
         GROUP BY tg.id
-        HAVING ((:startDate IS NULL OR :endDate IS NULL) OR DATE(tx.timestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
         ORDER BY aggregate DESC, DATETIME(tg.created_timestamp) DESC, tg.name ASC
         LIMIT :limit
     """
