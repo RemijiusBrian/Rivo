@@ -14,7 +14,7 @@ object FoldersGraph : NavGraphSpec, BottomNavDestination {
 
     override val children: List<NavDestination>
         get() = listOf(
-            FoldersListScreenSpec,
+            AllFoldersScreenSpec,
             FolderDetailsScreenSpec,
             AddEditFolderSheetSpec
         )

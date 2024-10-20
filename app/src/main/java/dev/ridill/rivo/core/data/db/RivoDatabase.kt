@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateView
 import dev.ridill.rivo.schedules.data.local.SchedulesDao
 import dev.ridill.rivo.schedules.data.local.entity.ScheduleEntity
 import dev.ridill.rivo.settings.data.local.BudgetPreferenceDao
@@ -35,7 +35,7 @@ import dev.ridill.rivo.transactions.data.local.views.TransactionDetailsView
     ],
     views = [
         TransactionDetailsView::class,
-        FolderAndAggregateAmountView::class
+        FolderAndAggregateView::class
     ],
     version = 1
 )

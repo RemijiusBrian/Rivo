@@ -8,26 +8,24 @@ import androidx.paging.map
 import dev.ridill.rivo.core.domain.util.UtilConstants
 import dev.ridill.rivo.folders.data.local.FolderDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateView
 import dev.ridill.rivo.folders.data.toFolder
 import dev.ridill.rivo.folders.data.toFolderDetails
 import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.folders.domain.model.FolderUIModel
-import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
-import kotlinx.coroutines.Dispatchers
+import dev.ridill.rivo.folders.domain.repository.AllFoldersRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 
-class FoldersListRepositoryImpl(
+class AllFoldersRepositoryImpl(
     private val folderDao: FolderDao
-) : FoldersListRepository {
-    override fun getFoldersWithAggregateList(): Flow<PagingData<FolderUIModel>> = Pager(
+) : AllFoldersRepository {
+    override fun getFolderAndAggregatePaged(): Flow<PagingData<FolderUIModel>> = Pager(
         config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
     ) {
-        folderDao.getFoldersWithAggregateExpenditure()
+        folderDao.getFolderAndAggregatesPaged()
     }.flow
-        .map { it.map(FolderAndAggregateAmountView::toFolderDetails) }
+        .map { it.map(FolderAndAggregateView::toFolderDetails) }
         .map { pagingData ->
             pagingData.map { FolderUIModel.FolderListItem(it) }
         }
@@ -45,14 +43,7 @@ class FoldersListRepositoryImpl(
     override fun getFoldersListPaged(searchQuery: String): Flow<PagingData<Folder>> =
         Pager(
             config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
-        ) { folderDao.getFoldersList(searchQuery) }
+        ) { folderDao.getFoldersPaged(searchQuery) }
             .flow
             .map { it.map(FolderEntity::toFolder) }
-
-    override suspend fun getFolderById(id: Long): Folder? = withContext(Dispatchers.IO) {
-        folderDao.getFolderById(id)?.toFolder()
-    }
-
-    override fun getFolderByIdFlow(id: Long): Flow<Folder?> = folderDao.getFolderByIdFlow(id)
-        .map { it?.toFolder() }
 }

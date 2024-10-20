@@ -1,4 +1,4 @@
-package dev.ridill.rivo.folders.presentation.foldersList
+package dev.ridill.rivo.folders.presentation.allFolders
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +41,7 @@ import dev.ridill.rivo.core.ui.components.RivoScaffold
 import dev.ridill.rivo.core.ui.components.SnackbarController
 import dev.ridill.rivo.core.ui.components.SpacerSmall
 import dev.ridill.rivo.core.ui.components.TitleMediumText
-import dev.ridill.rivo.core.ui.navigation.destinations.FoldersListScreenSpec
+import dev.ridill.rivo.core.ui.navigation.destinations.AllFoldersScreenSpec
 import dev.ridill.rivo.core.ui.theme.ContentAlpha
 import dev.ridill.rivo.core.ui.theme.PaddingScrollEnd
 import dev.ridill.rivo.core.ui.theme.spacing
@@ -54,7 +54,7 @@ import dev.ridill.rivo.folders.domain.model.FolderUIModel
 import kotlin.math.absoluteValue
 
 @Composable
-fun FoldersListScreen(
+fun AllFoldersScreen(
     snackbarController: SnackbarController,
     foldersPagingItems: LazyPagingItems<FolderUIModel>,
     navigateToAddFolder: () -> Unit,
@@ -68,7 +68,7 @@ fun FoldersListScreen(
     RivoScaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(FoldersListScreenSpec.labelRes)) },
+                title = { Text(stringResource(AllFoldersScreenSpec.labelRes)) },
                 navigationIcon = { BackArrowButton(onClick = navigateUp) },
                 scrollBehavior = topAppBarScrollBehavior
             )
@@ -139,7 +139,7 @@ fun FoldersListScreen(
                                             created = item.folderDetails.createdDateFormatted,
                                             excluded = item.folderDetails.excluded,
                                             aggregateAmount = TextFormat.compactAmount(
-                                                item.folderDetails.aggregateAmount.absoluteValue
+                                                item.folderDetails.aggregate.absoluteValue
                                             ),
                                             aggregateType = item.folderDetails.aggregateType,
                                             onClick = { navigateToFolderDetails(item.folderDetails.id) },

@@ -11,15 +11,15 @@ import dev.ridill.rivo.R
 import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
 import dev.ridill.rivo.core.ui.components.rememberSnackbarController
-import dev.ridill.rivo.folders.presentation.foldersList.FoldersListScreen
-import dev.ridill.rivo.folders.presentation.foldersList.FoldersListViewModel
+import dev.ridill.rivo.folders.presentation.allFolders.AllFoldersScreen
+import dev.ridill.rivo.folders.presentation.allFolders.AllFoldersListViewModel
 
-data object FoldersListScreenSpec : ScreenSpec {
+data object AllFoldersScreenSpec : ScreenSpec {
     override val route: String
-        get() = "folders_list"
+        get() = "all_folders"
 
     override val labelRes: Int
-        get() = R.string.destination_folders_list
+        get() = R.string.destination_all_folders
 
     @Composable
     override fun Content(
@@ -27,7 +27,7 @@ data object FoldersListScreenSpec : ScreenSpec {
         navController: NavHostController,
         navBackStackEntry: NavBackStackEntry
     ) {
-        val viewModel: FoldersListViewModel = hiltViewModel(navBackStackEntry)
+        val viewModel: AllFoldersListViewModel = hiltViewModel(navBackStackEntry)
         val foldersPagingItems = viewModel.folderListPagingData.collectAsLazyPagingItems()
 
         val snackbarController = rememberSnackbarController()
@@ -59,7 +59,7 @@ data object FoldersListScreenSpec : ScreenSpec {
             }
         }
 
-        FoldersListScreen(
+        AllFoldersScreen(
             snackbarController = snackbarController,
             foldersPagingItems = foldersPagingItems,
             navigateToFolderDetails = {

@@ -6,30 +6,30 @@ import androidx.room.Query
 import androidx.room.Transaction
 import dev.ridill.rivo.core.data.db.BaseDao
 import dev.ridill.rivo.folders.data.local.entity.FolderEntity
-import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateAmountView
+import dev.ridill.rivo.folders.data.local.views.FolderAndAggregateView
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FolderDao : BaseDao<FolderEntity> {
     @Transaction
     @Query(
-        """SELECT * FROM folder_and_aggregate_amount_view
+        """SELECT * FROM folder_and_aggregate_view
         ORDER BY CASE
-                WHEN aggregateAmount > 0.0 THEN 1
-                WHEN aggregateAmount < 0.0 THEN 0
-                WHEN aggregateAmount = 0.0 THEN -1
+                WHEN aggregate > 0.0 THEN 1
+                WHEN aggregate < 0.0 THEN 0
+                WHEN aggregate = 0.0 THEN -1
             END DESC,
-            datetime(createdTimestamp) DESC
+            name ASC, DATETIME(createdTimestamp) DESC
         """
     )
-    fun getFoldersWithAggregateExpenditure(): PagingSource<Int, FolderAndAggregateAmountView>
+    fun getFolderAndAggregatesPaged(): PagingSource<Int, FolderAndAggregateView>
 
     @Transaction
-    @Query("SELECT * FROM folder_and_aggregate_amount_view WHERE id = :id ORDER BY datetime(createdTimestamp) DESC, id DESC")
-    fun getFolderWithAggregateExpenditureById(id: Long): Flow<FolderAndAggregateAmountView?>
+    @Query("SELECT * FROM folder_and_aggregate_view WHERE id = :id")
+    fun getFolderAndAggregateById(id: Long): Flow<FolderAndAggregateView?>
 
-    @Query("SELECT * FROM folder_table WHERE name LIKE '%' || :query || '%'")
-    fun getFoldersList(query: String): PagingSource<Int, FolderEntity>
+    @Query("SELECT * FROM folder_table WHERE name LIKE '%' || :query || '%' ORDER BY name ASC, DATETIME(created_timestamp) DESC")
+    fun getFoldersPaged(query: String): PagingSource<Int, FolderEntity>
 
     @Query("SELECT * FROM folder_table WHERE id = :id")
     suspend fun getFolderById(id: Long): FolderEntity?

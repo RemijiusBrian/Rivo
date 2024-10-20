@@ -45,7 +45,7 @@ class FolderDetailsViewModel @Inject constructor(
         .mapLatest { it?.excluded.orFalse() }
         .distinctUntilChanged()
     private val aggregateAmount = folderDetails
-        .mapLatest { it?.aggregateAmount.orZero() }
+        .mapLatest { it?.aggregate.orZero() }
         .distinctUntilChanged()
     private val aggregateType = folderDetails
         .map { it?.aggregateType ?: AggregateType.BALANCED }

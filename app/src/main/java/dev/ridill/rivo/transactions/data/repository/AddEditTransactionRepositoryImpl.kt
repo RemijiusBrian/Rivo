@@ -5,7 +5,7 @@ import dev.ridill.rivo.core.data.db.RivoDatabase
 import dev.ridill.rivo.core.domain.util.Zero
 import dev.ridill.rivo.core.domain.util.logI
 import dev.ridill.rivo.core.domain.util.orZero
-import dev.ridill.rivo.folders.domain.repository.FoldersListRepository
+import dev.ridill.rivo.folders.domain.repository.FolderDetailsRepository
 import dev.ridill.rivo.schedules.domain.model.Schedule
 import dev.ridill.rivo.schedules.domain.model.ScheduleRepetition
 import dev.ridill.rivo.schedules.domain.repository.SchedulesRepository
@@ -26,7 +26,7 @@ class AddEditTransactionRepositoryImpl(
     private val db: RivoDatabase,
     private val dao: TransactionDao,
     private val schedulesRepo: SchedulesRepository,
-    private val folderRepo: FoldersListRepository
+    private val folderRepo: FolderDetailsRepository
 ) : AddEditTransactionRepository {
     override suspend fun getTransactionById(id: Long): Transaction? =
         withContext(Dispatchers.IO) {
@@ -127,7 +127,7 @@ class AddEditTransactionRepositoryImpl(
     }
 
     override fun getFolderNameForId(folderId: Long?): Flow<String?> = (
-            folderId?.let { folderRepo.getFolderByIdFlow(it) }
+            folderId?.let { folderRepo.getFolderDetailsById(it) }
                 ?: flowOf(null)
             )
         .map { it?.name }

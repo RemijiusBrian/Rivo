@@ -19,7 +19,7 @@
     <string name="destination_security_settings">Security</string>
     <string name="destination_all_transactions">All Transactions</string>
     <string name="destination_folders_graph">Folders</string>
-    <string name="destination_folders_list">Folders</string>
+    <string name="destination_all_folders">All Folders</string>
     <string name="destination_folder_selection_sheet">Select Folder</string>
     <string name="destination_folder_details">Folder</string>
     <string name="destination_schedules_graph">Schedules</string>

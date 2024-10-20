@@ -8,11 +8,11 @@ data class FolderDetails(
     val name: String,
     val createdTimestamp: LocalDateTime,
     val excluded: Boolean,
-    val aggregateAmount: Double
+    val aggregate: Double
 ) {
     val createdDateFormatted: String
         get() = createdTimestamp.format(DateUtil.Formatters.localizedDateMedium)
 
     val aggregateType: AggregateType
-        get() = AggregateType.fromAmount(aggregateAmount)
+        get() = AggregateType.fromAmount(aggregate)
 }

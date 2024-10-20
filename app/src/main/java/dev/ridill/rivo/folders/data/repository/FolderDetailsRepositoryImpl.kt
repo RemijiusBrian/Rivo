@@ -26,7 +26,7 @@ class FolderDetailsRepositoryImpl(
     private val transactionDao: TransactionDao
 ) : FolderDetailsRepository {
     override fun getFolderDetailsById(id: Long): Flow<FolderDetails?> = dao
-        .getFolderWithAggregateExpenditureById(id).map { it?.toFolderDetails() }
+        .getFolderAndAggregateById(id).map { it?.toFolderDetails() }
 
     override fun getTransactionsInFolderPaged(
         folderId: Long
