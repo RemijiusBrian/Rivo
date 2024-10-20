@@ -56,26 +56,20 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         folderId: Long?
     ): PagingSource<Int, TransactionDetailsView>
 
-    @Transaction
     @Query(
         """
-        SELECT (
-            SELECT IFNULL(SUM(t1.transactionAmount), 0.0)
-            FROM transaction_details_view t1
-            WHERE (:type = 'DEBIT' OR t1.transactionType = 'DEBIT')
-            AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t1.transactionTimestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
-            AND (COALESCE(:tagIds, 0) = 0 OR t1.tagId IN (:tagIds))
-            AND (:addExcluded = 1 OR t1.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, 0) = 0 OR t1.transactionId IN (:selectedTxIds))
-            ) - (
-            SELECT IFNULL(SUM(t2.transactionAmount), 0.0)
-            FROM transaction_details_view t2
-            WHERE (:type = 'CREDIT' OR t2.transactionType = 'CREDIT')
-            AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(t2.transactionTimestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
-            AND (COALESCE(:tagIds, 0) = 0 OR t2.tagId IN (:tagIds))
-            AND (:addExcluded = 1 OR t2.overallExcluded = 0)
-            AND (COALESCE(:selectedTxIds, 0) = 0 OR t2.transactionId IN (:selectedTxIds))
-        )
+        SELECT IFNULL(SUM(
+            CASE
+                WHEN transactionType = 'DEBIT' THEN transactionAmount
+                WHEN transactionType = 'CREDIT' THEN -transactionAmount
+            END
+        ), 0)
+        FROM transaction_details_view
+        WHERE (:type IS NULL OR transactionType = :type)
+            AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(transactionTimestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
+            AND (COALESCE(:tagIds, 0) = 0 OR tagId IN (:tagIds))
+            AND (:addExcluded = 1 OR overallExcluded = 0)
+            AND (COALESCE(:selectedTxIds, 0) = 0 OR transactionId IN (:selectedTxIds))
     """
     )
     fun getAmountAggregate(
@@ -89,17 +83,14 @@ interface TransactionDao : BaseDao<TransactionEntity> {
 
     @Query(
         """
-        SELECT (
-            SELECT IFNULL(SUM(t1.amount), 0.0)
-            FROM transaction_table t1
-            WHERE t1.type = 'DEBIT'
-            AND t1.id IN (:ids)
-            ) - (
-            SELECT IFNULL(SUM(t2.amount), 0.0)
-            FROM transaction_table t2
-            WHERE t2.type = 'CREDIT'
-            AND t2.id IN (:ids)
-        )
+        SELECT IFNULL(SUM(
+            CASE
+                WHEN type = 'DEBIT' THEN amount
+                WHEN type = 'CREDIT' THEN -amount
+            END
+        ), 0)
+        FROM transaction_table
+        WHERE id in (:ids)
     """
     )
     suspend fun getAggregateAmountByIds(ids: Set<Long>): Double
