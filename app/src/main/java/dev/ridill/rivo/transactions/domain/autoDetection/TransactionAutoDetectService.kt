@@ -48,7 +48,7 @@ class TransactionAutoDetectService(
                         data = insertedTx.copy(
                             amount = TextFormat.currency(
                                 parsedAmount,
-                                currencyPrefRepo.getCurrencyPreferenceForDateOrNext(dateTimeNow.toLocalDate())
+                                currencyPrefRepo.getCurrencyPreferenceForMonth(dateTimeNow.toLocalDate())
                                     .first()
                             )
                         )

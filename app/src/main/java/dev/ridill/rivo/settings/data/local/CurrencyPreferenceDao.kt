@@ -13,10 +13,10 @@ interface CurrencyPreferenceDao : BaseDao<CurrencyPreferenceEntity> {
         """
         SELECT currency_code
         FROM currency_preference_table
-        WHERE strftime(date, '%Y-%M') = strftime(:date, '%Y-%M') OR
-            date = (SELECT MAX(date) FROM currency_preference_table WHERE date <= :date)
+        WHERE DATE(date) <= DATE(:date)
+        ORDER BY DATE(date) DESC
         LIMIT 1
     """
     )
-    fun getCurrencyCodeForDateOrNext(date: LocalDate): Flow<String?>
+    fun getCurrencyCodeForDateOrLast(date: LocalDate): Flow<String?>
 }

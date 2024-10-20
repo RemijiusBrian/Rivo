@@ -13,10 +13,10 @@ interface BudgetPreferenceDao : BaseDao<BudgetPreferenceEntity> {
         """
         SELECT IFNULL(amount, 0)
         FROM budget_preference_table
-        WHERE strftime(date, '%Y-%M') = strftime(:date, '%Y-%M') OR
-            date = (SELECT MAX(date) FROM budget_preference_table WHERE date <= :date)
+        WHERE DATE(date) <= DATE(:date)
+        ORDER BY DATE(date) DESC
         LIMIT 1
     """
     )
-    fun getBudgetAmountForDateOrNext(date: LocalDate): Flow<Long>
+    fun getAmountForDateOrLast(date: LocalDate): Flow<Long>
 }

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface BudgetPreferenceRepository {
-    fun getBudgetPreferenceForDateOrNext(
+    fun getBudgetPreferenceForMonth(
         date: LocalDate = DateUtil.dateNow()
     ): Flow<Long>
 

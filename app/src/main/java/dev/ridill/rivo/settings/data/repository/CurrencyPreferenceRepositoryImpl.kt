@@ -23,8 +23,8 @@ class CurrencyPreferenceRepositoryImpl(
     private val dao: CurrencyPreferenceDao,
     private val currencyListDao: CurrencyListDao
 ) : CurrencyPreferenceRepository {
-    override fun getCurrencyPreferenceForDateOrNext(date: LocalDate): Flow<Currency> = dao
-        .getCurrencyCodeForDateOrNext(date)
+    override fun getCurrencyPreferenceForMonth(date: LocalDate): Flow<Currency> = dao
+        .getCurrencyCodeForDateOrLast(date)
         .map { currencyCode ->
             currencyCode?.let {
                 tryOrNull { LocaleUtil.currencyForCode(it) }
@@ -41,7 +41,7 @@ class CurrencyPreferenceRepositoryImpl(
         }
     }
 
-    override fun getAllCurrenciesPaged(searchQuery: String): Flow<PagingData<Currency>> =
+    override fun getCurrencyListPaged(searchQuery: String): Flow<PagingData<Currency>> =
         Pager(
             config = PagingConfig(pageSize = UtilConstants.DEFAULT_PAGE_SIZE)
         ) {

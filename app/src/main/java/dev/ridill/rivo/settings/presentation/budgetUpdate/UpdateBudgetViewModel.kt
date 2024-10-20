@@ -20,7 +20,7 @@ class UpdateBudgetViewModel @Inject constructor(
     private val eventBus: EventBus<UpdateBudgetEvent>
 ) : ViewModel() {
 
-    val currentBudget = repo.getBudgetPreferenceForDateOrNext()
+    val currentBudget = repo.getBudgetPreferenceForMonth()
         .distinctUntilChanged()
 
     val budgetInput = savedStateHandle

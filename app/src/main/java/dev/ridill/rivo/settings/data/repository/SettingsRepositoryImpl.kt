@@ -19,11 +19,11 @@ class SettingsRepositoryImpl(
     private val currencyPrefRepo: CurrencyPreferenceRepository
 ) : SettingsRepository {
     override fun getCurrentBudget(): Flow<Long> = budgetPrefRepo
-        .getBudgetPreferenceForDateOrNext()
+        .getBudgetPreferenceForMonth()
         .distinctUntilChanged()
 
     override fun getCurrencyPreference(): Flow<Currency> = currencyPrefRepo
-        .getCurrencyPreferenceForDateOrNext()
+        .getCurrencyPreferenceForMonth()
         .distinctUntilChanged()
 
     override fun getAuthState(): Flow<AuthState> = authRepo.getAuthState()

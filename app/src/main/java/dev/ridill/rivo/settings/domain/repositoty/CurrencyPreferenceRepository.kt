@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.util.Currency
 
 interface CurrencyPreferenceRepository {
-    fun getCurrencyPreferenceForDateOrNext(
+    fun getCurrencyPreferenceForMonth(
         date: LocalDate = DateUtil.dateNow()
     ): Flow<Currency>
 
@@ -17,5 +17,5 @@ interface CurrencyPreferenceRepository {
         date: LocalDate = DateUtil.dateNow()
     )
 
-    fun getAllCurrenciesPaged(searchQuery: String = String.Empty): Flow<PagingData<Currency>>
+    fun getCurrencyListPaged(searchQuery: String = String.Empty): Flow<PagingData<Currency>>
 }

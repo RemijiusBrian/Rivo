@@ -23,7 +23,7 @@ class UpdateCurrencyPreferenceViewModel @Inject constructor(
     val searchQuery = savedStateHandle.getStateFlow(SEARCH_QUERY, String.Empty)
 
     val currencyPagingData = searchQuery.flatMapLatest { query ->
-        repo.getAllCurrenciesPaged(query)
+        repo.getCurrencyListPaged(query)
     }.cachedIn(viewModelScope)
 
     val events = eventBus.eventFlow

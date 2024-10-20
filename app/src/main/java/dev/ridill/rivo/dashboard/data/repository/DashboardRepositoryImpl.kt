@@ -30,7 +30,7 @@ class DashboardRepositoryImpl(
     private val schedulesDao: SchedulesDao
 ) : DashboardRepository {
     override fun getCurrentBudget(): Flow<Long> = budgetPrefRepo
-        .getBudgetPreferenceForDateOrNext()
+        .getBudgetPreferenceForMonth()
         .distinctUntilChanged()
 
     override fun getTotalDebitsForCurrentMonth(): Flow<Double> = transactionDao.getAmountAggregate(

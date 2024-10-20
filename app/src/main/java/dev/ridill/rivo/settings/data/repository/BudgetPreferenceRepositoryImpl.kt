@@ -11,8 +11,8 @@ import java.time.LocalDate
 class BudgetPreferenceRepositoryImpl(
     private val dao: BudgetPreferenceDao
 ) : BudgetPreferenceRepository {
-    override fun getBudgetPreferenceForDateOrNext(date: LocalDate): Flow<Long> =
-        dao.getBudgetAmountForDateOrNext(date)
+    override fun getBudgetPreferenceForMonth(date: LocalDate): Flow<Long> =
+        dao.getAmountForDateOrLast(date)
 
     override suspend fun saveBudgetPreference(amount: Long, date: LocalDate) {
         withContext(Dispatchers.IO) {

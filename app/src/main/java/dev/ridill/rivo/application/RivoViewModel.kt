@@ -57,7 +57,7 @@ class RivoViewModel @Inject constructor(
         .distinctUntilChanged()
 
     val currencyPreference = currencyPreferenceRepo
-        .getCurrencyPreferenceForDateOrNext()
+        .getCurrencyPreferenceForMonth()
         .distinctUntilChanged()
 
     val events = eventBus.eventFlow
