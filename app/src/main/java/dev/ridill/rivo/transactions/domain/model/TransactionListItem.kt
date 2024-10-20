@@ -6,7 +6,6 @@ import dev.ridill.rivo.folders.domain.model.Folder
 import dev.ridill.rivo.tags.domain.model.Tag
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Currency
 
 data class TransactionListItem(
     val id: Long,
@@ -27,11 +26,7 @@ data class TransactionListItem(
                 || tag?.excluded == true
                 || folder?.excluded == true
 
-    fun amountFormattedWithCurrency(currency: Currency): String = TextFormat.currency(
-        amount = amount,
-        currency = currency
-    )
-
     val amountFormatted: String
-        @Composable get() = TextFormat.currencyAmount(amount)
+        @Composable
+        get() = TextFormat.currencyAmount(amount)
 }
