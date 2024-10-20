@@ -53,7 +53,7 @@ class AllTransactionsRepositoryImpl(
         endDate = dateRange?.second,
         type = type,
         tagIds = tagIds.takeIf { it.isNotEmpty() },
-        addExcluded = addExcluded,
+        showExcluded = addExcluded,
         selectedTxIds = selectedTxIds.takeIf { it.isNotEmpty() }
     ).distinctUntilChanged()
 

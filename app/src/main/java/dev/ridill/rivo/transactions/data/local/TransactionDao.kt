@@ -68,7 +68,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         WHERE (:type IS NULL OR transactionType = :type)
             AND ((:startDate IS NULL OR :endDate IS NULL) OR DATE(transactionTimestamp) BETWEEN DATE(:startDate) AND DATE(:endDate))
             AND (COALESCE(:tagIds, 0) = 0 OR tagId IN (:tagIds))
-            AND (:addExcluded = 1 OR overallExcluded = 0)
+            AND (:showExcluded = 1 OR overallExcluded = 0)
             AND (COALESCE(:selectedTxIds, 0) = 0 OR transactionId IN (:selectedTxIds))
     """
     )
@@ -77,7 +77,7 @@ interface TransactionDao : BaseDao<TransactionEntity> {
         endDate: LocalDate?,
         type: TransactionType?,
         tagIds: Set<Long>?,
-        addExcluded: Boolean,
+        showExcluded: Boolean,
         selectedTxIds: Set<Long>?
     ): Flow<Double>
 

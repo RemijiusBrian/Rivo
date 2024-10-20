@@ -61,7 +61,7 @@ class DashboardRepositoryImpl(
                 endDate = it.with(TemporalAdjusters.lastDayOfMonth()),
                 type = TransactionType.DEBIT,
                 tagIds = null,
-                addExcluded = false,
+                showExcluded = false,
                 selectedTxIds = null
             )
         }
@@ -75,7 +75,7 @@ class DashboardRepositoryImpl(
                 endDate = it.with(TemporalAdjusters.lastDayOfMonth()),
                 type = TransactionType.CREDIT,
                 tagIds = null,
-                addExcluded = false,
+                showExcluded = false,
                 selectedTxIds = null
             )
         }
