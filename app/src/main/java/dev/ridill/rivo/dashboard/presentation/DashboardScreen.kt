@@ -198,16 +198,14 @@ fun DashboardScreen(
                             ListLabel(
                                 text = stringResource(R.string.schedules_this_month),
                                 modifier = Modifier
-                                    .padding(horizontal = MaterialTheme.spacing.medium),
-                                color = MaterialTheme.colorScheme.primary
+                                    .padding(horizontal = MaterialTheme.spacing.medium)
                             )
 
                             SpacerSmall()
 
                             HorizontalDivider(
                                 modifier = Modifier
-                                    .padding(horizontal = MaterialTheme.spacing.medium),
-                                color = MaterialTheme.colorScheme.primary
+                                    .padding(horizontal = MaterialTheme.spacing.medium)
                             )
 
                             ActiveSchedulesRow(
@@ -557,7 +555,6 @@ private fun ActiveScheduleCard(
                         ) {
                             append(name.asString())
                         }
-                        append('.')
                     },
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
@@ -568,6 +565,8 @@ private fun ActiveScheduleCard(
             }
 
             HorizontalDivider()
+
+            SpacerExtraSmall()
 
             Text(
                 text = stringResource(R.string.due_on_date, dueDate),
