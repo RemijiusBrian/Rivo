@@ -39,7 +39,7 @@ class BackupSettingsViewModel @Inject constructor(
     private val eventBus: EventBus<BackupSettingsEvent>
 ) : ViewModel(), BackupSettingsActions {
 
-    val authState = authRepo.getAuthState()
+    private val authState = authRepo.getAuthState()
         .distinctUntilChanged()
 
     private val backupInterval = MutableStateFlow(BackupInterval.MANUAL)
@@ -94,13 +94,8 @@ class BackupSettingsViewModel @Inject constructor(
     val events = eventBus.eventFlow
 
     init {
-        getSignedInUser()
         collectImmediateBackupWorkInfo()
         collectPeriodicBackupWorkInfo()
-    }
-
-    private fun getSignedInUser() {
-        backupSettingsRepo.refreshBackupAccount()
     }
 
     private var hasBackupJobRunThisSession: Boolean = false

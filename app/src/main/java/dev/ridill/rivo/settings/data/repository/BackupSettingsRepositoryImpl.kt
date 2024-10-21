@@ -1,7 +1,6 @@
 package dev.ridill.rivo.settings.data.repository
 
 import androidx.work.WorkInfo
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dev.ridill.rivo.core.data.preferences.PreferencesManager
 import dev.ridill.rivo.core.domain.crypto.CryptoManager
 import dev.ridill.rivo.settings.data.local.ConfigDao
@@ -13,9 +12,6 @@ import dev.ridill.rivo.settings.domain.repositoty.BackupSettingsRepository
 import dev.ridill.rivo.settings.domain.repositoty.FatalBackupError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -28,20 +24,10 @@ class BackupSettingsRepositoryImpl(
     private val backupWorkManager: BackupWorkManager,
     private val cryptoManager: CryptoManager
 ) : BackupSettingsRepository {
-    private val _backupAccount = MutableStateFlow<GoogleSignInAccount?>(null)
-
-    override fun getBackupAccount(): StateFlow<GoogleSignInAccount?> =
-        _backupAccount.asStateFlow()
 
     override fun getLastBackupTime(): Flow<LocalDateTime?> = preferencesManager.preferences
         .map { it.lastBackupDateTime }
         .distinctUntilChanged()
-
-    override fun refreshBackupAccount() {
-        /*_backupAccount.update {
-//            signInService.getSignedInAccount()
-        }*/
-    }
 
     override fun getImmediateBackupWorkInfo(): Flow<WorkInfo?> =
         backupWorkManager.getImmediateBackupWorkInfoFlow()
@@ -60,10 +46,6 @@ class BackupSettingsRepositoryImpl(
             )
             dao.upsert(entity)
 
-            /*if (signInService.getSignedInAccount() == null) {
-                backupWorkManager.cancelAllWorks()
-                return@withContext
-            }*/
             if (interval == BackupInterval.MANUAL) {
                 backupWorkManager.cancelPeriodicBackupWork()
             } else {

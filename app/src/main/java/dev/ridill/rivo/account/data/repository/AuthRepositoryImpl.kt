@@ -34,7 +34,7 @@ class AuthRepositoryImpl(
     override suspend fun signUserInWithToken(
         idToken: String
     ): Result<Unit, DataError> = tryNetworkCall {
-        authService.signUserWithIdToken(idToken)
+        authService.signinUserWithIdToken(idToken)
         Result.Success(Unit)
     }
 

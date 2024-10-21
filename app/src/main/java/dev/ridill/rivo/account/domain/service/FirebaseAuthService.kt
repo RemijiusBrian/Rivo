@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import dev.ridill.rivo.account.data.toUserAccount
 import dev.ridill.rivo.account.domain.model.AuthState
 import dev.ridill.rivo.account.domain.model.UserAccount
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +19,8 @@ import kotlinx.coroutines.withContext
 class FirebaseAuthService : AuthService {
     private val auth = Firebase.auth
 
-    override fun getSignedInAccount(): UserAccount? =
-        auth.currentUser?.let(FirebaseUser::toUserAccount)
+    override fun getSignedInAccount(): UserAccount? = auth.currentUser
+        ?.let(FirebaseUser::toUserAccount)
 
     override fun getAuthStateFlow(): Flow<AuthState> = callbackFlow {
         val listener = AuthStateListener { auth ->
@@ -35,12 +36,14 @@ class FirebaseAuthService : AuthService {
         }
     }
 
-    override suspend fun signUserWithIdToken(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential).await()
+    override suspend fun signinUserWithIdToken(idToken: String) {
+        withContext(Dispatchers.IO) {
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            auth.signInWithCredential(credential).await()
+        }
     }
 
-    override suspend fun signUserOut() {
+    override suspend fun signUserOut() = withContext(Dispatchers.IO) {
         auth.signOut()
     }
 
@@ -54,9 +57,3 @@ class FirebaseAuthService : AuthService {
 }
 
 class CurrentUserUnavailableThrowable : Throwable()
-
-fun FirebaseUser.toUserAccount(): UserAccount = UserAccount(
-    email = email.orEmpty(),
-    displayName = displayName.orEmpty(),
-    photoUrl = photoUrl?.toString().orEmpty()
-)
