@@ -456,7 +456,6 @@
     <string name="check_for_backups">Check for Backups</string>
     <string name="restore_backup">Restore Backup</string>
     <string name="sign_in_success">Signed in successfully</string>
-    <string name="aggregation_successful">Aggregation successful</string>
     <string name="login_to_your_account">Login to your account</string>
     <string name="date">Date</string>
     <string name="search_tags">Search Tags</string>

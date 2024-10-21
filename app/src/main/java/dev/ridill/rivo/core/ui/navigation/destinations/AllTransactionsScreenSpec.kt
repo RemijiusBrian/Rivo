@@ -11,7 +11,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.ridill.rivo.R
-import dev.ridill.rivo.core.domain.util.DateUtil
 import dev.ridill.rivo.core.ui.components.CollectFlowEffect
 import dev.ridill.rivo.core.ui.components.FloatingWindowNavigationResultEffect
 import dev.ridill.rivo.core.ui.components.NavigationResultEffect
@@ -100,6 +99,12 @@ data object AllTransactionsScreenSpec : ScreenSpec {
                         }
                     )
                 }
+
+                is AllTransactionsViewModel.AllTransactionsEvent.NavigateToAddEditTx -> {
+                    navController.navigate(
+                        AddEditTransactionScreenSpec.routeWithArg(event.id)
+                    )
+                }
             }
         }
 
@@ -113,7 +118,7 @@ data object AllTransactionsScreenSpec : ScreenSpec {
             navigateToAllTags = { navController.navigate(AllTagsScreenSpec.route) },
             navigateToAddEditTransaction = {
                 navController.navigate(
-                    AddEditTransactionScreenSpec.routeWithArg(transactionId = it,)
+                    AddEditTransactionScreenSpec.routeWithArg(transactionId = it)
                 )
             }
         )

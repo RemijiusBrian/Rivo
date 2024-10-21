@@ -477,12 +477,12 @@ class AllTransactionsViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedIds = selectedTransactionIds.value
             val dateTimeNow = DateUtil.now()
-            transactionRepo.aggregateIntoSingleNewTransactions(
+            val insertedId = transactionRepo.aggregateIntoSingleNewTransactions(
                 ids = selectedIds,
                 dateTime = dateTimeNow
             )
             savedStateHandle[SHOW_AGGREGATION_CONFIRMATION] = false
-            eventBus.send(AllTransactionsEvent.ShowUiMessage(UiText.StringResource(R.string.aggregation_successful)))
+            eventBus.send(AllTransactionsEvent.NavigateToAddEditTx(insertedId))
         }
     }
 
@@ -501,6 +501,7 @@ class AllTransactionsViewModel @Inject constructor(
             val preSelectedIds: Set<Long>
         ) : AllTransactionsEvent
 
+        data class NavigateToAddEditTx(val id: Long) : AllTransactionsEvent
         data object NavigateToFolderSelection : AllTransactionsEvent
         data object ScheduleSaved : AllTransactionsEvent
     }
