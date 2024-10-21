@@ -55,7 +55,7 @@ class AuthRepositoryImpl(
                 message = UiText.StringResource(R.string.error_authorization_required, true),
                 data = t.pendingIntent
             )
-        } catch (t: AuthorizationFailedThrowable) {
+        } catch (_: AuthorizationFailedThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
                 message = UiText.StringResource(R.string.error_authorization_failed, true)
@@ -73,12 +73,12 @@ class AuthRepositoryImpl(
             val accessToken = authorizationService.decodeAccessTokenFromIntent(intent)
             accessTokenService.updateAccessToken(accessToken)
             Result.Success(Unit)
-        } catch (t: AuthorizationNeedsResolutionThrowable) {
+        } catch (_: AuthorizationNeedsResolutionThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.NEEDS_RESOLUTION,
                 message = UiText.StringResource(R.string.error_authorization_required, true)
             )
-        } catch (t: AuthorizationFailedThrowable) {
+        } catch (_: AuthorizationFailedThrowable) {
             Result.Error(
                 error = AuthorizationService.AuthorizationError.AUTHORIZATION_FAILED,
                 message = UiText.StringResource(R.string.error_authorization_failed, true)
